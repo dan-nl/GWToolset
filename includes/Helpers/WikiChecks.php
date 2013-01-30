@@ -1,0 +1,311 @@
+<?php
+/**
+ * GWToolset
+ *
+ * @file
+ * @ingroup Extensions
+ * @version 0.0.1
+ * @author dan entous pennlinepublishing.com
+ * @copyright © 2012 dan entous
+ * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ */
+namespace	GWToolset\Helpers;
+use			ErrorPageError,
+			Exception,
+			GWToolset\Config,
+			PermissionsError,
+			SpecialPage,
+			UserBlockedError;
+
+
+/**
+ * provides several methods for verifying :
+ * - php version & settings
+ * - the wiki environment
+ * - user access to the wiki
+ */
+class WikiChecks {
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function isApiEndpointSet() {
+
+		if ( empty( Config::$api_internal_endpoint ) ) {
+
+			throw new Exception( wfMessage('mw-api-client-internal-endpoint-not-set')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @param SpecialPage $SpecialPage
+	 * @throw UserBlockedError
+	 * #return boolean
+	 */
+	public static function isUserBlocked( SpecialPage &$SpecialPage ) {
+
+		if ( $SpecialPage->getUser()->isBlocked() ) {
+
+			throw new UserBlockedError( $SpecialPage->getUser()->getBlock() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * For a submitted form, is the edit token present and valid
+	 *
+	 * @param SpecialPage $SpecialPage
+	 * @throws PermissionsError
+	 * @return boolean
+	 */
+	public static function doesEditTokenMatch( SpecialPage &$SpecialPage ) {
+
+		if ( !$SpecialPage->getUser()->matchEditToken( $SpecialPage->getRequest()->getVal( 'wpEditToken' ) ) ) {
+
+			throw new Exception( wfMessage( 'exception-nologin-text' ), 1000 );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * Make sure the user has all required permissions. It appears that
+	 * SpecialPage $restriction must be a string, thus it does not check a
+	 * group of permissions.
+	 *
+	 * @param SpecialPage $SpecialPage
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function checkUserWikiPermissions( SpecialPage &$SpecialPage ) {
+
+		foreach ( Config::$user_permissions as $permission ) {
+
+			if ( !$SpecialPage->getUser()->isAllowed( $permission ) ) {
+
+				throw new Exception( $permission, 1000 );
+
+			}
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * Checks if the given user (identified by an object) can execute this
+	 * special page (as defined by $mRestriction) sent to the SpecialPage
+	 * constructor
+	 *
+	 * @see SpecialPage::checkPermissions()
+	 * @param SpecialPage $SpecialPage
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function canUserViewPage( SpecialPage &$SpecialPage ) {
+
+		try {
+
+			$SpecialPage->checkPermissions();
+
+		} catch( PermissionsError $e ) {
+
+			throw new Exception( $e->getMessage(), 1000 );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @see SpecialPage::checkReadOnly()
+	 * @param SpecialPage $SpecialPage
+	 * @return boolean
+	 */
+	public static function isWikiWriteable( SpecialPage &$SpecialPage ) {
+
+		$SpecialPage->checkReadOnly();
+		return true;
+
+	}
+
+
+	/**
+	 * @throws ErrorPageError
+	 * @return boolean
+	 */
+	public static function uploadsEnabled() {
+
+		global $wgEnableUploads;
+
+		if ( !$wgEnableUploads || ( !wfIsHipHop() && !wfIniGetBool( 'file_uploads' ) ) ) {
+
+			throw new ErrorPageError( 'uploaddisabled', 'uploaddisabledtext' );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function verifyAPIWritable() {
+
+		global $wgEnableWriteAPI;
+
+		if ( !$wgEnableWriteAPI ) {
+
+			throw new Exception( wfMessage('gwtoolset-verify-api-writeable')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function verifyAPIEnabled() {
+
+		global $wgEnableAPI;
+
+		if ( !$wgEnableAPI ) {
+
+			throw new Exception( wfMessage('gwtoolset-verify-api-enabled')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function verifyFinfoExists() {
+
+		if ( !class_exists('finfo') ) {
+
+			throw new Exception( wfMessage('gwtoolset-verify-finfo')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function verifyXMLReaderExists() {
+
+		if ( !class_exists('XMLReader') ) {
+
+			throw new Exception( wfMessage('gwtoolset-verify-xmlreader')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function verifyCurlExists() {
+
+		if ( !function_exists('curl_init') ) {
+
+			throw new Exception( wfMessage('gwtoolset-verify-curl')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function verifyPHPVersion() {
+
+		if ( !defined( 'PHP_VERSION_ID' )
+			|| PHP_MAJOR_VERSION < 5
+			|| PHP_MINOR_VERSION < 3
+			|| PHP_RELEASE_VERSION < 3
+		) {
+
+			throw new Exception( wfMessage('gwtoolset-verify-php-version')->plain() );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * Run through a series of checks to make sure the wiki environment is properly
+	 * setup for this extension and that the user has permission to use it
+	 *
+	 * @param SpecialPage $SpecialPage
+	 * @return boolean
+	 */
+	public static function pageIsReadyForThisUser( SpecialPage &$SpecialPage ) {
+
+		if ( !self::verifyPHPVersion() ) { return false; }
+		if ( !self::verifyCurlExists() ) { return false; }
+		if ( !self::verifyXMLReaderExists() ) { return false; }
+		if ( !self::verifyFinfoExists() ) { return false; }
+		if ( !self::verifyAPIEnabled() ) { return false; }
+		if ( !self::verifyAPIWritable() ) { return false; }
+
+		if ( !self::uploadsEnabled() ) { return false; }
+		if ( !self::isWikiWriteable( $SpecialPage ) ) { return false; }
+
+		if ( !self::canUserViewPage( $SpecialPage ) ) { return false; }
+		if ( !self::checkUserWikiPermissions( $SpecialPage ) ) { return false; }
+		if ( !self::isUserBlocked( $SpecialPage ) ) { return false; }
+
+		if ( !self::isApiEndpointSet() ) { return false; }
+
+		return true;
+
+	}
+
+
+}
+

@@ -1,0 +1,13 @@
+#gwtoolset-form {
+	position: relative;
+}
+
+.gwtoolset-loader {
+	position: absolute;
+	height: 90%;
+	width: 100%;
+	padding-top: 10%;
+	text-align: center;
+	background-color: #fff;
+	display: none;
+}

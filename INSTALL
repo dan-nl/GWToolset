@@ -1,0 +1,65 @@
+GWToolset v0.0.1
+==================
+
+1. Licensing
+2. Requirements
+3. Configuration
+
+
+Licensing
+---------
+Licensed under GNU GPL. See LICENSE.txt for more license information.
+
+
+Requirements
+------------
+* MediaWiki >= 1.19
+* PHP >= 5.3.3
+* [PHP cURL support]( http://www.php.net/manual/en/curl.setup.php )
+* [PHP finfo extension]( http://www.php.net/manual/en/fileinfo.setup.php )
+
+
+Configuration
+-------------
+### `DefaultSettings.php`
+The following values are usually in the wiki’s `DefaultSettings.php`; they need to
+both be set to true.
+
+* `$wgEnableAPI = true`
+* `$wgEnableWriteAPI = true`
+
+
+### `LocalSettings.php`
+The following settings should be added to your `LocalSettings.php` file :
+
+_enable uploads and url uploading_
+
+* `$wgEnableUploads  = true;`
+* `$wgAllowCopyUploads = true;`
+
+_group permissions_
+
+* `$wgGroupPermissions['gwtoolset'] = $wgGroupPermissions['user'];`
+* `$wgGroupPermissions['gwtoolset']['upload_by_url'] = true;`
+* `$wgGroupPermissions['sysop']['gwtoolset-debug'] = true;`
+
+_api user_
+* make sure you create or already have an api user account in your wiki
+* make sure that api user is part of the gwtoolset group, see `Special:UserRights`
+
+_allowed file extensions_
+
+* `$wgFileExtensions[] = 'xml';`
+
+_load the extension_
+
+* `require_once( "$IP/extensions/GWToolset/GWToolset.php" );`
+
+
+### Assign Users
+Assign users to the GWToolset group as appropriate.
+
+
+### Image folder permissions
+Make sure the wiki’s image folder can be written to by the web server.
+
