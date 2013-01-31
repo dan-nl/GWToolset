@@ -16,7 +16,7 @@ use			DOMElement,
 			GWToolset\Config,
 			GWToolset\Helpers\FileChecks,
 			GWToolset\Menu,
-			GWToolset\FormHandlers\UploadHandler,
+			GWToolset\Handlers\Forms\UploadHandler,
 			Php\File,
 			Php\Filter,
 			SpecialPage,
@@ -305,10 +305,20 @@ class MetadataMappingHandler extends UploadHandler {
 
 		try {
 
-			$this->validateUserOptions( array('record-element-name', 'mediawiki-template'), $user_options );
+			$this->validateUserOptions(
+				array(
+					'record-element-name',
+					'mediawiki-template'
+				),
+				$user_options
+			);
+
+			$this->File = new File( $_FILES['uploaded-metadata'] );
+			FileChecks::isUploadedFileValid( $this->File );
+
 			$mapping = $this->getMapping( $user_options );
 			$result .= $this->processDOMElements( $user_options, $mapping );
-			
+
 			// html should be a sumary of records processed : total count, links to the files created
 			//$html .= '<pre>' . print_r( $_POST, true ) .  '</pre>';
 			//$html .= '<pre>' . print_r( $mapping, true ) .  '</pre>';

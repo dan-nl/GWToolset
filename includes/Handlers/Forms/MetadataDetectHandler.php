@@ -402,11 +402,9 @@ class MetadataDetectHandler extends UploadHandler {
 			'record-count' => 0
 		);
 
-		$WebRequest = $this->SpecialPage->getRequest();
-
 		try {
 
-			self::validateUserOptions(
+			$this->validateUserOptions(
 				array(
 					'record-element-name',
 					'record-number-for-mapping',
