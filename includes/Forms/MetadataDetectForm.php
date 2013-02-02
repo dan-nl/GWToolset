@@ -12,8 +12,8 @@
 namespace	GWToolset\Forms;
 use 		GWToolset\Config,
 			GWToolset\Helpers\FileChecks,
-			GWToolset\Models\Mappings,
-			GWToolset\Models\MediawikiTemplates,
+			GWToolset\Models\Mapping,
+			GWToolset\Models\MediawikiTemplate,
 			IContextSource;
 
 
@@ -25,8 +25,8 @@ class MetadataDetectForm {
 	 */
 	public static function getForm( IContextSource $Context ) {
 
-		$mappings = new Mappings();
-		$mediawiki_templates = new MediawikiTemplates();
+		$Mapping = new Mapping();
+		$MediawikiTemplate = new MediawikiTemplate();
 
 		return
 			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-1') . '</h2>' .
@@ -54,20 +54,21 @@ class MetadataDetectForm {
 						'<li>' .
 							'<label>' .
 								wfMessage('gwtoolset-which-mediawiki-template') . ' : ' .
-									$mediawiki_templates->getModelKeysAsSelect( 'mediawiki-template' ) .
+									$MediawikiTemplate->getModelKeysAsSelect( 'mediawiki-template' ) .
 							'</label>' .
 						'</li>' .
 
 						'<li>' .
 							'<label>' .
 								wfMessage('gwtoolset-which-metadata-mapping') . ' : ' .
-								$mappings->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
+								$Mapping->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
 							'</label>' .
 						'</li>' .
 
 						'<li>' .
 							wfMessage('gwtoolset-metadata-file-source') .
 							'<ul>' .
+								// @todo: figure out how to point to a file stored within the wiki
 								//'<li>' .
 								//	'<label>' .
 								//		wfMessage('gwtoolset-metadata-file-url') . ' : ' .

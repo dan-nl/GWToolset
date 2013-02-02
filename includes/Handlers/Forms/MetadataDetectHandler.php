@@ -20,7 +20,7 @@ use			DOMElement,
 			GWToolset\Forms\MetadataMappingForm,
 			GWToolset\Menu,
 			GWToolset\Models\Mapping,
-			GWToolset\Templates\Artwork,
+			GWToolset\Models\MediawikiTemplate,
 			GWToolset\Handlers\Forms\UploadHandler,
 			Php\File,
 			Php\Filter,
@@ -247,18 +247,19 @@ class MetadataDetectHandler extends UploadHandler {
 	protected function getMetadataAsHtmlSelectsInTableRows( array &$user_options ) {
 
 		$result = null;
-		$template = $this->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
-		$Template = new $template();
-		$Mapping = new Mapping();
 
+		$MediawikiTemplate = new MediawikiTemplate();
+		$MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
+
+		$Mapping = new Mapping();
 		$Mapping->retrieve( $user_options );
 
-		foreach( $Template->getPropertyReflection() as $template_field ) {
+		foreach( $MediawikiTemplate->properties as $property ) {
 
 			$result .=
 				'<tr>' .
-					'<td><label for="' . $template_field . '">' . str_replace( '_', ' ', $template_field ) . ' :</label></td>' .
-					'<td><select name="' . $template_field . '" id="' . $template_field . '">' . $this->getMetadataAsOptions( $template_field, $Mapping ) . '</select></td>' .
+					'<td><label for="' . $property . '">' . str_replace( '_', ' ', $property ) . ' :</label></td>' .
+					'<td><select name="' . $property . '" id="' . $property . '">' . $this->getMetadataAsOptions( $property, $Mapping ) . '</select></td>' .
 				'</tr>';
 
 		}
@@ -347,7 +348,7 @@ class MetadataDetectHandler extends UploadHandler {
 	 * @todo: how to handle attributes and children nodes
 	 * @todo: how to store entire file while only reading first node and preparing for element to template matching
 	 * @todo: upload by url use internal upload process rather than the api
-	 * @todo: parse the actual Artowkr template for attributes rather than rely on a hard-coded class
+	 * @todo: parse the actual Artwork template for attributes rather than rely on a hard-coded class
 	 * @todo: setup so that record x can be used for mapping rather than only the first record, which is the current default
 	 * 
 	 * @throws Exception

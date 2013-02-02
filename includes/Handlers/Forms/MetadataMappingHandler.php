@@ -12,11 +12,12 @@
 namespace	GWToolset\Handlers\Forms;
 use			DOMElement,
 			Exception,
-			GWToolset\MediaWiki\Api\Client,
 			GWToolset\Config,
-			GWToolset\Helpers\FileChecks,
-			GWToolset\Menu,
 			GWToolset\Handlers\Forms\UploadHandler,
+			GWToolset\Helpers\FileChecks,
+			GWToolset\MediaWiki\Api\Client,
+			GWToolset\Menu,
+			GWToolset\Models\MediawikiTemplate,
 			Php\File,
 			Php\Filter,
 			SpecialPage,
@@ -27,9 +28,9 @@ class MetadataMappingHandler extends UploadHandler {
 
 
 	/**
-	 * @var Template Object
+	 * @var GWToolset\Models\MediawikiTemplate
 	 */
-	protected $Template;
+	protected $MediawikiTemplate;
 
 
 	/**
@@ -115,8 +116,14 @@ class MetadataMappingHandler extends UploadHandler {
 
 
 	/**
+	 * using the api save the matched record as a new wiki page or update an
+	 * existing wiki page
+	 *
 	 * @todo how to deal with url_to_media_file when it is redirected to a file
-	 * @todo a. create filename
+	 * @todo a. create filename - need to figure a better way to do it, possibly
+	 * put it in the MediawikiTemplate instead of the UploadHandler
+	 *
+	 * @todo: have the api replace/update the template when page already exists
 	 * @todo b. tell api to follow the redirect to get the file
 	 * 
 	 * @param DOMElement $matching_element
@@ -124,27 +131,23 @@ class MetadataMappingHandler extends UploadHandler {
 	 */
 	protected function processMatchingElement( DOMElement &$DOMElement, array &$user_options, array &$mapping ) {
 
-		// use api to get the media via the url
-		// use the api to create the description based on the matching element metadata and the mediawiki-template specified in the user_options
 		$result = null;
-
 
 		try {
 
 			$MWApiClient = $this->getMWClient();
 			$element_mapped = $this->getElementMapped( $DOMElement, $mapping );
 
-			$this->Template->reset();
-			$this->Template->populateFromArray( $element_mapped );
-			$filename = $this->getFilename( $this->Template->url_to_the_media_file );
+			$this->MediawikiTemplate->populateFromArray( $element_mapped );
+			$filename = $this->MediawikiTemplate->getFilename( $this->MediawikiTemplate->url_to_the_media_file );
 
 			$api_result = $MWApiClient->upload(
 				array(
 					'filename' => $filename,
-					'text' => $this->Template->getTemplate(),
+					'text' => $this->MediawikiTemplate->getTemplate(),
 					'token' => $MWApiClient->getEditToken(),
 					'ignorewarnings' => true,
-					'url' => $this->Template->url_to_the_media_file
+					'url' => $this->MediawikiTemplate->url_to_the_media_file
 				)
 			);
 
@@ -222,23 +225,35 @@ class MetadataMappingHandler extends UploadHandler {
 
 
 	/**
-	 * @param Php\File $File
+	 * using an xml reader, for stream reading of the xml file, cycle through the
+	 * elements, processing each one that matches the metadata record indicated in
+	 * the user form that will be used for mapping the metadata to wiki pages.
+	 *
+	 * each matched element is sent to processMatchingElement() to be saved as a
+	 * new wiki page or to update an existing wiki page for the record
+	 *
 	 * @param array $user_options
 	 * @param array $mapping
-	 * 
-	 * @throws Exception
-	 * @return DOMElement|null
 	 *
-	 * @todo: handle invalid xml
-	 * @todo: incomplete/partial uploads
+	 * @throws Exception
+	 * @return string|null
+	 *
+	 * @todo: figure out a batch job processing method
+	 * @todo: handle mal-formed xml (future)
+	 * @todo: handle an xml schema if present (future)
+	 * @todo: handle incomplete/partial uploads (future)
 	 */
 	protected function processDOMElements( array &$user_options, array $mapping ) {
 
 		$result = null;
 		$DOMElement = null;
 		$reader = new XMLReader();
-		if ( !$reader->open( $this->File->tmp_name ) ) { throw new Exception( wfMessage('gwtoolset-xmlreader-open-error') ); }
 
+		if ( !$reader->open( $this->File->tmp_name ) ) {
+
+			throw new Exception( wfMessage('gwtoolset-xmlreader-open-error') );
+
+		}
 
 		while ( $reader->read() ) {
 
@@ -255,7 +270,11 @@ class MetadataMappingHandler extends UploadHandler {
 		}
 
 
-		if ( !$reader->close() ) { throw new Exception( wfMessage('gwtoolset-xmlreader-close-error') ); }
+		if ( !$reader->close() ) {
+
+			throw new Exception( wfMessage('gwtoolset-xmlreader-close-error') );
+
+		}
 
 		$result =
 			'<h2>Results</h2>' .
@@ -269,15 +288,22 @@ class MetadataMappingHandler extends UploadHandler {
 	}
 
 
+	/**
+	 * create an array that represents the mapping of the metadata to the mediawiki
+	 * template based on the user form input
+	 *
+	 * @result array
+	 */
 	protected function getMapping( array &$user_options ) {
 
 		$result = array();
-		$template = $this->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
-		$this->Template = new $template();
 
-		foreach( $this->Template->getPropertyReflection() as $property ) {
+		$this->MediawikiTemplate = new MediawikiTemplate();
+		$this->MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
 
-			if ( isset( $_POST[ $property ] ) && trim( $_POST[ $property ] ) !== '' ) {
+		foreach( $this->MediawikiTemplate->properties as $property ) {
+
+			if ( isset( $_POST[ $property ] ) ) {
 
 				$result[ $property ] = Filter::evaluate( array( 'source' => $_POST, 'name' => $property ) );
 
@@ -318,11 +344,6 @@ class MetadataMappingHandler extends UploadHandler {
 
 			$mapping = $this->getMapping( $user_options );
 			$result .= $this->processDOMElements( $user_options, $mapping );
-
-			// html should be a sumary of records processed : total count, links to the files created
-			//$html .= '<pre>' . print_r( $_POST, true ) .  '</pre>';
-			//$html .= '<pre>' . print_r( $mapping, true ) .  '</pre>';
-			//$html .= '<pre>' . print_r( $_FILES, true ) .  '</pre>';
 
 		} catch( Exception $e ) {
 

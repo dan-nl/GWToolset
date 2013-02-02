@@ -28,36 +28,6 @@ abstract class UploadHandler extends FormHandler {
 
 
 	/**
-	 * creates a filename based on the given url
-	 *   - reverses the domain name
-	 *     e.g. www.wikimedia.org becomes org.wikimedia.www.
-	 *   - ignores any path information
-	 *   - appends the file name
-	 */
-	protected function getFilename( $url = null ) {
-
-		$result = null;
-
-
-		$parsed_url = parse_url( $url );
-		$host = explode( '.', $parsed_url['host'] );
-
-		for ( $i = count( $host ) - 1; $i >= 0; $i -= 1 ) {
-
-			$result .= strtolower( $host[$i] ) . '.';
-
-		}
-		
-		$path = explode( '/', $parsed_url['path'] );
-		$result .= $path[ count( $path ) - 1 ];
-
-
-		return $result;
-
-	}
-
-
-	/**
 	 * implemented in child definition
 	 */
 	abstract protected function processUpload();

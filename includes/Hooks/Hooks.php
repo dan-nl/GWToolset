@@ -11,8 +11,8 @@
  */
 namespace	GWToolset;
 use			DatabaseUpdater,
-			GWToolset\Models\Mappings,
-			GWToolset\Models\MediawikiTemplates,
+			GWToolset\Models\Mapping,
+			GWToolset\Models\MediawikiTemplate,
 			MWException;
 
 
@@ -33,11 +33,11 @@ class Hooks {
 
 			case 'mysql':
 
-				$mappings = new Mappings();
-				$mappings->createTable( $updater );
+				$Mapping = new Mapping();
+				$Mapping->createTable( $updater );
 
-				$mediawiki_templates = new MediawikiTemplates();
-				$mediawiki_templates->createTable( $updater );
+				$MediawikiTemplate = new MediawikiTemplate();
+				$MediawikiTemplate->createTable( $updater );
 
 				break;
 

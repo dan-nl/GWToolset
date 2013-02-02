@@ -55,15 +55,11 @@ class Config {
 		'GWToolset\Menu' => '/includes/Menu/Menu.php',
 
 		'GWToolset\Models\Mapping' => '/includes/Models/Mapping.php',
-		'GWToolset\Models\Mappings' => '/includes/Models/Mappings.php',
 		'GWToolset\Models\MediawikiTemplate' => '/includes/Models/MediawikiTemplate.php',
-		'GWToolset\Models\MediawikiTemplates' => '/includes/Models/MediawikiTemplates.php',
 		'GWToolset\Models\Model' => '/includes/Models/Model.php',
 		'GWToolset\Models\ModelInterface' => '/includes/Models/ModelInterface.php',
 
 		'GWToolset\SpecialGWToolset' => '/includes/Specials/SpecialGWToolset.php',
-
-		'GWToolset\Templates\Artwork' => '/includes/Templates/Artwork.php',
 
 		'Php\Curl' => '/includes/Php/Curl.php',
 		'Php\File' => '/includes/Php/File.php',

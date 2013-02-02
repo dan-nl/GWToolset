@@ -28,9 +28,9 @@ class SpecialGWToolset extends SpecialPage {
 
 
 	/**
-	 * @var GWToolset\FormHandlers\FormHandler
+	 * @var GWToolset\HandlerInterface
 	 */
-	protected $FormHandler;
+	protected $Handler;
 
 
 	protected $registered_modules = array(
@@ -60,7 +60,7 @@ class SpecialGWToolset extends SpecialPage {
 
 				try {
 
-					$html .= $this->FormHandler->getHtmlForm( $this->registered_modules[$this->module_key] );
+					$html .= $this->Handler->getHtmlForm( $this->registered_modules[$this->module_key] );
 
 				} catch( Exception $e ) {
 
@@ -76,7 +76,7 @@ class SpecialGWToolset extends SpecialPage {
 	
 			try {
 
-				if ( !( $this->FormHandler instanceof \GWToolset\Handlers\HandlerInterface ) ) {
+				if ( !( $this->Handler instanceof \GWToolset\Handlers\HandlerInterface ) ) {
 
 					$msg = error_get_last();
 					
@@ -94,7 +94,7 @@ class SpecialGWToolset extends SpecialPage {
 
 				}
 
-				$html .= $this->FormHandler->execute();
+				$html .= $this->Handler->execute();
 	
 			} catch ( Exception $e ) {
 
@@ -123,7 +123,7 @@ class SpecialGWToolset extends SpecialPage {
 	}
 
 
-	protected function setModuleAndFormHandler() {
+	protected function setModuleAndHandler() {
 
 		$this->module_key = null;
 
@@ -148,7 +148,7 @@ class SpecialGWToolset extends SpecialPage {
 		if ( !is_null( $this->module_key ) ) {
 
 			$handler = $this->registered_modules[ $this->module_key ]['handler'];
-			$this->FormHandler = new $handler( $this );
+			$this->Handler = new $handler( $this );
 
 		}
 
@@ -194,7 +194,7 @@ class SpecialGWToolset extends SpecialPage {
 	public function execute( $par ) {
 
 		if ( !$this->wikiChecks() ) { return; }
-		$this->setModuleAndFormHandler();
+		$this->setModuleAndHandler();
 		$this->processRequest();
 
 	}

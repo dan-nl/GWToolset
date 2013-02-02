@@ -43,9 +43,10 @@ abstract class Model implements ModelInterface {
 	
 	
 	/**
-	 * @return {ResultWrapper} sql query result containing the primary keys of
-	 * the model. the returned result should use the field name key_name and can
-	 * be a concatenation of one or more fields that make up the primary key.
+	 * this query should return a result set that contians a key_name and optionally
+	 * a key_group value
+	 * 
+	 * @return {ResultWrapper} sql query result
 	 */
 	abstract protected function getKeys();
 
@@ -102,14 +103,22 @@ abstract class Model implements ModelInterface {
 
 
 	/**
+	 * creates an html select element that allows the user to select a row from
+	 * the model. the rows that become part of the select are based on the query
+	 * carried out by the getKeys() method, which is set in each model inheriting
+	 * this class.
+	 *
+	 *
+	 *
 	 * @param string $name form name that should be given to the select
 	 * @param string $id form id that should be given to the select
-	 * @return string a select html string
+	 * @return string an html select element
 	 */
 	public function getModelKeysAsSelect( $name = null, $id = null, $option_group = false ) {
 
 		if ( !empty( $name ) ) { $name = sprintf( ' name="%s"', Filter::evaluate( $name ) ); }
 		if ( !empty( $id ) ) { $id = sprintf( ' id="%s"', Filter::evaluate( $id ) ); }
+
 		$options = $this->getKeys();
 
 		$result = sprintf( '<select%s%s>', $name, $id );
@@ -178,13 +187,6 @@ abstract class Model implements ModelInterface {
 			'table-create-' . str_replace( '_', '-', $this->table_name ) . '.sql';
 
 	}
-
-	/**
-	 * @param ResultWrapper $result
-	 * @throws Exception
-	 * @return boolean|null
-	 */
-	abstract protected function populate( ResultWrapper &$result );
 
 
 	public function reset() {
