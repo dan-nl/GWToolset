@@ -182,7 +182,10 @@ class Config {
 	 */
 	public static $allowed_templates = array(
 
-		'Artwork' => 'GWToolset\Templates\Artwork'
+		'Artwork',
+		'Book',
+		'Musical work',
+		'Photograph'
 
 	);
 
