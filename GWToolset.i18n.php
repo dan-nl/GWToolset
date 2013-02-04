@@ -102,6 +102,7 @@ $messages['en'] = array(
 	'gwtoolset-metadata-file-source' => 'Select the metadata file source',
 	'gwtoolset-metadata-file-url' => 'Metadata file url',
 	'gwtoolset-metadata-file' => 'Metadata file upload',
+	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; unfortunately a developer will need to address this issue before you can continue ( [$1] )',
 	
