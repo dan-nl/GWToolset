@@ -30,9 +30,16 @@ class MediawikiTemplate extends Model {
 
 	/**
 	 * @var array
-	 * an array that represents the properties for the object
+	 * an array that represents the mediawiki template parameters for this template
 	 */
-	public $properties;
+	public $template_parameters;
+
+
+	public function getParameterAsId( $parameter ) {
+
+		return str_replace( ' ', '-', $parameter );
+
+	}
 
 
 	protected function getKeys() {
@@ -86,52 +93,29 @@ class MediawikiTemplate extends Model {
 		$sections = null;
 		$template = '{{' . $this->template_name . '%s}}';
 
-		foreach( $this->properties as $property ) {
+		foreach( $this->template_parameters as $parameter => $value ) {
 
-			if ( !empty( $this->$property ) ) {
-
-				$sections .= '|' . ucfirst( $property ) . '=' . $this->$property;
-
-			}
+			$sections .= '|' . $parameter . '=' . Filter::evaluate( $value );
 
 		}
 
-		if ( !empty( $sections ) ) {
-
-			$result = sprintf( $template, $sections );
-
-		}
-
-		return $result;
+		return sprintf( $template, $sections );
 
 	}
 
 
 	public function populateFromArray( array &$metadata = array() ) {
 
-		foreach( $this->properties as $property ) {
+		foreach( $this->template_parameters as $parameter => $value ) {
 
-			$this->$property = null;
+			$this->template_parameters[ $parameter ] = null;
+			$parameter_as_id = $this->getParameterAsId( $parameter );
 
-			if ( isset( $metadata[ $property ] ) ) {
+			if ( isset( $metadata[ $parameter_as_id ] ) ) {
 
-				$this->$property = $metadata[ $property ];
+				$this->template_parameters[ $parameter ] = $metadata[ $parameter_as_id ];
 
 			}
-
-		}
-
-	}
-
-
-	protected function createObjectProperties( ResultWrapper &$result ) {
-
-		$this->properties = json_decode( $result->current()->properties );
-		sort( $this->properties );
-
-		foreach( $this->properties as $property ) {
-
-			$this->$property = null;
 
 		}
 
@@ -147,7 +131,7 @@ class MediawikiTemplate extends Model {
 
 		$result = $this->dbr->select(
 			Filter::evaluate( $this->table_name ),
-			'template_name, properties',
+			'template_name, template_parameters',
 			"template_name = '" . Filter::evaluate( $this->template_name ) . "'"
 		);
 
@@ -157,7 +141,8 @@ class MediawikiTemplate extends Model {
 
 		}
 
-		$this->createObjectProperties( $result );
+		$this->template_parameters = json_decode( $result->current()->template_parameters, true );
+		ksort( $this->template_parameters );
 
 	}
 

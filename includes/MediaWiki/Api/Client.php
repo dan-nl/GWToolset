@@ -294,10 +294,22 @@ class Client implements ClientInterface {
 
 	}
 
+
+	public function query( array $params = array() ) {
+
+		return $this->apiCall( 'query', $params );
+
+	}
+
+
 	/**
 	 * @link <https://www.mediawiki.org/wiki/API:Edit>
 	 */
-	public function edit() {}
+	public function edit( array $params = array() ) {
+
+		return $this->apiCall( 'edit', $params );
+
+	}
 
 
 	public function logout() {
@@ -444,7 +456,7 @@ class Client implements ClientInterface {
 			'block' => array( 'method' => 'get' ),
 			'compare' => array( 'method' => 'get' ),
 			'delete' => array( 'method' => 'get' ),
-			'edit' => array( 'method' => 'get' ),
+			'edit' => array( 'method' => 'post' ),
 			'emailuser' => array( 'method' => 'get' ),
 			'expandtemplates' => array( 'method' => 'get' ),
 			'feedcontributions' => array( 'method' => 'get' ),

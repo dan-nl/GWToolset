@@ -188,18 +188,18 @@ class MetadataDetectHandler extends UploadHandler {
 	 * only adds unique nodeNames
 	 *
 	 * @param {Mapping} $Mapping
-	 * @param {string} $property
+	 * @param {string} $template_parameter
 	 * 
 	 * @return {string} an html string of select options
 	 */
-	protected function getMetadataAsOptions( $template_field, Mapping $Mapping ) {
+	protected function getMetadataAsOptions( $template_parameter, Mapping $Mapping ) {
 
 		$result = '<option></option>';
 		$target_option = null;
 
-		if ( isset( $Mapping->mapping_array[$template_field] ) ) {
+		if ( isset( $Mapping->mapping_array[$template_parameter] ) ) {
 
-			$target_option = $Mapping->mapping_array[$template_field];
+			$target_option = $Mapping->mapping_array[$template_parameter];
 
 		}
 
@@ -254,13 +254,21 @@ class MetadataDetectHandler extends UploadHandler {
 		$Mapping = new Mapping();
 		$Mapping->retrieve( $user_options );
 
-		foreach( $MediawikiTemplate->properties as $property ) {
+		foreach( $MediawikiTemplate->template_parameters as $parameter => $value ) {
 
-			$result .=
+			$parameter_as_id = $MediawikiTemplate->getParameterAsId( $parameter );
+
+			$result .= sprintf(
 				'<tr>' .
-					'<td><label for="' . $property . '">' . str_replace( '_', ' ', $property ) . ' :</label></td>' .
-					'<td><select name="' . $property . '" id="' . $property . '">' . $this->getMetadataAsOptions( $property, $Mapping ) . '</select></td>' .
-				'</tr>';
+					'<td><label for="%s">%s :</label></td>' .
+					'<td><select name="%s" id="%s">%s</select></td>' .
+				'</tr>',
+				$parameter_as_id,
+				$parameter,
+				$parameter_as_id,
+				$parameter_as_id,
+				$this->getMetadataAsOptions( $parameter, $Mapping )
+			);
 
 		}
 

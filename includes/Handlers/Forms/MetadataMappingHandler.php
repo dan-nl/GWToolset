@@ -99,7 +99,6 @@ class MetadataMappingHandler extends UploadHandler {
 
 		}
 
-
 		return $elements_mapped;
 
 	}
@@ -132,6 +131,8 @@ class MetadataMappingHandler extends UploadHandler {
 	protected function processMatchingElement( DOMElement &$DOMElement, array &$user_options, array &$mapping ) {
 
 		$result = null;
+		$api_result = null;
+		$page_id = -1;
 
 		try {
 
@@ -139,32 +140,65 @@ class MetadataMappingHandler extends UploadHandler {
 			$element_mapped = $this->getElementMapped( $DOMElement, $mapping );
 
 			$this->MediawikiTemplate->populateFromArray( $element_mapped );
-			$filename = $this->MediawikiTemplate->getFilename( $this->MediawikiTemplate->url_to_the_media_file );
+			$filename = $this->MediawikiTemplate->getFilename( $this->MediawikiTemplate->template_parameters['url_to_the_media_file'] );
 
-			$api_result = $MWApiClient->upload(
-				array(
-					'filename' => $filename,
-					'text' => $this->MediawikiTemplate->getTemplate(),
-					'token' => $MWApiClient->getEditToken(),
-					'ignorewarnings' => true,
-					'url' => $this->MediawikiTemplate->url_to_the_media_file
-				)
-			);
+			$api_result = $MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
+			$pageid = (int)$api_result['query']['pageids'][0];
 
-			if ( empty( $api_result['upload']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
+			if ( $pageid > -1 ) { // page already exists only change text
 
-				$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-					'<span class="error">' . $filename . '</span><br/>' .
-					'<span class="error">' . $e->getMessage() . '</span><br/>';
+				$api_result = $MWApiClient->edit(
+					array(
+						'pageid' => $pageid,
+						'text' => $this->MediawikiTemplate->getTemplate(),
+						'token' => $MWApiClient->getEditToken()
+					)
+				);
+				
+				if ( empty( $api_result['edit']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
+					
+					$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
+						'<span class="error">' . $filename . '</span><br/>' .
+						'<span class="error">' . $e->getMessage() . '</span><br/>';
+
+				}
+
+				$result .=
+					'<li>' .
+						'<a href="/' . $api_result['edit']['title'] . '">' .
+							$api_result['edit']['title'] .
+							( isset($api_result['edit']['oldrevid']) ? ' ( revised )' : ' ( no change )' ) .
+						'</a>' .
+					'</li>';
+
+			} else { // page does not yet exist upload image and template text
+
+				$api_result = $MWApiClient->upload(
+					array(
+						'filename' => $filename,
+						'text' => $this->MediawikiTemplate->getTemplate(),
+						'token' => $MWApiClient->getEditToken(),
+						'ignorewarnings' => true,
+						'url' => $this->MediawikiTemplate->template_parameters['url_to_the_media_file']
+					)
+				);
+
+				if ( empty( $api_result['upload']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
+
+					$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
+						'<span class="error">' . $filename . '</span><br/>' .
+						'<span class="error">' . $e->getMessage() . '</span><br/>';
+
+				}
+
+				$result .=
+					'<li>' .
+						'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
+							$api_result['upload']['filename'] .
+						'</a>' .
+					'</li>';
 
 			}
-
-			$result .=
-				'<li>' .
-					'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
-						$api_result['upload']['filename'] .
-					'</a>' .
-				'</li>';
 
 		} catch( Exception $e ) {
 
@@ -301,11 +335,13 @@ class MetadataMappingHandler extends UploadHandler {
 		$this->MediawikiTemplate = new MediawikiTemplate();
 		$this->MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
 
-		foreach( $this->MediawikiTemplate->properties as $property ) {
+		foreach( $this->MediawikiTemplate->template_parameters as $parameter => $value ) {
 
-			if ( isset( $_POST[ $property ] ) ) {
+			$parameter_as_id = $this->MediawikiTemplate->getParameterAsId( $parameter );
 
-				$result[ $property ] = Filter::evaluate( array( 'source' => $_POST, 'name' => $property ) );
+			if ( isset( $_POST[ $parameter_as_id ] ) ) {
+
+				$result[ $parameter_as_id ] = Filter::evaluate( array( 'source' => $_POST, 'name' => $parameter_as_id ) );
 
 			}
 
