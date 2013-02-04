@@ -12,6 +12,14 @@ CREATE TABLE IF NOT EXISTS /*_*/gwtoolset_mediawiki_templates (
 
 ) /*$wgDBTableOptions*/;
 
+-- https://commons.wikimedia.org/wiki/Template:Artwork
 INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `template_name`, `properties` ) VALUES ( 'Artwork', '["artist","other_fields_1","title","object_type","description","other_fields_2","date","medium","dimensions","institution","location","accession_number","object_history","exhibition_history","credit_line","inscriptions","notes","other_fields_3","references","source","permission","other_versions","other_fields","url_to_the_media_file"]' );
+
+-- https://commons.wikimedia.org/wiki/Template:Book
 INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `template_name`, `properties` ) VALUES ( 'Book', '["author","editor","translator","illustrator","title","subtitle","series_title","volume","edition","authority_control","publisher","printer","year_of_publication","place_of_publication","language","description","page_overview","source","permission"]' );
+
+-- https://commons.wikimedia.org/wiki/Template:Musical_work
+INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `template_name`, `properties` ) VALUES ( 'Musical work', '["composer","lyrics_writer","performance_artist","title","description","composition_date","performance_date","notes","references","source","permission","other_versions"]' );
+
+-- https://commons.wikimedia.org/wiki/Template:Photograph
 INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `template_name`, `properties` ) VALUES ( 'Photograph', '["title","original_caption","description","depicted_people","camera_location","date","medium","dimensions","photographer","inscriptions","institution","accession_number","credit_line","object_history","exhibition_history","notes","references","source","permission","other_versions"]' );
