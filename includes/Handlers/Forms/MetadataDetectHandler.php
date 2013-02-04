@@ -239,20 +239,27 @@ class MetadataDetectHandler extends UploadHandler {
 
 	/**
 	 * @param {array} $user_options
-	 * 
-	 * @return null|string
+	 * @throws Exception
+	 * @return string
 	 * an html select element representing the nodes in the xml file that will
 	 * be used to match the attributes/properties in the wiki template
 	 */
 	protected function getMetadataAsHtmlSelectsInTableRows( array &$user_options ) {
 
 		$result = null;
+		$mapping_result = false;
 
 		$MediawikiTemplate = new MediawikiTemplate();
 		$MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
 
 		$Mapping = new Mapping();
-		$Mapping->retrieve( $user_options );
+		$mapping_result = $Mapping->retrieve( $user_options );
+		
+		if ( !$mapping_result && !empty( $mapping_name['mapping-name'] ) ) {
+
+			throw new Exception( wfMessage('gwtoolset-metadata-mapping-not-found')->rawParams( $params['metadata-mapping'] ) );
+
+		}
 
 		foreach( $MediawikiTemplate->template_parameters as $parameter => $value ) {
 
@@ -407,7 +414,7 @@ class MetadataDetectHandler extends UploadHandler {
 			'record-number-for-mapping' => 1,
 			//'uploaded-metadata' => !empty( $_FILES['uploaded-metadata']['name'] ) ? : null,
 			'mediawiki-template' => !empty( $_POST['mediawiki-template'] ) ? Filter::evaluate( $_POST['mediawiki-template'] ) : null,
-			'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : null,
+			'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : '',
 			'record-count' => 0
 		);
 

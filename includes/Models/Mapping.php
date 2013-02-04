@@ -97,6 +97,8 @@ class Mapping extends Model {
 	/**
 	 * @param {string} $mapping_name
 	 * @param {string} $mediawiki_template
+	 * @return boolean
+	 * @todo: validate $params
 	 */
 	public function retrieve( $params = array() ) {
 
@@ -113,13 +115,10 @@ class Mapping extends Model {
 			array('ORDER BY' => 'created DESC', 'LIMIT' => 1)
 		);
 
-		if ( empty( $result ) || $result->numRows() != 1 ) {
-
-			throw new Exception( wfMessage('gwtoolset-metadata-mapping-not-found')->rawParams( $params['metadata-mapping'] ) );
-
-		}
+		if ( empty( $result ) || $result->numRows() != 1 ) { return false; }
 
 		$this->populate( $result );
+		return true;
 
 	}
 

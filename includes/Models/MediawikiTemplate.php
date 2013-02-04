@@ -137,7 +137,7 @@ class MediawikiTemplate extends Model {
 
 		if ( empty( $result ) || $result->numRows() != 1 ) {
 
-			throw new Exception( wfMessage('gwtoolset-metadata-mapping-not-found')->rawParams( $params['metadata-mapping'] ) );
+			throw new Exception( wfMessage('gwtoolset-mediawiki-template-not-found')->rawParams( $params['metadata-mapping'] ) );
 
 		}
 
@@ -160,7 +160,7 @@ class MediawikiTemplate extends Model {
 
 		$template = null;
 
-		if ( array_key_exists( $mediawiki_template, Config::$allowed_templates ) ) {
+		if ( in_array( $mediawiki_template, Config::$allowed_templates ) ) {
 
 			$this->template_name = $mediawiki_template;
 			$this->retrieve();
