@@ -133,6 +133,7 @@ class MetadataMappingHandler extends UploadHandler {
 		$result = null;
 		$api_result = null;
 		$page_id = -1;
+		global $wgArticlePath;
 
 		try {
 
@@ -165,7 +166,7 @@ class MetadataMappingHandler extends UploadHandler {
 
 				$result .=
 					'<li>' .
-						'<a href="/' . $api_result['edit']['title'] . '">' .
+						'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
 							$api_result['edit']['title'] .
 							( isset($api_result['edit']['oldrevid']) ? ' ( revised )' : ' ( no change )' ) .
 						'</a>' .
