@@ -274,7 +274,7 @@ class MetadataDetectHandler extends UploadHandler {
 				$parameter,
 				$parameter_as_id,
 				$parameter_as_id,
-				$this->getMetadataAsOptions( $parameter, $Mapping )
+				$this->getMetadataAsOptions( $parameter_as_id, $Mapping )
 			);
 
 		}
