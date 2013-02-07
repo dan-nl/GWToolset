@@ -34,11 +34,10 @@ class SpecialGWToolset extends SpecialPage {
 
 
 	protected $registered_modules = array(
-		'base-upload' => array( 'handler' => '\GWToolset\Handlers\Forms\BaseUploadHandler', 'form' => '\GWToolset\Forms\BaseUploadForm' ),
+		'metadata-upload' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataUploadHandler', 'form' => '\GWToolset\Forms\MetadataUploadForm' ),
 		'metadata-detect' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataDetectHandler', 'form' => '\GWToolset\Forms\MetadataDetectForm' ),
 		'metadata-mapping' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler', 'form' => '\GWToolset\Forms\MetadataMappingForm' ),
-		'metadata-mapping-save' => array( 'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' ),
-		'prototype-api' => array( 'handler' => '\GWToolset\Handlers\Forms\PrototypeApiHandler', 'form' => '\GWToolset\Forms\PrototypeApiForm' )
+		'metadata-mapping-save' => array( 'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' )
 	);
 
 
@@ -107,7 +106,7 @@ class SpecialGWToolset extends SpecialPage {
 					$html .=
 						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' ) . '</h2>' .
 						'<p class="error">' . $e->getMessage() . '</p>' .
-						'<a href="/Special:GWToolset?gwtoolset-form=' . $this->module_key . '">back to form</a>';
+						'<a href="' . $this->getContext()->getTitle()->getFullURL() . '?gwtoolset-form=' . $this->module_key . '">back to form</a>';
 
 				}
 

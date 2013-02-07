@@ -430,9 +430,6 @@ class MetadataDetectHandler extends UploadHandler {
 				$user_options
 			);
 
-			$this->File = new File( $_FILES['uploaded-metadata'] );
-			FileChecks::isUploadedFileValid( $this->File );
-
 			$metadata_dom_element = $this->getDOMElement( $this->File, $user_options );
 			$this->detectNodes( $metadata_dom_element );
 			

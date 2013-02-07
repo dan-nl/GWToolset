@@ -20,9 +20,8 @@ class Menu {
 		return
 			'<ul>' .
 
-				'<li><a href="?gwtoolset-form=prototype-api">Prototype : API</a></li>' .
-				'<li><a href="?gwtoolset-form=metadata-detect">Metadata Upload</a></li>' .
-				'<li><a href="?gwtoolset-form=base-upload">BaseUpload - File Only</a></li>' .
+				'<li><a href="?gwtoolset-form=metadata-upload">Metadata Upload</a></li>' .
+				'<li><a href="?gwtoolset-form=metadata-detect">Metadata Mapping</a></li>' .
 
 			'</ul>';
 

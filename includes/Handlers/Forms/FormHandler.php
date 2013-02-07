@@ -72,8 +72,7 @@ abstract class FormHandler implements HandlerInterface {
 				'<p class="error">' .
 					wfMessage('gwtoolset-metadata-user-options-error') .
 				'</p>' .
-				'<ul>' . $msg . '</ul>' .
-				'<p><a href="/Special:GWToolset?gwtoolset-form=' . $this->SpecialPage->module_key . '">' . wfMessage( 'gwtoolset-back-to-form' ) . '</a></p>';
+				'<ul>' . $msg . '</ul>';
 
 			throw new Exception( $msg );
 

@@ -90,7 +90,9 @@ $messages['en'] = array(
 	'gwtoolset-file-interpretation-error' => 'There was a problem interpretting the uploaded file',
 	'gwtoolset-api-error' => 'An api error occurred',
 
-
+	#metadata upload
+	'gwtoolset-metadata-upload-successful' => '<h3>your upload was successful</h3>the upload can be found here : <a href="%s">%s</a>',
+	
 	# metadata detect
 	'gwtoolset-metadata-detect-step-1' => 'Step 1 : Metadata Detect',
 	'gwtoolset-metadata-detect-step-1-instructions' => '<p>The Metadata Upload process consists of 3 steps:</p><ol><li>Metadata Detection</li><li>Metadata Mapping</li><li>Metadata Uploading</li></ol><p>In this step you upload your metadata file for evaluation. The application will attempt to extract the metadata fields available in the file, which you will map to the MediaWiki Template selected below in Step 2.</p>',

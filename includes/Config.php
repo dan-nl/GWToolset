@@ -24,18 +24,14 @@ class Config {
 
 	public static $autoloader_classes = array(
 
-		'GWToolset\Forms\BaseUploadForm' => '/includes/Forms/BaseUploadForm.php',
 		'GWToolset\Forms\MetadataDetectForm' => '/includes/Forms/MetadataDetectForm.php',
 		'GWToolset\Forms\MetadataMappingForm' => '/includes/Forms/MetadataMappingForm.php',
 		'GWToolset\Forms\MetadataUploadForm' => '/includes/Forms/MetadataUploadForm.php',
-		'GWToolset\Forms\PrototypeApiForm' => '/includes/Forms/PrototypeApiForm.php',
 
 		'GWToolset\Handlers\Ajax\AjaxHandler' => '/includes/Handlers/Ajax/AjaxHandler.php',
 		'GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' => '/includes/Handlers/Ajax/MetadataMappingSaveHandler.php',		
-		
-		'GWToolset\Handlers\Forms\BaseUploadHandler' => '/includes/Handlers/Forms/BaseUploadHandler.php',
+
 		'GWToolset\Handlers\Forms\FormHandler' => '/includes/Handlers/Forms/FormHandler.php',
-		'GWToolset\Handlers\Forms\PrototypeApiHandler' => '/includes/Handlers/Forms/PrototypeApiHandler.php',
 		'GWToolset\Handlers\Forms\MetadataDetectHandler' => '/includes/Handlers/Forms/MetadataDetectHandler.php',
 		'GWToolset\Handlers\Forms\MetadataMappingHandler' => '/includes/Handlers/Forms/MetadataMappingHandler.php',
 		'GWToolset\Handlers\Forms\MetadataUploadHandler' => '/includes/Handlers/Forms/MetadataUploadHandler.php',
@@ -172,7 +168,8 @@ class Config {
 	public static $accepted_types = array(
 
 		'xml' => array( 'text/xml', 'application/xml' ),
-		'csv' => array( 'text/csv', 'text/plain' )
+		'csv' => array( 'text/csv', 'text/plain' ),
+		'json' => array( 'text/plain', 'application/json' )
 
 	);
 

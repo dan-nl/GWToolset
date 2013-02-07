@@ -15,6 +15,7 @@ use			Exception,
 			GWToolset\Helpers\FileChecks,
 			GWToolset\Helpers\WikiChecks,
 			Php\File,
+			Php\Filter,
 			SpecialPage;
 
 
@@ -33,37 +34,34 @@ abstract class UploadHandler extends FormHandler {
 	abstract protected function processUpload();
 
 
-	public function execute() {
+	protected function addAllowedExtensions() {
 
-		$result = null;
+		global $wgFileExtensions;
 
-		try {
+		foreach( array_keys( Config::$accepted_types ) as $accepted_extension ) {
 
-			if ( !isset( $_FILES['uploaded-metadata'] ) ) {
+			if ( !in_array( $accepted_extension, $wgFileExtensions ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-no-file' ) );
-
-			}
-
-			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
-			$result .= $this->processUpload();
-
-		} catch ( Exception $e ) {
-
-			if ( $e->getCode() == 1000 ) {
-
-				throw new Exception( $e->getMessage(), 1000 );
-
-			} else {
-
-				$result .= 
-					'<h2>' . wfMessage( 'gwtoolset-file-not-valid' ) . '</h2>' .
-					'<p class="error">' . $e->getMessage() . '</p>' .
-					'<a href="/Special:GWToolset?gwtoolset-form=' . $this->SpecialPage->module_key . '">' . wfMessage( 'gwtoolset-back-to-form' ) . '</a>';
+				$wgFileExtensions[] = Filter::evaluate( $accepted_extension );
 
 			}
 
 		}
+
+	}
+
+
+	public function execute() {
+
+		$result = null;
+
+			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
+
+			$this->File = new File( 'uploaded-metadata' );
+			FileChecks::isUploadedFileValid( $this->File );
+			$this->addAllowedExtensions();
+
+			$result .= $this->processUpload();
 
 		return $result;
 

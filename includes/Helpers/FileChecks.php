@@ -201,7 +201,7 @@ class FileChecks {
 
 		if ( is_null( $msg ) && !in_array( strtolower( $File->pathinfo['extension'] ), $accepted_extensions ) ) {
 
-			$msg = wfMessage('gwtoolset-unaccepted-extension-specific', Filter::evaluate( $pathinfo['extension'] ) );
+			$msg = wfMessage('gwtoolset-unaccepted-extension-specific', Filter::evaluate( $File->pathinfo['extension'] ) );
 
 		}
 

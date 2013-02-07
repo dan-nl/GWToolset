@@ -376,9 +376,6 @@ class MetadataMappingHandler extends UploadHandler {
 				$user_options
 			);
 
-			$this->File = new File( $_FILES['uploaded-metadata'] );
-			FileChecks::isUploadedFileValid( $this->File );
-
 			$mapping = $this->getMapping( $user_options );
 			$result .= $this->processDOMElements( $user_options, $mapping );
 

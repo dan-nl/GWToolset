@@ -14,6 +14,9 @@ use 		Exception,
 			UploadBase;
 
 
+/**
+ * a prototype class for testing the UploadBase functionality
+ */
 class BaseUploadHandler extends UploadHandler {
 
 

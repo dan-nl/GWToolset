@@ -173,10 +173,14 @@ class File {
 	 * @throws FileException
 	 * @return void
 	 */
-	protected function populate( array &$file = array() ) {
+	protected function populate( $file_field_name ) {
 
+		$file_field_name = Filter::evaluate( $file_field_name );
+		if ( !isset( $_FILES[ $file_field_name ] ) ) { throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist.' ); }
+		
+		$file = $_FILES[ $file_field_name ];
 		if ( empty( $file ) ) { throw new FileException( 'The file submitted contains no information; it is most likely an empty file.' ); }
-		if ( isset( $file[0] ) ) { throw new FileException( 'The file submitted contains information on more than one file ($_FILE has multiple values).' ); }
+		if ( isset( $file[0] ) ) { throw new FileException( 'The file submitted contains information on more than one file ($_FILES has multiple values).' ); }
 
 		$this->original_file_array = $file;
 		if ( isset( $file['error'] ) ) { $this->error = $file['error']; }
@@ -210,10 +214,10 @@ class File {
 	 * @param array $file
 	 * @return null
 	 */
-	public function __construct( array $file = array() ) {
+	public function __construct( $file_field_name = null ) {
 
 		$this->reset();
-		$this->populate( $file );
+		$this->populate( $file_field_name );
 		$this->isFileInfoComplete();
 		$this->isFileUploaded();
 		$this->setPathinfo();
