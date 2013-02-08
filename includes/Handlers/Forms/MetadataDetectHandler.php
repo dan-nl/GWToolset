@@ -377,10 +377,26 @@ class MetadataDetectHandler extends UploadHandler {
 
 		}
 
-		while ( $reader->read() ) {
+		try {
 
-			$result = $this->findDOMElement( $reader, $user_options );
-			if ( !is_null( $result ) ) { break; }
+			while ( $reader->read() ) {
+	
+				$result = $this->findDOMElement( $reader, $user_options );
+				if ( !is_null( $result ) ) { break; }
+	
+			}
+
+		} catch( Exception $e ) {
+
+			$msg = wfMessage('gwtoolset-developer-issue')->params('not read the xml file');
+
+			if ( Config::$display_debug_output && $this->SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
+
+				$msg .= '<br/>' . $e->getMessage();
+
+			}
+
+			throw new Exception( $msg );
 
 		}
 
