@@ -54,10 +54,9 @@ $messages['en'] = array(
 	'gwtoolset-metadata-invalid-template' => 'No valid WikiMedia Template found',
 	'gwtoolset-mediawiki-template' => '$1 Template',
 	'gwtoolset-technical-error' => 'There was a Technical Error',
-	'gwtoolset-no-module-name' => 'Unfortunately a developer will need to address this issue before you can continue ( no module name was specified ).',
-	'gwtoolset-no-upload-handler' => 'Unfortunately a developer will need to address this issue before you can continue ( no upload handler was created ).',
 	'gwtoolset-back-to-form' => 'back to form',
 	'gwtoolset-no-form' => 'There is no form for this module',
+	'gwtoolset-developer-issue' => 'Unfortunately a developer will need to address this issue before you can continue [ $1 ].',
 
 
 	#js
@@ -90,9 +89,11 @@ $messages['en'] = array(
 	'gwtoolset-file-interpretation-error' => 'There was a problem interpretting the uploaded file',
 	'gwtoolset-api-error' => 'An api error occurred',
 
+
 	#metadata upload
 	'gwtoolset-metadata-upload-successful' => '<h3>your upload was successful</h3>the upload can be found here : <a href="%s">%s</a>',
-	
+
+
 	# metadata detect
 	'gwtoolset-metadata-detect-step-1' => 'Step 1 : Metadata Detect',
 	'gwtoolset-metadata-detect-step-1-instructions' => '<p>The Metadata Upload process consists of 3 steps:</p><ol><li>Metadata Detection</li><li>Metadata Mapping</li><li>Metadata Uploading</li></ol><p>In this step you upload your metadata file for evaluation. The application will attempt to extract the metadata fields available in the file, which you will map to the MediaWiki Template selected below in Step 2.</p>',
@@ -100,14 +101,17 @@ $messages['en'] = array(
 	'gwtoolset-which-mediawiki-template' => 'Which MediaWiki Template',
 	'gwtoolset-which-metadata-mapping' => 'Which Metadata Mapping',
 	'gwtoolset-metadata-detect-error' => 'Metadata Detect Error',
-	//'gwtoolset-metadata-file-source' => 'Select the metadata file source; either a file that has been previously uploaded or a file you wish to upload',
+	'gwtoolset-metadata-file-source-info' => '... either a file that has been previously uploaded or a file you wish to upload from your computer',
 	'gwtoolset-metadata-file-source' => 'Select the metadata file source',
 	'gwtoolset-metadata-file-url' => 'Metadata file url',
 	'gwtoolset-metadata-file' => 'Metadata file upload',
 	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; unfortunately a developer will need to address this issue before you can continue ( [$1] )',
-	
+	'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url then unfortunately a developer will need to look into whether or not that url is being properly passed to the form handler.',
+	'gwtoolset-metadata-file-url-invalid' => 'The metadata file url was invalid; the file does not yet exist in the wiki. You need to first upload the metadata file from your computer if you want to use the file url reference in the metadata mapping form.',
+
+
 	# metadata mapping
 	'gwtoolset-metadata-detect-step-2' => 'Step 2 : Metadata Mapping',
 	'gwtoolset-metadata-detect-step-2-instructions' => '<p>Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.</p><ul><li>Left column contains a list of all fields in the MediaWiki Template.</li><li>Right column contains drop-downs with the metadata fields found in your metadata file.</li><li>For each MediaWiki Template field : <ol><li>select a metadata value from your uploaded metadata file that corresponds with the MediWiki Template field; you do not need to provide a match for every MediaWiki Template field.</li><li>At the bottom of the form you will need to select the metadata file again as we have not yet programmed functionality for storing your original metadata file.</li></ol></li></ul>',
@@ -143,6 +147,7 @@ $messages['en'] = array(
 	'mw-api-client-could-not-log-in' => 'Could not login with the api client; no response from the application.',
 	'mw-api-client-no login-token-received' => 'Did not receive a login token from the application.',
 	'mw-api-client-troubleshooting-tips' => 'Make sure: <ul><li>the api endpoint is set properly</li><li>the application is up and running</li><li>the api call is correctly formed</li><li>the wiki can properly use curl to connect with the api</li></ul>',
+
 
 	# db client
 	'gwtoolset-db-client-support' => 'The GWToolset extension currently supports only MySQL'

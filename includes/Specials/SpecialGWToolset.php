@@ -41,6 +41,21 @@ class SpecialGWToolset extends SpecialPage {
 	);
 
 
+	public function getBackToFormLink() {
+
+		return
+			'<a href="' .
+				$this->getContext()->getTitle()->getFullURL() .
+				'?gwtoolset-form=' .
+				$this->module_key . '"' .
+				' onclick="history.back();return false;"' .
+			'>' .
+				wfMessage('gwtoolset-back-to-form') .
+			'</a>';
+		
+	}
+
+
 	/**
 	 * @throws PermissionsError
 	 * @return void
@@ -77,15 +92,15 @@ class SpecialGWToolset extends SpecialPage {
 
 				if ( !( $this->Handler instanceof \GWToolset\Handlers\HandlerInterface ) ) {
 
-					$msg = error_get_last();
-					
+					$msg = wfMessage('gwtoolset-developer-issue')->params('no upload handler was created');
+
 					if ( Config::$display_debug_output && $this->SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 
-						$msg = wfMessage('gwtoolset-no-upload-handler') . print_r( $msg, true );
+						$msg .= '<br/><pre>' . print_r( error_get_last(), true ) . '</pre>';
 
 					} else {
 
-						$msg = wfMessage('gwtoolset-no-upload-handler') . '<br/>' . $msg['message'];
+						$msg = wfMessage('gwtoolset-no-upload-handler');
 
 					}
 
@@ -106,7 +121,7 @@ class SpecialGWToolset extends SpecialPage {
 					$html .=
 						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' ) . '</h2>' .
 						'<p class="error">' . $e->getMessage() . '</p>' .
-						'<a href="' . $this->getContext()->getTitle()->getFullURL() . '?gwtoolset-form=' . $this->module_key . '">back to form</a>';
+						$this->getBackToFormLink();
 
 				}
 

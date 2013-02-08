@@ -66,15 +66,15 @@ class MetadataDetectForm {
 						'</li>' .
 
 						'<li>' .
-							wfMessage('gwtoolset-metadata-file-source') .
+							wfMessage('gwtoolset-metadata-file-source') . '<br/>' .
+							wfMessage('gwtoolset-metadata-file-source-info') .
 							'<ul>' .
-								// @todo: figure out how to point to a file stored within the wiki
-								//'<li>' .
-								//	'<label>' .
-								//		wfMessage('gwtoolset-metadata-file-url') . ' : ' .
-								//		'<input type="text" name="metadata-file-url" value="" placeholder="File:Nl.memorix.images.collection.xml"/>' .
-								//	'</label>' .
-								//'</li>' .
+								'<li>' .
+									'<label>' .
+										wfMessage('gwtoolset-metadata-file-url') . ' : ' .
+										'<input type="text" name="metadata-file-url" value="" placeholder="Two-images.xml"/>' .
+									'</label>' .
+								'</li>' .
 	
 								'<li>' .
 									'<label>' .

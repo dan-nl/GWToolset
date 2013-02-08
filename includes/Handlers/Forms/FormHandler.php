@@ -52,7 +52,7 @@ abstract class FormHandler implements HandlerInterface {
 	}
 
 
-	protected function validateUserOptions( array $expected_options = array(), array &$user_options = array() ) {
+	protected function checkForRequiredFormFields( array $expected_options = array(), array &$user_options = array() ) {
 
 		$msg = null;
 
@@ -72,7 +72,8 @@ abstract class FormHandler implements HandlerInterface {
 				'<p class="error">' .
 					wfMessage('gwtoolset-metadata-user-options-error') .
 				'</p>' .
-				'<ul>' . $msg . '</ul>';
+				'<ul>' . $msg . '</ul>' .
+				$this->SpecialPage->getBackToFormLink();
 
 			throw new Exception( $msg );
 
@@ -85,7 +86,7 @@ abstract class FormHandler implements HandlerInterface {
 
 		if ( is_null( $module_name ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-no-module-name') );
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no module name was specified') );
 
 		}
 

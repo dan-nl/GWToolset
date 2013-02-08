@@ -15,12 +15,10 @@ use			DOMElement,
 			GWToolset\Config,
 			GWToolset\Handlers\Forms\UploadHandler,
 			GWToolset\Helpers\FileChecks,
-			GWToolset\MediaWiki\Api\Client,
 			GWToolset\Menu,
 			GWToolset\Models\MediawikiTemplate,
 			Php\File,
 			Php\Filter,
-			SpecialPage,
 			XMLReader;
 
 
@@ -104,16 +102,6 @@ class MetadataMappingHandler extends UploadHandler {
 	}
 
 
-	protected function getMWClient() {
-
-		$MWApiClient = new Client( Config::$api_internal_endpoint, $this->SpecialPage );
-		$MWApiClient->login( Config::$api_internal_lgname, Config::$api_internal_lgpassword );
-		$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
-		return $MWApiClient;
-
-	}
-
-
 	/**
 	 * using the api save the matched record as a new wiki page or update an
 	 * existing wiki page
@@ -137,22 +125,22 @@ class MetadataMappingHandler extends UploadHandler {
 
 		try {
 
-			$MWApiClient = $this->getMWClient();
+			$this->setMWApiClient();
 			$element_mapped = $this->getElementMapped( $DOMElement, $mapping );
 
 			$this->MediawikiTemplate->populateFromArray( $element_mapped );
 			$filename = $this->MediawikiTemplate->getFilename( $this->MediawikiTemplate->template_parameters['url_to_the_media_file'] );
 
-			$api_result = $MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
+			$api_result = $this->MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
 			$pageid = (int)$api_result['query']['pageids'][0];
 
 			if ( $pageid > -1 ) { // page already exists only change text
 
-				$api_result = $MWApiClient->edit(
+				$api_result = $this->MWApiClient->edit(
 					array(
 						'pageid' => $pageid,
 						'text' => $this->MediawikiTemplate->getTemplate(),
-						'token' => $MWApiClient->getEditToken()
+						'token' => $this->MWApiClient->getEditToken()
 					)
 				);
 				
@@ -174,11 +162,11 @@ class MetadataMappingHandler extends UploadHandler {
 
 			} else { // page does not yet exist upload image and template text
 
-				$api_result = $MWApiClient->upload(
+				$api_result = $this->MWApiClient->upload(
 					array(
 						'filename' => $filename,
 						'text' => $this->MediawikiTemplate->getTemplate(),
-						'token' => $MWApiClient->getEditToken(),
+						'token' => $this->MWApiClient->getEditToken(),
 						'ignorewarnings' => true,
 						'url' => $this->MediawikiTemplate->template_parameters['url_to_the_media_file']
 					)
@@ -211,10 +199,10 @@ class MetadataMappingHandler extends UploadHandler {
 
 		if ( Config::$display_debug_output
 			&& $this->SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' )
-			&& isset( $MWApiClient )
+			&& isset( $this->MWApiClient )
 		) {
 		
-			$result .= $MWApiClient->debug_html;
+			$result .= $this->MWApiClient->debug_html;
 		
 		}
 
@@ -368,7 +356,7 @@ class MetadataMappingHandler extends UploadHandler {
 
 		try {
 
-			$this->validateUserOptions(
+			$this->checkForRequiredFormFields(
 				array(
 					'record-element-name',
 					'mediawiki-template'

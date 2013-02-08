@@ -15,7 +15,6 @@ use			DOMElement,
 			DOMDocument,
 			Exception,
 			GWToolset\Config,
-			GWToolset\Helpers\FileChecks,
 			GWToolset\Forms\MetadataDetectForm,
 			GWToolset\Forms\MetadataMappingForm,
 			GWToolset\Menu,
@@ -24,8 +23,6 @@ use			DOMElement,
 			GWToolset\Handlers\Forms\UploadHandler,
 			Php\File,
 			Php\Filter,
-			SpecialPage,
-			UploadBase,
 			XMLReader;
 
 
@@ -33,12 +30,6 @@ class MetadataDetectHandler extends UploadHandler {
 
 
 	protected $nodes_for_evaluation = array();
-
-
-	/**
-	 * @var UploadBase
-	 */
-	protected $UploadBase;
 
 
 	/**
@@ -355,8 +346,8 @@ class MetadataDetectHandler extends UploadHandler {
 	 * - closes the stream if the element is the one to be used for evaluation
 	 * 
 	 * 
-	 * @param Php\File $File
-	 * @param array $user_options
+	 * @param {string} $file_path_local
+	 * @param {array} $user_options
 	 *
 	 * @todo: handle invalid xml
 	 * @todo: handle no record-element-name found, specified element does not exist
@@ -369,14 +360,20 @@ class MetadataDetectHandler extends UploadHandler {
 	 * @throws Exception
 	 * @return {DOMElement|null}
 	 */
-	protected function getDOMElement( File &$File, array &$user_options ) {
+	protected function getDOMElement( $file_path_local = null, array &$user_options ) {
 
 		$result = null;
 		$reader = new XMLReader();
 
-		if ( !$reader->open( $File->tmp_name ) ) {
+		if ( empty( $file_path_local ) ) {
 
-			throw new Exception('could not open the XML File for reading');
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('local file path is empty') );
+
+		}
+
+		if ( !$reader->open( $file_path_local ) ) {
+
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('could not open the XML File for reading') );
 
 		}
 
@@ -389,7 +386,7 @@ class MetadataDetectHandler extends UploadHandler {
 
 		if ( !$reader->close() ) {
 
-			throw new Exception('could not close the XMLReader');
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('could not close the XMLReader') );
 
 		}
 
@@ -399,12 +396,13 @@ class MetadataDetectHandler extends UploadHandler {
 
 
 	/**
-	 * @return {string} $result an html string
 	 * @todo save mapping and use it to verify posted variables when processing the mapping
+	 *
+	 * @return {string} an html string
 	 */
 	protected function processUpload() {
 
-		$result = null;
+		$result = array( 'msg' => null, 'uploaded' => false );
 		$metadata_dom_element = null;
 		$metadata_options = null;
 		$metadata_selects = null;
@@ -413,6 +411,7 @@ class MetadataDetectHandler extends UploadHandler {
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
 			'record-number-for-mapping' => 1,
 			//'uploaded-metadata' => !empty( $_FILES['uploaded-metadata']['name'] ) ? : null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
 			'mediawiki-template' => !empty( $_POST['mediawiki-template'] ) ? Filter::evaluate( $_POST['mediawiki-template'] ) : null,
 			'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : '',
 			'record-count' => 0
@@ -420,7 +419,22 @@ class MetadataDetectHandler extends UploadHandler {
 
 		try {
 
-			$this->validateUserOptions(
+			if ( empty( $user_options['metadata-file-url'] ) ) {
+
+				$this->getUploadedFormFile( 'uploaded-metadata' );
+				$result = $this->saveFile();
+
+				if ( !$result['uploaded'] ) {
+
+					throw Exception( $result['msg'] );
+
+				}
+
+			}
+
+			$file_path_local = $this->retrieveLocalFilePath( $user_options, 'metadata-file-url' );
+
+			$this->checkForRequiredFormFields(
 				array(
 					'record-element-name',
 					'record-number-for-mapping',
@@ -430,7 +444,7 @@ class MetadataDetectHandler extends UploadHandler {
 				$user_options
 			);
 
-			$metadata_dom_element = $this->getDOMElement( $this->File, $user_options );
+			$metadata_dom_element = $this->getDOMElement( $file_path_local, $user_options );
 			$this->detectNodes( $metadata_dom_element );
 			
 			//self::processDOMElement( $metadata_dom_element );
@@ -444,7 +458,7 @@ class MetadataDetectHandler extends UploadHandler {
 			$metadata_selects = $this->getMetadataAsHtmlSelectsInTableRows( $user_options );
 			$metadata_as_html_table_rows = $this->getMetadataAsHtmlTableRows( $user_options );
 
-			$result .= MetadataMappingForm::getForm(
+			$result['msg'] .= MetadataMappingForm::getForm(
 				$this->SpecialPage->getContext(),
 				$user_options,
 				$metadata_selects,
@@ -453,12 +467,12 @@ class MetadataDetectHandler extends UploadHandler {
 
 		} catch( Exception $e ) {
 
-			$result .= '<h1>' . wfMessage( 'gwtoolset-metadata-detect-error' ) . '</h1>' .
+			$result['msg'] .= '<h1>' . wfMessage( 'gwtoolset-metadata-detect-error' ) . '</h1>' .
 				'<span class="error">' . $e->getMessage() . '</span><br/>';
 
 		}
 
-		return $result;
+		return $result['msg'];
 
 	}
 
