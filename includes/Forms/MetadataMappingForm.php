@@ -34,10 +34,11 @@ class MetadataMappingForm {
 						'<legend>' . wfMessage('gwtoolset-metadata-mapping-legend') . '</legend>' .
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
-						'<input type="hidden" name="gwtoolset-record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
-						'<input type="hidden" name="gwtoolset-mediawiki-template" id="gwtoolset-mediawiki-template" value="' . $user_options['mediawiki-template'] . '"/>' .
-						'<input type="hidden" name="gwtoolset-metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
-						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
+						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
+						//'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
+						//'<input type="hidden" name="mediawiki-template" id="gwtoolset-mediawiki-template" value="' . $user_options['mediawiki-template'] . '"/>' .
+						//'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
+						//'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
 						'<input type="hidden" name="MAX_FILE_SIZE"  value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
 
 						'<h3>' .
@@ -63,19 +64,19 @@ class MetadataMappingForm {
 							'</tbody>' .
 						'</table>' .
 
-						'<p style="clear:both;">' .
-							'<label>' .
-								wfMessage('gwtoolset-metadata-file') . ' : ' .
-								'<input type="file" name="uploaded-metadata"' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '/>' .
-							'</label><br/>' .
+						//'<p style="clear:both;">' .
+						//	'<label>' .
+						//		wfMessage('gwtoolset-metadata-file') . ' : ' .
+						//		'<input type="file" name="uploaded-metadata"' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '/>' .
+						//	'</label><br/>' .
+						//
+						//	'<i>' .
+						//		wfMessage( 'gwtoolset-accepted-file-types' ) . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_types ) . '<br/>' .
+						//		wfMessage( 'upload-maxfilesize', number_format( FileChecks::gwToolsetMaxUploadSize() ) ) . ' bytes' .
+						//	'</i>' .
+						//'</p>' .
 
-							'<i>' .
-								wfMessage( 'gwtoolset-accepted-file-types' ) . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_types ) . '<br/>' .
-								wfMessage( 'upload-maxfilesize', number_format( FileChecks::gwToolsetMaxUploadSize() ) ) . ' bytes' .
-							'</i>' .
-						'</p>' .
-
-						'<p><input type="submit" name="submit" value="process file"></p>' .
+						'<p style="clear:both;">' . wfMessage('gwtoolset-metadata-file-url') . ' : ' . $user_options['metadata-file-url'] . '<br/><input type="submit" name="submit" value="process file"></p>' .
 
 				'</fieldset>' .
 

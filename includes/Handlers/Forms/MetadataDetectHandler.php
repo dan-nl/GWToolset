@@ -430,6 +430,8 @@ class MetadataDetectHandler extends UploadHandler {
 
 				}
 
+				$user_options['metadata-file-url'] = $this->UploadBase->getTitle();
+
 			}
 
 			$file_path_local = $this->retrieveLocalFilePath( $user_options, 'metadata-file-url' );
