@@ -11,7 +11,9 @@
  */
 namespace	GWToolset;
 use			ErrorException,
-			Exception;
+			Exception,
+			GWToolset\MediaWiki\Api\Client,
+			SpecialPage;
 
 
 /**
@@ -57,6 +59,17 @@ function getArraySecondLevelValues( array $array = array() ) {
 	return $values;
 
 }
+
+
+function getMWApiClient( SpecialPage &$SpecialPage ) {
+
+	$MWApiClient = new Client( Config::$api_internal_endpoint, $SpecialPage );
+	$MWApiClient->login( Config::$api_internal_lgname, Config::$api_internal_lgpassword );
+	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
+	return $MWApiClient;
+
+}
+
 
 function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 

@@ -41,15 +41,6 @@ class FileHandler {
 	protected $MWApiClient;
 
 
-	protected function setMWApiClient() {
-
-		$this->MWApiClient = new Client( Config::$api_internal_endpoint, $this->SpecialPage );
-		$this->MWApiClient->login( Config::$api_internal_lgname, Config::$api_internal_lgpassword );
-		$this->MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $this->MWApiClient->Login, true ) . '</pre>';
-
-	}
-
-
 	/**
 	 * @param {array} $user_options
 	 * @return {string} a reference to the local file path
@@ -70,7 +61,7 @@ class FileHandler {
 
 		}
 
-		$this->setMWApiClient();
+		$this->MWApiClient = \GWToolset\getMWApiClient( $this->SpecialPage );
 
 		$api_result = $this->MWApiClient->query(
 			array(

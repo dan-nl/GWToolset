@@ -10,7 +10,8 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Handlers\Forms;
-use 		GWToolset\Forms\MetadataMappingForm,
+use 		Exception,
+			GWToolset\Forms\MetadataMappingForm,
 			GWToolset\Handlers\FileHandler,
 			GWToolset\Handlers\XmlHandler,
 			GWToolset\Models\Mapping,
@@ -116,22 +117,22 @@ class MetadataDetectHandler extends FormHandler {
 		);
 
 			if ( empty( $user_options['metadata-file-url'] ) ) {
-	
+
 				$this->FileHandler->getUploadedFileFromForm( 'uploaded-metadata' );
 				$result = $this->FileHandler->saveFile();
-	
+
 				if ( !$result['uploaded'] ) {
-	
+
 					throw Exception( $result['msg'] );
 	
 				}
-	
+
 				$user_options['metadata-file-url'] = $this->FileHandler->getSavedFileName();
-	
+
 			}
-	
+
 			$file_path_local = $this->FileHandler->retrieveLocalFilePath( $user_options, 'metadata-file-url' );
-	
+
 			$this->checkForRequiredFormFields(
 				array(
 					'record-element-name',
@@ -141,7 +142,7 @@ class MetadataDetectHandler extends FormHandler {
 				),
 				$user_options
 			);
-	
+
 			$this->XmlHandler->processXml( $file_path_local, $user_options );
 
 			$result['msg'] .= MetadataMappingForm::getForm(
