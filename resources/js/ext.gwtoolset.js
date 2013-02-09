@@ -20,8 +20,7 @@
 		 */
 		handleAjaxError : function() {
 			
-			alert('We apologize, there was a problem processing your request; please try again later.');
-			console.log( 'ajax error' );
+			alert('We apologize, there was a problem processing your request; please try again later. (place me in wiki messages)');
 			console.log( arguments );
 			
 		},
@@ -31,11 +30,19 @@
 		 * @todo use the translate version of the message
 		 * @todo message should be placed in dom in an ajax message area instead
 		 * of using an alert
+		 *
+		 * @param {object} data
+		 * @param {string} textStatus
+		 * @param {object} jqXHR
 		 */
-		handleAjaxSuccess : function () {
+		handleAjaxSuccess : function ( data, textStatus, jqXHR ) {
 
-			alert('Your mapping has been successfully saved.');
-			console.log( 'ajax success' );
+			if ( !data.status || data.status != 'success' ) {
+				alert('We apologize, there was a problem processing your request; please try again later. (place me in wiki messages)');
+			} else {
+				alert('Your mapping has been successfully saved. (place me in wiki messages)');
+			}
+
 			console.log( arguments );
 
 		},
@@ -99,7 +106,7 @@
 		handleSaveMappingClick : function( evt ) {
 
 			var self = evt.data.self,
-				mapping_name_to_use = prompt('how would you like to name this mapping?', $('#gwtoolset-metadata-mapping').val()),
+				mapping_name_to_use = prompt('how would you like to name this mapping? (place me in wiki messages)', $('#gwtoolset-metadata-mapping').val()),
 				mediawiki_template = $('#gwtoolset-mediawiki-template').val(),
 				wpEditToken = $('#wpEditToken').val(),
 				metadata_mappings = self.$form.find('select').serializeArray();

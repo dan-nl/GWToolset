@@ -11,21 +11,11 @@
  */
 namespace	GWToolset\Handlers\Ajax;
 use			Exception,
-			GWToolset\Config,
-			GWToolset\Handlers\HandlerInterface,
-			GWToolset\Helpers\FileChecks,
-			GWToolset\Helpers\WikiChecks,
-			Php\File,
-			SpecialPage;
+			GWToolset\Handlers\SpecialPageHandler,
+			GWToolset\Helpers\WikiChecks;
 
 
-abstract class AjaxHandler implements HandlerInterface {
-
-
-	/**
-	 * implemented in child definition
-	 */
-	abstract protected function processAjax();
+abstract class AjaxHandler extends SpecialPageHandler {
 
 
 	public function execute() {
@@ -35,7 +25,7 @@ abstract class AjaxHandler implements HandlerInterface {
 			try {
 	
 				WikiChecks::doesEditTokenMatch( $this->SpecialPage );
-				$result = $this->processAjax();
+				$result .= $this->processRequest();
 	
 			} catch ( Exception $e ) {
 	
@@ -46,13 +36,6 @@ abstract class AjaxHandler implements HandlerInterface {
 		header('Content-Type: application/json; charset=utf-8');
 		echo $result;
 		exit();
-
-	}
-
-
-	public function __construct( SpecialPage &$SpecialPage ) {
-
-		$this->SpecialPage = $SpecialPage;
 
 	}
 

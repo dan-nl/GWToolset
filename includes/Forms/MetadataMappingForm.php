@@ -36,9 +36,9 @@ class MetadataMappingForm {
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
 						//'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
-						//'<input type="hidden" name="mediawiki-template" id="gwtoolset-mediawiki-template" value="' . $user_options['mediawiki-template'] . '"/>' .
-						//'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
-						//'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
+						'<input type="hidden" name="mediawiki-template" id="gwtoolset-mediawiki-template" value="' . $user_options['mediawiki-template'] . '"/>' .
+						'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
+						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
 						'<input type="hidden" name="MAX_FILE_SIZE"  value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
 
 						'<h3>' .

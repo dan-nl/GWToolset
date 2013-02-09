@@ -17,6 +17,10 @@ use 		Exception,
 			SimpleXMLElement;
 
 
+/**
+ * a prototype handler used to experiment wiki functionality
+ * nb: it may not work at times because of changes to the main code of the extension
+ */
 class PrototypeApiHandler extends UploadHandler {
 
 

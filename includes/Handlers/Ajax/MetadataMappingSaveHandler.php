@@ -10,9 +10,8 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Handlers\Ajax;
-use			GWToolset\Handlers\Ajax\AjaxHandler,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplates;
+use			GWToolset\Models\Mapping;
+
 
 class MetadataMappingSaveHandler extends AjaxHandler {
 
@@ -25,7 +24,7 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 	 * @todo get username
 	 * @todo get 
 	 */
-	protected function processAjax() {
+	protected function processRequest() {
 
 		$mapping = new Mapping();
 		$mappings = $mapping->flattenFormFieldArray( $this->SpecialPage->getRequest()->getArray( 'metadata-mappings' ) );
@@ -49,4 +48,3 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 
 
 }
-

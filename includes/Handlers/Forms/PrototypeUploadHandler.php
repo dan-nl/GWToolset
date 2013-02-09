@@ -15,9 +15,10 @@ use 		Exception,
 
 
 /**
- * a prototype class for testing the UploadBase functionality
+ * a prototype handler used to experiment wiki functionality
+ * nb: it may not work at times because of changes to the main code of the extension
  */
-class BaseUploadHandler extends UploadHandler {
+class PrototypeUploadHandler extends UploadHandler {
 
 
 	/**
