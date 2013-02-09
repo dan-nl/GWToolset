@@ -10,12 +10,16 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Handlers\Forms;
-use			Exception,
-			LocalFile,
-			Php\File;
+use			GWToolset\Handlers\FileHandler;
 
 
-class MetadataUploadHandler extends UploadHandler {
+class MetadataUploadHandler extends FormHandler {
+
+
+	/**
+	 * GWToolset\Handlers\FileHandler
+	 */
+	protected $FileHandler;
 
 
 	/**
@@ -25,12 +29,13 @@ class MetadataUploadHandler extends UploadHandler {
 	 *
 	 * @return {string}
 	 */
-	protected function processUpload() {
+	public function processRequest() {
 
 		$result = array( 'msg' => null, 'uploaded' => false );
 
-			$this->getUploadedFormFile( 'uploaded-metadata' );
-			$result = $this->saveFile();
+			$this->FileHandler = new FileHandler( $this->SpecialPage );
+			$this->FileHandler->getUploadedFileFromForm( 'uploaded-metadata' );
+			$result = $this->FileHandler->saveFile();
 
 		return $result['msg'];
 

@@ -11,21 +11,11 @@
  */
 namespace	GWToolset\Handlers\Forms;
 use			Exception,
-			GWToolset\Config,
-			GWToolset\Handlers\HandlerInterface,
-			GWToolset\Helpers\FileChecks,
-			GWToolset\Helpers\WikiChecks,
-			Php\File,
-			SpecialPage;
+			GWToolset\Handlers\SpecialPageHandler,
+			GWToolset\Helpers\WikiChecks;
 
 
-abstract class FormHandler implements HandlerInterface {
-
-
-	/**
-	 * @var SpecialPage
-	 */
-	protected $SpecialPage;
+abstract class FormHandler extends SpecialPageHandler {
 
 
 	/**
@@ -69,11 +59,9 @@ abstract class FormHandler implements HandlerInterface {
 		if ( !is_null( $msg ) ) {
 
 			$msg =
-				'<p class="error">' .
-					wfMessage('gwtoolset-metadata-user-options-error') .
-				'</p>' .
+				'<p class="error">' . wfMessage('gwtoolset-metadata-user-options-error') . '</p>' .
 				'<ul>' . $msg . '</ul>' .
-				$this->SpecialPage->getBackToFormLink();
+				'<p>' . $this->SpecialPage->getBackToFormLink() . '</p>';
 
 			throw new Exception( $msg );
 
@@ -113,9 +101,14 @@ abstract class FormHandler implements HandlerInterface {
 	}
 
 
-	public function __construct( SpecialPage &$SpecialPage ) {
+	public function execute() {
 
-		$this->SpecialPage = $SpecialPage;
+		$result = null;
+
+			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
+			$result .= $this->processRequest();
+
+		return $result;
 
 	}
 

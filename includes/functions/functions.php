@@ -10,7 +10,8 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset;
-use			ErrorException;
+use			ErrorException,
+			Exception;
 
 
 /**
@@ -57,15 +58,16 @@ function getArraySecondLevelValues( array $array = array() ) {
 
 }
 
-function handleError($errno, $errstr, $errfile, $errline, array $errcontext) {
+function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
-    if ( 0 === error_reporting() ) {
-        return false;	
-    }
+	if ( error_reporting() >= E_ALL ) {
 
-    throw new ErrorException( $errstr, 0, $errno, $errfile, $errline );
+		throw new ErrorException( $errstr, 0, $errno, $errfile, $errline );
+
+	}
+	
+	throw new Exception( wfMessage('gwtoolset-developer-issue')->params('ErrorException') );
 
 }
 
 set_error_handler('\GWToolset\handleError');
-

@@ -19,7 +19,7 @@ use			Exception,
 class MetadataMappingForm {
 
 
-	public static function getForm( IContextSource $Context, array &$user_options = array(), &$metadata_selects = null, &$metadata_as_table_rows = null ) {
+	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null ) {
 
 		$mapping_name = json_decode( str_replace( "`", '"', $user_options['metadata-mapping'] ), true );
 		

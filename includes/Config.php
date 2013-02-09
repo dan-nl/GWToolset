@@ -31,13 +31,15 @@ class Config {
 		'GWToolset\Handlers\Ajax\AjaxHandler' => '/includes/Handlers/Ajax/AjaxHandler.php',
 		'GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' => '/includes/Handlers/Ajax/MetadataMappingSaveHandler.php',		
 
+		'GWToolset\Handlers\FileHandler' => '/includes/Handlers/FileHandler.php',
+
 		'GWToolset\Handlers\Forms\FormHandler' => '/includes/Handlers/Forms/FormHandler.php',
 		'GWToolset\Handlers\Forms\MetadataDetectHandler' => '/includes/Handlers/Forms/MetadataDetectHandler.php',
 		'GWToolset\Handlers\Forms\MetadataMappingHandler' => '/includes/Handlers/Forms/MetadataMappingHandler.php',
 		'GWToolset\Handlers\Forms\MetadataUploadHandler' => '/includes/Handlers/Forms/MetadataUploadHandler.php',
-		'GWToolset\Handlers\Forms\UploadHandler' => '/includes/Handlers/Forms/UploadHandler.php',
 
-		'GWToolset\Handlers\HandlerInterface' => '/includes/Handlers/HandlerInterface.php',
+		'GWToolset\Handlers\SpecialPageHandler' => '/includes/Handlers/SpecialPageHandler.php',
+		'GWToolset\Handlers\XmlHandler' => '/includes/Handlers/XmlHandler.php',
 
 		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
@@ -161,15 +163,10 @@ class Config {
 
 	/**
 	 * which extension/mimetype combinations should the extension accept
-	 * nb: you still need to set the $wgFileExtensions[] array in LocalSettings.php
-	 * to make sure the wiki will accept the mimetype
-	 * e.g., $wgFileExtensions[] = 'xml';
 	 */
 	public static $accepted_types = array(
 
-		'xml' => array( 'text/xml', 'application/xml' ),
-		'csv' => array( 'text/csv', 'text/plain' ),
-		'json' => array( 'text/plain', 'application/json' )
+		'xml' => array( 'text/xml', 'application/xml' )
 
 	);
 

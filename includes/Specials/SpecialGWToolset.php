@@ -87,14 +87,14 @@ class SpecialGWToolset extends SpecialPage {
 			}
 
 		} else {
-	
+
 			try {
 
-				if ( !( $this->Handler instanceof \GWToolset\Handlers\HandlerInterface ) ) {
+				if ( !( $this->Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
 
 					$msg = wfMessage('gwtoolset-developer-issue')->params('no upload handler was created');
 
-					if ( Config::$display_debug_output && $this->SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
+					if ( Config::$display_debug_output && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 
 						$msg .= '<br/><pre>' . print_r( error_get_last(), true ) . '</pre>';
 
@@ -120,8 +120,7 @@ class SpecialGWToolset extends SpecialPage {
 
 					$html .=
 						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' ) . '</h2>' .
-						'<p class="error">' . $e->getMessage() . '</p>' .
-						$this->getBackToFormLink();
+						'<p class="error">' . $e->getMessage() . '</p>';
 
 				}
 

@@ -9,19 +9,18 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Forms;
+namespace	GWToolset\Handlers;
 use			Exception,
 			GWToolset\Config,
-			GWToolset\MediaWiki\Api\Client,
 			GWToolset\Helpers\FileChecks,
-			GWToolset\Helpers\WikiChecks,
+			GWToolset\MediaWiki\Api\Client,
 			Php\File,
 			Php\Filter,
 			SpecialPage,
 			UploadBase;
 
 
-abstract class UploadHandler extends FormHandler {
+class FileHandler {
 
 
 	/**
@@ -42,12 +41,6 @@ abstract class UploadHandler extends FormHandler {
 	protected $MWApiClient;
 
 
-	/**
-	 * implemented in child definition
-	 */
-	abstract protected function processUpload();
-
-
 	protected function setMWApiClient() {
 
 		$this->MWApiClient = new Client( Config::$api_internal_endpoint, $this->SpecialPage );
@@ -61,7 +54,7 @@ abstract class UploadHandler extends FormHandler {
 	 * @param {array} $user_options
 	 * @return {string} a reference to the local file path
 	 */
-	protected function retrieveLocalFilePath( $user_options = array(), $expected_key = null ) {
+	public function retrieveLocalFilePath( $user_options = array(), $expected_key = null ) {
 
 		global $wgServer, $IP;
 
@@ -128,6 +121,13 @@ abstract class UploadHandler extends FormHandler {
 	}
 
 
+	public function getSavedFileName() {
+
+		return $this->UploadBase->getTitle();
+
+	}
+
+
 	/**
 	 * upload the file
 	 */
@@ -153,7 +153,7 @@ abstract class UploadHandler extends FormHandler {
 	 *   $result['msg'] {string}
 	 *   $result['uploaded'] {boolean}
 	 */
-	protected function saveFile() {
+	public function saveFile() {
 
 		$result = array( 'msg' => null, 'uploaded' => false );
 
@@ -214,23 +214,11 @@ abstract class UploadHandler extends FormHandler {
 	 *
 	 * @param {string} $filename
 	 */
-	protected function getUploadedFormFile( $filename = null ) {
+	public function getUploadedFileFromForm( $filename = null ) {
 
 		$this->File = new File( $filename );
 		FileChecks::isUploadedFileValid( $this->File );
 		$this->addAllowedExtensions();
-
-	}
-
-
-	public function execute() {
-
-		$result = null;
-
-			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
-			$result .= $this->processUpload();
-
-		return $result;
 
 	}
 
