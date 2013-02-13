@@ -11,7 +11,7 @@
  */
 namespace	GWToolset;
 use			Exception,
-			GWToolset\Menu,
+			GWToolset\Models\Menu,
 			GWToolset\Helpers\WikiChecks,
 			PermissionsError,
 			Php\Filter,

@@ -50,10 +50,9 @@ class Config {
 		'GWToolset\MediaWiki\Api\ClientInterface' => '/includes/MediaWiki/Api/ClientInterface.php',
 		'GWToolset\MediaWiki\Api\Login' => '/includes/MediaWiki/Api/Login.php',
 
-		'GWToolset\Menu' => '/includes/Menu/Menu.php',
-
 		'GWToolset\Models\Mapping' => '/includes/Models/Mapping.php',
 		'GWToolset\Models\MediawikiTemplate' => '/includes/Models/MediawikiTemplate.php',
+		'GWToolset\Models\Menu' => '/includes/Models/Menu.php',
 		'GWToolset\Models\Model' => '/includes/Models/Model.php',
 		'GWToolset\Models\ModelInterface' => '/includes/Models/ModelInterface.php',
 
