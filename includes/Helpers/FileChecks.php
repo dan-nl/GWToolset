@@ -184,24 +184,36 @@ class FileChecks {
 	/**
 	 * Validates the file extension based on the accepted extensions provided
 	 *
-	 * @param \Php\File $File
+	 * @param string|\Php\File $File
 	 * @param array $accepted_extensions
 	 * @throws Exception
 	 * @return boolean
 	 */
-	public static function isAcceptedFileExtension( File &$File, array $accepted_extensions = array() ) {
+	public static function isAcceptedFileExtension( &$File, array $accepted_extensions = array() ) {
 
 		$msg = null;
+		$extension = null;
 
-		if ( !isset( $File->pathinfo['extension'] ) || empty( $File->pathinfo['extension'] ) ) {
+		if ( $File instanceof File ) {
+
+			$extension = Filter::evaluate( strtolower( $File->pathinfo['extension'] ) );
+
+		} else {
+
+			$pathinfo = pathinfo( $File );
+			$extension = Filter::evaluate( strtolower( $pathinfo['extension'] ) );
+
+		}
+
+		if ( !isset( $extension ) || empty( $extension ) ) {
 
 			$msg = wfMessage('gwtoolset-unaccepted-extension');
 
 		}
 
-		if ( is_null( $msg ) && !in_array( strtolower( $File->pathinfo['extension'] ), $accepted_extensions ) ) {
+		if ( is_null( $msg ) && !in_array( $extension, $accepted_extensions ) ) {
 
-			$msg = wfMessage('gwtoolset-unaccepted-extension-specific', Filter::evaluate( $File->pathinfo['extension'] ) );
+			$msg = wfMessage('gwtoolset-unaccepted-extension-specific', Filter::evaluate( $extension ) );
 
 		}
 

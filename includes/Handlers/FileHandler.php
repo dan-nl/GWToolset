@@ -48,6 +48,7 @@ class FileHandler {
 	public function retrieveLocalFilePath( $user_options = array(), $expected_key = null ) {
 
 		global $wgServer, $IP;
+		$file_name = null;
 
 		if ( empty( $expected_key ) ) {
 
@@ -61,19 +62,24 @@ class FileHandler {
 
 		}
 
+		FileChecks::isAcceptedFileExtension(
+			$user_options[$expected_key],
+			FileChecks::getAcceptedExtensions( Config::$accepted_types )
+		);
+
 		$this->MWApiClient = \GWToolset\getMWApiClient( $this->SpecialPage );
+
+		$file_name = str_replace(
+			array( $wgServer, 'index.php', '/', 'File:' ),
+			'',
+			$user_options[$expected_key]
+		);
+
+		$file_name = 'File:' . Filter::evaluate( $file_name );
 
 		$api_result = $this->MWApiClient->query(
 			array(
-				'titles' =>
-					'File:' .
-					Filter::evaluate(
-						str_replace(
-							array( $wgServer, 'File:' ),
-							'',
-							$user_options[$expected_key]
-						)
-					),
+				'titles' => $file_name,
 				'prop' => 'imageinfo',
 				'iiprop' => 'url'
 			)
