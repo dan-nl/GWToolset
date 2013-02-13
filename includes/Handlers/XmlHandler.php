@@ -192,7 +192,7 @@ class XmlHandler {
 						'token' => $this->MWApiClient->getEditToken()
 					)
 				);
-				
+
 				if ( empty( $api_result['edit']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
 					
 					$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
@@ -250,11 +250,10 @@ class XmlHandler {
 			&& $this->SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' )
 			&& isset( $this->MWApiClient )
 		) {
-		
-			$result .= $this->MWApiClient->debug_html;
-		
-		}
 
+			$result .= $this->MWApiClient->debug_html;
+
+		}
 
 		return $result;
 
