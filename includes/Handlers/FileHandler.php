@@ -42,6 +42,18 @@ class FileHandler {
 
 
 	/**
+	 * assumes that this title will be passed to UploadBase, which will validate
+	 * the title and append the file extension for us
+	 */
+	protected function getTitle() {
+
+		$title = $this->File->pathinfo['filename'] .  '-' . $this->SpecialPage->getUser()->getName();
+		return $title;
+
+	}
+
+
+	/**
 	 * @param {array} $user_options
 	 * @return {string} a reference to the local file path
 	 */
@@ -159,6 +171,9 @@ class FileHandler {
 
 			// UploadBase requires that the WebRequest is passed as variable
 			$WebRequest = $this->SpecialPage->getRequest();
+
+			// UploadBase uses the $_POST['wpDestFile'] value as a proposed filename
+			$WebRequest->setVal( 'wpDestFile', $this->getTitle() );
 
 			$this->UploadBase = UploadBase::createFromRequest( $WebRequest );
 			$status = $this->uploadFile();

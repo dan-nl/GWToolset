@@ -117,6 +117,10 @@ $messages['en'] = array(
 	'gwtoolset-metadata-detect-step-2-instructions' => '<p>Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.</p><ul><li>Left column contains a list of all fields in the MediaWiki Template.</li><li>Right column contains drop-downs with the metadata fields found in your metadata file.</li><li>For each MediaWiki Template field : <ol><li>select a metadata value from your uploaded metadata file that corresponds with the MediWiki Template field; you do not need to provide a match for every MediaWiki Template field.</li><li>At the bottom of the form you will need to select the metadata file again as we have not yet programmed functionality for storing your original metadata file.</li></ol></li></ul>',
 	'gwtoolset-metadata-mapping-error' => 'Metadata Mapping Error',
 	'gwtoolset-metadata-mapping-legend' => 'Map your metadata',
+	'gwtoolset-mapping-no-title' => 'The metadata contains no title, which is used to create the page title',
+	'gwtoolset-mapping-no-title-identifier' => 'The metadata contains no title identifier, which is used to make the page title unique',
+	'gwtoolset-mapping-no-media-file-url' => 'The metadata contains no media file url, which is used to create the page title',
+	'gwtoolset-mapping-no-media-file-url-extension' => 'The metadata media file url contains no extension, which is used to create the page title',
 
 
 	# mw api client

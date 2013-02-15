@@ -40,8 +40,6 @@ class MetadataMappingHandler extends FormHandler {
 	protected function getMapping( array &$user_options ) {
 
 		$result = array();
-
-			$this->MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
 	
 			foreach( $this->MediawikiTemplate->template_parameters as $parameter => $value ) {
 	
@@ -70,7 +68,7 @@ class MetadataMappingHandler extends FormHandler {
 
 		$this->FileHandler = new FileHandler( $this->SpecialPage );
 		$this->MediawikiTemplate = new MediawikiTemplate();
-		$this->XmlHandler = new XmlHandler( $this->SpecialPage );
+		$this->XmlHandler = new XmlHandler( $this->SpecialPage, $this->MediawikiTemplate );
 
 		$user_options = array(
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
@@ -89,8 +87,9 @@ class MetadataMappingHandler extends FormHandler {
 			);
 
 			$file_path_local = $this->FileHandler->retrieveLocalFilePath( $user_options, 'metadata-file-url' );
+			$this->MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
 			$mapping = $this->getMapping( $user_options );
-			$result .= $this->XmlHandler->processDOMElements( $file_path_local, $user_options, $mapping, $this->MediawikiTemplate );
+			$result .= $this->XmlHandler->processDOMElements( $file_path_local, $user_options, $mapping );
 
 		return $result;
 

@@ -81,21 +81,27 @@ class XmlHandler {
 
 	/**
 	 * @param array $element_mapped
-	 * @param string $key
+	 * @param string $matched_mapping_key represents a mediawiki template parameter
 	 * @param DOMElement $DOMNodeElement
 	 * @param boolean $is_url
 	 */
-	protected function filterNodeValue( array &$elements_mapped, &$key, DOMElement &$DOMNodeElement, $is_url = false ) {
+	protected function filterNodeValue( array &$elements_mapped, &$matched_mapping_key, DOMElement &$DOMNodeElement, $is_url = false ) {
 		
-		if ( !isset( $elements_mapped[ $key ] ) ) {
+		if ( !isset( $elements_mapped[ $matched_mapping_key ] ) ) {
 
 			if ( $is_url ) {
 
-				$elements_mapped[ $key ] = Filter::evaluate( array( 'source' => $DOMNodeElement->nodeValue, 'filter-sanitize' => FILTER_SANITIZE_URL ) );
+				$elements_mapped[ $matched_mapping_key ] =
+					Filter::evaluate(
+						array(
+							'source' => $DOMNodeElement->nodeValue,
+							'filter-sanitize' => FILTER_SANITIZE_URL
+						)
+					);
 
 			} else {
 
-				$elements_mapped[ $key ] = Filter::evaluate( $DOMNodeElement->nodeValue );
+				$elements_mapped[ $matched_mapping_key ] = Filter::evaluate( $DOMNodeElement->nodeValue );
 
 			}
 
@@ -103,11 +109,19 @@ class XmlHandler {
 
 			if ( $is_url ) {
 
-				$elements_mapped[ $key ] .= Config::$metadata_separator . Filter::evaluate( array( 'source' => $DOMNodeElement->nodeValue, 'filter-sanitize' => FILTER_SANITIZE_URL ) );
+				$elements_mapped[ $matched_mapping_key ] .=
+					Config::$metadata_separator .
+					Filter::evaluate(
+						array(
+							'source' => $DOMNodeElement->nodeValue,
+							'filter-sanitize' => FILTER_SANITIZE_URL
+						)
+					);
 
 			} else {
 
-				$elements_mapped[ $key ] .= Config::$metadata_separator . Filter::evaluate( $DOMNodeElement->nodeValue );
+				$elements_mapped[ $matched_mapping_key ] .=
+					Config::$metadata_separator . Filter::evaluate( $DOMNodeElement->nodeValue );
 
 			}
 
@@ -118,28 +132,30 @@ class XmlHandler {
 
 	/**
 	 * @param DOMELement $DOMElement
-	 * @param array $mapping
+	 * @param array $mapping a mapping of mediawiki template parameters to metadata elements
 	 */
 	protected function getElementMapped( DOMElement &$DOMElement, array &$mapping ) {
 
 		$elements_mapped = array();
-		// avoiding getElementsByTagNameNS
-		// as logic for getting the NS is not always straightforward
+		// avoiding getElementsByTagNameNS as logic for getting the NS is not always straightforward
 		$DOMNodeList = $DOMElement->getElementsByTagName( '*' );
-
 
 		foreach( $DOMNodeList as $DOMNodeElement ) {
 
-			$key = array_search( $DOMNodeElement->tagName, $mapping );
 			if ( !in_array( $DOMNodeElement->tagName, $mapping ) ) { continue; }
+			$matched_mapping_keys = array_keys( $mapping, $DOMNodeElement->tagName );
 
-			if ( strpos( $key, 'url' ) !== false ) {
+			foreach( $matched_mapping_keys as $matched_mapping_key ) {
 
-				$this->filterNodeValue( $elements_mapped, $key, $DOMNodeElement, true );
+				if ( strpos( $matched_mapping_key, 'url' ) !== false ) {
 
-			} else {
+					$this->filterNodeValue( $elements_mapped, $matched_mapping_key, $DOMNodeElement, true );
 
-				$this->filterNodeValue( $elements_mapped, $key, $DOMNodeElement );
+				} else {
+
+					$this->filterNodeValue( $elements_mapped, $matched_mapping_key, $DOMNodeElement );
+
+				}
 
 			}
 
@@ -171,78 +187,67 @@ class XmlHandler {
 		$page_id = -1;
 		global $wgArticlePath;
 
-		try {
+		$this->MWApiClient = \GWToolset\getMWApiClient( $this->SpecialPage );
+		$element_mapped = $this->getElementMapped( $DOMElement, $mapping );
 
-			$this->MWApiClient = \GWToolset\getMWApiClient( $this->SpecialPage );
+		$this->MediawikiTemplate->populateFromArray( $element_mapped );
+		$filename = $this->MediawikiTemplate->getTitle();
 
-			$element_mapped = $this->getElementMapped( $DOMElement, $mapping );
-			$this->MediawikiTemplate->populateFromArray( $element_mapped );
+		$api_result = $this->MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
+		$pageid = (int)$api_result['query']['pageids'][0];
 
-			$filename = $this->MediawikiTemplate->getFilename( $this->MediawikiTemplate->template_parameters['url_to_the_media_file'] );
+		if ( $pageid > -1 ) { // page already exists only change text
 
-			$api_result = $this->MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
-			$pageid = (int)$api_result['query']['pageids'][0];
+			$api_result = $this->MWApiClient->edit(
+				array(
+					'pageid' => $pageid,
+					'text' => $this->MediawikiTemplate->getTemplate(),
+					'token' => $this->MWApiClient->getEditToken()
+				)
+			);
 
-			if ( $pageid > -1 ) { // page already exists only change text
-
-				$api_result = $this->MWApiClient->edit(
-					array(
-						'pageid' => $pageid,
-						'text' => $this->MediawikiTemplate->getTemplate(),
-						'token' => $this->MWApiClient->getEditToken()
-					)
-				);
-
-				if ( empty( $api_result['edit']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
-					
-					$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-						'<span class="error">' . $filename . '</span><br/>' .
-						'<span class="error">' . $e->getMessage() . '</span><br/>';
-
-				}
-
-				$result .=
-					'<li>' .
-						'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
-							$api_result['edit']['title'] .
-							( isset($api_result['edit']['oldrevid']) ? ' ( revised )' : ' ( no change )' ) .
-						'</a>' .
-					'</li>';
-
-			} else { // page does not yet exist upload image and template text
-
-				$api_result = $this->MWApiClient->upload(
-					array(
-						'filename' => $filename,
-						'text' => $this->MediawikiTemplate->getTemplate(),
-						'token' => $this->MWApiClient->getEditToken(),
-						'ignorewarnings' => true,
-						'url' => $this->MediawikiTemplate->template_parameters['url_to_the_media_file']
-					)
-				);
-
-				if ( empty( $api_result['upload']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
-
-					$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-						'<span class="error">' . $filename . '</span><br/>' .
-						'<span class="error">' . $e->getMessage() . '</span><br/>';
-
-				}
-
-				$result .=
-					'<li>' .
-						'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
-							$api_result['upload']['filename'] .
-						'</a>' .
-					'</li>';
+			if ( empty( $api_result['edit']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
+				
+				$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
+					'<span class="error">' . $filename . '</span><br/>' .
+					'<span class="error">' . $e->getMessage() . '</span><br/>';
 
 			}
 
-		} catch( Exception $e ) {
+			$result .=
+				'<li>' .
+					'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
+						$api_result['edit']['title'] .
+						( isset($api_result['edit']['oldrevid']) ? ' ( revised )' : ' ( no change )' ) .
+					'</a>' .
+				'</li>';
 
-			$result .= '<h1>' . wfMessage( 'gwtoolset-api-error' ) . '</h1>' .
-				'<span class="error">' . $filename . '</span><br/>' .
-				'<span class="error">' . $e->getMessage() . '</span><br/>';
+		} else { // page does not yet exist upload image and template text
+
+			$api_result = $this->MWApiClient->upload(
+				array(
+					'filename' => $filename,
+					'text' => $this->MediawikiTemplate->getTemplate(),
+					'token' => $this->MWApiClient->getEditToken(),
+					'ignorewarnings' => true,
+					'url' => $this->MediawikiTemplate->template_parameters['url_to_the_media_file']
+				)
+			);
+
+			if ( empty( $api_result['upload']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
+
+				$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
+					'<span class="error">' . $filename . '</span><br/>' .
+					'<span class="error">' . $e->getMessage() . '</span><br/>';
+
+			}
+
+			$result .=
+				'<li>' .
+					'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
+						$api_result['upload']['filename'] .
+					'</a>' .
+				'</li>';
 
 		}
 
@@ -314,11 +319,10 @@ class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 */
-	public function processDOMElements( $file_path_local, array &$user_options, array $mapping, MediawikiTemplate &$MediawikiTemplate ) {
+	public function processDOMElements( $file_path_local, array &$user_options, array $mapping ) {
 
 		$result = null;
 		$DOMElement = null;
-		$this->MediawikiTemplate = $MediawikiTemplate;
 		$reader = new XMLReader();
 
 			if ( empty( $file_path_local ) ) {
@@ -332,7 +336,7 @@ class XmlHandler {
 				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('could not open the XML File for reading') );
 	
 			}
-	
+
 			while ( $reader->read() ) {
 	
 				$DOMElement = $this->findMatchingDOMElement( $reader, $user_options );
@@ -668,9 +672,10 @@ class XmlHandler {
 	}
 
 
-	public function __construct( SpecialPage &$SpecialPage ) {
+	public function __construct( SpecialPage &$SpecialPage, MediawikiTemplate &$MediawikiTemplate ) {
 
 		$this->SpecialPage = $SpecialPage;
+		$this->MediawikiTemplate = $MediawikiTemplate;
 
 	}
 

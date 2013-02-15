@@ -55,32 +55,47 @@ class MediawikiTemplate extends Model {
 	}
 
 
-
-
 	/**
-	 * creates a filename based on the given url
-	 *   - reverses the domain name
-	 *     e.g. www.wikimedia.org becomes org.wikimedia.www.
-	 *   - ignores any path information
-	 *   - appends the file name
+	 * creates a title based on
+	 *   - title
+	 *   - title identifier
+	 *
+	 * @todo: what if url is not to a file but a re-direct to the file
 	 */
-	public function getFilename( $url = null ) {
+	public function getTitle() {
 
 		$result = null;
 
+			if ( empty( $this->template_parameters['title'] ) ) {
 
-		$parsed_url = parse_url( $url );
-		$host = explode( '.', $parsed_url['host'] );
+				throw new Exception( wfMessage('gwtoolset-mapping-no-title') );
 
-		for ( $i = count( $host ) - 1; $i >= 0; $i -= 1 ) {
+			}
 
-			$result .= strtolower( $host[$i] ) . '.';
+			if ( empty( $this->template_parameters['title_identifier'] ) ) {
 
-		}
-		
-		$path = explode( '/', $parsed_url['path'] );
-		$result .= $path[ count( $path ) - 1 ];
+				throw new Exception( wfMessage('gwtoolset-mapping-no-title-identifier') );
 
+			}
+
+			if ( empty( $this->template_parameters['url_to_the_media_file'] ) ) {
+
+				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url') );
+
+			}
+
+			$result = str_replace( Config::$metadata_separator, ' ', $this->template_parameters['title'] );
+			$result .= '-' . $this->template_parameters['title_identifier'];
+
+			$pathinfo = pathinfo( $this->template_parameters['url_to_the_media_file'] );
+			
+			if ( empty( $pathinfo['extension'] ) ) {
+
+				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url-extension') );
+
+			}
+
+			$result .= '.' . $pathinfo['extension'];
 
 		return $result;
 
@@ -142,6 +157,9 @@ class MediawikiTemplate extends Model {
 		}
 
 		$this->template_parameters = json_decode( $result->current()->template_parameters, true );
+		$this->template_parameters['description_lang'] = null;
+		$this->template_parameters['title_identifier'] = null;
+		$this->template_parameters['url_to_the_media_file'] = null;
 		ksort( $this->template_parameters );
 
 	}
@@ -184,4 +202,3 @@ class MediawikiTemplate extends Model {
 
 
 }
-
