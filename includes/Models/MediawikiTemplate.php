@@ -106,11 +106,25 @@ class MediawikiTemplate extends Model {
 
 		$result = null;
 		$sections = null;
-		$template = '{{' . $this->template_name . '%s}}';
+		$template = '{{' . $this->template_name . "\n" . '%s}}';
 
 		foreach( $this->template_parameters as $parameter => $value ) {
 
-			$sections .= '|' . $parameter . '=' . Filter::evaluate( $value );
+			if ( $parameter == 'description' ) {
+
+				$sections .=
+					'|' . $parameter . '=' .
+					'{{' .
+						$this->template_parameters['description_lang'] .
+						'|1=' .
+						Filter::evaluate( $value )  .
+					"}}\n";
+
+			} else {
+
+				$sections .= '|' . $parameter . '=' . Filter::evaluate( $value )  . "\n";
+
+			}
 
 		}
 

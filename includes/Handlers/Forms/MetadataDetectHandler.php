@@ -58,7 +58,6 @@ class MetadataDetectHandler extends FormHandler {
 		$result = null;
 		$mapping_result = false;
 
-		$this->MediawikiTemplate = new MediawikiTemplate();
 		$this->MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
 
 		$this->Mapping = new Mapping();
@@ -104,8 +103,10 @@ class MetadataDetectHandler extends FormHandler {
 		$metadata_dom_element = null;
 		$metadata_selects = null;
 		$metadata_as_html_table_rows = null;
+
+		$this->MediawikiTemplate = new MediawikiTemplate();
 		$this->FileHandler = new FileHandler( $this->SpecialPage );
-		$this->XmlHandler = new XmlHandler( $this->SpecialPage );
+		$this->XmlHandler = new XmlHandler( $this->SpecialPage, $this->MediawikiTemplate );
 
 		$user_options = array(
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
