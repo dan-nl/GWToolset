@@ -47,7 +47,8 @@ class FileHandler {
 	 */
 	protected function getTitle() {
 
-		$title = $this->File->pathinfo['filename'] .  '-' . $this->SpecialPage->getUser()->getName();
+		$title = FileChecks::getValidTitle( $this->File->pathinfo['filename'] );
+		$title .= '-' . $this->SpecialPage->getUser()->getName();
 		return $title;
 
 	}

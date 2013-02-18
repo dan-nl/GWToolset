@@ -12,6 +12,7 @@
 namespace	GWToolset\Models;
 use			Exception,
 			GWToolset\Config,
+			GWToolset\Helpers\FileChecks,
 			Php\Filter,
 			ReflectionClass,
 			ReflectionProperty,
@@ -61,6 +62,8 @@ class MediawikiTemplate extends Model {
 	 *   - title identifier
 	 *
 	 * @todo: what if url is not to a file but a re-direct to the file
+	 * @todo: eliminate any "safe-guarded characters", e.g. : seems to tell the api
+	 * that the file does not exist so it uploads it aknew each time instead of editing it
 	 */
 	public function getTitle() {
 
@@ -84,11 +87,10 @@ class MediawikiTemplate extends Model {
 
 			}
 
-			$result = str_replace( Config::$metadata_separator, ' ', $this->template_parameters['title'] );
+			$result = FileChecks::getValidTitle( $this->template_parameters['title'] );
 			$result .= '-' . $this->template_parameters['title_identifier'];
-
 			$pathinfo = pathinfo( $this->template_parameters['url_to_the_media_file'] );
-			
+
 			if ( empty( $pathinfo['extension'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url-extension') );
@@ -102,6 +104,10 @@ class MediawikiTemplate extends Model {
 	}
 
 
+	/**
+	 * @todo: make sure it only picks-up original tempalte fields and not the ones
+	 * we've inserted, e.g. description_lang
+	 */
 	public function getTemplate() {
 
 		$result = null;

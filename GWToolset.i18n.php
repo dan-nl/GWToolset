@@ -57,6 +57,7 @@ $messages['en'] = array(
 	'gwtoolset-back-to-form' => 'back to form',
 	'gwtoolset-no-form' => 'There is no form for this module',
 	'gwtoolset-developer-issue' => 'Unfortunately a developer will need to address this issue before you can continue [ $1 ].',
+	'gwtoolset-title-too-long' => 'Title is too long [$1]',
 
 
 	#js

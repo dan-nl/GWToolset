@@ -29,6 +29,26 @@ class FileChecks {
 
 
 	/**
+	 * File names may be up to 240 bytes long
+	 * 
+	 * @see https://commons.wikimedia.org/wiki/Commons:File_naming
+	 * @see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)
+	 * @see http://www.mediawiki.org/wiki/Help:Bad_title
+	 */
+	public static function getValidTitle( $title, $replacement = '-' ) {
+
+		if ( strlen( $title ) > 220 ) {
+
+			throw new Exception( wfMessage('gwtoolset-title-too-long')->params( $title ) );
+
+		}
+
+		return str_replace( array( '#','<','>','[',']','|','{','}',':','¬','`','!','"','£','$','^','&','*','(',')','+','=','~','?','/',',',';',"'",'@' ), $replacement, $title );
+
+	}
+
+
+	/**
 	 * sets the max file upload size to the gwtoolset configured value
 	 * if set or to the wiki’s setting
 	 *
