@@ -10,7 +10,7 @@
 		$form : $('#gwtoolset-form'),
 		$ajax_loader : $( '<div/>', { 'class':'gwtoolset-loader' }),
 		$template_table : $('#template-table > tbody'),
-		$save_mapping_button : $('<tr><td>&nbsp;</td><td style="text-align:right;"><button id="save-mapping">save mapping</button></td></tr>'),
+		$save_mapping_button : $('<tr><td colspan="3" style="text-align:right;"><button id="save-mapping">' + mw.message('gwtoolset-save-mapping').escaped() + '</button></td></tr>'),
 
 
 		/**
@@ -20,7 +20,7 @@
 		 */
 		handleAjaxError : function() {
 			
-			alert('We apologize, there was a problem processing your request; please try again later. (place me in wiki messages)');
+			alert( mw.message('gwtoolset-save-mapping-error').escaped() );
 			console.log( arguments );
 			
 		},
@@ -38,9 +38,9 @@
 		handleAjaxSuccess : function ( data, textStatus, jqXHR ) {
 
 			if ( !data.status || data.status != 'success' ) {
-				alert('We apologize, there was a problem processing your request; please try again later. (place me in wiki messages)');
+				alert( mw.message('gwtoolset-save-mapping-error').escaped() );
 			} else {
-				alert('Your mapping has been successfully saved. (place me in wiki messages)');
+				alert( mw.message('gwtoolset-save-mapping-success').escaped() );
 			}
 
 			console.log( arguments );
@@ -106,7 +106,7 @@
 		handleSaveMappingClick : function( evt ) {
 
 			var self = evt.data.self,
-				mapping_name_to_use = prompt('how would you like to name this mapping? (place me in wiki messages)', $('#gwtoolset-metadata-mapping').val()),
+				mapping_name_to_use = prompt( mw.message('gwtoolset-save-mapping-name').escaped(), $('#gwtoolset-metadata-mapping').val() ),
 				mediawiki_template = $('#gwtoolset-mediawiki-template').val(),
 				wpEditToken = $('#wpEditToken').val(),
 				metadata_mappings = self.$form.find('select').serializeArray();

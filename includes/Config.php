@@ -89,7 +89,13 @@ class Config {
 
 		'scripts' => 'resources/js/ext.gwtoolset.js',
 		'styles' => 'resources/css/ext.gwtoolset.css',
-		'messages' => 'gwtoolset-loading'
+		'messages' => array(
+			'gwtoolset-loading',
+			'gwtoolset-save-mapping',
+			'gwtoolset-save-mapping-name',
+			'gwtoolset-save-mapping-error',
+			'gwtoolset-save-mapping-success'
+		)
 
 	);
 
