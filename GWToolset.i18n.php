@@ -61,6 +61,10 @@ $messages['en'] = array(
 
 	#js
 	'gwtoolset-loading' => 'Please be patient, this may take awhile',
+	'gwtoolset-save-mapping' => 'save mapping',
+	'gwtoolset-save-mapping-error' => 'We apologize, there was a problem processing your request; please try again later.',
+	'gwtoolset-save-mapping-success' => 'Your mapping has been successfully saved.',
+	'gwtoolset-save-mapping-name' => 'How would you like to name this mapping?',
 
 
 	#xmlreader
