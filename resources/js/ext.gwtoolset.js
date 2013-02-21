@@ -113,7 +113,7 @@
 
 			evt.preventDefault();
 
-			if ( mapping_name_to_use.length > 3 ) {
+			if ( mapping_name_to_use !== null && mapping_name_to_use.length > 3 ) {
 
 				self.saveMapping( mapping_name_to_use, mediawiki_template, wpEditToken, metadata_mappings );
 
