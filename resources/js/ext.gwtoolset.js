@@ -8,7 +8,7 @@
 		display_debug_output : true,
 		empty_console : { log : function() {} },
 		$form : $('#gwtoolset-form'),
-		$ajax_loader : $( '<div/>', { 'class':'gwtoolset-loader' }),
+		$ajax_loader : $( '<div/>', { 'id':'gwtoolset-loader' }),
 		$template_table : $('#template-table > tbody'),
 		$save_mapping_button : $('<tr><td colspan="3" style="text-align:right;"><button id="save-mapping">' + mw.message('gwtoolset-save-mapping').escaped() + '</button></td></tr>'),
 
@@ -80,7 +80,7 @@
 		 * @param {array} metadata_mappings a json array of the selected mappings
 		 * @todo handle server error, timeout, etc.
 		 */
-		saveMapping : function( mapping_name_to_use, mediawiki_template, wpEditToken, metadata_mappings ) {
+		saveMapping : function( mapping_name_to_use, mediawiki_template_name, wpEditToken, metadata_mappings ) {
 
 			var self = this;
 
@@ -90,7 +90,7 @@
 				data : {
 					'gwtoolset-form' : 'metadata-mapping-save',
 					'mapping-name-to-use' : mapping_name_to_use,
-					'mediawiki-template' : mediawiki_template,
+					'mediawiki-template-name' : mediawiki_template_name,
 					'wpEditToken' : wpEditToken,
 					'metadata-mappings' : metadata_mappings
 				},
@@ -107,7 +107,7 @@
 
 			var self = evt.data.self,
 				mapping_name_to_use = prompt( mw.message('gwtoolset-save-mapping-name').escaped(), $('#gwtoolset-metadata-mapping').val() ),
-				mediawiki_template = $('#gwtoolset-mediawiki-template').val(),
+				mediawiki_template_name = $('#gwtoolset-mediawiki-template-name').val(),
 				wpEditToken = $('#wpEditToken').val(),
 				metadata_mappings = self.$form.find('select').serializeArray();
 
@@ -115,7 +115,7 @@
 
 			if ( mapping_name_to_use !== null && mapping_name_to_use.length > 3 ) {
 
-				self.saveMapping( mapping_name_to_use, mediawiki_template, wpEditToken, metadata_mappings );
+				self.saveMapping( mapping_name_to_use, mediawiki_template_name, wpEditToken, metadata_mappings );
 
 			}
 
@@ -145,8 +145,7 @@
 		addAjaxLoader : function() {
 
 			this.$ajax_loader
-				.append('<img src="/skins/common/images/ajax-loader.gif"/><br/>')
-				.append( mw.msg('gwtoolset-loading') );
+				.append('<p><img src="/skins/common/images/ajax-loader.gif"/><br/>' + mw.msg('gwtoolset-loading') + '</p>');
 			this.$form.prepend( this.$ajax_loader );
 
 		},

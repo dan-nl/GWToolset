@@ -33,7 +33,7 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 			array(
 				'user_name' => $this->SpecialPage->getUser()->getName(),
 				'mapping_name' => $this->SpecialPage->getRequest()->getVal( 'mapping-name-to-use' ),
-				'mediawiki_template' => $this->SpecialPage->getRequest()->getVal( 'mediawiki-template' ),
+				'mediawiki_template' => $this->SpecialPage->getRequest()->getVal( 'mediawiki-template-name' ),
 				'mapping' => json_encode( $mappings ),
 				'created' => date('Y-m-d H:i:s')
 			)

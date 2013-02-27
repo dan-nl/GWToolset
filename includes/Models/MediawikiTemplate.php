@@ -24,16 +24,62 @@ class MediawikiTemplate extends Model {
 
 	/**
 	 * @var string
-	 * a string representation of the mediawiki template name
+	 * the mediawiki template name
 	 */
-	public $template_name;
+	public $mediawiki_template_name;
+
+
+	/**
+	 * @var string
+	 * a json representation of the mediawiki template parameters
+	 */
+	public $mediawiki_template_json;
 
 
 	/**
 	 * @var array
-	 * an array that represents the mediawiki template parameters for this template
+	 * the $mediawiki_template_json converted to a php array
 	 */
-	public $template_parameters;
+	public $mediawiki_template_array = array();
+
+
+	/**
+	 * create an array that represents the mapping of mediawiki template
+	 * attributes to metadata elements based on the given array; defaults to
+	 * the $_POST array anticipated to come from an html form.
+	 *
+	 * the array is expected to be in an array format for each mediawiki
+	 * parameter e.g. accession-number[], artist[]
+	 *
+	 * @return array
+	 */
+	public function getMappingFromArray( array $array = array() ) {
+
+		$result = array();
+		$parameter_as_id = null;
+		$metadata_element = null;
+
+			if ( empty( $array ) ) { $array = $_POST; }
+
+			foreach( $this->mediawiki_template_array as $parameter => $value ) {
+
+				$parameter_as_id = $this->getParameterAsId( $parameter );
+
+				if ( isset( $array[ $parameter_as_id ] ) ) {
+
+					foreach( $array[ $parameter_as_id ] as $metadata_element ) {
+
+						$result[ $parameter_as_id ][] = Filter::evaluate( $metadata_element );
+
+					}
+
+				}
+
+			}
+
+		return $result;
+
+	}
 
 
 	public function getParameterAsId( $parameter ) {
@@ -47,10 +93,10 @@ class MediawikiTemplate extends Model {
 
 		return $this->dbr->select(
 			'gwtoolset_mediawiki_templates',
-			'template_name AS key_name',
+			'mediawiki_template_name AS key_name',
 			null,
 			null,
-			array( 'ORDER BY' => 'template_name ASC' )
+			array( 'ORDER BY' => 'mediawiki_template_name ASC' )
 		);
 
 	}
@@ -68,28 +114,29 @@ class MediawikiTemplate extends Model {
 	public function getTitle() {
 
 		$result = null;
+		$pathinfo = array();
 
-			if ( empty( $this->template_parameters['title'] ) ) {
+			if ( empty( $this->mediawiki_template_array['title'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-no-title') );
 
 			}
 
-			if ( empty( $this->template_parameters['title_identifier'] ) ) {
+			if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-no-title-identifier') );
 
 			}
 
-			if ( empty( $this->template_parameters['url_to_the_media_file'] ) ) {
+			if ( empty( $this->mediawiki_template_array['url_to_the_media_file'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url') );
 
 			}
 
-			$result = FileChecks::getValidTitle( $this->template_parameters['title'] );
-			$result .= '-' . $this->template_parameters['title_identifier'];
-			$pathinfo = pathinfo( $this->template_parameters['url_to_the_media_file'] );
+			$result = FileChecks::getValidTitle( $this->mediawiki_template_array['title'] );
+			$result .= '-' . $this->mediawiki_template_array['title_identifier'];
+			$pathinfo = pathinfo( $this->mediawiki_template_array['url_to_the_media_file'] );
 
 			if ( empty( $pathinfo['extension'] ) ) {
 
@@ -112,16 +159,16 @@ class MediawikiTemplate extends Model {
 
 		$result = null;
 		$sections = null;
-		$template = '{{' . $this->template_name . "\n" . '%s}}';
+		$template = '{{' . $this->mediawiki_template_name . "\n" . '%s}}';
 
-		foreach( $this->template_parameters as $parameter => $value ) {
+		foreach( $this->mediawiki_template_array as $parameter => $value ) {
 
 			if ( $parameter == 'description' ) {
 
 				$sections .=
 					'|' . $parameter . '=' .
 					'{{' .
-						$this->template_parameters['description_lang'] .
+						$this->mediawiki_template_array['description_lang'] .
 						'|1=' .
 						Filter::evaluate( $value )  .
 					"}}\n";
@@ -141,14 +188,14 @@ class MediawikiTemplate extends Model {
 
 	public function populateFromArray( array &$metadata = array() ) {
 
-		foreach( $this->template_parameters as $parameter => $value ) {
+		foreach( $this->mediawiki_template_array as $parameter => $value ) {
 
-			$this->template_parameters[ $parameter ] = null;
+			$this->mediawiki_template_array[ $parameter ] = null;
 			$parameter_as_id = $this->getParameterAsId( $parameter );
 
 			if ( isset( $metadata[ $parameter_as_id ] ) ) {
 
-				$this->template_parameters[ $parameter ] = $metadata[ $parameter_as_id ];
+				$this->mediawiki_template_array[ $parameter ] = $metadata[ $parameter_as_id ];
 
 			}
 
@@ -166,21 +213,22 @@ class MediawikiTemplate extends Model {
 
 		$result = $this->dbr->select(
 			Filter::evaluate( $this->table_name ),
-			'template_name, template_parameters',
-			"template_name = '" . Filter::evaluate( $this->template_name ) . "'"
+			'mediawiki_template_name, mediawiki_template_json',
+			"mediawiki_template_name = '" . Filter::evaluate( $this->mediawiki_template_name ) . "'"
 		);
 
 		if ( empty( $result ) || $result->numRows() != 1 ) {
 
-			throw new Exception( wfMessage('gwtoolset-mediawiki-template-not-found')->rawParams( $params['metadata-mapping'] ) );
+			throw new Exception( wfMessage('gwtoolset-mediawiki-template-not-found')->rawParams( $params['mediawiki-template-name'] ) );
 
 		}
 
-		$this->template_parameters = json_decode( $result->current()->template_parameters, true );
-		$this->template_parameters['description_lang'] = null;
-		$this->template_parameters['title_identifier'] = null;
-		$this->template_parameters['url_to_the_media_file'] = null;
-		ksort( $this->template_parameters );
+		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
+		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
+		$this->mediawiki_template_array['description_lang'] = null;
+		$this->mediawiki_template_array['title_identifier'] = null;
+		$this->mediawiki_template_array['url_to_the_media_file'] = null;
+		ksort( $this->mediawiki_template_array );
 
 	}
 
@@ -190,24 +238,35 @@ class MediawikiTemplate extends Model {
 
 
 	/**
-	 * @param string $mediawiki_template
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @param {string} $mediawiki_template_name
+	 * the key within $user_options that holds the name of the mediawiki template
+	 *
 	 * @throws Exception
 	 * @return string
 	 */
-	public function getValidMediaWikiTemplate( &$mediawiki_template = null ) {
+	public function getValidMediaWikiTemplate( array &$user_options, $mediawiki_template_name = 'mediawiki-template-name' ) {
 
 		$template = null;
 
-		if ( in_array( $mediawiki_template, Config::$allowed_templates ) ) {
+			if ( !isset( $user_options[ $mediawiki_template_name ] ) ) {
 
-			$this->template_name = $mediawiki_template;
-			$this->retrieve();
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->param('no mediawiki-template-name provided') );
 
-		} else {
+			}
 
-			throw new Exception( wfMessage('gwtoolset-metadata-invalid-template') );
+			if ( in_array( $user_options[ $mediawiki_template_name ], Config::$allowed_templates ) ) {
 
-		}
+				$this->mediawiki_template_name = $user_options[ $mediawiki_template_name ];
+				$this->retrieve();
+
+			} else {
+
+				throw new Exception( wfMessage('gwtoolset-metadata-invalid-template') );
+
+			}
 
 		return $template;
 

@@ -112,8 +112,9 @@ $messages['en'] = array(
 	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; unfortunately a developer will need to address this issue before you can continue ( [$1] )',
-	'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url then unfortunately a developer will need to look into whether or not that url is being properly passed to the form handler.',
+	'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url or uploaded a metadata file then unfortunately a developer will need to look further into this issue.',
 	'gwtoolset-metadata-file-url-invalid' => 'The metadata file url was invalid; the file does not yet exist in the wiki. You need to first upload the metadata file from your computer if you want to use the file url reference in the metadata mapping form.',
+	'gwtoolset-no-example-dom-element' => 'No example xml element found for mapping. Did you indicate the correct element name to be used as the example xml element?',
 
 
 	# metadata mapping
@@ -122,7 +123,7 @@ $messages['en'] = array(
 	'gwtoolset-metadata-mapping-error' => 'Metadata Mapping Error',
 	'gwtoolset-metadata-mapping-legend' => 'Map your metadata',
 	'gwtoolset-mapping-no-title' => 'The metadata contains no title, which is used to create the page title',
-	'gwtoolset-mapping-no-title-identifier' => 'The metadata contains no title identifier, which is used to make the page title unique',
+	'gwtoolset-mapping-no-title-identifier' => 'The metadata contains no title identifier, which is used to create a unique page title; make sure you map a metadata field to the mediawiki template parameter title identifier',
 	'gwtoolset-mapping-no-media-file-url' => 'The metadata contains no media file url, which is used to create the page title',
 	'gwtoolset-mapping-no-media-file-url-extension' => 'The metadata media file url contains no extension, which is used to create the page title',
 

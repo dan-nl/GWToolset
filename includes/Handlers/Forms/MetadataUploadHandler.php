@@ -34,7 +34,7 @@ class MetadataUploadHandler extends FormHandler {
 		$result = array( 'msg' => null, 'uploaded' => false );
 
 			$this->FileHandler = new FileHandler( $this->SpecialPage );
-			$this->FileHandler->getUploadedFileFromForm( 'uploaded-metadata' );
+			$this->FileHandler->getUploadedFileFromForm( 'metadata-file-upload' );
 			$result = $this->FileHandler->saveFile();
 
 		return $result['msg'];

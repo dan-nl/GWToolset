@@ -39,7 +39,7 @@ class MetadataUploadForm {
 						'<li>' .
 							'<label>' .
 								wfMessage('gwtoolset-metadata-file') . ' : ' .
-								'<input type="file" name="uploaded-metadata" ' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '>' .
+								'<input type="file" name="metadata-file-upload" ' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '>' .
 							'</label><br/>' .
 
 							'<i>' .

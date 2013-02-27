@@ -163,7 +163,7 @@ class File {
 
 		} while( false );
 
-		if ( !$result ) { throw new FileException(  'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit.' ); }
+		if ( !$result ) { throw new FileException(  'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' ); }
 		return $result;
 
 	}
@@ -176,11 +176,11 @@ class File {
 	protected function populate( $file_field_name ) {
 
 		$file_field_name = Filter::evaluate( $file_field_name );
-		if ( !isset( $_FILES[ $file_field_name ] ) ) { throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist.' ); }
+		if ( !isset( $_FILES[ $file_field_name ] ) ) { throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist. (Php\File)' ); }
 		
 		$file = $_FILES[ $file_field_name ];
-		if ( empty( $file ) ) { throw new FileException( 'The file submitted contains no information; it is most likely an empty file.' ); }
-		if ( isset( $file[0] ) ) { throw new FileException( 'The file submitted contains information on more than one file ($_FILES has multiple values).' ); }
+		if ( empty( $file ) ) { throw new FileException( 'The file submitted contains no information; it is most likely an empty file. (Php\File)' ); }
+		if ( isset( $file[0] ) ) { throw new FileException( 'The file submitted contains information on more than one file ($_FILES has multiple values). (Php\File)' ); }
 
 		$this->original_file_array = $file;
 		if ( isset( $file['error'] ) ) { $this->error = $file['error']; }

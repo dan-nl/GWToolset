@@ -54,7 +54,7 @@ class MetadataDetectForm {
 						'<li>' .
 							'<label>' .
 								wfMessage('gwtoolset-which-mediawiki-template') . ' : ' .
-									$MediawikiTemplate->getModelKeysAsSelect( 'mediawiki-template' ) .
+									$MediawikiTemplate->getModelKeysAsSelect( 'mediawiki-template-name' ) .
 							'</label>' .
 						'</li>' .
 
@@ -79,7 +79,7 @@ class MetadataDetectForm {
 								'<li>' .
 									'<label>' .
 										wfMessage('gwtoolset-metadata-file') . ' : ' .
-										'<input type="file" name="uploaded-metadata" ' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '>' .
+										'<input type="file" name="metadata-file-upload" ' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '>' .
 									'</label><br/>' .
 		
 									'<i>' .

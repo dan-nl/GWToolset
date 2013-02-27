@@ -25,7 +25,7 @@ class MetadataMappingForm {
 		
 		return
 			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-2') . '</h2>' .
-			wfMessage('gwtoolset-metadata-detect-step-2-instructions')->params( $user_options['mediawiki-template'] ) .
+			wfMessage('gwtoolset-metadata-detect-step-2-instructions')->params( $user_options['mediawiki-template-name'] ) .
 
 			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post" enctype="multipart/form-data">' .
 
@@ -36,38 +36,38 @@ class MetadataMappingForm {
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
 						//'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
-						'<input type="hidden" name="mediawiki-template" id="gwtoolset-mediawiki-template" value="' . $user_options['mediawiki-template'] . '"/>' .
+						'<input type="hidden" name="mediawiki-template-name" id="gwtoolset-mediawiki-template-name" value="' . $user_options['mediawiki-template-name'] . '"/>' .
 						'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
 						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
 						'<input type="hidden" name="MAX_FILE_SIZE"  value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
 
 						'<h3>' .
-							wfMessage('gwtoolset-mediawiki-template')->params( $user_options['mediawiki-template'] ) .
+							wfMessage('gwtoolset-mediawiki-template')->params( $user_options['mediawiki-template-name'] ) .
 							( !empty( $mapping_name['user-name'] ) ? ', ' . $mapping_name['user-name'] : null ) .
 							( !empty( $mapping_name['mapping-name'] ) ? ' : ' . $mapping_name['mapping-name'] : null ) .
 						'</h3>' .
 						
-						'<table id="template-table" style="float:left;width:33%;margin-right:2%;margin-bottom:1em;">' .
+						'<table id="template-table" style="float:left;margin-right:2%;margin-bottom:1em;">' .
 							'<thead>' .
-								'<tr><th>template field</th><th>maps to</th></tr>' .
+								'<tr><th>template field</th><th colspan="2">maps to</th></tr>' .
 							'<thead>' .
 							'<tbody>' .
-								$metadata_selects . 
+								$metadata_selects .
 							'</tbody>' .
 						'</table>' .
-						'<table style="float:left; display: inline; width: 65%; overflow: auto;">' .
+						'<table style="float:left; display: inline; width: 60%; overflow: auto;">' .
 							'<thead>' .
 								'<tr><th colspan="2">metadata’s example record’s contents</th></tr>' .
 							'<thead>' .
 							'<tbody style="vertical-align: top;">' .
-								$metadata_as_table_rows . 
+								$metadata_as_table_rows .
 							'</tbody>' .
 						'</table>' .
 
 						//'<p style="clear:both;">' .
 						//	'<label>' .
 						//		wfMessage('gwtoolset-metadata-file') . ' : ' .
-						//		'<input type="file" name="uploaded-metadata"' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '/>' .
+						//		'<input type="file" name="metadata-file-upload"' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '/>' .
 						//	'</label><br/>' .
 						//
 						//	'<i>' .
@@ -76,7 +76,10 @@ class MetadataMappingForm {
 						//	'</i>' .
 						//'</p>' .
 
-						'<p style="clear:both;">' . wfMessage('gwtoolset-metadata-file-url') . ' : ' . $user_options['metadata-file-url'] . '<br/><input type="submit" name="submit" value="process file"></p>' .
+						'<p style="clear:both;">' .
+							wfMessage('gwtoolset-metadata-file-url') . ' : ' . $user_options['metadata-file-url'] . '<br/>' .
+							'<input type="submit" name="submit" value="process file">' .
+						'</p>' .
 
 				'</fieldset>' .
 

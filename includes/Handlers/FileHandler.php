@@ -55,28 +55,30 @@ class FileHandler {
 
 
 	/**
+	 * 
+	 *
 	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @param {string} $metadata_file_url
+	 * the key within $user_options that holds the url to the metadata file
+	 * stored in the local wiki
+	 *
 	 * @return {string} a reference to the local file path
 	 */
-	public function retrieveLocalFilePath( $user_options = array(), $expected_key = null ) {
+	public function retrieveLocalFilePath( array &$user_options, $metadata_file_url = 'metadata-file-url' ) {
 
 		global $wgServer, $IP;
 		$file_name = null;
 
-		if ( empty( $expected_key ) ) {
-
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no metadata-file-url key specified') );
-
-		}
-
-		if ( empty( $user_options[$expected_key] ) ) {
+		if ( !isset( $user_options[ $metadata_file_url ] ) ) {
 
 			throw new Exception( wfMessage('gwtoolset-metadata-file-url-not-present') );
 
 		}
 
 		FileChecks::isAcceptedFileExtension(
-			$user_options[$expected_key],
+			$user_options[ $metadata_file_url ],
 			FileChecks::getAcceptedExtensions( Config::$accepted_types )
 		);
 
@@ -85,7 +87,7 @@ class FileHandler {
 		$file_name = str_replace(
 			array( $wgServer, 'index.php', '/', 'File:' ),
 			'',
-			$user_options[$expected_key]
+			$user_options[ $metadata_file_url ]
 		);
 
 		$file_name = 'File:' . Filter::evaluate( $file_name );

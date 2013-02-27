@@ -13,7 +13,9 @@ namespace	GWToolset;
 use			ErrorException,
 			Exception,
 			GWToolset\MediaWiki\Api\Client,
-			SpecialPage;
+			SpecialPage,
+			RecursiveArrayIterator,
+			RecursiveIteratorIterator;
 
 
 /**
@@ -71,11 +73,47 @@ function getMWApiClient( SpecialPage &$SpecialPage ) {
 }
 
 
+// @see http://www.shawnstratton.info/in_array-not-recursive/
+function in_array_r( $needle, $haystack, $strict = false ) {
+
+	$array = new RecursiveIteratorIterator( new RecursiveArrayIterator( $haystack ) );
+
+	foreach( $array as $element ) {
+
+		if ( $strict == true ) {
+
+			if ( $element === $needle ) {
+
+				return true;
+
+			}
+
+		} else {
+
+			if ( $element == $needle ) {
+
+				return true;
+
+			}
+
+		}
+
+	}
+
+	return false;
+
+}
+
+
 function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
 	if ( error_reporting() >= E_ALL ) {
 
-		throw new ErrorException( $errstr, 0, $errno, $errfile, $errline );
+		$errormsg =
+			$errstr . '<br/>' .
+			'<pre>' . print_r( debug_backtrace(), true ) . '</pre>';
+
+		throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
 
 	}
 	
@@ -83,4 +121,9 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
 }
 
-set_error_handler('\GWToolset\handleError');
+
+if ( isset( $_SERVER['APPLICATION_ENV'] ) &&  $_SERVER['APPLICATION_ENV'] == 'development' ) {
+
+	set_error_handler('\GWToolset\handleError');
+
+}

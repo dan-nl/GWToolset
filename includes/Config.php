@@ -39,7 +39,9 @@ class Config {
 		'GWToolset\Handlers\Forms\MetadataUploadHandler' => '/includes/Handlers/Forms/MetadataUploadHandler.php',
 
 		'GWToolset\Handlers\SpecialPageHandler' => '/includes/Handlers/SpecialPageHandler.php',
-		'GWToolset\Handlers\XmlHandler' => '/includes/Handlers/XmlHandler.php',
+		'GWToolset\Handlers\Xml\XmlDetectHandler' => '/includes/Handlers/Xml/XmlDetectHandler.php',
+		'GWToolset\Handlers\Xml\XmlHandler' => '/includes/Handlers/Xml/XmlHandler.php',
+		'GWToolset\Handlers\Xml\XmlMappingHandler' => '/includes/Handlers/Xml/XmlMappingHandler.php',
 
 		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
@@ -189,7 +191,7 @@ class Config {
 	);
 
 
-	public static $metadata_separator = ';';
+	public static $metadata_separator = '; ';
 
 
 	/**

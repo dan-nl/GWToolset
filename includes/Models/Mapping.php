@@ -20,23 +20,87 @@ class Mapping extends Model {
 
 	public $user_name;
 	public $mapping_name;
-	public $mediawiki_template;
-	public $mapping;
-	public $mapping_array;
+	public $mediawiki_template_name;
+	public $mapping_json;
 	public $created;
 
 
-	public function flattenFormFieldArray( $array = array() ) {
+	/**
+	 * @var array
+	 * 
+	 */
+	public $mapping_array = array();
+
+
+	/**
+	 * @var array
+	 * an array to be used for quick look-up of target dom elements to be
+	 * used in the metadata for mapping to the mediawiki template; avoids
+	 * the necessity of recursive look-up in the mapping array
+	 */
+	public $target_dom_elements = array();
+
+
+	/**
+	 * @var array
+	 * holds an array of metadata dom elements mapped to their corresponding
+	 * mediawiki template parameters
+	 */
+	public $target_dom_elements_mapped = array();
+
+
+	/**
+	 * used by the save handler
+	 */
+	public function flattenFormFieldArray( array $array ) {
 
 		$result = array();
 
-		foreach( $array as $item ) {
+			foreach( $array as $item ) {
 
-			$result[$item['name']] = $item['value'];
+				$result[$item['name']] = $item['value'];
+
+			}
+
+		return $result;
+
+	}
+
+
+	public function reverseMap() {
+
+		foreach( $this->target_dom_elements as $element ) {
+
+			foreach( $this->mapping_array as $mediawiki_parameter => $target_dom_elements ) {
+
+				if ( in_array( $element, $target_dom_elements ) ) {
+
+					$this->target_dom_elements_mapped[ $element ][] = $mediawiki_parameter;
+
+				}
+
+			}
 
 		}
 
-		return $result;
+	}
+
+
+	public function setTargetElements() {
+
+		foreach( $this->mapping_array as $key => $value ) {
+
+			foreach( $value as $item ) {
+
+				if ( !in_array( $item, $this->target_dom_elements ) && !empty( $item ) ) {
+
+					$this->target_dom_elements[] = $item;
+
+				}
+
+			}
+
+		}
 
 	}
 
@@ -60,9 +124,9 @@ class Mapping extends Model {
 
 		$this->user_name = Filter::evaluate( $result->current()->user_name );
 		$this->mapping_name = Filter::evaluate( $result->current()->mapping_name );
-		$this->mediawiki_template = Filter::evaluate( $result->current()->mediawiki_template );
-		$this->mapping = $result->current()->mapping;
-		$this->mapping_array = json_decode( $this->mapping, true );
+		$this->mediawiki_template_name = Filter::evaluate( $result->current()->mediawiki_template_name );
+		$this->mapping_json = $result->current()->mapping_json;
+		$this->mapping_array = json_decode( $this->mapping_json, true );
 		$this->created = $result->current()->created;
 
 		if ( json_last_error() != JSON_ERROR_NONE ) {
@@ -70,6 +134,9 @@ class Mapping extends Model {
 			throw new Exception( wfMessage('gwtoolset-metadata-mapping-bad')->rawParams( $mapping_name ) );
 
 		}
+
+		$this->setTargetElements();
+		$this->reverseMap();
 
 		return true;
 
@@ -95,30 +162,50 @@ class Mapping extends Model {
 
 
 	/**
-	 * @param {string} $mapping_name
-	 * @param {string} $mediawiki_template
-	 * @return boolean
-	 * @todo: validate $params
+	 * relies on hard coded keys in the $user_options to retrieve a metadata
+	 * mapping stored in the wiki db
+	 *
+	 * - $user_options['metadata-mapping']
+	 * - $user_options['mediawiki-template-name']
+	 *
+	 * the expected $mapping_details should evaluate to the following hard-coded keys
+	 *
+	 * - $mapping_details['user-name']
+	 * - $mapping_details['mapping-name']
+	 *
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @throws Exception
+	 * @return void
 	 */
-	public function retrieve( $params = array() ) {
+	public function retrieve( array &$user_options = array() ) {
 
-		$result = null;
-		$mapping_name = json_decode( str_replace( "`", '"', $params['metadata-mapping'] ), true );
+		$sql_result = null;
+		$mapping_details = array();
 
-		$result = $this->dbr->select(
+		if ( !isset( $user_options['metadata-mapping'] ) ) { return; }
+		$mapping_details = json_decode( str_replace( "`", '"', $user_options['metadata-mapping'] ), true );
+
+		if ( !isset( $mapping_details['user-name'] ) || !isset( $mapping_details['mapping-name'] )  ) {
+
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'mapping user-name and/or mapping-name not set' ) );
+
+		}
+
+		$sql_result = $this->dbr->select(
 			$this->table_name,
-			'user_name, mapping_name, mediawiki_template, mapping, created',
-			"user_name = '" . Filter::evaluate( $mapping_name['user-name'] ) . "' AND " .
-			"mapping_name = '" . Filter::evaluate( $mapping_name['mapping-name'] ) . "' AND " .
-			"mediawiki_template = '" . Filter::evaluate( $params['mediawiki-template'] ) . "'",
+			'user_name, mapping_name, mediawiki_template_name, mapping_json, created',
+			"user_name = '" . Filter::evaluate( $mapping_details['user-name'] ) . "' AND " .
+			"mapping_name = '" . Filter::evaluate( $mapping_details['mapping-name'] ) . "' AND " .
+			"mediawiki_template_name = '" . Filter::evaluate( $user_options['mediawiki-template-name'] ) . "'",
 			null,
 			array('ORDER BY' => 'created DESC', 'LIMIT' => 1)
 		);
 
-		if ( empty( $result ) || $result->numRows() != 1 ) { return false; }
+		if ( empty( $sql_result ) || $sql_result->numRows() != 1 ) { return; }
 
-		$this->populate( $result );
-		return true;
+		$this->populate( $sql_result );
 
 	}
 

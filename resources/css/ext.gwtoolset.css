@@ -2,12 +2,19 @@
 	position: relative;
 }
 
-.gwtoolset-loader {
+#gwtoolset-loader {
 	position: absolute;
-	height: 90%;
+	height: 100%;
 	width: 100%;
-	padding-top: 10%;
-	text-align: center;
 	background-color: #fff;
+	background-color: rgba( 255, 255, 255, .8 );
 	display: none;
+}
+
+#gwtoolset-loader p {
+	position: absolute;
+	top: 50%;
+	width: 100%;
+	margin-top: -64px;
+	text-align: center;
 }

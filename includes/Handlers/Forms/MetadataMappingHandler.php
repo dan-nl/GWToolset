@@ -11,7 +11,8 @@
  */
 namespace	GWToolset\Handlers\Forms;
 use			GWToolset\Handlers\FileHandler,
-			GWToolset\Handlers\XmlHandler,
+			GWToolset\Handlers\Xml\XmlMappingHandler,
+			GWToolset\Models\Mapping,
 			GWToolset\Models\MediawikiTemplate,
 			Php\Filter;
 
@@ -20,42 +21,27 @@ class MetadataMappingHandler extends FormHandler {
 
 
 	/**
+	 * GWToolset\Handlers\FileHandler
+	 */
+	protected $_FileHandler;
+
+
+	/**
+	 * @var GWToolset\Models\Mapping
+	 */
+	protected $_Mapping;
+
+
+	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
-	protected $MediawikiTemplate;
+	protected $_MediawikiTemplate;
 
 
 	/**
-	 * @var GWToolset\Handlers\XmlHandler
+	 * @var GWToolset\Handlers\Xml\XmlMappingHandler
 	 */
-	protected $XmlHandler;
-
-
-	/**
-	 * create an array that represents the mapping of the metadata to the mediawiki
-	 * template based on the user form input
-	 *
-	 * @result array
-	 */
-	protected function getMapping( array &$user_options ) {
-
-		$result = array();
-	
-			foreach( $this->MediawikiTemplate->template_parameters as $parameter => $value ) {
-	
-				$parameter_as_id = $this->MediawikiTemplate->getParameterAsId( $parameter );
-	
-				if ( isset( $_POST[ $parameter_as_id ] ) ) {
-	
-					$result[ $parameter_as_id ] = Filter::evaluate( array( 'source' => $_POST, 'name' => $parameter_as_id ) );
-	
-				}
-	
-			}
-
-		return $result;
-	
-	}
+	protected $_XmlMappingHandler;
 
 
 	/**
@@ -64,32 +50,43 @@ class MetadataMappingHandler extends FormHandler {
 	protected function processRequest() {
 
 		$result = null;
-		$mapping = null;
+		$file_path_local = null;
+		$this->_FileHandler = null;
+		$this->_Mapping = null;
+		$this->_MediawikiTemplate = null;
+		$this->_XmlMappingHandler = null;
 
-		$this->FileHandler = new FileHandler( $this->SpecialPage );
-		$this->MediawikiTemplate = new MediawikiTemplate();
-		$this->XmlHandler = new XmlHandler( $this->SpecialPage, $this->MediawikiTemplate );
-
-		$user_options = array(
-			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
-			'mediawiki-template' => !empty( $_POST['mediawiki-template'] ) ? Filter::evaluate( $_POST['mediawiki-template'] ) : null,
-			'metadata-file-url'  => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
-			'record-count' => 0
-		);
+			$user_options = array(
+				'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
+				'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
+				'metadata-file-url'  => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
+				'record-count' => 0
+			);
+			
 
 			$this->checkForRequiredFormFields(
 				array(
 					'record-element-name',
-					'mediawiki-template',
-					'metadata-file-url'
+					'mediawiki-template-name',
+					'metadata-file-url',
+					'record-count'
 				),
 				$user_options
 			);
 
-			$file_path_local = $this->FileHandler->retrieveLocalFilePath( $user_options, 'metadata-file-url' );
-			$this->MediawikiTemplate->getValidMediaWikiTemplate( $user_options['mediawiki-template'] );
-			$mapping = $this->getMapping( $user_options );
-			$result .= $this->XmlHandler->processDOMElements( $file_path_local, $user_options, $mapping );
+			$this->_FileHandler = new FileHandler( $this->SpecialPage );
+			$file_path_local = $this->_FileHandler->retrieveLocalFilePath( $user_options );
+
+			$this->_MediawikiTemplate = new MediawikiTemplate();
+			$this->_MediawikiTemplate->getValidMediaWikiTemplate( $user_options );
+
+			$this->_Mapping = new Mapping();
+			$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray();
+			$this->_Mapping->setTargetElements();
+			$this->_Mapping->reverseMap();
+
+			$this->_XmlMappingHandler = new XmlMappingHandler( $this->SpecialPage, $this->_Mapping, $this->_MediawikiTemplate );
+			$result = $this->_XmlMappingHandler->processXml( $user_options, $file_path_local );
 
 		return $result;
 
