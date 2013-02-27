@@ -18,3 +18,7 @@
 	margin-top: -64px;
 	text-align: center;
 }
+
+td.add-metadata, td.subtract-metadata {
+	width: 16px;
+}

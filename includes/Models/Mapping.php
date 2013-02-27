@@ -49,24 +49,6 @@ class Mapping extends Model {
 	public $target_dom_elements_mapped = array();
 
 
-	/**
-	 * used by the save handler
-	 */
-	public function flattenFormFieldArray( array $array ) {
-
-		$result = array();
-
-			foreach( $array as $item ) {
-
-				$result[$item['name']] = $item['value'];
-
-			}
-
-		return $result;
-
-	}
-
-
 	public function reverseMap() {
 
 		foreach( $this->target_dom_elements as $element ) {

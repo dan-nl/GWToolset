@@ -1,3 +1,80 @@
+
+/**
+ * @todo: change the name of this plugin
+ * @see https://github.com/jupiterjs/jquerymx/blob/master/lang/string/deparam/deparam.js
+ */
+(function($) {
+
+	var digitTest = /^\d+$/,
+		keyBreaker = /([^\[\]]+)|(\[\])/g,
+		plus = /\+/g,
+		paramTest = /([^?#]*)(#.*)?$/;
+
+	/**
+	 * @add jQuery.String
+	 */
+	$.String = $.extend($.String || {}, { 
+
+		/**
+		 * @function deparam
+		 * 
+		 * Takes a string of name value pairs and returns a Object literal that represents those params.
+		 * 
+		 * @param {String} params a string like <code>"foo=bar&person[age]=3"</code>
+		 * @return {Object} A JavaScript Object that represents the params:
+		 * 
+		 *     {
+		 *       foo: "bar",
+		 *       person: {
+		 *         age: "3"
+		 *       }
+		 *     }
+		 */
+		deparam: function(params){
+
+			if(! params || ! paramTest.test(params) ) {
+				return {};
+			} 
+
+
+			var data = {},
+				pairs = params.split('&'),
+				current;
+
+			for(var i=0; i < pairs.length; i++){
+				current = data;
+				var pair = pairs[i].split('=');
+
+				// if we find foo=1+1=2
+				if(pair.length != 2) { 
+					pair = [pair[0], pair.slice(1).join("=")]
+				}
+
+        var key = decodeURIComponent(pair[0].replace(plus, " ")), 
+          value = decodeURIComponent(pair[1].replace(plus, " ")),
+					parts = key.match(keyBreaker);
+
+				for ( var j = 0; j < parts.length - 1; j++ ) {
+					var part = parts[j];
+					if (!current[part] ) {
+						// if what we are pointing to looks like an array
+						current[part] = digitTest.test(parts[j+1]) || parts[j+1] == "[]" ? [] : {}
+					}
+					current = current[part];
+				}
+				lastPart = parts[parts.length - 1];
+				if(lastPart == "[]"){
+					current.push(value)
+				}else{
+					current[lastPart] = value;
+				}
+			}
+			return data;
+		}
+	});
+
+}(jQuery));
+
 (function($) {
 
 	'use strict';
@@ -109,7 +186,8 @@
 				mapping_name_to_use = prompt( mw.message('gwtoolset-save-mapping-name').escaped(), $('#gwtoolset-metadata-mapping').val() ),
 				mediawiki_template_name = $('#gwtoolset-mediawiki-template-name').val(),
 				wpEditToken = $('#wpEditToken').val(),
-				metadata_mappings = self.$form.find('select').serializeArray();
+				metadata_mappings = self.$form.find('select').serialize(),
+				metadata_mappings = $.String.deparam( metadata_mappings );
 
 			evt.preventDefault();
 

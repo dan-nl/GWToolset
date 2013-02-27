@@ -20,24 +20,6 @@ class XmlDetectHandler extends XmlHandler {
 
 
 	/**
-	 * @var GWToolset\Models\MediawikiTemplate
-	 */
-	//protected $MediawikiTemplate;
-
-
-	/**
-	 * @var GWToolset\MediaWiki\Api\Client
-	 */
-	//protected $MWApiClient;
-
-
-	/**
-	 * @var SpecialPage
-	 */
-	//protected $SpecialPage;
-
-
-	/**
 	 * @var DOMElement
 	 * a place to store the example DOMElement at the class scope level. if the
 	 * DOMElement is placed in a function scope variable, it will be losed if passed
@@ -61,251 +43,6 @@ class XmlDetectHandler extends XmlHandler {
 	 * in an html select element. none of the options has selected=selected
 	 */
 	protected $_metadata_as_options;
-
-
-	/**
-	 * using the api save the matched record as a new wiki page or update an
-	 * existing wiki page
-	 *
-	 * @todo how to deal with url_to_media_file when it is redirected to a file
-	 * @todo a. create filename - need to figure a better way to do it, possibly
-	 * put it in the MediawikiTemplate instead of the UploadHandler
-	 *
-	 * @todo: have the api replace/update the template when page already exists
-	 * @todo b. tell api to follow the redirect to get the file
-	 * 
-	 * @param DOMElement $matching_element
-	 * @param array $user_options
-	 */
-	//protected function processMatchingElement( DOMElement &$DOMElement, array &$user_options, array &$mapping ) {
-	//
-	//	$result = null;
-	//	$api_result = null;
-	//	$page_id = -1;
-	//	global $wgArticlePath;
-	//
-	//	$this->MWApiClient = \GWToolset\getMWApiClient( $this->SpecialPage );
-	//	$element_mapped = $this->getElementMapped( $DOMElement, $mapping );
-	//
-	//	$this->MediawikiTemplate->populateFromArray( $element_mapped );
-	//	$filename = $this->MediawikiTemplate->getTitle();
-	//
-	//	$api_result = $this->MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
-	//	$pageid = (int)$api_result['query']['pageids'][0];
-	//
-	//	if ( $pageid > -1 ) { // page already exists only change text
-	//
-	//		$api_result = $this->MWApiClient->edit(
-	//			array(
-	//				'pageid' => $pageid,
-	//				'text' => $this->MediawikiTemplate->getTemplate(),
-	//				'token' => $this->MWApiClient->getEditToken()
-	//			)
-	//		);
-	//
-	//		if ( empty( $api_result['edit']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
-	//			
-	//			$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-	//				'<span class="error">' . $filename . '</span><br/>' .
-	//				'<span class="error">' . $e->getMessage() . '</span><br/>';
-	//
-	//		}
-	//
-	//		$result .=
-	//			'<li>' .
-	//				'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
-	//					$api_result['edit']['title'] .
-	//					( isset($api_result['edit']['oldrevid']) ? ' ( revised )' : ' ( no change )' ) .
-	//				'</a>' .
-	//			'</li>';
-	//
-	//	} else { // page does not yet exist upload image and template text
-	//
-	//		$api_result = $this->MWApiClient->upload(
-	//			array(
-	//				'filename' => $filename,
-	//				'text' => $this->MediawikiTemplate->getTemplate(),
-	//				'token' => $this->MWApiClient->getEditToken(),
-	//				'ignorewarnings' => true,
-	//				'url' => $this->MediawikiTemplate->template_parameters['url_to_the_media_file']
-	//			)
-	//		);
-	//
-	//		if ( empty( $api_result['upload']['result'] ) && $api_result['upload']['result'] !== 'Success' ) {
-	//
-	//			$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-	//				'<span class="error">' . $filename . '</span><br/>' .
-	//				'<span class="error">' . $e->getMessage() . '</span><br/>';
-	//
-	//		}
-	//
-	//		$result .=
-	//			'<li>' .
-	//				'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
-	//					$api_result['upload']['filename'] .
-	//				'</a>' .
-	//			'</li>';
-	//
-	//	}
-	//
-	//	if ( Config::$display_debug_output
-	//		&& $this->SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' )
-	//		&& isset( $this->MWApiClient )
-	//	) {
-	//
-	//		$result .= $this->MWApiClient->debug_html;
-	//
-	//	}
-	//
-	//	return $result;
-	//
-	//}
-
-
-	/**
-	 * finds an xml element to be used as a basis for mapping metadata elements
-	 * uses the $options settings to determine if the element in the metadata
-	 * has the correct element name
-	 *
-	 * @param XMLReader $reader
-	 * @param array $user_options
-	 * @return DOMElement|null
-	 */
-	//protected function findMatchingDOMElement( XMLReader &$reader, array &$user_options = array() ) {
-	//
-	//	$DOMElement = null;
-	//
-	//	switch ( $reader->nodeType ) {
-	//
-	//		case ( XMLReader::ELEMENT ):
-	//
-	//			if ( $reader->name == $user_options['record-element-name'] ) {
-	//
-	//				$user_options['record-count'] += 1;
-	//				$DOMElement = $reader->expand();
-	//
-	//			}
-	//
-	//			break;
-	//
-	//	}
-	//
-	//	return $DOMElement;
-	//
-	//}
-
-
-	/**
-	 * using an xml reader, for stream reading of the xml file, cycle through the
-	 * elements, processing each one that matches the metadata record indicated in
-	 * the user form that will be used for mapping the metadata to wiki pages.
-	 *
-	 * each matched element is sent to processMatchingElement() to be saved as a
-	 * new wiki page or to update an existing wiki page for the record
-	 *
-	 * @param {string} $file_path_local
-	 * @param {array} $user_options
-	 * @param {array} $mapping
-	 * @param {MediawujuTemplate} $MediawikiTemplate
-	 *
-	 * @throws Exception
-	 * @return string|null
-	 *
-	 * @todo: figure out a batch job processing method
-	 * @todo: handle mal-formed xml (future)
-	 * @todo: handle an xml schema if present (future)
-	 * @todo: handle incomplete/partial uploads (future)
-	 */
-	//public function processDOMElements( $file_path_local, array &$user_options, array $mapping ) {
-	//
-	//	$result = null;
-	//	$DOMElement = null;
-	//	$reader = new XMLReader();
-	//
-	//		if ( empty( $file_path_local ) ) {
-	//
-	//			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('local file path is empty') );
-	//
-	//		}
-	//
-	//		if ( !$reader->open( $file_path_local ) ) {
-	//
-	//			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('could not open the XML File for reading') );
-	//
-	//		}
-	//
-	//		while ( $reader->read() ) {
-	//
-	//			$DOMElement = $this->findMatchingDOMElement( $reader, $user_options );
-	//
-	//			if ( !is_null( $DOMElement ) ) {
-	//
-	//				$result .= $this->processMatchingElement( $DOMElement, $user_options, $mapping );
-	//
-	//			}
-	//
-	//			$DOMElement = null;
-	//
-	//		}
-	//
-	//		if ( !$reader->close() ) {
-	//
-	//			throw new Exception( wfMessage('gwtoolset-xmlreader-close-error') );
-	//
-	//		}
-	//
-	//		$result =
-	//			'<h2>Results</h2>' .
-	//			'<p>' . $user_options['record-count'] . ' record(s) uploaded. Links to the uploaded file(s)</p>' .
-	//			'<ul>' .
-	//				$result .
-	//			'</ul>';
-	//
-	//	return $result;
-	//
-	//}
-
-
-	//protected function processChildNodes( DOMNode &$DOMNode ) {
-	//
-	//	if ( $DOMNode->hasChildNodes() ) {
-	//
-	//		foreach( $DOMNode->childNodes as $DOMChildNode ) {
-	//
-	//			if ( $DOMChildNode->nodeType == XML_ELEMENT_NODE ) {
-	//
-	//				self::processDOMElement( $DOMChildNode );
-	//
-	//			}
-	//
-	//		}
-	//
-	//	}
-	//
-	//}
-
-
-	/**
-	 * takes a dom element and creates html options and table rows from the sub-elements
-	 * contained therin
-	 * 
-	 * @param DOMElement $DOMElement
-	 * @return void
-	 */
-	//protected function processDOMElement( DOMElement $DOMElement ) {
-	//
-	//	foreach( $DOMElement->childNodes as $DOMNode ) {
-	//
-	//		if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
-	//
-	//			self::addMetadataToHtmlOptions( $DOMNode );
-	//			self::addMetadataToHtmlTableRows( $DOMNode );
-	//
-	//		}
-	//
-	//	}
-	//
-	//}
 	
 	
 	/**
@@ -382,7 +119,7 @@ class XmlDetectHandler extends XmlHandler {
 			'<tr>' .
 				'<td><label for="%s">%s :</label></td>' .
 				//'<td width="16"><img src="/extensions/GWToolset/resources/images/b_snewtbl.png"/></td>' .
-				'<td width="16" class="add-metadata"></td>' .
+				'<td class="add-metadata"></td>' .
 				'<td><select name="%s[]" id="%s">%s</select></td>' .
 			'</tr>';
 	
@@ -390,8 +127,8 @@ class XmlDetectHandler extends XmlHandler {
 			'<tr>' .
 				'<td>&nbsp;</td>' .
 				//'<td><img src="/extensions/GWToolset/resources/images/b_drop.png"/></td>' .
-				'<td width="16" class="subtract-metadata"></td>' .
-				'<td><select name="%s[]" id="%s">%s</select></td>' .
+				'<td class="subtract-metadata"></td>' .
+				'<td><select name="%s[]">%s</select></td>' .
 			'</tr>';
 	
 		if ( isset( $Mapping->mapping_array[ $parameter ] ) ) {
@@ -418,7 +155,7 @@ class XmlDetectHandler extends XmlHandler {
 				$first_row,
 				$parameter_as_id,
 				$parameter,
-				$parameter_as_id,
+				$parameter,
 				$parameter_as_id,
 				$this->getMetadataAsOptions( $selected_options[0] )
 			);
@@ -435,7 +172,7 @@ class XmlDetectHandler extends XmlHandler {
 							$first_row,
 							$parameter_as_id,
 							$parameter,
-							$parameter_as_id,
+							$parameter,
 							$parameter_as_id,
 							$this->getMetadataAsOptions( $option )
 						);
@@ -446,8 +183,7 @@ class XmlDetectHandler extends XmlHandler {
 
 						$result .= sprintf(
 							$following_row,
-							$parameter_as_id,
-							$parameter_as_id,
+							$parameter,
 							$this->getMetadataAsOptions( $option )
 						);
 

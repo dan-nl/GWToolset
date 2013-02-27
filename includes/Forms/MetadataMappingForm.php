@@ -50,7 +50,7 @@ class MetadataMappingForm {
 						'<table id="template-table" style="float:left;margin-right:2%;margin-bottom:1em;">' .
 							'<thead>' .
 								'<tr><th>template field</th><th colspan="2">maps to</th></tr>' .
-							'<thead>' .
+							'</thead>' .
 							'<tbody>' .
 								$metadata_selects .
 							'</tbody>' .
@@ -58,23 +58,11 @@ class MetadataMappingForm {
 						'<table style="float:left; display: inline; width: 60%; overflow: auto;">' .
 							'<thead>' .
 								'<tr><th colspan="2">metadata’s example record’s contents</th></tr>' .
-							'<thead>' .
+							'</thead>' .
 							'<tbody style="vertical-align: top;">' .
 								$metadata_as_table_rows .
 							'</tbody>' .
 						'</table>' .
-
-						//'<p style="clear:both;">' .
-						//	'<label>' .
-						//		wfMessage('gwtoolset-metadata-file') . ' : ' .
-						//		'<input type="file" name="metadata-file-upload"' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '/>' .
-						//	'</label><br/>' .
-						//
-						//	'<i>' .
-						//		wfMessage( 'gwtoolset-accepted-file-types' ) . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_types ) . '<br/>' .
-						//		wfMessage( 'upload-maxfilesize', number_format( FileChecks::gwToolsetMaxUploadSize() ) ) . ' bytes' .
-						//	'</i>' .
-						//'</p>' .
 
 						'<p style="clear:both;">' .
 							wfMessage('gwtoolset-metadata-file-url') . ' : ' . $user_options['metadata-file-url'] . '<br/>' .

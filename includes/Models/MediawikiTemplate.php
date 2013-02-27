@@ -52,6 +52,8 @@ class MediawikiTemplate extends Model {
 	 * parameter e.g. accession-number[], artist[]
 	 *
 	 * @return array
+	 *
+	 * @todo: how are we using $array - it's ignored at the moment?
 	 */
 	public function getMappingFromArray( array $array = array() ) {
 
@@ -163,21 +165,21 @@ class MediawikiTemplate extends Model {
 
 		foreach( $this->mediawiki_template_array as $parameter => $value ) {
 
-			if ( $parameter == 'description' ) {
-
-				$sections .=
-					'|' . $parameter . '=' .
-					'{{' .
-						$this->mediawiki_template_array['description_lang'] .
-						'|1=' .
-						Filter::evaluate( $value )  .
-					"}}\n";
-
-			} else {
+			//if ( $parameter == 'description' ) {
+			//
+			//	$sections .=
+			//		'|' . $parameter . '=' .
+			//		'{{' .
+			//			$this->mediawiki_template_array['description_lang'] .
+			//			'|1=' .
+			//			Filter::evaluate( $value )  .
+			//		"}}\n";
+			//
+			//} else {
 
 				$sections .= '|' . $parameter . '=' . Filter::evaluate( $value )  . "\n";
 
-			}
+			//}
 
 		}
 
@@ -225,9 +227,10 @@ class MediawikiTemplate extends Model {
 
 		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
 		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
-		$this->mediawiki_template_array['description_lang'] = null;
+
 		$this->mediawiki_template_array['title_identifier'] = null;
 		$this->mediawiki_template_array['url_to_the_media_file'] = null;
+
 		ksort( $this->mediawiki_template_array );
 
 	}
