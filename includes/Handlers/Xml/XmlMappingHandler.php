@@ -9,16 +9,16 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Xml;
-use			DOMElement,
-			Exception,
-			GWToolset\Config,
-			GWToolset\MediaWiki\Api\Client,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate,
-			Php\Filter,
-			SpecialPage,
-			XMLReader;
+namespace GWToolset\Handlers\Xml;
+use	DOMElement,
+	Exception,
+	GWToolset\Config,
+	GWToolset\MediaWiki\Api\Client,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
+	Php\Filter,
+	SpecialPage,
+	XMLReader;
 
 
 class XmlMappingHandler extends XmlHandler {
@@ -266,26 +266,57 @@ class XmlMappingHandler extends XmlHandler {
 
 		$elements_mapped = array();
 		$is_url = false;
+		$lang = null;
 		$DOMNodeList = $DOMElement->getElementsByTagName( '*' );
 
 			foreach( $DOMNodeList as $DOMNodeElement ) {
 
 				if ( !key_exists( $DOMNodeElement->tagName, $this->_Mapping->target_dom_elements_mapped ) ) { continue; }
 				$template_parameters = $this->_Mapping->target_dom_elements_mapped[ $DOMNodeElement->tagName ];
+				$lang = null;
+
+				if ( $DOMNodeElement->hasAttributes() ) {
+
+					foreach( $DOMNodeElement->attributes as $DOMAttribute ) {
+
+						if ( 'lang' == $DOMAttribute->name ) {
+	
+							$lang = Filter::evaluate( $DOMAttribute->value );
+							break;
+	
+						}
+
+					}
+
+				}
 
 				foreach( $template_parameters as $template_parameter ) {
 
 					if ( strpos( $template_parameter, 'url' ) !== false ) { $is_url = true; } else { $is_url = false; }
 
-					if ( !isset( $elements_mapped[ $template_parameter ] ) ) {
+					if ( !empty( $lang ) ) {
 
-						$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+						if ( !isset( $elements_mapped[ $template_parameter ]['language'][ $lang ] ) ) {
+	
+							$elements_mapped[ $template_parameter ]['language'][ $lang ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+	
+						} else {
+
+							$elements_mapped[ $template_parameter ]['language'][ $lang ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+	
+						}
 
 					} else {
 
-						$elements_mapped[ $template_parameter ] .=
-							Config::$metadata_separator .
-							$this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+						if ( !isset( $elements_mapped[ $template_parameter ] ) ) {
+
+							$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+	
+						} else {
+	
+							$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+	
+						}
 
 					}
 

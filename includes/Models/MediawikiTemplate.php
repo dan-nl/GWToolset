@@ -43,6 +43,11 @@ class MediawikiTemplate extends Model {
 	public $mediawiki_template_array = array();
 
 
+	protected $_sub_templates = array(
+		'language' => '{{%s|%s}}'
+	);
+
+
 	/**
 	 * create an array that represents the mapping of mediawiki template
 	 * attributes to metadata elements based on the given array; defaults to
@@ -163,23 +168,35 @@ class MediawikiTemplate extends Model {
 		$sections = null;
 		$template = '{{' . $this->mediawiki_template_name . "\n" . '%s}}';
 
-		foreach( $this->mediawiki_template_array as $parameter => $value ) {
+		foreach( $this->mediawiki_template_array as $parameter => $content ) {
 
-			//if ( $parameter == 'description' ) {
-			//
-			//	$sections .=
-			//		'|' . $parameter . '=' .
-			//		'{{' .
-			//			$this->mediawiki_template_array['description_lang'] .
-			//			'|1=' .
-			//			Filter::evaluate( $value )  .
-			//		"}}\n";
-			//
-			//} else {
+			if ( is_array( $content ) ) {
 
-				$sections .= '|' . $parameter . '=' . Filter::evaluate( $value )  . "\n";
+				$sections .= '|' . $parameter . '=';
 
-			//}
+				foreach ( $content as $sub_template_name => $sub_template_content ) {
+
+					if ( 'language' == $sub_template_name ) {
+
+						foreach( $sub_template_content as $language => $language_content ) {
+
+							$sections .= sprintf(
+								$this->_sub_templates['language'],
+								Filter::evaluate( $language ),
+								Filter::evaluate( $language_content )
+							) . "\n";
+
+						}
+
+					}
+
+				}
+
+			} else {
+
+				$sections .= '|' . $parameter . '=' . Filter::evaluate( $content )  . "\n";
+
+			}
 
 		}
 

@@ -107,7 +107,7 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 
 function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
-	if ( error_reporting() >= E_ALL ) {
+	if ( error_reporting() >= 32767 ) {
 
 		$errormsg =
 			$errstr . '<br/>' .
@@ -116,8 +116,6 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 		throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
 
 	}
-	
-	throw new Exception( wfMessage('gwtoolset-developer-issue')->params('ErrorException') );
 
 }
 

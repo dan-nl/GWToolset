@@ -9,10 +9,10 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Models;
-use			DatabaseUpdater,
-			Php\Filter,
-			ResultWrapper;
+namespace GWToolset\Models;
+use DatabaseUpdater,
+	Php\Filter,
+	ResultWrapper;
 
 
 abstract class Model implements ModelInterface {
@@ -107,8 +107,6 @@ abstract class Model implements ModelInterface {
 	 * the model. the rows that become part of the select are based on the query
 	 * carried out by the getKeys() method, which is set in each model inheriting
 	 * this class.
-	 *
-	 *
 	 *
 	 * @param string $name form name that should be given to the select
 	 * @param string $id form id that should be given to the select
