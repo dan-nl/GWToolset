@@ -109,32 +109,32 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return {string} an html string of select options
 	 */
 	public function getMetadataAsTableCells( $parameter, MediawikiTemplate $MediawikiTemplate, Mapping $Mapping ) {
-	
+
 		$result = null;
 		$selected_options = array();
 		$parameter_as_id = $MediawikiTemplate->getParameterAsId( $parameter );
 		$first_row_placed = false;
-	
+
 		$first_row =
 			'<tr>' .
 				'<td><label for="%s">%s :</label></td>' .
 				//'<td width="16"><img src="/extensions/GWToolset/resources/images/b_snewtbl.png"/></td>' .
-				'<td class="add-metadata"></td>' .
+				'<td class="metadata-add"></td>' .
 				'<td><select name="%s[]" id="%s">%s</select></td>' .
 			'</tr>';
-	
+
 		$following_row =
 			'<tr>' .
 				'<td>&nbsp;</td>' .
 				//'<td><img src="/extensions/GWToolset/resources/images/b_drop.png"/></td>' .
-				'<td class="subtract-metadata"></td>' .
+				'<td class="metadata-subtract"></td>' .
 				'<td><select name="%s[]">%s</select></td>' .
 			'</tr>';
-	
+
 		if ( isset( $Mapping->mapping_array[ $parameter ] ) ) {
-	
+
 			$selected_options = $Mapping->mapping_array[ $parameter ];
-	
+
 		}
 
 		if ( empty( $this->_metadata_as_options ) ) {	

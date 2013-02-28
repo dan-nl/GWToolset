@@ -1,19 +1,23 @@
-
-/**
- * @todo: change the name of this plugin
- * @see https://github.com/jupiterjs/jquerymx/blob/master/lang/string/deparam/deparam.js
- */
+/*global jQuery, mw */
+/*jslint browser: true, continue: true, white: true, devel: true, regexp: true, todo: true */
 (function($) {
+
+
+	'use strict';
+
 
 	var digitTest = /^\d+$/,
 		keyBreaker = /([^\[\]]+)|(\[\])/g,
 		plus = /\+/g,
-		paramTest = /([^?#]*)(#.*)?$/;
+		paramTest = /([^?#]*)(#.*)?$/,
+		gwtoolset ={};
+
 
 	/**
 	 * @add jQuery.String
+	 * @see https://github.com/jupiterjs/jquerymx/blob/master/lang/string/deparam/deparam.js
 	 */
-	$.String = $.extend($.String || {}, { 
+	$.String = $.extend($.String || {}, {
 
 		/**
 		 * @function deparam
@@ -32,55 +36,77 @@
 		 */
 		deparam: function(params){
 
-			if(! params || ! paramTest.test(params) ) {
+			if ( ! params || !paramTest.test( params ) ) {
+
 				return {};
-			} 
 
+			}
 
-			var data = {},
+			var current,
+				data = {},
+				i,
+				j,
+				key,
+				lastPart,
+				pair,
 				pairs = params.split('&'),
-				current;
+				part,
+				parts,
+				value;
 
-			for(var i=0; i < pairs.length; i++){
+			for( i = 0; i < pairs.length; i += 1 ) {
+
 				current = data;
-				var pair = pairs[i].split('=');
+				pair = pairs[i].split('=');
 
 				// if we find foo=1+1=2
-				if(pair.length != 2) { 
-					pair = [pair[0], pair.slice(1).join("=")]
+				if ( pair.length !== 2 ) {
+
+					pair = [ pair[0], pair.slice(1).join("=") ];
+
 				}
 
-        var key = decodeURIComponent(pair[0].replace(plus, " ")), 
-          value = decodeURIComponent(pair[1].replace(plus, " ")),
-					parts = key.match(keyBreaker);
+				key = decodeURIComponent( pair[0].replace( plus, " " ) );
+				value = decodeURIComponent( pair[1].replace( plus, " " ) );
+				parts = key.match( keyBreaker );
 
-				for ( var j = 0; j < parts.length - 1; j++ ) {
-					var part = parts[j];
-					if (!current[part] ) {
+				for ( j = 0; j < parts.length - 1; j += 1 ) {
+
+					part = parts[ j ];
+
+					if ( !current[ part ] ) {
+
 						// if what we are pointing to looks like an array
-						current[part] = digitTest.test(parts[j+1]) || parts[j+1] == "[]" ? [] : {}
+						current[ part ] = digitTest.test( parts[ j + 1 ] ) || parts[ j + 1 ] === "[]" ? [] : {};
+
 					}
-					current = current[part];
+
+					current = current[ part ];
+
 				}
-				lastPart = parts[parts.length - 1];
-				if(lastPart == "[]"){
-					current.push(value)
-				}else{
+
+				lastPart = parts[ parts.length - 1 ];
+
+				if ( lastPart === "[]" ) {
+
+					current.push( value );
+
+				} else {
+
 					current[lastPart] = value;
+
 				}
+
 			}
+
 			return data;
+
 		}
+
 	});
 
-}(jQuery));
 
-(function($) {
-
-	'use strict';
-
-
-	var gwtoolset = {
+	gwtoolset = {
 
 		display_debug_output : true,
 		empty_console : { log : function() {} },
@@ -88,11 +114,67 @@
 		$ajax_loader : $( '<div/>', { 'id':'gwtoolset-loader' }),
 		$template_table : $('#template-table > tbody'),
 		$save_mapping_button : $('<tr><td colspan="3" style="text-align:right;"><button id="save-mapping">' + mw.message('gwtoolset-save-mapping').escaped() + '</button></td></tr>'),
+		$metadata_buttons : {
+			collection : $('.metadata-add, .metadata-subtract'),
+			$add : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_snewtbl.png' }),
+			$subtract : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_drop.png' })
+		},
+
+
+		handleMetadataButtonAddClick : function( evt ) {
+
+			var $target = $(this).parent().parent(),
+					$td_select = $(this).parent().next().clone(),
+					$button = gwtoolset.$metadata_buttons.$subtract.clone().on( 'click', gwtoolset.handleMetadataButtonSubtractClick ),
+					$td_button = jQuery('<td/>',{'class':'metadata-subtract'}).html( $button ),
+					$row = jQuery('<tr><td>&nbsp;</td></tr>');
+
+			evt.preventDefault();
+
+			$td_select.find('option').prop("selected", false);
+			$row.append( $td_button ).append( $td_select );
+			$row.insertAfter( $target );
+
+		},
+
+
+		handleMetadataButtonSubtractClick : function( evt ) {
+
+			evt.preventDefault();
+			jQuery(this).parent().parent().remove();
+
+		},
+
+
+		addMetadataButtons : function() {
+
+			var $elm;
+
+			gwtoolset.$metadata_buttons.collection.each(function() {
+
+				var class_name;
+
+				$elm =	jQuery(this);
+				class_name = $elm.attr('class');
+
+				if ( 'metadata-add' === class_name ) {
+
+					$elm.html( gwtoolset.$metadata_buttons.$add.clone().on( 'click', gwtoolset.handleMetadataButtonAddClick ) );
+
+				}
+
+				if ( 'metadata-subtract' === class_name ) {
+
+					$elm.html( gwtoolset.$metadata_buttons.$subtract.clone().on( 'click', gwtoolset.handleMetadataButtonSubtractClick ) );
+
+				}
+
+			});
+
+		},
 
 
 		/**
-		 * @todo use the translate version of the message
-		 * @todo message should be placed in dom in an ajax message area instead
 		 * of using an alert
 		 */
 		handleAjaxError : function() {
@@ -104,8 +186,6 @@
 
 
 		/**
-		 * @todo use the translate version of the message
-		 * @todo message should be placed in dom in an ajax message area instead
 		 * of using an alert
 		 *
 		 * @param {object} data
@@ -114,10 +194,14 @@
 		 */
 		handleAjaxSuccess : function ( data, textStatus, jqXHR ) {
 
-			if ( !data.status || data.status != 'success' ) {
+			if ( !data.status || data.status !== 'success' || !textStatus || !jqXHR ) {
+
 				alert( mw.message('gwtoolset-save-mapping-error').escaped() );
+
 			} else {
+
 				alert( mw.message('gwtoolset-save-mapping-success').escaped() );
+
 			}
 
 			console.log( arguments );
@@ -186,10 +270,10 @@
 				mapping_name_to_use = prompt( mw.message('gwtoolset-save-mapping-name').escaped(), $('#gwtoolset-metadata-mapping').val() ),
 				mediawiki_template_name = $('#gwtoolset-mediawiki-template-name').val(),
 				wpEditToken = $('#wpEditToken').val(),
-				metadata_mappings = self.$form.find('select').serialize(),
-				metadata_mappings = $.String.deparam( metadata_mappings );
+				metadata_mappings = self.$form.find('select').serialize();
 
 			evt.preventDefault();
+			metadata_mappings = $.String.deparam( metadata_mappings );
 
 			if ( mapping_name_to_use !== null && mapping_name_to_use.length > 3 ) {
 
@@ -237,30 +321,32 @@
 
 		},
 
+
 		setConsole : function() {
-			
+
 			if ( window.console === undefined || !this.display_debug_output ) {
-				
+
 				window.console = this.empty_console;
-				
+
 			}
-			
+
 		},
+
 
 		init : function() {
 
-			this.setConsole();
-			this.addFormListener();
-			this.addSaveMappingButton();
+			gwtoolset.setConsole();
+			gwtoolset.addFormListener();
+			gwtoolset.addSaveMappingButton();
+			gwtoolset.addMetadataButtons();
 
 		}
 
 
-	}
+	};
 
 
 	gwtoolset.init();
 
 
 }( jQuery ));
-
