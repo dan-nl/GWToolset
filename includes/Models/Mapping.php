@@ -89,7 +89,7 @@ class Mapping extends Model {
 
 	protected function getKeys() {
 
-		return $this->dbr->select( 'gwtoolset_mappings', 'user_name AS key_group, mapping_name AS key_name', null, null, array( 'ORDER BY' => 'created, key_name ASC', 'GROUP BY' => 'key_group, key_name' ) );
+		return $this->dbr->select( 'gwtoolset_mappings', 'user_name AS key_group, mapping_name AS key_name', null, null, array( 'ORDER BY' => 'key_group, key_name DESC', 'GROUP BY' => 'key_group, key_name' ) );
 
 	}
 
