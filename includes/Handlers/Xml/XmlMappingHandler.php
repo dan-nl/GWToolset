@@ -89,7 +89,7 @@ class XmlMappingHandler extends XmlHandler {
 					'text' => $this->_MediawikiTemplate->getTemplate(),
 					'token' => $this->_MWApiClient->getEditToken(),
 					'ignorewarnings' => true,
-					'url' => $this->_MediawikiTemplate->template_parameters['url_to_the_media_file']
+					'url' => $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file']
 				)
 			);
 
