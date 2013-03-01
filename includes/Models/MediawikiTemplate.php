@@ -10,13 +10,13 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Models;
-use			Exception,
-			GWToolset\Config,
-			GWToolset\Helpers\FileChecks,
-			Php\Filter,
-			ReflectionClass,
-			ReflectionProperty,
-			ResultWrapper;
+use	Exception,
+	GWToolset\Config,
+	GWToolset\Helpers\FileChecks,
+	Php\Filter,
+	ReflectionClass,
+	ReflectionProperty,
+	ResultWrapper;
 
 
 class MediawikiTemplate extends Model {
@@ -91,7 +91,7 @@ class MediawikiTemplate extends Model {
 
 	public function getParameterAsId( $parameter ) {
 
-		return str_replace( ' ', '-', $parameter );
+		return str_replace( ' ', '_', $parameter );
 
 	}
 

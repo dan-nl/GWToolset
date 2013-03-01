@@ -373,7 +373,7 @@ class XmlMappingHandler extends XmlHandler {
 				$result .= $this->updatePage( $page_id, $filename );
 
 			} else { // page does not yet exist upload image and template text
-		
+
 				$result .= $this->createPage( $filename );
 
 			}

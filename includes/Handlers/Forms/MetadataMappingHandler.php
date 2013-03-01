@@ -9,12 +9,12 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Forms;
-use			GWToolset\Handlers\FileHandler,
-			GWToolset\Handlers\Xml\XmlMappingHandler,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate,
-			Php\Filter;
+namespace GWToolset\Handlers\Forms;
+use	GWToolset\Handlers\FileHandler,
+	GWToolset\Handlers\Xml\XmlMappingHandler,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
+	Php\Filter;
 
 
 class MetadataMappingHandler extends FormHandler {
