@@ -280,10 +280,10 @@ class XmlMappingHandler extends XmlHandler {
 					foreach( $DOMNodeElement->attributes as $DOMAttribute ) {
 
 						if ( 'lang' == $DOMAttribute->name ) {
-	
+
 							$lang = Filter::evaluate( $DOMAttribute->value );
 							break;
-	
+
 						}
 
 					}
@@ -296,8 +296,14 @@ class XmlMappingHandler extends XmlHandler {
 
 					if ( !empty( $lang ) ) {
 
+						if ( !isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
+
+							$elements_mapped[ $template_parameter ]['language'] = array();
+
+						}
+
 						if ( !isset( $elements_mapped[ $template_parameter ]['language'][ $lang ] ) ) {
-	
+
 							$elements_mapped[ $template_parameter ]['language'][ $lang ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 	
 						} else {
@@ -347,6 +353,8 @@ class XmlMappingHandler extends XmlHandler {
 	 * an html string with the <li> element results from the api createPage(),
 	 * updatePage() calls plus $this->_MWApiClient->debug_html if gwtoolset-debuging
 	 * is on and the user is a gwtoolset-debug user
+	 *
+	 * @todo run a try catch on the create/update page so that if there’s an api issue the script can continue
 	 */
 	protected function processMatchingElement( DOMElement &$DOMElement, array &$user_options ) {
 
