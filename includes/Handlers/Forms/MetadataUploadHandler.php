@@ -9,17 +9,17 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Forms;
-use			GWToolset\Handlers\FileHandler;
+namespace GWToolset\Handlers\Forms;
+use	GWToolset\Handlers\UploadHandler;
 
 
 class MetadataUploadHandler extends FormHandler {
 
 
 	/**
-	 * GWToolset\Handlers\FileHandler
+	 * GWToolset\Handlers\UploadHandler
 	 */
-	protected $FileHandler;
+	protected $_UploadHandler;
 
 
 	/**
@@ -33,9 +33,9 @@ class MetadataUploadHandler extends FormHandler {
 
 		$result = array( 'msg' => null, 'uploaded' => false );
 
-			$this->FileHandler = new FileHandler( $this->SpecialPage );
-			$this->FileHandler->getUploadedFileFromForm( 'metadata-file-upload' );
-			$result = $this->FileHandler->saveFile();
+			$this->_UploadHandler = new UploadHandler( $this->_SpecialPage );
+			$this->_UploadHandler->getUploadedFileFromForm( 'metadata-file-upload' );
+			$result = $this->_UploadHandler->saveFile();
 
 		return $result['msg'];
 

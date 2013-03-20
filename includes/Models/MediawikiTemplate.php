@@ -117,6 +117,7 @@ class MediawikiTemplate extends Model {
 	 * @todo: what if url is not to a file but a re-direct to the file
 	 * @todo: eliminate any "safe-guarded characters", e.g. : seems to tell the api
 	 * that the file does not exist so it uploads it aknew each time instead of editing it
+	 * @todo investigate using Title::makeTitleSafe
 	 */
 	public function getTitle() {
 

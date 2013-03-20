@@ -10,12 +10,16 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Handlers\Xml;
-use			DOMElement,
-			Exception,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate,
-			XMLReader;
+use	DOMElement,
+	Exception,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
+	XMLReader;
 
+
+/**
+ * @todo pull out the decorator methods and place them in the appropriate form handler
+ */
 class XmlDetectHandler extends XmlHandler {
 
 
@@ -106,6 +110,7 @@ class XmlDetectHandler extends XmlHandler {
 	 * @param {MediawikiTemplate} $MediawikiTemplate
 	 * @param {Mapping} $Mapping
 	 *
+	 * @todo refactor this method
 	 * @return {string} an html string of select options
 	 */
 	public function getMetadataAsTableCells( $parameter, MediawikiTemplate $MediawikiTemplate, Mapping $Mapping ) {
@@ -114,11 +119,19 @@ class XmlDetectHandler extends XmlHandler {
 		$selected_options = array();
 		$parameter_as_id = $MediawikiTemplate->getParameterAsId( $parameter );
 		$first_row_placed = false;
+		$required = null;
+		$required_fields = array('title_identifier', 'url_to_the_media_file');
+
+		$no_metadata_button_row =
+			'<tr>' .
+				'<td><label for="%s">%s%s :</label></td>' .
+				'<td>&nbsp;</td>' .
+				'<td><select name="%s[]" id="%s">%s</select></td>' .
+			'</tr>';
 
 		$first_row =
 			'<tr>' .
-				'<td><label for="%s">%s :</label></td>' .
-				//'<td width="16"><img src="/extensions/GWToolset/resources/images/b_snewtbl.png"/></td>' .
+				'<td><label for="%s">%s%s :</label></td>' .
 				'<td class="metadata-add"></td>' .
 				'<td><select name="%s[]" id="%s">%s</select></td>' .
 			'</tr>';
@@ -126,7 +139,6 @@ class XmlDetectHandler extends XmlHandler {
 		$following_row =
 			'<tr>' .
 				'<td>&nbsp;</td>' .
-				//'<td><img src="/extensions/GWToolset/resources/images/b_drop.png"/></td>' .
 				'<td class="metadata-subtract"></td>' .
 				'<td><select name="%s[]">%s</select></td>' .
 			'</tr>';
@@ -149,12 +161,31 @@ class XmlDetectHandler extends XmlHandler {
 	
 		}
 
-		if ( count( $selected_options ) == 1 ) {
+		if ( in_array( $parameter_as_id, $required_fields ) ) {
+
+			$required = ' <span class="required">*</span>';
+
+		}
+
+		if ( 'url_to_the_media_file' == $parameter_as_id ) {
+
+			$result .= sprintf(
+				$no_metadata_button_row,
+				$parameter_as_id,
+				$parameter,
+				$required,
+				$parameter,
+				$parameter_as_id,
+				$this->getMetadataAsOptions( $selected_options[0] )
+			);
+
+		} else if ( count( $selected_options ) == 1 ) {
 	
 			$result .= sprintf(
 				$first_row,
 				$parameter_as_id,
 				$parameter,
+				$required,
 				$parameter,
 				$parameter_as_id,
 				$this->getMetadataAsOptions( $selected_options[0] )
@@ -172,6 +203,7 @@ class XmlDetectHandler extends XmlHandler {
 							$first_row,
 							$parameter_as_id,
 							$parameter,
+							$required,
 							$parameter,
 							$parameter_as_id,
 							$this->getMetadataAsOptions( $option )
@@ -199,6 +231,7 @@ class XmlDetectHandler extends XmlHandler {
 				$first_row,
 				$parameter_as_id,
 				$parameter,
+				$required,
 				$parameter_as_id,
 				$parameter_as_id,
 				$this->_metadata_as_options

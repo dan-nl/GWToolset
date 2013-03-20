@@ -9,13 +9,16 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Forms;
-use			Exception,
-			GWToolset\Handlers\SpecialPageHandler,
-			GWToolset\Helpers\WikiChecks;
+namespace GWToolset\Handlers\Forms;
+use	Exception,
+	GWToolset\Handlers\SpecialPageHandler,
+	GWToolset\Helpers\WikiChecks;
 
 
 abstract class FormHandler extends SpecialPageHandler {
+
+
+	protected $_user_options;
 
 
 	/**
@@ -42,13 +45,13 @@ abstract class FormHandler extends SpecialPageHandler {
 	}
 
 
-	protected function checkForRequiredFormFields( array $expected_options = array(), array &$user_options = array() ) {
+	protected function checkForRequiredFormFields( array $expected_options = array()) {
 
 		$msg = null;
 
 		foreach( $expected_options as $option ) {
 
-			if ( !isset( $user_options[ $option ] ) ) {
+			if ( !isset( $this->_user_options[ $option ] ) ) {
 
 				$msg .= '<li>' . $option . '</li>';
 
@@ -61,7 +64,7 @@ abstract class FormHandler extends SpecialPageHandler {
 			$msg =
 				'<p class="error">' . wfMessage('gwtoolset-metadata-user-options-error') . '</p>' .
 				'<ul>' . $msg . '</ul>' .
-				'<p>' . $this->SpecialPage->getBackToFormLink() . '</p>';
+				'<p>' . $this->_SpecialPage->getBackToFormLink() . '</p>';
 
 			throw new Exception( $msg );
 
@@ -96,7 +99,7 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		}
 
-		return $form_class::getForm( $this->SpecialPage->getContext() );
+		return $form_class::getForm( $this->_SpecialPage->getContext() );
 
 	}
 
@@ -105,7 +108,7 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		$result = null;
 
-			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
+			WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
 			$result .= $this->processRequest();
 
 		return $result;

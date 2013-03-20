@@ -10,12 +10,10 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\MediaWiki\Api;
-use			Exception,
-			GWToolset\Config,
-			GWToolset\MediaWiki\Api\Login,
-			Php\Curl,
-			Php\Filter,
-			SpecialPage;
+use	Exception,
+	GWToolset\MediaWiki\Api\Login,
+	Php\Curl,
+	Php\Filter;
 
 
 class Client implements ClientInterface {
@@ -28,16 +26,16 @@ class Client implements ClientInterface {
 
 
 	/**
+	 * @var string
+	 */
+	public $endpoint;
+
+
+	/**
 	 * @var GWToolset\MediaWiki\Api\Login
 	 * potential future reuse
 	 */
 	public $Login;
-
-
-	/**
-	 * @var string
-	 */
-	public $endpoint;
 
 
 	/**
@@ -49,7 +47,7 @@ class Client implements ClientInterface {
 	/**
 	 * @var Php\Curl
 	 */
-	protected $Curl;
+	protected $_Curl;
 
 
 	/**
@@ -128,13 +126,13 @@ class Client implements ClientInterface {
 		if ( $method == 'post' ) {
 
 			$this->debug_html .= '<b>API Call - POST</b><pre>module : ' . $module . PHP_EOL . print_r($params, true) . '</pre>';
-			$data = $this->Curl->post( $url, $params );
+			$data = $this->_Curl->post( $url, $params );
 			$this->debug_html .= '<b>API Call - data</b><pre>' . $data . '</pre>';
 
 		} else {
 
 			$this->debug_html .= '<b>API Call - GET</b><pre>module : ' . $module . PHP_EOL . print_r($params, true) . '</pre>';
-			$data = $this->Curl->get( $url . $this->buildQueryString( $params ) );
+			$data = $this->_Curl->get( $url . $this->buildQueryString( $params ) );
 			$this->debug_html .= '<b>API Call - data</b><pre>' . $data . '</pre>';
 
 		}
@@ -426,7 +424,7 @@ class Client implements ClientInterface {
 
 	public function reset() {
 
-		$this->Curl = null;
+		$this->_Curl = null;
 		$this->debug_html = null;
 		$this->endpoint = null;
 		$this->Login = null;
@@ -488,7 +486,7 @@ class Client implements ClientInterface {
 	}
 
 
-	public function __construct( $endpoint = null, SpecialPage &$SpecialPage = null ) {
+	public function __construct( $endpoint = null, $user_name = 'GWToolset', $debug_on = false ) {
 
 		if ( empty( $endpoint ) ) {
 
@@ -498,11 +496,8 @@ class Client implements ClientInterface {
 
 		$this->reset();
 		$this->endpoint = $endpoint;
-		$this->useragent = 'PHPcURL : ' . $SpecialPage->getUser()->getName();
-
-		$debug_on = false;
-		if ( Config::$display_debug_output && $SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) ) { $debug_on = true; }
-		$this->Curl = new Curl( array( 'useragent' => $this->useragent, 'debug-on' => $debug_on ) );
+		$this->useragent = 'PHPcURL : ' . $user_name;
+		$this->_Curl = new Curl( array( 'useragent' => $this->useragent, 'debug-on' => $debug_on ) );
 
 	}
 

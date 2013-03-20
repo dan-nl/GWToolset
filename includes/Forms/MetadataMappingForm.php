@@ -9,11 +9,11 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Forms;
-use			Exception,
-			GWToolset\Config,
-			GWToolset\Helpers\FileChecks,
-			IContextSource;
+namespace GWToolset\Forms;
+use	Exception,
+	GWToolset\Config,
+	GWToolset\Helpers\FileChecks,
+	IContextSource;
 
 
 class MetadataMappingForm {
@@ -64,10 +64,35 @@ class MetadataMappingForm {
 							'</tbody>' .
 						'</table>' .
 
-						'<p style="clear:both;">' .
-							wfMessage('gwtoolset-metadata-file-url') . ' : ' . $user_options['metadata-file-url'] . '<br/>' .
-							'<input type="submit" name="submit" value="process file">' .
+						'<p style="clear:both;">&nbsp;</p>' .
+
+						'<p>' . wfMessage('gwtoolset-required-field') . '</p>' .
+
+						'<p>' .
+							wfMessage('copyrightwarning2') .
 						'</p>' .
+
+						'<p>&nbsp;</p>' .
+
+						'<p>' .
+							'<b>' . wfMessage('gwtoolset-metadata-file-url') . '</b> : ' . $user_options['metadata-file-url'] .
+						'</p>' .
+						
+						'<p>' .
+							wfMessage('summary') . ' <b>(tbd)</b><input class="mw-summary" id="wpSummary" maxlength="255" tabindex="1" size="60" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
+						'</p>' .
+
+						'<p>' .
+							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage('gwtoolset-retrieve-media') . '</label><br/>' .
+							wfMessage('gwtoolset-retrieve-media-explanation') .
+						'</p>' .
+
+						'<p>' .
+							'<label><input type="checkbox" name="save-as-batch-job" value="true" checked/> ' . wfMessage('gwtoolset-add-as-a-job') . '</label><br/>' .
+							wfMessage('gwtoolset-add-as-a-job-description') .
+						'</p>'.
+
+						'<input type="submit" name="submit" value="process file">' .
 
 				'</fieldset>' .
 

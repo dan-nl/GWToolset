@@ -9,13 +9,13 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Xml;
-use			Exception,
-			GWToolset\Models\MediawikiTemplate,
-			GWToolset\Handlers\Xml\XmlDetectHandler,
-			GWToolset\Handlers\Xml\XmlDetectHandler\findSampleDOMElement,
-			SpecialPage,
-			XmlReader;
+namespace GWToolset\Handlers\Xml;
+use	Exception,
+	GWToolset\Models\MediawikiTemplate,
+	GWToolset\Handlers\Xml\XmlDetectHandler,
+	GWToolset\Handlers\Xml\XmlDetectHandler\findSampleDOMElement,
+	SpecialPage,
+	XmlReader;
 
 
 abstract class XmlHandler {

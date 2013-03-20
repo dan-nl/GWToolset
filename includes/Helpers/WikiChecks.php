@@ -9,13 +9,14 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Helpers;
-use			ErrorPageError,
-			Exception,
-			GWToolset\Config,
-			PermissionsError,
-			SpecialPage,
-			UserBlockedError;
+namespace GWToolset\Helpers;
+use	ErrorPageError,
+	Exception,
+	GWToolset\Config,
+	PermissionsError,
+	SpecialPage,
+	User,
+	UserBlockedError;
 
 
 /**
@@ -49,7 +50,7 @@ class WikiChecks {
 	 * @throw UserBlockedError
 	 * #return boolean
 	 */
-	public static function isUserBlocked( SpecialPage &$SpecialPage ) {
+	public static function isUserBlocked( SpecialPage $SpecialPage ) {
 
 		if ( $SpecialPage->getUser()->isBlocked() ) {
 
@@ -69,9 +70,29 @@ class WikiChecks {
 	 * @throws PermissionsError
 	 * @return boolean
 	 */
-	public static function doesEditTokenMatch( SpecialPage &$SpecialPage ) {
+	public static function doesEditTokenMatch( SpecialPage $SpecialPage ) {
 
 		if ( !$SpecialPage->getUser()->matchEditToken( $SpecialPage->getRequest()->getVal( 'wpEditToken' ) ) ) {
+
+			throw new Exception( wfMessage( 'exception-nologin-text' ), 1000 );
+
+		}
+
+		return true;
+
+	}
+
+
+	/**
+	 * Make sure the user is a member of a group that can access this extension
+	 *
+	 * @param SpecialPage $SpecialPage
+	 * @throws Exception
+	 * @return boolean
+	 */
+	public static function checkUserWikiGroups( SpecialPage $SpecialPage ) {
+
+		if ( !in_array( Config::$user_group, $SpecialPage->getUser()->getEffectiveGroups() ) ) {
 
 			throw new Exception( wfMessage( 'exception-nologin-text' ), 1000 );
 
@@ -91,7 +112,7 @@ class WikiChecks {
 	 * @throws Exception
 	 * @return boolean
 	 */
-	public static function checkUserWikiPermissions( SpecialPage &$SpecialPage ) {
+	public static function checkUserWikiPermissions( SpecialPage $SpecialPage ) {
 
 		foreach ( Config::$user_permissions as $permission ) {
 
@@ -118,7 +139,7 @@ class WikiChecks {
 	 * @throws Exception
 	 * @return boolean
 	 */
-	public static function canUserViewPage( SpecialPage &$SpecialPage ) {
+	public static function canUserViewPage( SpecialPage $SpecialPage ) {
 
 		try {
 
@@ -140,7 +161,7 @@ class WikiChecks {
 	 * @param SpecialPage $SpecialPage
 	 * @return boolean
 	 */
-	public static function isWikiWriteable( SpecialPage &$SpecialPage ) {
+	public static function isWikiWriteable( SpecialPage $SpecialPage ) {
 
 		$SpecialPage->checkReadOnly();
 		return true;
@@ -284,7 +305,7 @@ class WikiChecks {
 	 * @param SpecialPage $SpecialPage
 	 * @return boolean
 	 */
-	public static function pageIsReadyForThisUser( SpecialPage &$SpecialPage ) {
+	public static function pageIsReadyForThisUser( SpecialPage $SpecialPage ) {
 
 		if ( !self::verifyPHPVersion() ) { return false; }
 		if ( !self::verifyCurlExists() ) { return false; }
@@ -297,6 +318,7 @@ class WikiChecks {
 		if ( !self::isWikiWriteable( $SpecialPage ) ) { return false; }
 
 		if ( !self::canUserViewPage( $SpecialPage ) ) { return false; }
+		if ( !self::checkUserWikiGroups( $SpecialPage ) ) { return false; }
 		if ( !self::checkUserWikiPermissions( $SpecialPage ) ) { return false; }
 		if ( !self::isUserBlocked( $SpecialPage ) ) { return false; }
 

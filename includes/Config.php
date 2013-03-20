@@ -31,14 +31,13 @@ class Config {
 		'GWToolset\Handlers\Ajax\AjaxHandler' => '/includes/Handlers/Ajax/AjaxHandler.php',
 		'GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' => '/includes/Handlers/Ajax/MetadataMappingSaveHandler.php',		
 
-		'GWToolset\Handlers\FileHandler' => '/includes/Handlers/FileHandler.php',
-
 		'GWToolset\Handlers\Forms\FormHandler' => '/includes/Handlers/Forms/FormHandler.php',
 		'GWToolset\Handlers\Forms\MetadataDetectHandler' => '/includes/Handlers/Forms/MetadataDetectHandler.php',
 		'GWToolset\Handlers\Forms\MetadataMappingHandler' => '/includes/Handlers/Forms/MetadataMappingHandler.php',
 		'GWToolset\Handlers\Forms\MetadataUploadHandler' => '/includes/Handlers/Forms/MetadataUploadHandler.php',
 
 		'GWToolset\Handlers\SpecialPageHandler' => '/includes/Handlers/SpecialPageHandler.php',
+		'GWToolset\Handlers\UploadHandler' => '/includes/Handlers/UploadHandler.php',
 		'GWToolset\Handlers\Xml\XmlDetectHandler' => '/includes/Handlers/Xml/XmlDetectHandler.php',
 		'GWToolset\Handlers\Xml\XmlHandler' => '/includes/Handlers/Xml/XmlHandler.php',
 		'GWToolset\Handlers\Xml\XmlMappingHandler' => '/includes/Handlers/Xml/XmlMappingHandler.php',
@@ -47,6 +46,8 @@ class Config {
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
 
 		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
+
+		'GWToolset\Jobs\BatchUploadJob' => '/includes/Jobs/BatchUploadJob.php',
 
 		'GWToolset\MediaWiki\Api\Client' => '/includes/MediaWiki/Api/Client.php',
 		'GWToolset\MediaWiki\Api\ClientInterface' => '/includes/MediaWiki/Api/ClientInterface.php',
@@ -104,7 +105,14 @@ class Config {
 
 	public static $hooks = array(
 
-		'LoadExtensionSchemaUpdates' => '\GWToolset\Hooks::onLoadExtensionSchemaUpdates'
+		// placeholder 'LoadExtensionSchemaUpdates' => 'GWToolset\Hooks::onLoadExtensionSchemaUpdates'
+
+	);
+
+
+	public static $jobs = array(
+
+		'gwtoolsetBatchUpload' => 'GWToolset\Jobs\BatchUploadJob'
 
 	);
 
@@ -155,6 +163,12 @@ class Config {
 
 
 	/**
+	 * the user group the user musr be a member of in order to be able to use this extension
+	 * @see GWToolset\Helpers\WikiChecks\checkUserWikiGroups
+	 */
+	public static $user_group = 'gwtoolset';
+	
+	/**
 	 * user permissions required in order to be able to use this extension
 	 * @see GWToolset\Helpers\WikiChecks\checkUserPermissions
 	 */
@@ -203,4 +217,3 @@ class Config {
 
 
 }
-

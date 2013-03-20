@@ -15,7 +15,9 @@ use			Exception,
 			GWToolset\Helpers\WikiChecks,
 			PermissionsError,
 			Php\Filter,
-			SpecialPage;
+			SpecialPage,
+			Title,
+			JobQueueGroup;
 
 
 class SpecialGWToolset extends SpecialPage {

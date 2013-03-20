@@ -10,9 +10,9 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	Php;
-use			finfo,
-			Php\FileException;
+namespace Php;
+use	finfo,
+	Php\FileException;
 
 
 /**
@@ -173,11 +173,11 @@ class File {
 	 * @throws FileException
 	 * @return void
 	 */
-	protected function populate( $file_field_name ) {
+	public function populate( $file_field_name ) {
 
 		$file_field_name = Filter::evaluate( $file_field_name );
 		if ( !isset( $_FILES[ $file_field_name ] ) ) { throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist. (Php\File)' ); }
-		
+
 		$file = $_FILES[ $file_field_name ];
 		if ( empty( $file ) ) { throw new FileException( 'The file submitted contains no information; it is most likely an empty file. (Php\File)' ); }
 		if ( isset( $file[0] ) ) { throw new FileException( 'The file submitted contains information on more than one file ($_FILES has multiple values). (Php\File)' ); }
@@ -188,6 +188,11 @@ class File {
 		if ( isset( $file['size'] ) ) { $this->size = $file['size']; }
 		if ( isset( $file['tmp_name'] ) ) { $this->tmp_name = $file['tmp_name']; }
 		if ( isset( $file['type'] ) ) { $this->type = $file['type']; }
+
+		$this->isFileInfoComplete();
+		$this->isFileUploaded();
+		$this->setPathinfo();
+		$this->setMimeType();
 
 	}
 
@@ -217,14 +222,9 @@ class File {
 	public function __construct( $file_field_name = null ) {
 
 		$this->reset();
-		$this->populate( $file_field_name );
-		$this->isFileInfoComplete();
-		$this->isFileUploaded();
-		$this->setPathinfo();
-		$this->setMimeType();
+		if ( !empty( $file_field_name ) ) { $this->populate( $file_field_name ); }
 
 	}
 	
 	
 }
-

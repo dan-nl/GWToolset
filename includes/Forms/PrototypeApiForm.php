@@ -10,7 +10,6 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Forms;
-
 use GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
 	IContextSource;

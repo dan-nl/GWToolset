@@ -13,11 +13,9 @@ namespace GWToolset\Handlers\Xml;
 use	DOMElement,
 	Exception,
 	GWToolset\Config,
-	GWToolset\MediaWiki\Api\Client,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	Php\Filter,
-	SpecialPage,
 	XMLReader;
 
 
@@ -28,25 +26,13 @@ class XmlMappingHandler extends XmlHandler {
 	 * @var GWToolset\Models\Mapping
 	 */
 	protected $_Mapping;
-	
+
+
 	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
 	protected $_MediawikiTemplate;
 
-
-	/**
-	 * @var GWToolset\MediaWiki\Api\Client
-	 */
-	protected $_MWApiClient;
-
-
-	/**
-	 * @var SpecialPage
-	 */
-	protected $_SpecialPage;
-	
-	
 
 	//	//if ( $DOMNode->hasAttributes() ) {
 	//	//
@@ -61,154 +47,6 @@ class XmlMappingHandler extends XmlHandler {
 	//	//	}
 	//	//
 	//	//}
-
-
-	/**
-	 * @param {string} $filename
-	 *
-	 * @throws Exception
-	 *
-	 * @return {string}
-	 * an html <li> element that conatins an api error message or link to the
-	 * created wiki page
-	 */
-	protected function createPage( $filename = null ) {
-
-		$result = null;
-		$api_result = array();
-
-			if ( empty( $filename ) ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename provided' ) );
-
-			}
-
-			$api_result = $this->_MWApiClient->upload(
-				array(
-					'filename' => $filename,
-					'text' => $this->_MediawikiTemplate->getTemplate(),
-					'token' => $this->_MWApiClient->getEditToken(),
-					'ignorewarnings' => true,
-					'url' => $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file']
-				)
-			);
-
-			if ( empty( $api_result['upload']['result'] )
-				|| $api_result['upload']['result'] !== 'Success'
-				|| empty( $api_result['upload']['imageinfo']['descriptionurl'] )
-				|| empty( $api_result['upload']['filename'] )
-			) {
-
-				$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-					'<span class="error">' . $filename . '</span><br/>' .
-					'<span class="error">' . $e->getMessage() . '</span><br/>';
-
-			}
-
-			$result .=
-				'<li>' .
-					'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
-						$api_result['upload']['filename'] .
-					'</a>' .
-				'</li>';
-
-		return $result;
-
-	}
-
-
-	/**
-	 * @param {int} $page_id
-	 * @param {string} $filename
-	 *
-	 * @throws Exception
-	 *
-	 * @return {string}
-	 * an html <li> element that conatins an api error message or link to the
-	 * created wiki page
-	 */
-	protected function updatePage( $page_id = -1, $filename = null ) {
-
-		$result = null;
-		$api_result = array();
-		global $wgArticlePath;
-
-			if ( $page_id < 0 ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'invalid page-id provided' ) );
-
-			}
-
-			if ( empty( $filename ) ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename provided' ) );
-
-			}
-
-			$api_result = $this->_MWApiClient->edit(
-				array(
-					'pageid' => $page_id,
-					'text' => $this->_MediawikiTemplate->getTemplate(),
-					'token' => $this->_MWApiClient->getEditToken()
-				)
-			);
-
-			if ( empty( $api_result['edit']['result'] )
-				|| $api_result['edit']['result'] !== 'Success'
-				|| empty( $api_result['edit']['title'] )
-			) {
-
-				$result .= '<h1>' . wfMessage( 'mw-api-client-unknown-error' ) . '</h1>' .
-					'<span class="error">' . $filename . '</span><br/>' .
-					'<span class="error">' . $e->getMessage() . '</span><br/>';
-
-			}
-
-			$result .=
-				'<li>' .
-					'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
-						$api_result['edit']['title'] .
-						( isset( $api_result['edit']['oldrevid'] ) ? ' ( revised )' : ' ( no change )' ) .
-					'</a>' .
-				'</li>';
-
-		return $result;
-
-	}
-
-
-	/**
-	 * assumes that $this->_MediawikiTemplate has been populated with metadata
-	 * from a DOMElement and queries the wiki for a page title based on that
-	 * information
-	 *
-	 * @param {string} $filename
-	 *
-	 * @return int
-	 * a matching page id in the wiki or -1 if no match found
-	 */
-	protected function getTitlePageId( $filename = null ) {
-
-		$page_id = -1;
-		$api_result = array();
-
-			if ( empty( $filename ) ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename provided' ) );
-
-			}
-
-			$api_result = $this->_MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
-
-			if ( empty( $api_result['query']['pageids'] ) ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'api-result does not contain expected keys [query] and/or [query][pageids]' ) );
-
-			}
-
-		return (int)$api_result['query']['pageids'][0];
-
-	}
 
 
 	/**
@@ -336,62 +174,6 @@ class XmlMappingHandler extends XmlHandler {
 
 
 	/**
-	 * using the api save the matched record as a new wiki page or update an
-	 * existing wiki page
-	 *
-	 * @todo how to deal with url_to_media_file when it is redirected to a file
-	 * @todo a. create filename - need to figure a better way to do it, possibly
-	 * put it in the MediawikiTemplate instead of the UploadHandler
-	 *
-	 * @todo: have the api replace/update the template when page already exists
-	 * @todo b. tell api to follow the redirect to get the file
-	 * 
-	 * @param DOMElement $matching_element
-	 * @param array $user_options
-	 *
-	 * @return {string}
-	 * an html string with the <li> element results from the api createPage(),
-	 * updatePage() calls plus $this->_MWApiClient->debug_html if gwtoolset-debuging
-	 * is on and the user is a gwtoolset-debug user
-	 *
-	 * @todo run a try catch on the create/update page so that if there’s an api issue the script can continue
-	 */
-	protected function processMatchingElement( DOMElement &$DOMElement, array &$user_options ) {
-
-		$result = null;
-		$element_mapped_to_mediawiki_template = array();
-		$page_id = -1;
-		$filename = null;
-
-			$element_mapped_to_mediawiki_template = $this->getDOMElementMapped( $DOMElement );
-			$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
-			$filename = $this->_MediawikiTemplate->getTitle();
-			$page_id = $this->getTitlePageId( $filename );
-
-			if ( $page_id > -1 ) { // page already exists only change text
-
-				$result .= $this->updatePage( $page_id, $filename );
-
-			} else { // page does not yet exist upload image and template text
-
-				$result .= $this->createPage( $filename );
-
-			}
-
-			if ( Config::$display_debug_output
-				&& $this->_SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' )
-			) {
-
-				$result .= $this->_MWApiClient->debug_html;
-
-			}
-
-		return $result;
-
-	}
-
-
-	/**
 	 * using an xml reader, for stream reading of the xml file, find dom elements
 	 * that match the metadata record, indicated by the user form,
 	 * $user_options['record-element-name']
@@ -426,7 +208,7 @@ class XmlMappingHandler extends XmlHandler {
 				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('record-element-name, record-count not provided' ) );
 
 			}
-			
+
 			switch ( $xml_reader->nodeType ) {
 
 				case ( XMLReader::ELEMENT ):
@@ -435,10 +217,10 @@ class XmlMappingHandler extends XmlHandler {
 
 						$user_options['record-count'] += 1;
 						$DOMElement = $xml_reader->expand();
-						
+
 						if ( !empty( $DOMElement ) && $DOMElement instanceof DOMElement ) {
 
-							$result['msg'] = $this->processMatchingElement( $DOMElement, $user_options );
+							$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ) );
 
 							$result['msg'] =
 								'<p>' . $user_options['record-count'] . ' record(s) uploaded. Links to the uploaded file(s)</p>' .
@@ -485,12 +267,11 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 
-	public function __construct( SpecialPage $SpecialPage, Mapping $Mapping, MediawikiTemplate $MediawikiTemplate ) {
+	public function __construct( Mapping $Mapping, MediawikiTemplate $MediawikiTemplate, $MappingHandler ) {
 
-		$this->_SpecialPage = $SpecialPage;
 		$this->_Mapping = $Mapping;
 		$this->_MediawikiTemplate = $MediawikiTemplate;
-		$this->_MWApiClient = \GWToolset\getMWApiClient( $this->_SpecialPage );
+		$this->_MappingHandler = $MappingHandler;
 
 	}
 

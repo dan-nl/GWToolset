@@ -5,23 +5,48 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @datetime 2012-12-29 09:30 gmt +1
  * @author dan entous pennlinepublishing.com
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	Php;
-use			Exception;
+use Exception;
 
 
 class Filter {
 
 
-	protected static $name;
+	/**
+	 * @var string
+	 * the key name of the value in the source array
+	 */
+	protected static $key_name;
+
+
+	/**
+	 * @var string
+	 * [default=string] the expected value type
+	 */
 	protected static $type;
+
+
+	/**
+	 * @var array
+	 * the source array
+	 */
 	protected static $source;
 
+
+	/**
+	 * @var boolean
+	 * whether or not the value is required
+	 */
 	protected static $required;
+
+
+	/**
+	 *
+	 */
 	protected static $valid;
 
 	protected static $filter_sanitize;
@@ -30,18 +55,35 @@ class Filter {
 	protected static $filter_validate;
 	protected static $filter_validate_options;
 
-	protected static $value_raw;	
+	protected static $value_raw;
+	protected static $value_raw_is_array;
+
 	protected static $value_result;
+	protected static $value_result_array;
 
 
 	protected static function validate() {
 
 		if ( is_null( self::$filter_validate ) ) { return true; }
 
-		$result = filter_var( self::$value_result, self::$filter_validate, self::$filter_validate_options );
-		if ( $result === false ) { return false; }
+		if ( self::$value_raw_is_array ) {
 
-		self::$value_result = $result;
+				foreach( self::$value_result_array as $key => $value ) {
+
+					$result = filter_var( $value, self::$filter_validate, self::$filter_validate_options );
+					if ( $result === false ) { return false; }
+					self::$value_result_array[$key] = $result;
+
+				}
+	
+			} else {
+
+				$result = filter_var( self::$value_result, self::$filter_validate, self::$filter_validate_options );
+				if ( $result === false ) { return false; }
+				self::$value_result = $result;
+
+			}
+
 		return true;
 
 	}
@@ -51,10 +93,24 @@ class Filter {
 
 		if ( is_null( self::$filter_sanitize ) ) { return true; }
 
-		$result = filter_var( self::$value_result, self::$filter_sanitize, self::$filter_sanitize_options );
-		if ( $result === false ) { return false; }
+			if ( self::$value_raw_is_array ) {
 
-		self::$value_result = $result;
+				foreach( self::$value_result_array as $key => $value ) {
+
+					$result = filter_var( $value, self::$filter_sanitize, self::$filter_sanitize_options );
+					if ( $result === false ) { return false; }
+					self::$value_result_array[$key] = $result;
+
+				}
+	
+			} else {
+	
+				$result = filter_var( self::$value_result, self::$filter_sanitize, self::$filter_sanitize_options );
+				if ( $result === false ) { return false; }
+				self::$value_result = $result;
+	
+			}
+
 		return true;
 
 	}
@@ -63,7 +119,23 @@ class Filter {
 	protected static function required() {
 
 		if ( !self::$required ) { return true; }
-		if ( is_null( self::$value_result ) || strlen( self::$value_result ) < 1  ) { return false; }
+
+		if ( self::$value_raw_is_array ) {
+
+			if ( empty(self::$value_raw) ) { return false; }
+
+			foreach( self::$value_result_array as $key => $value ) {
+
+				if ( is_null( $value ) || strlen( $value ) < 1  ) { return false; }
+
+			}
+
+		} else {
+
+			if ( is_null( self::$value_result ) || strlen( self::$value_result ) < 1  ) { return false; }
+
+		}
+
 		return true;
 
 	}
@@ -71,7 +143,19 @@ class Filter {
 	
 	protected static function trim() {
 
-		self::$value_result = trim( self::$value_raw );
+		if ( self::$value_raw_is_array ) {
+
+			foreach( self::$value_raw as $key => $value ) {
+
+				self::$value_result_array[ $key ] = trim( $value );
+
+			}
+
+		} else {
+
+			self::$value_result = trim( self::$value_raw );
+
+		}
 
 	}
 	
@@ -101,18 +185,51 @@ class Filter {
 
 		}
 
-		if ( isset( $options['name'] ) ) { self::$name = $options['name']; }
+		if ( isset( $options['source'] ) ) {
+
+			self::$source = $options['source'];
+
+		} else {
+
+			throw new FilterException( '$options provided as an array, but no $options[source] provided [' . print_r( $options, true ) . ']' );
+
+		}
+
+		if ( is_array( self::$source ) ) {
+			
+			if ( isset( $options['key-name'] ) ) {
+
+				self::$key_name = $options['key-name'];
+	
+			} else {
+
+				throw new FilterException( '$options provided as an array, but no $options[key-name] provided [' . print_r( $options, true ) . ']' );
+	
+			}
+
+		}
+
 		if ( isset( $options['type'] ) ) { self::$type = $options['type']; }
 		if ( isset( $options['required'] ) ) { self::$required = $options['required']; }
-		if ( !isset( $options['source'] ) ) { throw new FilterException('Php Filter Error : no source set; most likely the options passed to the filter are a regular array rather than an options array'); }
-		
 		if ( isset( $options['filter-sanitize'] ) ) { self::$filter_sanitize = $options['filter-sanitize']; }
 
-		self::$source = $options['source'];
+		if ( is_array( self::$source ) ) {
 
-		if ( is_array( self::$source ) && isset( self::$source[self::$name] ) ) {
+			if ( isset( self::$source[self::$key_name] ) ) {
 
-			self::$value_raw = self::$source[self::$name];
+				self::$value_raw = self::$source[self::$key_name];
+
+				if ( is_array( self::$value_raw ) ) {
+
+					self::$value_raw_is_array = true;
+
+				}
+
+			} else {
+
+				self::$value_raw = null;
+
+			}
 
 		} else {
 
@@ -125,7 +242,7 @@ class Filter {
 	
 	protected static function reset() {
 
-		self::$name = null;
+		self::$key_name = null;
 		self::$type = 'string';
 		self::$source = null;
 
@@ -138,8 +255,11 @@ class Filter {
 		self::$filter_validate = null;
 		self::$filter_validate_options = array();
 
-		self::$value_raw = null;		
+		self::$value_raw = null;
+		self::$value_raw_is_array = false;
+
 		self::$value_result = null;
+		self::$value_result_array = array();
 
 	}
 
@@ -156,7 +276,15 @@ class Filter {
 
 		if ( self::$valid ) {
 
-			return self::$value_result;
+			if ( self::$value_raw_is_array ) {
+
+				return self::$value_result_array;
+
+			} else {
+
+				return self::$value_result;
+
+			}
 
 		} else {
 
@@ -168,4 +296,3 @@ class Filter {
 	
 	
 }
-

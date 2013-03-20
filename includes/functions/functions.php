@@ -63,9 +63,9 @@ function getArraySecondLevelValues( array $array = array() ) {
 }
 
 
-function getMWApiClient( SpecialPage &$SpecialPage ) {
+function getMWApiClient( $user_name = null, $debug_on = false ) {
 
-	$MWApiClient = new Client( Config::$api_internal_endpoint, $SpecialPage );
+	$MWApiClient = new Client( Config::$api_internal_endpoint, $user_name, $debug_on );
 	$MWApiClient->login( Config::$api_internal_lgname, Config::$api_internal_lgpassword );
 	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
 	return $MWApiClient;
@@ -107,13 +107,25 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 
 function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
-	if ( error_reporting() >= 32767 ) {
+	// wfSuppressWarnings() lowers the error_reporting threshold because the
+	// script that follows it is “allowed” to produce warnings,	thus, only
+	// handle errors this way when error_reporting is set to >= E_ALL
+	if ( error_reporting() >= E_ALL ) {
 
 		$errormsg =
 			$errstr . '<br/>' .
 			'<pre>' . print_r( debug_backtrace(), true ) . '</pre>';
 
-		throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
+		if ( $errno > E_WARNING ) {
+
+			throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
+
+		} else {
+
+			echo $errormsg;
+
+		}
+		
 
 	}
 

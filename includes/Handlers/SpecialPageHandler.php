@@ -9,8 +9,8 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers;
-use			SpecialPage;
+namespace GWToolset\Handlers;
+use	SpecialPage;
 
 
 abstract class SpecialPageHandler {
@@ -19,7 +19,7 @@ abstract class SpecialPageHandler {
 	/**
 	 * @var SpecialPage
 	 */
-	protected $SpecialPage;
+	protected $_SpecialPage;
 
 
 	abstract public function execute();
@@ -28,7 +28,7 @@ abstract class SpecialPageHandler {
 
 	public function __construct( SpecialPage &$SpecialPage ) {
 
-		$this->SpecialPage = $SpecialPage;
+		$this->_SpecialPage = $SpecialPage;
 
 	}
 

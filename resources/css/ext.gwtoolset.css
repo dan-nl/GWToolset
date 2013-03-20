@@ -22,3 +22,5 @@
 td.add-metadata, td.subtract-metadata {
 	width: 16px;
 }
+
+.required {font-weight:bold;color:red}

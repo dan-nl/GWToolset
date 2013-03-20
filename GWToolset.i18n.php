@@ -57,6 +57,7 @@ $messages['en'] = array(
 	'gwtoolset-back-to-form' => 'back to form',
 	'gwtoolset-no-form' => 'There is no form for this module',
 	'gwtoolset-developer-issue' => 'Unfortunately a developer will need to address this issue before you can continue [ $1 ].',
+	'gwtoolset-required-field' => '<span class="required">*</span> denotes required field',
 
 
 	#js
@@ -107,7 +108,7 @@ $messages['en'] = array(
 	'gwtoolset-metadata-detect-error' => 'Metadata Detect Error',
 	'gwtoolset-metadata-file-source-info' => '... either a file that has been previously uploaded or a file you wish to upload from your computer',
 	'gwtoolset-metadata-file-source' => 'Select the metadata file source',
-	'gwtoolset-metadata-file-url' => 'Metadata file url',
+	'gwtoolset-metadata-file-url' => 'Metadata file wiki url',
 	'gwtoolset-metadata-file' => 'Metadata file upload',
 	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
@@ -122,10 +123,14 @@ $messages['en'] = array(
 	'gwtoolset-metadata-detect-step-2-instructions' => '<p>Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.</p><ul><li>Left column contains a list of all fields in the MediaWiki Template.</li><li>Right column contains drop-downs with the metadata fields found in your metadata file.</li><li>For each MediaWiki Template field : <ol><li>select a metadata value from your uploaded metadata file that corresponds with the MediWiki Template field; you do not need to provide a match for every MediaWiki Template field.</li><li>At the bottom of the form you will need to select the metadata file again as we have not yet programmed functionality for storing your original metadata file.</li></ol></li></ul>',
 	'gwtoolset-metadata-mapping-error' => 'Metadata Mapping Error',
 	'gwtoolset-metadata-mapping-legend' => 'Map your metadata',
-	'gwtoolset-mapping-no-title' => 'The metadata contains no title, which is used to create the page title',
+	'gwtoolset-mapping-no-title' => 'The metadata contains no title, which is needed in order to create the page',
 	'gwtoolset-mapping-no-title-identifier' => 'The metadata contains no title identifier, which is used to create a unique page title; make sure you map a metadata field to the mediawiki template parameter title identifier',
-	'gwtoolset-mapping-no-media-file-url' => 'The metadata contains no media file url, which is used to create the page title',
+	'gwtoolset-mapping-no-media-file-url' => 'The metadata contains no media file url, which is needed to create the page title',
 	'gwtoolset-mapping-no-media-file-url-extension' => 'The metadata media file url contains no extension, which is used to create the page title',
+	'gwtoolset-retrieve-media' => 'retrieve media from url',
+	'gwtoolset-retrieve-media-explanation' => 'the media for each item will be retrieved from the url_to_the_media_file provided and uploaded to the wiki. if a page for the item does not yet exist, the media file will be uploaded even if this checkbox has not been checked.',
+	'gwtoolset-add-as-a-job' => 'process as a background job',
+	'gwtoolset-add-as-a-job-description' => 'the metadata is processsed in the background; this is the recommended method. if you uncheck this option your request may not complete properly.',
 
 
 	# mw api client

@@ -9,12 +9,12 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Forms;
-use 		GWToolset\Config,
-			GWToolset\Helpers\FileChecks,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate,
-			IContextSource;
+namespace GWToolset\Forms;
+use	GWToolset\Config,
+	GWToolset\Helpers\FileChecks,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
+	IContextSource;
 
 
 class MetadataDetectForm {

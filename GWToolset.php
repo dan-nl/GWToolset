@@ -113,17 +113,26 @@ foreach ( Config::$special_pages as $page => $values ) {
 
 /**
  * add hooks
+ * not yet used
  */
-foreach ( Config::$hooks as $hook => $function ) {
+//foreach ( Config::$hooks as $hook => $method ) {
+//
+//	$wgHooks[$hook][] = $method;
+//
+//}
 
-	$wgHooks[$hook][] = $function;
 
+/**
+ * add jobs
+ */
+foreach( Config::$jobs as $job => $method ) {
+
+	$wgJobClasses[$job] = $method;
+	
 }
-
 
 /**
  * register resources with ResourceLoader
  */
 Config::$resources['localBasePath'] = $wgGWToolsetDir;
 $wgResourceModules['ext.GWToolset'] = Config::$resources;
-

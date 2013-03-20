@@ -9,23 +9,25 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Forms;
-use 		Exception,
-			GWToolset\Forms\MetadataMappingForm,
-			GWToolset\Handlers\FileHandler,
-			GWToolset\Handlers\Xml\XmlDetectHandler,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate,
-			Php\Filter;
+namespace GWToolset\Handlers\Forms;
+use Exception,
+	GWToolset\Config,
+	GWToolset\Forms\MetadataMappingForm,
+	GWToolset\Handlers\UploadHandler,
+	GWToolset\Handlers\Xml\XmlDetectHandler,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
+	Php\File,
+	Php\Filter;
 
 
 class MetadataDetectHandler extends FormHandler {
 
 
 	/**
-	 * GWToolset\Handlers\FileHandler
+	 * @var Php\File
 	 */
-	protected $_FileHandler;
+	protected $_File;
 
 
 	/**
@@ -41,6 +43,18 @@ class MetadataDetectHandler extends FormHandler {
 
 
 	/**
+	 * @var GWToolset\MediaWiki\Api\Client
+	 */
+	protected $_MWApiClient;
+
+
+	/**
+	 * GWToolset\Handlers\UploadHandler
+	 */
+	protected $_UploadHandler;
+
+
+	/**
 	 * @var GWToolset\Handlers\XmlDetectHandler
 	 */
 	protected $_XmlDetectHandler;
@@ -49,7 +63,7 @@ class MetadataDetectHandler extends FormHandler {
 	/**
 	 *	returns an html string that is comprosed of table rows 
 	 *
-	 * @param {array} $user_options
+	 * @param {array} $this->_user_options
 	 * an array of user options that was submitted in the html form
 	 * 
 	 * @throws Exception
@@ -126,8 +140,8 @@ class MetadataDetectHandler extends FormHandler {
 
 			}
 
-			$this->_FileHandler->getUploadedFileFromForm( $metadata_file_upload );
-			$result = $this->_FileHandler->saveFile();
+			$this->_UploadHandler->getUploadedFileFromForm( $metadata_file_upload );
+			$result = $this->_UploadHandler->saveFile();
 	
 			if ( !$result['uploaded'] ) {
 	
@@ -135,7 +149,7 @@ class MetadataDetectHandler extends FormHandler {
 	
 			}
 	
-			$user_options[ $metadata_file_url ] = $this->_FileHandler->getSavedFileName();
+			$user_options[ $metadata_file_url ] = $this->_UploadHandler->getSavedFileName();
 
 		return $result['msg'];
 
@@ -152,12 +166,12 @@ class MetadataDetectHandler extends FormHandler {
 		$result = null;
 		$file_path_local = null;
 		$user_options = array();
-		$this->_FileHandler = null;
+		$this->_UploadHandler = null;
 		$this->_XmlDetectHandler = null;
 		$this->_MediawikiTemplate = null;
 		$this->_Mapping = null;
 
-			$user_options = array(
+			$this->_user_options = array(
 				'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
 				'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
 				'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : null,
@@ -172,26 +186,38 @@ class MetadataDetectHandler extends FormHandler {
 					'mediawiki-template-name',
 					'record-number-for-mapping',
 					'record-count'
-				),
-				$user_options
+				)
 			);
 
-			$this->_FileHandler = new FileHandler( $this->SpecialPage );
-			$result .= $this->getUploadedFile( $user_options );
-			$file_path_local = $this->_FileHandler->retrieveLocalFilePath( $user_options );
+			$this->_File = new File();
+
+			$this->_MWApiClient = \GWToolset\getMWApiClient(
+				$this->_SpecialPage->getUser()->getName(),
+				( Config::$display_debug_output && $this->_SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) )
+			);
+
+			$this->_UploadHandler = new UploadHandler(
+				array(
+					'File' => new File,
+					'MWApiClient' => $this->_MWApiClient,
+					'SpecialPage' => $this->_SpecialPage
+				)
+			);
+
+			$result .= $this->getUploadedFile( $this->_user_options );
+			$file_path_local = $this->_UploadHandler->retrieveLocalFilePath( $this->_user_options );
 
 			$this->_XmlDetectHandler = new XmlDetectHandler();
-			//$this->XmlDetectHandler = new XmlDetectHandler( $this->SpecialPage, $this->MediawikiTemplate );
-			$this->_XmlDetectHandler->processXml( $user_options, $file_path_local );
+			$this->_XmlDetectHandler->processXml( $this->_user_options, $file_path_local );
 
 			$this->_MediawikiTemplate = new MediawikiTemplate();
 			$this->_Mapping = new Mapping();
 
 			$result .= MetadataMappingForm::getForm(
-				$this->SpecialPage->getContext(),
-				$user_options,
-				$this->getMetadataAsHtmlSelectsInTableRows( $user_options ),
-				$this->_XmlDetectHandler->getMetadataAsHtmlTableRows( $user_options )
+				$this->_SpecialPage->getContext(),
+				$this->_user_options,
+				$this->getMetadataAsHtmlSelectsInTableRows( $this->_user_options ),
+				$this->_XmlDetectHandler->getMetadataAsHtmlTableRows( $this->_user_options )
 			);
 
 		return $result;

@@ -9,13 +9,16 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset;
-use			DatabaseUpdater,
-			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate,
-			MWException;
+namespace GWToolset;
+use	DatabaseUpdater,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
+	MWException;
 
 
+/**
+ * placeholder class not yet used
+ */
 class Hooks {
 
 
@@ -29,30 +32,29 @@ class Hooks {
 	 */
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 
-		switch ( $updater->getDB()->getType() ) {
-
-			case 'mysql':
-
-				$Mapping = new Mapping();
-				$Mapping->createTable( $updater );
-
-				$MediawikiTemplate = new MediawikiTemplate();
-				$MediawikiTemplate->createTable( $updater );
-
-				break;
-
-
-			default:
-
-				throw new MWException( wfMessage( 'gwtoolset-db-client-support' ) );
-				break;
-
-		}
-
-		return true;
+		//switch ( $updater->getDB()->getType() ) {
+		//
+		//	case 'mysql':
+		//
+		//		$Mapping = new Mapping();
+		//		$Mapping->createTable( $updater );
+		//
+		//		$MediawikiTemplate = new MediawikiTemplate();
+		//		$MediawikiTemplate->createTable( $updater );
+		//
+		//		break;
+		//
+		//
+		//	default:
+		//
+		//		throw new MWException( wfMessage( 'gwtoolset-db-client-support' ) );
+		//		break;
+		//
+		//}
+		//
+		//return true;
 
 	}
 
 
 }
-
