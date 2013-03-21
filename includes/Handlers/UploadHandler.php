@@ -181,6 +181,7 @@ class UploadHandler {
 		$result = null;
 		$api_result = array();
 
+		
 			if ( empty( $options['filename-page-title'] ) ) {
 
 				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename-page-title provided' ) );

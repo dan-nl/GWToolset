@@ -35,7 +35,7 @@ class MetadataMappingForm {
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
-						//'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
+						'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
 						'<input type="hidden" name="mediawiki-template-name" id="gwtoolset-mediawiki-template-name" value="' . $user_options['mediawiki-template-name'] . '"/>' .
 						'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
 						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
@@ -46,7 +46,7 @@ class MetadataMappingForm {
 							( !empty( $mapping_name['user-name'] ) ? ', ' . $mapping_name['user-name'] : null ) .
 							( !empty( $mapping_name['mapping-name'] ) ? ' : ' . $mapping_name['mapping-name'] : null ) .
 						'</h3>' .
-						
+
 						'<table id="template-table" style="float:left;margin-right:2%;margin-bottom:1em;">' .
 							'<thead>' .
 								'<tr><th>template field</th><th colspan="2">maps to</th></tr>' .
@@ -79,7 +79,7 @@ class MetadataMappingForm {
 						'</p>' .
 						
 						'<p>' .
-							wfMessage('summary') . ' <b>(tbd)</b><input class="mw-summary" id="wpSummary" maxlength="255" tabindex="1" size="60" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
+							wfMessage('summary') . ' <input class="mw-summary" id="wpSummary" maxlength="255" tabindex="1" size="60" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
 						'</p>' .
 
 						'<p>' .
