@@ -157,7 +157,6 @@ class MetadataMappingHandler extends FormHandler {
 			$this->_Mapping->setTargetElements();
 			$this->_Mapping->reverseMap();
 
-			
 			$this->_XmlMappingHandler = new XmlMappingHandler( $this->_Mapping, $this->_MediawikiTemplate, $this );
 			$this->_XmlMappingHandler->processXml( $this->_user_options, $file_path_local );
 

@@ -266,6 +266,8 @@ class XmlDetectHandler extends XmlHandler {
 
 		}
 
+		ksort( $this->_metadata_example_dom_nodes );
+
 	}
 
 
