@@ -158,7 +158,16 @@ class XmlMappingHandler extends XmlHandler {
 	
 						} else {
 	
-							$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+							if ( 'title_identifier' == $template_parameter ) {
+
+								$elements_mapped[ $template_parameter ] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+
+							} else {
+
+								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+
+							}
+							
 	
 						}
 

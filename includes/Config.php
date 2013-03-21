@@ -206,6 +206,7 @@ class Config {
 
 
 	public static $metadata_separator = '; ';
+	public static $title_separator = '-';
 
 
 	/**

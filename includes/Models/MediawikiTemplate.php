@@ -124,11 +124,11 @@ class MediawikiTemplate extends Model {
 		$result = null;
 		$pathinfo = array();
 
-			if ( empty( $this->mediawiki_template_array['title'] ) ) {
-
-				throw new Exception( wfMessage('gwtoolset-mapping-no-title') );
-
-			}
+			//if ( empty( $this->mediawiki_template_array['title'] ) ) {
+			//
+			//	throw new Exception( wfMessage('gwtoolset-mapping-no-title') );
+			//
+			//}
 
 			if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
 
@@ -142,8 +142,9 @@ class MediawikiTemplate extends Model {
 
 			}
 
-			$result = FileChecks::getValidTitle( $this->mediawiki_template_array['title'] );
-			$result .= '-' . $this->mediawiki_template_array['title_identifier'];
+			$result = $this->mediawiki_template_array['title'];
+			if ( !empty( $result ) ) { $result .= Config::$title_separator; }
+			$result = FileChecks::getValidTitle( $result . $this->mediawiki_template_array['title_identifier'] );
 			$pathinfo = pathinfo( $this->mediawiki_template_array['url_to_the_media_file'] );
 
 			if ( empty( $pathinfo['extension'] ) ) {
