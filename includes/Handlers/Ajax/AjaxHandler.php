@@ -10,9 +10,9 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Handlers\Ajax;
-use			Exception,
-			GWToolset\Handlers\SpecialPageHandler,
-			GWToolset\Helpers\WikiChecks;
+use	Exception,
+		GWToolset\Handlers\SpecialPageHandler,
+		GWToolset\Helpers\WikiChecks;
 
 
 abstract class AjaxHandler extends SpecialPageHandler {
@@ -24,7 +24,7 @@ abstract class AjaxHandler extends SpecialPageHandler {
 
 			try {
 	
-				WikiChecks::doesEditTokenMatch( $this->SpecialPage );
+				WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
 				$result .= $this->processRequest();
 	
 			} catch ( Exception $e ) {

@@ -26,7 +26,7 @@ abstract class SpecialPageHandler {
 	abstract protected function processRequest();
 
 
-	public function __construct( SpecialPage &$SpecialPage ) {
+	public function __construct( SpecialPage $SpecialPage ) {
 
 		$this->_SpecialPage = $SpecialPage;
 

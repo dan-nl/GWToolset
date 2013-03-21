@@ -10,8 +10,8 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset\Handlers\Ajax;
-use			GWToolset\Models\Mapping,
-			GWToolset\Models\MediawikiTemplate;
+use	GWToolset\Models\Mapping,
+		GWToolset\Models\MediawikiTemplate;
 
 
 class MetadataMappingSaveHandler extends AjaxHandler {
@@ -38,13 +38,13 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 	protected function processRequest() {
 
 		$this->_Mapping = new Mapping();
-		$this->_Mapping->mapping_array = $this->SpecialPage->getRequest()->getArray( 'metadata-mappings' );
+		$this->_Mapping->mapping_array = $this->_SpecialPage->getRequest()->getArray( 'metadata-mappings' );
 
 		$result = $this->_Mapping->create(
 			array(
-				'user_name' => $this->SpecialPage->getUser()->getName(),
-				'mapping_name' => $this->SpecialPage->getRequest()->getVal( 'mapping-name-to-use' ),
-				'mediawiki_template_name' => $this->SpecialPage->getRequest()->getVal( 'mediawiki-template-name' ),
+				'user_name' => $this->_SpecialPage->getUser()->getName(),
+				'mapping_name' => $this->_SpecialPage->getRequest()->getVal( 'mapping-name-to-use' ),
+				'mediawiki_template_name' => $this->_SpecialPage->getRequest()->getVal( 'mediawiki-template-name' ),
 				'mapping_json' => json_encode( $this->_Mapping->mapping_array ),
 				'created' => date('Y-m-d H:i:s')
 			)
