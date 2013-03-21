@@ -124,12 +124,6 @@ class MediawikiTemplate extends Model {
 		$result = null;
 		$pathinfo = array();
 
-			//if ( empty( $this->mediawiki_template_array['title'] ) ) {
-			//
-			//	throw new Exception( wfMessage('gwtoolset-mapping-no-title') );
-			//
-			//}
-
 			if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-no-title-identifier') );
