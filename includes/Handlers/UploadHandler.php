@@ -60,23 +60,21 @@ class UploadHandler {
 	protected $_UploadBase;
 
 
-	protected $_user_options;
+	public $user_options;
 	public $jobs_added;
 	public $jobs_not_added;
 
 
 	/**
-	 * @param {int} $page_id
-	 * @param {string} $filename
+	 * @param {array} $options
+	 * @param {boolean} $result_as_boolean
 	 *
 	 * @throws Exception
-	 *
-	 * @return {string}
+	 * @return {string|boolean}
 	 * an html <li> element that conatins an api error message or link to the
 	 * created wiki page
 	 */
-	//private function updatePage( $page_id, $filename ) {
-	protected function updatePage( array $options ) {
+	protected function updatePage( array &$options, $result_as_boolean = false ) {
 
 		$result = null;
 		$api_result = array();
@@ -100,9 +98,9 @@ class UploadHandler {
 
 			}
 
-			if ( empty( $options['url-to-the-media-file'] ) ) {
+			if ( empty( $options['url_to_the_media_file'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url-to-the-media-file not set' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url_to_the_media_file not set' ) );
 
 			}
 
@@ -112,22 +110,26 @@ class UploadHandler {
 
 			}
 
-			if ( $this->_user_options['upload-media'] ) { // upload another version of the media
+			if ( $this->user_options['upload-media'] ) { // upload another version of the media
 
 				$api_result = $this->_MWApiClient->upload(
 					array(
 						'filename' => $options['filename-page-title'],
+						'comment' => $options['comment'],
 						'token' => $this->_MWApiClient->getEditToken(),
 						'ignorewarnings' => $options['ignorewarnings'],
-						'url' => $options['url-to-the-media-file']
+						'url' => $options['url_to_the_media_file']
 					)
 				);
 
 			}
 
+			// creating a new page a comment is used
+			// updating a page summary is used
 			$api_result = $this->_MWApiClient->edit(
 				array(
 					'pageid' => $options['pageid'],
+					'summary' => $options['comment'],
 					'text' => $options['text'],
 					'token' => $this->_MWApiClient->getEditToken()
 				)
@@ -142,13 +144,21 @@ class UploadHandler {
 	
 			} else {
 
-				$result .=
-					'<li>' .
-						'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
-							$api_result['edit']['title'] .
-							( isset( $api_result['edit']['oldrevid'] ) ? ' ( revised )' : ' ( no change )' ) .
-						'</a>' .
-					'</li>';
+				if ( $result_as_boolean ) {
+
+					$result = true;
+
+				} else {
+
+					$result .=
+						'<li>' .
+							'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
+								$api_result['edit']['title'] .
+								( isset( $api_result['edit']['oldrevid'] ) ? ' ( revised )' : ' ( no change )' ) .
+							'</a>' .
+						'</li>';
+
+				}
 
 			}
 
@@ -158,15 +168,15 @@ class UploadHandler {
 
 
 	/**
-	 * @param {string} $filename
+	 * @param {array} $options
+	 * @param {boolean} $result_as_boolean
 	 *
 	 * @throws Exception
-	 *
-	 * @return {string}
+	 * @return {string|boolean}
 	 * an html <li> element that conatins an api error message or link to the
 	 * created wiki page
 	 */
-	protected function createPage( array $options ) {
+	protected function createPage( array &$options, $result_as_boolean = false ) {
 
 		$result = null;
 		$api_result = array();
@@ -189,9 +199,9 @@ class UploadHandler {
 
 			}
 
-			if ( empty( $options['url-to-the-media-file'] ) ) {
+			if ( empty( $options['url_to_the_media_file'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url-to-the-media-file not set' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url_to_the_media_file not set' ) );
 
 			}
 
@@ -200,10 +210,11 @@ class UploadHandler {
 			$api_result = $this->_MWApiClient->upload(
 				array(
 					'filename' => $options['filename-page-title'],
+					'comment' => $options['comment'],
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
 					'token' => $this->_MWApiClient->getEditToken(),
-					'url' => $options['url-to-the-media-file']
+					'url' => $options['url_to_the_media_file']
 				)
 			);
 
@@ -217,12 +228,20 @@ class UploadHandler {
 
 			} else {
 
-				$result =
-					'<li>' .
-						'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
-							$api_result['upload']['filename'] .
-						'</a>' .
-					'</li>';
+				if ( $result_as_boolean ) {
+
+					$result = true;
+
+				} else {
+
+					$result =
+						'<li>' .
+							'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
+								$api_result['upload']['filename'] .
+							'</a>' .
+						'</li>';
+
+				}
 
 			}
 
@@ -259,7 +278,7 @@ class UploadHandler {
 	}
 
 
-	public function savePageViaApiUpload( array &$options ) {
+	public function savePageViaApiUpload( array &$options, $result_as_boolean = false ) {
 
 		$result = null;
 
@@ -273,11 +292,11 @@ class UploadHandler {
 
 			if ( $options['pageid'] > -1 ) { // page already exists
 
-				$result = $this->updatePage( $options );
+				$result = $this->updatePage( $options, $result_as_boolean );
 
 			} else { // page does not yet exist
 
-				$result = $this->createPage( $options );
+				$result = $this->createPage( $options, $result_as_boolean );
 
 			}
 
@@ -294,12 +313,13 @@ class UploadHandler {
 			$job = new BatchUploadJob(
 				Title::newFromText( 'User:' . $this->_SpecialPage->getUser()->getName() ),
 				array(
-					'user' => $this->_SpecialPage->getUser()->getName(),
+					'comment' => $options['comment'],
 					'filename-page-title' => $options['filename-page-title'], // the page title to create/update
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
-					'url-to-the-media-file' => $options['url-to-the-media-file'],					
-					'user-options' => $this->_user_options
+					'url_to_the_media_file' => $options['url_to_the_media_file'],					
+					'user' => $this->_SpecialPage->getUser()->getName(),
+					'user_options' => $this->user_options
 				)
 			);
 
@@ -324,17 +344,11 @@ class UploadHandler {
 
 		$result = null;
 		$options = array();
-		$this->_user_options = $user_options;
+		$this->user_options = $user_options;
 
-			if ( !isset( $this->_user_options['save-as-batch-job'] ) ) {
+			if ( !isset( $this->user_options['comment'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'user_options[\'save-as-batch-job\'] not set' ) );
-
-			}
-
-			if ( !isset( $this->_user_options['upload-media'] ) ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'user_options[\'upload-media\'] not set' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'user_options[\'comment\'] not set' ) );
 
 			}
 
@@ -346,11 +360,24 @@ class UploadHandler {
 
 			}
 
-			$options['ignorewarnings'] = true;
-			$options['text'] = $this->_MediawikiTemplate->getTemplate();
-			$options['url-to-the-media-file'] = $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file'];
+			if ( !isset( $this->user_options['save-as-batch-job'] ) ) {
 
-			if ( $this->_user_options['save-as-batch-job'] ) {
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'user_options[\'save-as-batch-job\'] not set' ) );
+
+			}
+
+			if ( !isset( $this->user_options['upload-media'] ) ) {
+
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'user_options[\'upload-media\'] not set' ) );
+
+			}
+
+			$options['ignorewarnings'] = true;
+			$options['comment'] = $this->user_options['comment'];
+			$options['text'] = $this->_MediawikiTemplate->getTemplate();
+			$options['url_to_the_media_file'] = $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file'];
+
+			if ( $this->user_options['save-as-batch-job'] ) {
 
 				$result = $this->savePageViaJob( $options );
 
@@ -590,7 +617,7 @@ class UploadHandler {
 
 		$this->jobs_added = 0;
 		$this->jobs_not_added = 0;
-		$this->_user_options = array();
+		$this->user_options = array();
 
 	}
 

@@ -117,6 +117,7 @@ class MetadataMappingHandler extends FormHandler {
 				'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
 				'record-count' => 0,
 				'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ? (bool)Filter::evaluate( $_POST['save-as-batch-job'] ) : false,
+				'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
 				'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
 				'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
 				'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null
@@ -124,10 +125,10 @@ class MetadataMappingHandler extends FormHandler {
 
 			$this->checkForRequiredFormFields(
 				array(
-					'record-element-name',
 					'mediawiki-template-name',
 					'metadata-file-url',
 					'record-count',
+					'record-element-name',
 					'title_identifier',
 					'url_to_the_media_file'
 				)

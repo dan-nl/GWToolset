@@ -41,9 +41,9 @@ class BatchUploadJob extends Job {
 
 		$result = true;
 
-			if ( empty( $this->params['user'] ) ) {
+			if ( !isset( $this->params['comment'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
+				error_log( __METHOD__ . ' : no $this->params[\'comment\'] provided' . PHP_EOL );
 				$result = false;
 
 			}
@@ -62,16 +62,23 @@ class BatchUploadJob extends Job {
 
 			}
 
-			if ( empty( $this->params['url-to-the-media-file'] ) ) {
+			if ( empty( $this->params['user'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'url-to-the-media-file\'] provided' .PHP_EOL );
+				error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
 				$result = false;
 
 			}
 
-			if ( empty( $this->params['user-options'] ) ) {
+			if ( empty( $this->params['url_to_the_media_file'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'user-options\'] provided' . PHP_EOL );
+				error_log( __METHOD__ . ' : no $this->params[\'url_to_the_media_file\'] provided' .PHP_EOL );
+				$result = false;
+
+			}
+
+			if ( empty( $this->params['user_options'] ) ) {
+
+				error_log( __METHOD__ . ' : no $this->params[\'user_options\'] provided' . PHP_EOL );
 				$result = false;
 
 			}
@@ -86,20 +93,43 @@ class BatchUploadJob extends Job {
 	 */
 	public function run() {
 
+		$result = false;
 		$time_start = microtime(true);
 
-		if ( !$this->validateParams() ) { die(); return false; }
+			if ( !$this->validateParams() ) { die(); return false; }
+	
+			$this->_User = User::newFromName( $this->params['user'] );
+			$this->_MWApiClient = \GWToolset\getMWApiClient( $this->_User->getName() ); // should we turn debugging on?
+			$this->_UploadHandler = new UploadHandler( array( 'MWApiClient' => $this->_MWApiClient ) );
+			$this->_UploadHandler->user_options = $this->params['user_options'];
 
-		$this->_User = User::newFromName( $this->params['user'] );
-		$this->_MWApiClient = \GWToolset\getMWApiClient( $this->_User->getName() ); // should we turn debugging on?
-		$this->_UploadHandler = new UploadHandler( array( 'MWApiClient' => $this->_MWApiClient ) );
-		
-		$result = $this->_UploadHandler->savePageViaApiUpload( $this->params );
+			$filename_metadata = $this->_UploadHandler->getFilenameFromUserOptions( $this->params['user_options'] );
+			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
 
-		//'filename-metadata' => $this->getFilenameFromUserOptions( $this->_user_options ),
-		$time_end = microtime(true);
-		$time = $time_end - $time_start;
-		error_log( "Saved {$this->params['filename-page-title']} to the wiki in $time seconds with result = $result" . PHP_EOL );
+			$time_end = microtime(true);
+			$time = $time_end - $time_start;
+
+			if ( $result ) {
+
+				error_log( "Saved {$this->params['filename-page-title']} to the wiki in $time seconds. Used the $filename_metadata as the metadata source" );
+				//$this->_User->leaveUserMessage(
+				//	wfMessage( 'upload-success-subj' )->text(),
+				//	wfMessage( 'upload-success-msg',
+				//		$this->upload->getTitle()->getText(),
+				//		$this->params['url']
+				//	)->text() );
+
+			} else {
+
+				error_log( "Could not save {$this->params['filename-page-title']} to the wiki. Used the $filename_metadata as the metadata source" );
+				//$this->user->leaveUserMessage(
+				//	wfMessage( 'upload-failure-subj' )->text(),
+				//	wfMessage( 'upload-failure-msg',
+				//		$status->getWikiText(),
+				//		$this->params['url']
+				//	)->text() );
+			}
+
 		return $result;
 
 	}
