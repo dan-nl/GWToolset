@@ -9,9 +9,9 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Ajax;
+namespace GWToolset\Handlers\Ajax;
 use	GWToolset\Models\Mapping,
-		GWToolset\Models\MediawikiTemplate;
+	GWToolset\Models\MediawikiTemplate;
 
 
 class MetadataMappingSaveHandler extends AjaxHandler {

@@ -146,7 +146,7 @@ abstract class Model implements ModelInterface {
 	 *
 	 * based on core/includes/installer/MysqlUpdater.php::doUserGroupsUpdate
 	 */
-	public function insertDefaultMappings() {
+	//public function insertDefaultMappings() {
 
 		//global $wgGWToolsetDir;
 		//
@@ -162,7 +162,7 @@ abstract class Model implements ModelInterface {
 		//	)
 		//);
 
-	}
+	//}
 
 
 	public function createTable( DatabaseUpdater &$updater ) {
@@ -178,7 +178,7 @@ abstract class Model implements ModelInterface {
 	protected function setTableCreateSql() {
 
 		global $wgGWToolsetDir;
-
+	
 		$this->table_create_sql =
 			$wgGWToolsetDir . DIRECTORY_SEPARATOR .
 			'sql' . DIRECTORY_SEPARATOR .

@@ -21,31 +21,7 @@ abstract class FormHandler extends SpecialPageHandler {
 	protected $_user_options;
 
 
-	/**
-	 * @param string $mediawiki_template
-	 * @throws Exception
-	 * @return string
-	 */
-	protected function getValidMediaWikiTemplate( &$mediawiki_template = null ) {
-
-		$template = null;
-
-		if ( array_key_exists( $mediawiki_template, Config::$allowed_templates ) ) {
-
-			$template = Config::$allowed_templates[$mediawiki_template];
-
-		} else {
-
-			throw new Exception( wfMessage('gwtoolset-metadata-invalid-template') );
-
-		}
-
-		return $template;
-
-	}
-
-
-	protected function checkForRequiredFormFields( array $expected_options = array()) {
+	protected function checkForRequiredFormFields( array $expected_options = array() ) {
 
 		$msg = null;
 

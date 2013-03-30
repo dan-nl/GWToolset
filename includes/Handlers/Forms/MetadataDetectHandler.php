@@ -145,7 +145,7 @@ class MetadataDetectHandler extends FormHandler {
 	
 			if ( !$result['uploaded'] ) {
 	
-				throw Exception( $result['msg'] );
+				throw new Exception( $result['msg'] );
 	
 			}
 	
@@ -200,7 +200,8 @@ class MetadataDetectHandler extends FormHandler {
 				array(
 					'File' => new File,
 					'MWApiClient' => $this->_MWApiClient,
-					'SpecialPage' => $this->_SpecialPage
+					'SpecialPage' => $this->_SpecialPage,
+					'User' => $this->_SpecialPage->getUser()
 				)
 			);
 

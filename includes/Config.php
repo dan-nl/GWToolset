@@ -24,6 +24,11 @@ class Config {
 
 	public static $autoloader_classes = array(
 
+		'GWToolset\Adapters\DataAdapterInterface' => '/includes/Adapters/DataAdapterInterface.php',
+		'GWToolset\Adapters\Db\DbAdapterAbstract' => '/includes/Adapters/Db/DbAdapterAbstract.php',
+		'GWToolset\Adapters\Db\MappingDbAdapter' => '/includes/Adapters/Db/MappingDbAdapter.php',
+		'GWToolset\Adapters\Db\MediawikiTemplateDbAdapter' => '/includes/Adapters/Db/MediawikiTemplateDbAdapter.php',
+
 		'GWToolset\Forms\MetadataDetectForm' => '/includes/Forms/MetadataDetectForm.php',
 		'GWToolset\Forms\MetadataMappingForm' => '/includes/Forms/MetadataMappingForm.php',
 		'GWToolset\Forms\MetadataUploadForm' => '/includes/Forms/MetadataUploadForm.php',
@@ -47,7 +52,8 @@ class Config {
 
 		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
 
-		'GWToolset\Jobs\BatchUploadJob' => '/includes/Jobs/BatchUploadJob.php',
+		'GWToolset\Jobs\UploadMediafileJob' => '/includes/Jobs/UploadMediafileJob.php',
+		'GWToolset\Jobs\UploadMetadataJob' => '/includes/Jobs/UploadMetadataJob.php',
 
 		'GWToolset\MediaWiki\Api\Client' => '/includes/MediaWiki/Api/Client.php',
 		'GWToolset\MediaWiki\Api\ClientInterface' => '/includes/MediaWiki/Api/ClientInterface.php',
@@ -112,7 +118,8 @@ class Config {
 
 	public static $jobs = array(
 
-		'gwtoolsetBatchUpload' => 'GWToolset\Jobs\BatchUploadJob'
+		'gwtoolsetUploadMediafileJob' => 'GWToolset\Jobs\UploadMediafileJob',
+		'gwtoolsetUploadMetadataJob' => 'GWToolset\Jobs\UploadMetadataJob'
 
 	);
 

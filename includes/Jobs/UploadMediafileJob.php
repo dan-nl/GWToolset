@@ -16,7 +16,7 @@ use Job,
 	User;
 
 
-class BatchUploadJob extends Job {
+class UploadMediafileJob extends Job {
 
 
 	/**
@@ -35,6 +35,29 @@ class BatchUploadJob extends Job {
 	 * @var User
 	 */
 	protected $_User;
+	
+	public $filename_metadata;
+
+	protected function processMetadata() {
+
+		$result = false;
+
+			$this->_MWApiClient = \GWToolset\getMWApiClient( $this->_User->getName() );
+
+			$this->_UploadHandler = new UploadHandler(
+				array(
+					'MWApiClient' => $this->_MWApiClient,
+					'User' => $this->_User
+				)
+			);
+
+			$this->_UploadHandler->user_options = $this->params['user_options'];
+			$this->filename_metadata = $this->_UploadHandler->getFilenameFromUserOptions( $this->params['user_options'] );
+			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
+
+		return $result;
+
+	}
 
 
 	protected function validateParams() {
@@ -94,40 +117,23 @@ class BatchUploadJob extends Job {
 	public function run() {
 
 		$result = false;
-		$time_start = microtime(true);
-
+		
 			if ( !$this->validateParams() ) { die(); return false; }
-	
+
+			$time_start = microtime( true );
 			$this->_User = User::newFromName( $this->params['user'] );
-			$this->_MWApiClient = \GWToolset\getMWApiClient( $this->_User->getName() ); // should we turn debugging on?
-			$this->_UploadHandler = new UploadHandler( array( 'MWApiClient' => $this->_MWApiClient ) );
-			$this->_UploadHandler->user_options = $this->params['user_options'];
-
-			$filename_metadata = $this->_UploadHandler->getFilenameFromUserOptions( $this->params['user_options'] );
-			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
-
-			$time_end = microtime(true);
+			$result = $this->processMetadata();
+			$time_end = microtime( true );
 			$time = $time_end - $time_start;
 
 			if ( $result ) {
 
-				error_log( "Saved {$this->params['filename-page-title']} to the wiki in $time seconds. Used the $filename_metadata as the metadata source" );
-				//$this->_User->leaveUserMessage(
-				//	wfMessage( 'upload-success-subj' )->text(),
-				//	wfMessage( 'upload-success-msg',
-				//		$this->upload->getTitle()->getText(),
-				//		$this->params['url']
-				//	)->text() );
+				error_log( "Saved {$this->params['filename-page-title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
 
 			} else {
 
-				error_log( "Could not save {$this->params['filename-page-title']} to the wiki. Used the $filename_metadata as the metadata source" );
-				//$this->user->leaveUserMessage(
-				//	wfMessage( 'upload-failure-subj' )->text(),
-				//	wfMessage( 'upload-failure-msg',
-				//		$status->getWikiText(),
-				//		$this->params['url']
-				//	)->text() );
+				error_log( "Could not save {$this->params['filename-page-title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
+
 			}
 
 		return $result;
@@ -137,7 +143,7 @@ class BatchUploadJob extends Job {
 
 	public function __construct( $title, $params, $id = 0 ) {
 
-		parent::__construct( 'gwtoolsetBatchUpload', $title, $params, $id );
+		parent::__construct( 'gwtoolsetUploadMediafileJob', $title, $params, $id );
 
 	}
 

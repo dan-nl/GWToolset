@@ -10,14 +10,14 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset;
-use			Exception,
-			GWToolset\Models\Menu,
-			GWToolset\Helpers\WikiChecks,
-			PermissionsError,
-			Php\Filter,
-			SpecialPage,
-			Title,
-			JobQueueGroup;
+use	Exception,
+	GWToolset\Models\Menu,
+	GWToolset\Helpers\WikiChecks,
+	PermissionsError,
+	Php\Filter,
+	SpecialPage,
+	Title,
+	JobQueueGroup;
 
 
 class SpecialGWToolset extends SpecialPage {
@@ -36,7 +36,6 @@ class SpecialGWToolset extends SpecialPage {
 
 
 	protected $registered_modules = array(
-		'metadata-upload' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataUploadHandler', 'form' => '\GWToolset\Forms\MetadataUploadForm' ),
 		'metadata-detect' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataDetectHandler', 'form' => '\GWToolset\Forms\MetadataDetectForm' ),
 		'metadata-mapping' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler', 'form' => '\GWToolset\Forms\MetadataMappingForm' ),
 		'metadata-mapping-save' => array( 'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' )

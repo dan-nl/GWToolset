@@ -22,13 +22,29 @@ abstract class SpecialPageHandler {
 	protected $_SpecialPage;
 
 
+	/**
+	 * @var User
+	 */
+	protected $_User;
+
+
 	abstract public function execute();
 	abstract protected function processRequest();
 
 
-	public function __construct( SpecialPage $SpecialPage ) {
+	public function __construct( SpecialPage $SpecialPage = null, User $User = null ) {
 
 		$this->_SpecialPage = $SpecialPage;
+
+		if ( !empty( $User ) ) {
+
+			$this->_User = $User;
+
+		} else {
+
+			$this->_User = $this->_SpecialPage->getUser();
+
+		}
 
 	}
 

@@ -56,7 +56,7 @@ $messages['en'] = array(
 	'gwtoolset-technical-error' => 'There was a Technical Error',
 	'gwtoolset-back-to-form' => 'back to form',
 	'gwtoolset-no-form' => 'There is no form for this module',
-	'gwtoolset-developer-issue' => 'Unfortunately a developer will need to address this issue before you can continue [ $1 ].',
+	'gwtoolset-developer-issue' => 'Please contact a developer; they will need to address this issue before you can continue [ $1 ].',
 	'gwtoolset-required-field' => '<span class="required">*</span> denotes required field',
 
 
@@ -112,8 +112,8 @@ $messages['en'] = array(
 	'gwtoolset-metadata-file' => 'Metadata file upload',
 	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
-	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; unfortunately a developer will need to address this issue before you can continue ( [$1] )',
-	'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url or uploaded a metadata file then unfortunately a developer will need to look further into this issue.',
+	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; please contact a developer; they will need to address this issue before you can continue ( [$1] )',
+	'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url or uploaded a metadata file then please contact a developer; they will need to look further into this issue.',
 	'gwtoolset-metadata-file-url-invalid' => 'The metadata file url was invalid; the file does not yet exist in the wiki. You need to first upload the metadata file from your computer if you want to use the file url reference in the metadata mapping form.',
 	'gwtoolset-no-example-dom-element' => 'No example xml element found for mapping. Did you indicate the correct element name to be used as the example xml element?',
 
@@ -164,7 +164,12 @@ $messages['en'] = array(
 
 
 	# db client
-	'gwtoolset-db-client-support' => 'The GWToolset extension currently supports only MySQL'
+	'gwtoolset-db-client-support' => 'The GWToolset extension currently supports only MySQL',
+	
+	# jobs
+	'gwtoolset-batchjob-metadata-created' => 'batch job added. your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process.',
+	'gwtoolset-batchjobs-item-created' => 'Batch jobs for ($1) item(s) have been created; these will process one at a time via a background job.',
+	'gwtoolset-batchjobs-item-created-some' => 'Unfortunately not all items were added as batch jobs. Batch jobs were created for ($1) item(s); with ($2) items having an issue. Please contact a developer if this is a problem.'
 	
 );
 

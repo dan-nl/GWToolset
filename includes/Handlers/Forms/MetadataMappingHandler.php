@@ -11,11 +11,16 @@
  */
 namespace GWToolset\Handlers\Forms;
 use	GWToolset\Config,
+	GWToolset\Jobs\UploadMetadataJob,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlMappingHandler,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
-	Php\Filter;
+	JobQueueGroup,
+	Php\Filter,
+	SpecialPage,
+	Title,
+	User;
 
 
 class MetadataMappingHandler extends FormHandler {
@@ -53,6 +58,73 @@ class MetadataMappingHandler extends FormHandler {
 	 */
 	protected $_XmlMappingHandler;
 
+	protected function processMetadata() {	
+
+		$file_path_local = null;
+		$this->_Mapping = null;
+		$this->_MediawikiTemplate = null;
+		$this->_UploadHandler = null;
+		$this->_XmlMappingHandler = null;
+		
+		$this->_MediawikiTemplate = new MediawikiTemplate();
+		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $this->_user_options );
+
+		$this->_MWApiClient = \GWToolset\getMWApiClient(
+			$this->_User->getName(),
+			( Config::$display_debug_output && $this->_User->isAllowed( 'gwtoolset-debug' ) )
+		);	
+
+		$this->_UploadHandler = new UploadHandler(
+			array(
+				'MediawikiTemplate' => $this->_MediawikiTemplate,
+				'MWApiClient' => $this->_MWApiClient,
+				'User' => $this->_User
+			)
+		);
+
+		$file_path_local = $this->_UploadHandler->retrieveLocalFilePath( $this->_user_options );
+
+		$this->_Mapping = new Mapping();
+		$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray( $_POST );
+		$this->_Mapping->setTargetElements();
+		$this->_Mapping->reverseMap();
+
+		$this->_XmlMappingHandler = new XmlMappingHandler( $this->_Mapping, $this->_MediawikiTemplate, $this );
+		$this->_XmlMappingHandler->processXml( $this->_user_options, $file_path_local );
+
+	}
+
+
+	protected function createMetadataBatchJob() {
+
+		$job = null;
+		$job_result = false;
+		$result = null;
+
+			$job = new UploadMetadataJob(
+				Title::newFromText( 'User:' . $this->_SpecialPage->getUser()->getName() ),
+				array(
+					'user' => $this->_SpecialPage->getUser()->getName(),
+					'user_options' => $this->_user_options,
+					'post' => $_POST
+				)
+			);
+
+			$job_result = JobQueueGroup::singleton()->push( $job );
+
+			if ( $job_result ) {
+
+				$result = wfMessage('gwtoolset-batchjob-metadata-created');
+
+			} else {
+
+				$result =  wfMessage('gwtoolset-developer-issue')->params('could not create batchjob for the metadata file') ;
+
+			}
+
+		return $result;
+
+	}
 
 	/**
 	 * using the api save the matched record as a new wiki page or update an
@@ -88,11 +160,11 @@ class MetadataMappingHandler extends FormHandler {
 
 		} else if ( $result ) {
 
-			$this->result = 'Batch jobs for (' . $this->_UploadHandler->jobs_added . ') item(s) have been created; these will process one at a time and a message will be added to your User page upon completeion (tbd).';
+			$this->result = wfMessage('gwtoolset-batchjobs-item-created')->params( $this->_UploadHandler->jobs_added );
 
 		} else {
 
-			$this->result = 'Unfortunately not all items were added as batch jobs. Batch jobs were created for (' . $this->_UploadHandler->job_count . ') item(s); with ('. $this->_UploadHandler->jobs_not_added .') items having an issue. A developer will have to look into this issue for you.';
+			$this->result = wfMessage('gwtoolset-batchjobs-item-created-some')->params( $this->_UploadHandler->job_count, $this->_UploadHandler->jobs_not_added );
 
 		}
 
@@ -100,28 +172,36 @@ class MetadataMappingHandler extends FormHandler {
 
 
 	/**
+	 * grabs various user options set in an html form, filters them and sets
+	 * default values where appropriate
+	 *
+	 * @return array
+	 */
+	protected function getUserOptions() {
+
+		return array(
+			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
+			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
+			'record-count' => 0,
+			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ? (bool)Filter::evaluate( $_POST['save-as-batch-job'] ) : false,
+			'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
+			'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
+			'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
+			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null
+		);
+	
+	}
+
+
+	/**
 	 * @return {string} $result an html string
 	 */
-	protected function processRequest() {
+	public function processRequest() {
 
 		$this->result = null;
-		$file_path_local = null;
-		$this->_UploadHandler = null;
-		$this->_Mapping = null;
-		$this->_MediawikiTemplate = null;
-		$this->_XmlMappingHandler = null;
 
-			$this->_user_options = array(
-				'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
-				'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
-				'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
-				'record-count' => 0,
-				'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ? (bool)Filter::evaluate( $_POST['save-as-batch-job'] ) : false,
-				'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
-				'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
-				'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
-				'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null
-			);
+			$this->_user_options = $this->getUserOptions();
 
 			$this->checkForRequiredFormFields(
 				array(
@@ -134,33 +214,52 @@ class MetadataMappingHandler extends FormHandler {
 				)
 			);
 
-			$this->_MediawikiTemplate = new MediawikiTemplate();
-			$this->_MediawikiTemplate->getValidMediaWikiTemplate( $this->_user_options );
+			/**
+			 * @todo: this process needs further review. feel that it could
+			 * be better handled
+			 */
+			if ( $this->_user_options['save-as-batch-job'] ) {
 
-			$this->_MWApiClient = \GWToolset\getMWApiClient(
-				$this->_SpecialPage->getUser()->getName(),
-				( Config::$display_debug_output && $this->_SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) )
-			);	
+				// assumption is that if SpecialPage is not empty then this is
+				// the creation of the initial job queue job
+				if ( !empty( $this->_SpecialPage ) ) {
 
-			$this->_UploadHandler = new UploadHandler(
-				array(
-					'MediawikiTemplate' => $this->_MediawikiTemplate,
-					'MWApiClient' => $this->_MWApiClient,
-					'SpecialPage' => $this->_SpecialPage
-				)
-			);
+					$this->result = $this->createMetadataBatchJob();
 
-			$file_path_local = $this->_UploadHandler->retrieveLocalFilePath( $this->_user_options );
+				// assumption is that this is a job queue job that will create the
+				// mediafile upload jobs
+				} else {
 
-			$this->_Mapping = new Mapping();
-			$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray();
-			$this->_Mapping->setTargetElements();
-			$this->_Mapping->reverseMap();
+					$this->processMetadata();
 
-			$this->_XmlMappingHandler = new XmlMappingHandler( $this->_Mapping, $this->_MediawikiTemplate, $this );
-			$this->_XmlMappingHandler->processXml( $this->_user_options, $file_path_local );
+				}
+
+			} else {
+
+				$this->processMetadata();
+
+			}
 
 		return $this->result;
+
+	}
+
+
+	/**
+	 * allow parent constructor to be overridden so that this class can be used
+	 * from a Job Queue job without a special page
+	 */
+	public function __construct( SpecialPage $SpecialPage = null, User $User = null ) {
+
+		if ( !empty( $SpecialPage ) ) {
+
+			parent::__construct( $SpecialPage, $User );
+
+		} else if ( !empty( $User ) ) {
+
+			$this->_User = $User;
+
+		}
 
 	}
 

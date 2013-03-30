@@ -20,7 +20,6 @@ class Menu {
 		return
 			'<ul>' .
 
-				'<li><a href="?gwtoolset-form=metadata-upload">Metadata Upload</a></li>' .
 				'<li><a href="?gwtoolset-form=metadata-detect">Metadata Mapping</a></li>' .
 
 			'</ul>';

@@ -10,12 +10,12 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace	GWToolset;
-use			ErrorException,
-			Exception,
-			GWToolset\MediaWiki\Api\Client,
-			SpecialPage,
-			RecursiveArrayIterator,
-			RecursiveIteratorIterator;
+use	ErrorException,
+		Exception,
+		GWToolset\MediaWiki\Api\Client,
+		SpecialPage,
+		RecursiveArrayIterator,
+		RecursiveIteratorIterator;
 
 
 /**
@@ -110,11 +110,13 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 	// wfSuppressWarnings() lowers the error_reporting threshold because the
 	// script that follows it is “allowed” to produce warnings,	thus, only
 	// handle errors this way when error_reporting is set to >= E_ALL
-	if ( error_reporting() >= E_ALL ) {
+	if ( ini_get('display_errors') && error_reporting() >= E_ALL ) {
 
 		$errormsg =
-			$errstr . '<br/>' .
-			'<pre>' . print_r( debug_backtrace(), true ) . '</pre>';
+				'<pre>' .
+					$errstr . "\n" .
+					print_r( debug_backtrace(), true ) .
+				'</pre>';
 
 		if ( $errno > E_WARNING ) {
 
@@ -125,15 +127,13 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 			echo $errormsg;
 
 		}
-		
+
+	} else if ( error_reporting() >= E_ALL ) {
+
+		error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
 
 	}
 
 }
 
-
-if ( isset( $_SERVER['APPLICATION_ENV'] ) &&  $_SERVER['APPLICATION_ENV'] == 'development' ) {
-
-	set_error_handler('\GWToolset\handleError');
-
-}
+set_error_handler('\GWToolset\handleError');

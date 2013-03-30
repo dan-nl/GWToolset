@@ -9,7 +9,7 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Models;
+namespace GWToolset\Models;
 use	Exception,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
@@ -43,6 +43,9 @@ class MediawikiTemplate extends Model {
 	public $mediawiki_template_array = array();
 
 
+	/**
+	 * @var array
+	 */
 	protected $_sub_templates = array(
 		'language' => '{{%s|%s}}'
 	);
@@ -234,7 +237,7 @@ class MediawikiTemplate extends Model {
 
 		if ( empty( $result ) || $result->numRows() != 1 ) {
 
-			throw new Exception( wfMessage('gwtoolset-mediawiki-template-not-found')->rawParams( $params['mediawiki-template-name'] ) );
+			throw new Exception( wfMessage('gwtoolset-mediawiki-template-not-found')->rawParams( $this->mediawiki_template_name ) );
 
 		}
 
@@ -290,9 +293,9 @@ class MediawikiTemplate extends Model {
 
 
 	public function __construct( $table_name = 'gwtoolset_mediawiki_templates' ) {
-
+	
 		parent::__construct( $table_name );
-
+	
 	}
 
 

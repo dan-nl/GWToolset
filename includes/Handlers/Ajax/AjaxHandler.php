@@ -18,6 +18,15 @@ use	Exception,
 abstract class AjaxHandler extends SpecialPageHandler {
 
 
+	public function getHtmlForm( $module_name = null ) {
+
+		header('Content-Type: application/json; charset=utf-8');
+		echo '{}';
+		exit();
+
+	}
+
+
 	public function execute() {
 
 		$result = null;

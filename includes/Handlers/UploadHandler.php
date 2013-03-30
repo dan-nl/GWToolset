@@ -10,18 +10,15 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers;
-	//GWToolset\MediaWiki\Api\Client,
-	//GWToolset\Models\MediawikiTemplate,
-	//Php\File,
-	//SpecialPage,
 use Exception,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
-	GWToolset\Jobs\BatchUploadJob,
+	GWToolset\Jobs\UploadMediafileJob,
 	JobQueueGroup,
 	Php\Filter,
 	Title,
-	UploadBase;
+	UploadBase,
+	User;
 
 
 class UploadHandler {
@@ -58,6 +55,12 @@ class UploadHandler {
 	 * @var UploadBase
 	 */
 	protected $_UploadBase;
+
+
+	/**
+	 * @var User
+	 */
+	protected $_User;
 
 
 	public $user_options;
@@ -311,15 +314,15 @@ class UploadHandler {
 		$result = false;
 		$job = null;
 
-			$job = new BatchUploadJob(
-				Title::newFromText( 'User:' . $this->_SpecialPage->getUser()->getName() ),
+			$job = new UploadMediafileJob(
+				Title::newFromText( 'User:' . $this->_User->getName() ),
 				array(
 					'comment' => $options['comment'],
 					'filename-page-title' => $options['filename-page-title'], // the page title to create/update
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
 					'url_to_the_media_file' => $options['url_to_the_media_file'],					
-					'user' => $this->_SpecialPage->getUser()->getName(),
+					'user' => $this->_User->getName(),
 					'user_options' => $this->user_options
 				)
 			);
@@ -388,14 +391,6 @@ class UploadHandler {
 
 			}
 
-			//if ( Config::$display_debug_output
-			//	&& $this->_SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' )
-			//) {
-			//
-			//	//$result .= $this->_MWApiClient->debug_html;
-			//
-			//}
-
 		return $result;
 
 	}
@@ -408,7 +403,7 @@ class UploadHandler {
 	protected function getTitle() {
 
 		$title = FileChecks::getValidTitle( $this->_File->pathinfo['filename'] );
-		$title .= '-' . $this->_SpecialPage->getUser()->getName();
+		$title .= '-' . $this->_User->getName();
 		return $title;
 
 	}
@@ -515,15 +510,12 @@ class UploadHandler {
 	 */
 	protected function uploadFile() {
 
-		$status = $this->_UploadBase->performUpload( null, null, null, $this->_SpecialPage->getUser() );
+		$result = true;
 
-		if ( !$status->isGood() ) {
+			$status = $this->_UploadBase->performUpload( null, null, null, $this->_User );
+			if ( !$status->isGood() ) { $result = $status->getWikiText(); }
 
-			return $this->_SpecialPage->getOutput()->parse( $status->getWikiText() );
-
-		}
-
-		return true;
+		return $result;
 
 	}
 
@@ -553,7 +545,7 @@ class UploadHandler {
 
 			if ( $status !== true ) {
 
-				$result['msg'] = $status;
+				$result['msg'] = $this->_SpecialPage->getOutput()->parse( $status );
 
 			} else {
 
@@ -630,6 +622,7 @@ class UploadHandler {
 		if ( isset( $options['MWApiClient'] ) ) { $this->_MWApiClient = $options['MWApiClient']; }
 		if ( isset( $options['SpecialPage'] ) ) { $this->_SpecialPage = $options['SpecialPage']; }
 		if ( isset( $options['UploadBase'] ) ) { $this->_UploadBase = $options['UploadBase']; }
+		if ( isset( $options['User'] ) ) { $this->_User = $options['User']; }
 
 	}
 

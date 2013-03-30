@@ -100,7 +100,7 @@ class XmlMappingHandler extends XmlHandler {
 	 * an array that maps mediawiki template parameters to the metadata record
 	 * values provided by the DOMElement
 	 */
-	protected function getDOMElementMapped( DOMElement &$DOMElement ) {
+	protected function getDOMElementMapped( DOMElement $DOMElement ) {
 
 		$elements_mapped = array();
 		$is_url = false;

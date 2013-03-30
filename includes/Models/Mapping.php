@@ -9,10 +9,10 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Models;
-use			Exception,
-			Php\Filter,
-			ResultWrapper;
+namespace GWToolset\Models;
+use	Exception,
+	Php\Filter,
+	ResultWrapper;
 
 
 class Mapping extends Model {
@@ -113,7 +113,7 @@ class Mapping extends Model {
 
 		if ( json_last_error() != JSON_ERROR_NONE ) {
 
-			throw new Exception( wfMessage('gwtoolset-metadata-mapping-bad')->rawParams( $mapping_name ) );
+			throw new Exception( wfMessage('gwtoolset-metadata-mapping-bad')->rawParams( $result->current()->mapping_name ) );
 
 		}
 
@@ -197,11 +197,10 @@ class Mapping extends Model {
 
 
 	public function __construct( $table_name = 'gwtoolset_mappings' ) {
-
+	
 		parent::__construct( $table_name );
-
+	
 	}
-
 
 }
 
