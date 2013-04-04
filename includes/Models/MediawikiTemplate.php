@@ -11,6 +11,7 @@
  */
 namespace GWToolset\Models;
 use	Exception,
+	GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
 	Php\Filter,
@@ -41,6 +42,12 @@ class MediawikiTemplate extends Model {
 	 * the $mediawiki_template_json converted to a php array
 	 */
 	public $mediawiki_template_array = array();
+
+
+	/**
+	 * @var GWToolset\Adapters\DataAdapterInterface
+	 */
+	protected $_DataAdapater;
 
 
 	/**
@@ -101,13 +108,7 @@ class MediawikiTemplate extends Model {
 
 	protected function getKeys() {
 
-		return $this->dbr->select(
-			'gwtoolset_mediawiki_templates',
-			'mediawiki_template_name AS key_name',
-			null,
-			null,
-			array( 'ORDER BY' => 'mediawiki_template_name ASC' )
-		);
+		return $this->_DataAdapater->getKeys();
 
 	}
 
@@ -222,18 +223,12 @@ class MediawikiTemplate extends Model {
 	}
 
 
-	public function create() {}
+	public function create( array $options = array() ) {}
 
 
-	public function retrieve() {
+	public function retrieve( array $options = array() ) {
 
-		$result = null;
-
-		$result = $this->dbr->select(
-			Filter::evaluate( $this->table_name ),
-			'mediawiki_template_name, mediawiki_template_json',
-			"mediawiki_template_name = '" . Filter::evaluate( $this->mediawiki_template_name ) . "'"
-		);
+		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
 
 		if ( empty( $result ) || $result->numRows() != 1 ) {
 
@@ -252,8 +247,8 @@ class MediawikiTemplate extends Model {
 	}
 
 
-	public function update() {}
-	public function delete() {}
+	public function update( array $options = array() ) {}
+	public function delete( array $options = array() ) {}
 
 
 	/**
@@ -292,9 +287,9 @@ class MediawikiTemplate extends Model {
 	}
 
 
-	public function __construct( $table_name = 'gwtoolset_mediawiki_templates' ) {
+	public function __construct( DataAdapterInterface $DataAdapter ) {
 	
-		parent::__construct( $table_name );
+		$this->_DataAdapater = $DataAdapter;
 	
 	}
 

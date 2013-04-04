@@ -113,11 +113,13 @@
 		$form : $('#gwtoolset-form'),
 		$ajax_loader : $( '<div/>', { 'id':'gwtoolset-loader' }),
 		$template_table : $('#template-table > tbody'),
-		$save_mapping_button : $('<tr><td colspan="3" style="text-align:right;"><button id="save-mapping">' + mw.message('gwtoolset-save-mapping').escaped() + '</button></td></tr>'),
+		$save_mapping_button : $('<tr><td colspan="3" style="text-align:right;"><span id="save-mapping" title="' + mw.message('gwtoolset-save-mapping').escaped() + '">' + mw.message('gwtoolset-save-mapping').escaped() + '</span></td></tr>'),
 		$metadata_buttons : {
 			collection : $('.metadata-add, .metadata-subtract'),
-			$add : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_snewtbl.png' }),
-			$subtract : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_drop.png' })
+			//$add : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_snewtbl.png' }),
+			//$subtract : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_drop.png' })
+			$add : $('<img/>', { 'src' : '/extensions/GWToolset/resources/images/b_snewtbl.png', 'class' : 'gwtoolset-metadata-button' }),
+			$subtract : $('<img/>', { 'src' : '/extensions/GWToolset/resources/images/b_drop.png', 'class' : 'gwtoolset-metadata-button' })
 		},
 
 
@@ -194,13 +196,13 @@
 		 */
 		handleAjaxSuccess : function ( data, textStatus, jqXHR ) {
 
-			if ( !data.status || data.status !== 'success' || !textStatus || !jqXHR ) {
+			if ( !data.status || data.status !== 'succeeded' || !textStatus || !jqXHR ) {
 
-				alert( mw.message('gwtoolset-save-mapping-error').escaped() );
+				alert( mw.message('gwtoolset-save-mapping-failed').escaped() );
 
 			} else {
 
-				alert( mw.message('gwtoolset-save-mapping-success').escaped() );
+				alert( mw.message('gwtoolset-save-mapping-succeeded').escaped() );
 
 			}
 

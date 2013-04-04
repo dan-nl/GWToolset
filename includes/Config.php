@@ -25,6 +25,10 @@ class Config {
 	public static $autoloader_classes = array(
 
 		'GWToolset\Adapters\DataAdapterInterface' => '/includes/Adapters/DataAdapterInterface.php',
+
+		'GWToolset\Adapters\Api\ApiAdapterAbstract' => '/includes/Adapters/Api/ApiAdapterAbstract.php',
+		'GWToolset\Adapters\Api\MappingApiAdapter' => '/includes/Adapters/Api/MappingApiAdapter.php',
+
 		'GWToolset\Adapters\Db\DbAdapterAbstract' => '/includes/Adapters/Db/DbAdapterAbstract.php',
 		'GWToolset\Adapters\Db\MappingDbAdapter' => '/includes/Adapters/Db/MappingDbAdapter.php',
 		'GWToolset\Adapters\Db\MediawikiTemplateDbAdapter' => '/includes/Adapters/Db/MediawikiTemplateDbAdapter.php',
@@ -47,8 +51,9 @@ class Config {
 		'GWToolset\Handlers\Xml\XmlHandler' => '/includes/Handlers/Xml/XmlHandler.php',
 		'GWToolset\Handlers\Xml\XmlMappingHandler' => '/includes/Handlers/Xml/XmlMappingHandler.php',
 
-		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
+		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
+		'GWToolset\Helpers\WikiPages' => '/includes/Helpers/WikiPages.php',
 
 		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
 
@@ -102,8 +107,8 @@ class Config {
 			'gwtoolset-loading',
 			'gwtoolset-save-mapping',
 			'gwtoolset-save-mapping-name',
-			'gwtoolset-save-mapping-error',
-			'gwtoolset-save-mapping-success'
+			'gwtoolset-save-mapping-failed',
+			'gwtoolset-save-mapping-succeeded'
 		)
 
 	);
@@ -222,6 +227,11 @@ class Config {
 	 * group that has the right, gwtoolset-debug
 	 */
 	public static $display_debug_output = false;
+	
+	public static $metadata_mapping_open_tag = '<mapping_json>';
+	public static $metadata_mapping_close_tag = '</mapping_json>';
+	public static $metadata_mapping_category = 'Category:GWToolset Metadata Mappings';
+	public static $metadata_mapping_subdirectory = 'metadata-mappings/';
 
 
 }

@@ -21,7 +21,7 @@ class MetadataMappingForm {
 
 	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null ) {
 
-		$mapping_name = json_decode( str_replace( "`", '"', $user_options['metadata-mapping'] ), true );
+		//$mapping_name = json_decode( str_replace( "`", '"', $user_options['metadata-mapping'] ), true );
 		
 		return
 			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-2') . '</h2>' .
@@ -30,14 +30,15 @@ class MetadataMappingForm {
 			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post" enctype="multipart/form-data">' .
 
 				'<fieldset>' .
-	
+
 						'<legend>' . wfMessage('gwtoolset-metadata-mapping-legend') . '</legend>' .
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
 						'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
 						'<input type="hidden" name="mediawiki-template-name" id="gwtoolset-mediawiki-template-name" value="' . $user_options['mediawiki-template-name'] . '"/>' .
-						'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $mapping_name['mapping-name'] . '"/>' .
+						'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $user_options['metadata-mapping'] . '"/>' .
+						'<input type="hidden" name="metadata-mapping-url" value="' . $user_options['metadata-mapping-url'] . '"/>' .
 						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
 						'<input type="hidden" name="MAX_FILE_SIZE"  value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
 

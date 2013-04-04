@@ -10,7 +10,9 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Forms;
-use	GWToolset\Config,
+use	GWToolset\Adapters\Db\MappingDbAdapter,
+	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
+	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
@@ -25,8 +27,9 @@ class MetadataDetectForm {
 	 */
 	public static function getForm( IContextSource $Context ) {
 
-		$Mapping = new Mapping();
-		$MediawikiTemplate = new MediawikiTemplate();
+		global $wgArticlePath;
+		$Mapping = new Mapping( new MappingDbAdapter() );
+		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 
 		return
 			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-1') . '</h2>' .
@@ -61,8 +64,10 @@ class MetadataDetectForm {
 						'<li>' .
 							'<label>' .
 								wfMessage('gwtoolset-which-metadata-mapping') . ' : ' .
-								$Mapping->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
-							'</label>' .
+								//$Mapping->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
+								'<input type="text" name="metadata-mapping-url" value="" placeholder="User:Gwtoolset\dublin core : Artwork" class="gwtoolset-url-input"/>' .
+							'</label><br/>' .
+							'<a href="' . str_replace( '$1', Config::$metadata_mapping_category, $wgArticlePath ) . '" target="_blank">' . Config::$metadata_mapping_category . '</a>' .
 						'</li>' .
 
 						'<li>' .
@@ -72,7 +77,7 @@ class MetadataDetectForm {
 								'<li>' .
 									'<label>' .
 										wfMessage('gwtoolset-metadata-file-url') . ' : ' .
-										'<input type="text" name="metadata-file-url" value="" placeholder="Two-images.xml"/>' .
+										'<input type="text" name="metadata-file-url" value="" placeholder="Two-images.xml" class="gwtoolset-url-input"/>' .
 									'</label>' .
 								'</li>' .
 	

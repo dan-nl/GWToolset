@@ -10,10 +10,13 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
-use	GWToolset\Config,
+use	GWToolset\Adapters\Db\MappingDbAdapter,
+	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
+	GWToolset\Config,
 	GWToolset\Jobs\UploadMetadataJob,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlMappingHandler,
+	GWToolset\Helpers\WikiPages,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	JobQueueGroup,
@@ -60,13 +63,13 @@ class MetadataMappingHandler extends FormHandler {
 
 	protected function processMetadata() {	
 
-		$file_path_local = null;
+		$wiki_file_path = null;
 		$this->_Mapping = null;
 		$this->_MediawikiTemplate = null;
 		$this->_UploadHandler = null;
 		$this->_XmlMappingHandler = null;
 		
-		$this->_MediawikiTemplate = new MediawikiTemplate();
+		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $this->_user_options );
 
 		$this->_MWApiClient = \GWToolset\getMWApiClient(
@@ -82,15 +85,16 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		$file_path_local = $this->_UploadHandler->retrieveLocalFilePath( $this->_user_options );
+		WikiPages::$MWApiClient = $this->_MWApiClient;
+		$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
 
-		$this->_Mapping = new Mapping();
+		$this->_Mapping = new Mapping( new MappingDbAdapter() );
 		$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray( $_POST );
 		$this->_Mapping->setTargetElements();
 		$this->_Mapping->reverseMap();
 
 		$this->_XmlMappingHandler = new XmlMappingHandler( $this->_Mapping, $this->_MediawikiTemplate, $this );
-		$this->_XmlMappingHandler->processXml( $this->_user_options, $file_path_local );
+		$this->_XmlMappingHandler->processXml( $this->_user_options, $wiki_file_path );
 
 	}
 

@@ -12,6 +12,7 @@
 namespace GWToolset\Jobs;
 use Job,
 	GWToolset\Handlers\UploadHandler,
+	GWToolset\Helpers\WikiPages,
 	GWToolset\MediaWiki\Api\Client,
 	User;
 
@@ -52,7 +53,10 @@ class UploadMediafileJob extends Job {
 			);
 
 			$this->_UploadHandler->user_options = $this->params['user_options'];
-			$this->filename_metadata = $this->_UploadHandler->getFilenameFromUserOptions( $this->params['user_options'] );
+
+			WikiPages::$MWApiClient = $this->_MWApiClient;
+			$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
+
 			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
 
 		return $result;

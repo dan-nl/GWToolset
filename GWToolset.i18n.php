@@ -63,8 +63,8 @@ $messages['en'] = array(
 	#js
 	'gwtoolset-loading' => 'Please be patient, this may take awhile',
 	'gwtoolset-save-mapping' => 'save mapping',
-	'gwtoolset-save-mapping-error' => 'We apologize, there was a problem processing your request; please try again later.',
-	'gwtoolset-save-mapping-success' => 'Your mapping has been successfully saved.',
+	'gwtoolset-save-mapping-failed' => 'We apologize, there was a problem processing your request; please try again later.',
+	'gwtoolset-save-mapping-succeeded' => 'Your mapping has been successfully saved.',
 	'gwtoolset-save-mapping-name' => 'How would you like to name this mapping?',
 
 
@@ -91,7 +91,7 @@ $messages['en'] = array(
 	'gwtoolset-file-is-empty' => 'The uploaded file is empty.',
 	'gwtoolset-mime-type-mismatch' => 'The uploaded file’s extension [$1] and mime-type [$2] do not match.',
 	'gwtoolset-improper-data-format' => 'The uploaded file is not in the correct data format. See the $1 for accepted formats.',
-	'gwtoolset-file-interpretation-error' => 'There was a problem interpretting the uploaded file',
+	'gwtoolset-file-interpretation-error' => 'There was a problem interpretting the metadata file',
 	'gwtoolset-api-error' => 'An api error occurred',
 
 
@@ -112,15 +112,18 @@ $messages['en'] = array(
 	'gwtoolset-metadata-file' => 'Metadata file upload',
 	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
-	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; please contact a developer; they will need to address this issue before you can continue ( [$1] )',
-	'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url or uploaded a metadata file then please contact a developer; they will need to look further into this issue.',
-	'gwtoolset-metadata-file-url-invalid' => 'The metadata file url was invalid; the file does not yet exist in the wiki. You need to first upload the metadata file from your computer if you want to use the file url reference in the metadata mapping form.',
+	//'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url or uploaded a metadata file then please contact a developer; they will need to look further into this issue.',
+	//'gwtoolset-metadata-file-url-invalid' => 'The metadata file url was invalid; the file does not yet exist in the wiki. You need to first upload the metadata file from your computer if you want to use the file url reference in the metadata mapping form.',
+	'gwtoolset-file-url-invalid' => 'The file url was invalid; the file does not yet exist in the wiki. You need to first upload the file from your computer if you want to use the file url reference in the form.',
 	'gwtoolset-no-example-dom-element' => 'No example xml element found for mapping. Did you indicate the correct element name to be used as the example xml element?',
+	'gwtoolset-mapping-url-invalid' => 'the metadata mapping url provided is invalid; please check it and submit again',
+	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the json format is invalid. please try and correct it and then submit again [$1].',
+	'gwtoolset-metadata-mapping-wikitext-bad' => 'There’s a problem with the metadata mapping; most likely the json is not contained within a <mapping_json></mapping_json> element. please try and correct it and then submit again [$1].',
 
 
 	# metadata mapping
 	'gwtoolset-metadata-detect-step-2' => 'Step 2 : Metadata Mapping',
-	'gwtoolset-metadata-detect-step-2-instructions' => '<p>Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.</p><ul><li>Left column contains a list of all fields in the MediaWiki Template.</li><li>Right column contains drop-downs with the metadata fields found in your metadata file.</li><li>For each MediaWiki Template field : <ol><li>select a metadata value from your uploaded metadata file that corresponds with the MediWiki Template field; you do not need to provide a match for every MediaWiki Template field.</li><li>At the bottom of the form you will need to select the metadata file again as we have not yet programmed functionality for storing your original metadata file.</li></ol></li></ul>',
+	'gwtoolset-metadata-detect-step-2-instructions' => '<p>Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.</p><ul><li>Left column contains a list of all fields in the MediaWiki Template.</li><li>Right column contains drop-downs with the metadata fields found in your metadata file.</li><li><h4>For each Mediawiki Template field : </h4><ol><li>select a metadata value from your uploaded metadata file that corresponds with the Mediwiki Template field</li><li>you do not need to provide a match for every Mediawiki Template field.</li></ol></li></ul>',
 	'gwtoolset-metadata-mapping-error' => 'Metadata Mapping Error',
 	'gwtoolset-metadata-mapping-legend' => 'Map your metadata',
 	'gwtoolset-mapping-no-title' => 'The metadata contains no title, which is needed in order to create the page',

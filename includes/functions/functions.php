@@ -120,7 +120,9 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
 		if ( $errno > E_WARNING ) {
 
+			error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
 			throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
+
 
 		} else {
 

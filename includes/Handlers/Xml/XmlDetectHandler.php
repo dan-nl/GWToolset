@@ -149,7 +149,7 @@ class XmlDetectHandler extends XmlHandler {
 
 		}
 
-		if ( empty( $this->_metadata_as_options ) ) {	
+		if ( empty( $this->_metadata_as_options ) ) {
 	
 			$this->_metadata_as_options = '<option></option>';
 
@@ -169,15 +169,31 @@ class XmlDetectHandler extends XmlHandler {
 
 		if ( 'url_to_the_media_file' == $parameter_as_id ) {
 
-			$result .= sprintf(
-				$no_metadata_button_row,
-				$parameter_as_id,
-				$parameter,
-				$required,
-				$parameter,
-				$parameter_as_id,
-				$this->getMetadataAsOptions( $selected_options[0] )
-			);
+			if ( isset( $selected_options[0] ) ) {
+
+				$result .= sprintf(
+					$no_metadata_button_row,
+					$parameter_as_id,
+					$parameter,
+					$required,
+					$parameter,
+					$parameter_as_id,
+					$this->getMetadataAsOptions( $selected_options[0] )
+				);
+				
+			} else {
+
+				$result .= sprintf(
+					$no_metadata_button_row,
+					$parameter_as_id,
+					$parameter,
+					$required,
+					$parameter,
+					$parameter_as_id,
+					$this->getMetadataAsOptions()
+				);
+
+			}
 
 		} else if ( count( $selected_options ) == 1 ) {
 	

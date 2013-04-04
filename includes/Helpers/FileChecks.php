@@ -9,13 +9,13 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Helpers;
-use			Exception,
-			GWToolset\Config,
-			Php\File,
-			Php\Filter,
-			finfo,
-			OutputPage;
+namespace GWToolset\Helpers;
+use	Exception,
+	GWToolset\Config,
+	Php\File,
+	Php\Filter,
+	finfo,
+	OutputPage;
 
 
 /**
@@ -221,7 +221,16 @@ class FileChecks {
 		} else {
 
 			$pathinfo = pathinfo( $File );
-			$extension = Filter::evaluate( strtolower( $pathinfo['extension'] ) );
+
+			if ( !isset( $pathinfo['extension'] ) ) {
+
+				$msg = wfMessage('gwtoolset-unaccepted-extension');
+
+			} else {
+
+				$extension = Filter::evaluate( strtolower( $pathinfo['extension'] ) );
+
+			}
 
 		}
 

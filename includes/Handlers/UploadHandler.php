@@ -13,6 +13,7 @@ namespace GWToolset\Handlers;
 use Exception,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
+	GWToolset\Helpers\WikiPages,
 	GWToolset\Jobs\UploadMediafileJob,
 	JobQueueGroup,
 	Php\Filter,
@@ -254,34 +255,6 @@ class UploadHandler {
 	}
 
 
-	/**
-	 * assumes that $this->_MediawikiTemplate has been populated with metadata
-	 * from a DOMElement and queries the wiki for a page title based on that
-	 * information
-	 *
-	 * @param {string} $filename
-	 *
-	 * @return int
-	 * a matching page id in the wiki or -1 if no match found
-	 */
-	private function getTitlePageId( $filename ) {
-
-		$page_id = -1;
-		$api_result = array();
-
-			$api_result = $this->_MWApiClient->query( array( 'titles' => 'File:' . $filename, 'indexpageids' => '' ) );
-
-			if ( empty( $api_result['query']['pageids'] ) ) {
-
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'api-result does not contain expected keys [query] and/or [query][pageids]' ) );
-
-			}
-
-		return (int)$api_result['query']['pageids'][0];
-
-	}
-
-
 	public function savePageViaApiUpload( array &$options, $result_as_boolean = false ) {
 
 		$result = null;
@@ -292,7 +265,7 @@ class UploadHandler {
 
 			}
 
-			$options['pageid'] = $this->getTitlePageId( $options['filename-page-title'] );
+			$options['pageid'] = WikiPages::getTitlePageId( 'File:' . $options['filename-page-title'] );
 
 			if ( $options['pageid'] > -1 ) { // page already exists
 
@@ -405,95 +378,6 @@ class UploadHandler {
 		$title = FileChecks::getValidTitle( $this->_File->pathinfo['filename'] );
 		$title .= '-' . $this->_User->getName();
 		return $title;
-
-	}
-
-
-	public function getFilenameFromUserOptions( array &$user_options, $metadata_file_url = 'metadata-file-url' ) {
-
-		$result = null;
-		global $wgServer;
-
-			if ( !isset( $user_options[ $metadata_file_url ] ) ) {
-
-				throw new Exception( wfMessage('gwtoolset-metadata-file-url-not-present') );
-
-			}
-
-			FileChecks::isAcceptedFileExtension(
-				$user_options[ $metadata_file_url ],
-				FileChecks::getAcceptedExtensions( Config::$accepted_types )
-			);
-
-			$result = str_replace(
-				array( $wgServer, 'index.php', '/', 'File:' ),
-				'',
-				$user_options[ $metadata_file_url ]
-			);
-
-		return $result;
-
-	}
-
-
-	/**
-	 * 
-	 *
-	 * @param {array} $user_options
-	 * an array of user options that was submitted in the html form
-	 *
-	 * @param {string} $metadata_file_url
-	 * the key within $user_options that holds the url to the metadata file
-	 * stored in the local wiki
-	 *
-	 * @return {string} a reference to the local file path
-	 */
-	public function retrieveLocalFilePath( array &$user_options ) {
-
-		global $wgServer, $IP;
-		$result = null;
-		$file_name = null;
-
-			$file_name = $this->getFilenameFromUserOptions( $user_options );
-			$file_name = 'File:' . Filter::evaluate( $file_name );
-
-			$api_result = $this->_MWApiClient->query(
-				array(
-					'titles' => $file_name,
-					'prop' => 'imageinfo',
-					'iiprop' => 'url'
-				)
-			);
-
-			if ( empty( $api_result['query']['pages'] ) || isset( $api_result['query']['pages'][-1] ) ) {
-
-				throw new Exception( wfMessage('gwtoolset-metadata-file-url-invalid') );
-
-			}
-
-			foreach( $api_result['query']['pages'] as $page ) {
-
-				if ( empty( $page['imageinfo'] )
-					|| empty( $page['imageinfo'][0] )
-					|| empty( $page['imageinfo'][0]['url'] )
-				) {
-
-					throw new Exception( wfMessage('gwtoolset-developer-issue')->params('api returned no imageinfo url') );
-
-				}
-
-				$result = $IP . str_replace( $wgServer, '', $page['imageinfo'][0]['url'] );
-				break; // should only need to run through this once
-
-			}
-
-			if ( !file_exists( $result ) ) {
-
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('api resolved file path does not exist') );
-
-			}
-
-		return $result;
 
 	}
 

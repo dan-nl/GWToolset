@@ -9,10 +9,10 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Ajax;
+namespace GWToolset\Handlers\Ajax;
 use	Exception,
-		GWToolset\Handlers\SpecialPageHandler,
-		GWToolset\Helpers\WikiChecks;
+	GWToolset\Handlers\SpecialPageHandler,
+	GWToolset\Helpers\WikiChecks;
 
 
 abstract class AjaxHandler extends SpecialPageHandler {

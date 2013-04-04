@@ -11,10 +11,14 @@
  */
 namespace GWToolset\Handlers\Forms;
 use Exception,
+	GWToolset\Adapters\Api\MappingApiAdapter,
+	GWToolset\Adapters\Db\MappingDbAdapter,
+	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\MetadataMappingForm,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlDetectHandler,
+	GWToolset\Helpers\WikiPages,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	Php\File,
@@ -157,28 +161,56 @@ class MetadataDetectHandler extends FormHandler {
 
 
 	/**
-	 * a control function that steps the methods necessary for processing the request
+	 * grabs various user options set in an html form, filters them and sets
+	 * default values where appropriate
 	 *
-	 * @return {string} an html string
+	 * @return array
+	 */
+	protected function getUserOptions() {
+
+		$result = array(
+			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
+			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
+			'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
+			'metadata-mapping-url' => !empty( $_POST['metadata-mapping-url'] ) ? Filter::evaluate( $_POST['metadata-mapping-url'] ) : null,
+			'record-number-for-mapping' => 1,
+			'record-count' => 0
+		);
+
+		if ( !empty( $result['metadata-mapping-url'] ) ) {
+
+			$mapping_details = WikiPages::getUsernameAndPageFromUrl( $result['metadata-mapping-url'] );
+			$result['metadata-mapping'] = str_replace( Config::$metadata_mapping_subdirectory, '', $mapping_details[1] );
+
+		}
+
+		return $result;
+	
+	}
+
+
+	/**
+	 * a control function that steps through the methods necessary for processing the request
+	 *
+	 * 	- uploads a metadata file if provided and stores it in the wiki
+	 * 	- retrieves the metadata file from the wiki
+	 * 	- retrieves a metadata mapping if a url to it in the wiki is given
+	 * 	- adds this information to the metadata mapping form and presents it to the user
+	 *
+	 * @return {string} html content including the metadata mapping form
 	 */
 	protected function processRequest() {
 
 		$result = null;
-		$file_path_local = null;
+		$wiki_file_path = null;
 		$user_options = array();
 		$this->_UploadHandler = null;
 		$this->_XmlDetectHandler = null;
 		$this->_MediawikiTemplate = null;
 		$this->_Mapping = null;
 
-			$this->_user_options = array(
-				'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
-				'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
-				'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : null,
-				'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
-				'record-number-for-mapping' => 1,
-				'record-count' => 0
-			);
+			$this->_user_options = $this->getUserOptions();
 
 			$this->checkForRequiredFormFields(
 				array(
@@ -206,13 +238,16 @@ class MetadataDetectHandler extends FormHandler {
 			);
 
 			$result .= $this->getUploadedFile( $this->_user_options );
-			$file_path_local = $this->_UploadHandler->retrieveLocalFilePath( $this->_user_options );
+
+			WikiPages::$MWApiClient = $this->_MWApiClient;
+			$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
 
 			$this->_XmlDetectHandler = new XmlDetectHandler();
-			$this->_XmlDetectHandler->processXml( $this->_user_options, $file_path_local );
+			$this->_XmlDetectHandler->processXml( $this->_user_options, $wiki_file_path );
 
-			$this->_MediawikiTemplate = new MediawikiTemplate();
-			$this->_Mapping = new Mapping();
+			$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
+			$this->_Mapping = new Mapping( new MappingApiAdapter( $this->_MWApiClient ) );
+			//$this->_Mapping = new Mapping( new MappingDbAdapter() );
 
 			$result .= MetadataMappingForm::getForm(
 				$this->_SpecialPage->getContext(),

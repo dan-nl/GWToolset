@@ -16,10 +16,10 @@ use	ResultWrapper;
 interface ModelInterface {
 
 
-	public function create();
-	public function retrieve();
-	public function update();
-	public function delete();
+	public function create( array $options = array() );
+	public function retrieve( array $options = array() );
+	public function update( array $options = array() );
+	public function delete( array $options = array() );
 
 
 }
