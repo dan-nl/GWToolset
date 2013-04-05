@@ -75,9 +75,9 @@ class UploadMediafileJob extends Job {
 
 			}
 
-			if ( empty( $this->params['filename-page-title'] ) ) {
+			if ( empty( $this->params['title'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'filename-page-title\'] provided' . PHP_EOL );
+				error_log( __METHOD__ . ' : no $this->params[\'title\'] provided' . PHP_EOL );
 				$result = false;
 
 			}
@@ -132,11 +132,11 @@ class UploadMediafileJob extends Job {
 
 			if ( $result ) {
 
-				error_log( "Saved {$this->params['filename-page-title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
+				error_log( "Saved {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
 
 			} else {
 
-				error_log( "Could not save {$this->params['filename-page-title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
+				error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
 
 			}
 

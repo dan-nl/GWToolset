@@ -84,9 +84,9 @@ class UploadHandler {
 		$api_result = array();
 		global $wgArticlePath;
 
-			if ( empty( $options['filename-page-title'] ) ) {
+			if ( empty( $options['title'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename-page-title provided' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no title provided' ) );
 
 			}
 
@@ -118,7 +118,7 @@ class UploadHandler {
 
 				$api_result = $this->_MWApiClient->upload(
 					array(
-						'filename' => $options['filename-page-title'],
+						'filename' => $options['title'],
 						'comment' => $options['comment'],
 						'token' => $this->_MWApiClient->getEditToken(),
 						'ignorewarnings' => $options['ignorewarnings'],
@@ -186,9 +186,9 @@ class UploadHandler {
 		$api_result = array();
 
 		
-			if ( empty( $options['filename-page-title'] ) ) {
+			if ( empty( $options['title'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename-page-title provided' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no title provided' ) );
 
 			}
 
@@ -214,7 +214,7 @@ class UploadHandler {
 			// this is done because the page will be new and needs the media file
 			$api_result = $this->_MWApiClient->upload(
 				array(
-					'filename' => $options['filename-page-title'],
+					'filename' => $options['title'],
 					'comment' => $options['comment'],
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
@@ -259,13 +259,13 @@ class UploadHandler {
 
 		$result = null;
 
-			if ( empty( $options['filename-page-title'] ) ) {
+			if ( empty( $options['title'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no filename-page-title provided' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no title provided' ) );
 
 			}
 
-			$options['pageid'] = WikiPages::getTitlePageId( 'File:' . $options['filename-page-title'] );
+			$options['pageid'] = WikiPages::getTitlePageId( 'File:' . $options['title'] );
 
 			if ( $options['pageid'] > -1 ) { // page already exists
 
@@ -291,7 +291,7 @@ class UploadHandler {
 				Title::newFromText( 'User:' . $this->_User->getName() ),
 				array(
 					'comment' => $options['comment'],
-					'filename-page-title' => $options['filename-page-title'], // the page title to create/update
+					'title' => $options['title'], // the page title to create/update
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
 					'url_to_the_media_file' => $options['url_to_the_media_file'],					
@@ -329,9 +329,9 @@ class UploadHandler {
 
 			}
 
-			$options['filename-page-title'] = $this->_MediawikiTemplate->getTitle();
+			$options['title'] = $this->_MediawikiTemplate->getTitle();
 
-			if ( empty( $options['filename-page-title'] ) ) {
+			if ( empty( $options['title'] ) ) {
 
 				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'could not get a valid title from the mediawiki template class' ) );
 

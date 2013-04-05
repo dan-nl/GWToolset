@@ -114,7 +114,8 @@ class MediawikiTemplate extends Model {
 
 
 	/**
-	 * creates a title based on
+	 * creates a title for a media file based on
+	 *
 	 *   - title
 	 *   - title identifier
 	 *
