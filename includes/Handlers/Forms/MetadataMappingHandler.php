@@ -192,7 +192,8 @@ class MetadataMappingHandler extends FormHandler {
 			'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
 			'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
 			'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
-			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null
+			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null,
+			'categories' => !empty( $_POST['categories'] ) ? Filter::evaluate( $_POST['categories'] ) : null,
 		);
 	
 	}
@@ -206,6 +207,7 @@ class MetadataMappingHandler extends FormHandler {
 		$this->result = null;
 
 			$this->_user_options = $this->getUserOptions();
+			$this->_user_options['categories'] .= ', ' . Config::$mediawiki_template_default_category;
 
 			$this->checkForRequiredFormFields(
 				array(

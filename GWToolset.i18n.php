@@ -134,6 +134,7 @@ $messages['en'] = array(
 	'gwtoolset-retrieve-media-explanation' => 'the media for each item will be retrieved from the url_to_the_media_file provided and uploaded to the wiki. if a page for the item does not yet exist, the media file will be uploaded even if this checkbox has not been checked.',
 	'gwtoolset-add-as-a-job' => 'process as a background job',
 	'gwtoolset-add-as-a-job-description' => 'the metadata is processsed in the background; this is the recommended method. if you uncheck this option your request may not complete properly.',
+	'gwtoolset-categories' => 'Enter categories separated by a comma ,',
 
 
 	# mw api client

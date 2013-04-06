@@ -324,6 +324,19 @@
 		},
 
 
+		/**
+		 * This imports the latest version of HotCat from Commons.
+		 * HotCat is a gadget to make changes to categories much easier.
+		 * Full documentation can be found at http://commons.wikimedia.org/wiki/Help:Gadget-HotCat
+		 */		 
+		 addHotCat : function() {
+
+			//window.hotcat_translations_from_commons = true;
+			//mw.loader.load('//commons.wikimedia.org/w/index.php?title=MediaWiki:Gadget-HotCat.js&action=raw&ctype=text/javascript');
+
+		},
+
+
 		setConsole : function() {
 
 			if ( window.console === undefined || !this.display_debug_output ) {
@@ -338,6 +351,7 @@
 		init : function() {
 
 			gwtoolset.setConsole();
+			gwtoolset.addHotCat();
 			gwtoolset.addFormListener();
 			gwtoolset.addSaveMappingButton();
 			gwtoolset.addMetadataButtons();

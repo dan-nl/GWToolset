@@ -68,6 +68,33 @@ class UploadHandler {
 	public $jobs_added;
 	public $jobs_not_added;
 
+	/**
+	 *
+	 * @return string
+	 * the text 
+	 */	
+	protected function getText() {
+
+		$result = null;
+
+			$result = $this->_MediawikiTemplate->getTemplate();
+
+			if ( !empty( $this->user_options['categories'] ) ) {
+
+				$categories = explode( ',', $this->user_options['categories'] );
+
+				foreach( $categories as $category ) {
+
+					$result .= '[[Category:' . Filter::evaluate( $category ) . ']]';
+
+				}
+
+			}
+
+		return $result;
+
+	}
+
 
 	/**
 	 * @param {array} $options
@@ -351,7 +378,7 @@ class UploadHandler {
 
 			$options['ignorewarnings'] = true;
 			$options['comment'] = $this->user_options['comment'];
-			$options['text'] = $this->_MediawikiTemplate->getTemplate();
+			$options['text'] = $this->getText();
 			$options['url_to_the_media_file'] = $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file'];
 
 			if ( $this->user_options['save-as-batch-job'] ) {

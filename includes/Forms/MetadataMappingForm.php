@@ -73,14 +73,22 @@ class MetadataMappingForm {
 							wfMessage('copyrightwarning2') .
 						'</p>' .
 
-						'<p>&nbsp;</p>' .
-
-						'<p>' .
-							'<b>' . wfMessage('gwtoolset-metadata-file-url') . '</b> : ' . $user_options['metadata-file-url'] .
+						'<p style="left; margin-top:1em;">' .
+							'<b>' . wfMessage('gwtoolset-metadata-file-url') . '</b><br/>' .
+							$user_options['metadata-file-url'] .
 						'</p>' .
-						
-						'<p>' .
-							wfMessage('summary') . ' <input class="mw-summary" id="wpSummary" maxlength="255" tabindex="1" size="60" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
+
+						'<p id="catlinks" style="left; margin-top:1em;">' .
+							'<b>' . wfMessage('categories') . '</b><br/>' .
+							wfMessage('gwtoolset-categories') . '<br/>' .
+							'<input type="text" name="categories" maxlength="255" size="100"/>' .
+						'</p>' .
+						//'<div id="catlinks" class="catlinks"><div id="mw-normal-catlinks" class="mw-normal-catlinks"></div></div>' .
+						//'<script>wgIsArticle = true; wgNamespaceNumber = 2;</script><span id="ca-edit"></span>' .
+
+						'<p style="left; margin-top:1em;">' .
+							'<b>' . wfMessage('summary') . '</b><br/>' .
+							'<input class="mw-summary" id="wpSummary" maxlength="255" tabindex="1" size="60" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
 						'</p>' .
 
 						'<p>' .
