@@ -9,7 +9,7 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\MediaWiki\Api;
+namespace GWToolset\MediaWiki\Api;
 use	Exception,
 	GWToolset\MediaWiki\Api\Login,
 	Php\Curl,
@@ -125,13 +125,13 @@ class Client implements ClientInterface {
 
 		if ( $method == 'post' ) {
 
-			$this->debug_html .= '<b>API Call - POST</b><pre>module : ' . $module . PHP_EOL . print_r($params, true) . '</pre>';
+			$this->debug_html .= '<b>API Call - POST</b><pre>module : ' . $module . PHP_EOL . print_r( $params, true ) . '</pre>';
 			$data = $this->_Curl->post( $url, $params );
 			$this->debug_html .= '<b>API Call - data</b><pre>' . $data . '</pre>';
 
 		} else {
 
-			$this->debug_html .= '<b>API Call - GET</b><pre>module : ' . $module . PHP_EOL . print_r($params, true) . '</pre>';
+			$this->debug_html .= '<b>API Call - GET</b><pre>module : ' . $module . PHP_EOL . print_r( $params, true ) . '</pre>';
 			$data = $this->_Curl->get( $url . $this->buildQueryString( $params ) );
 			$this->debug_html .= '<b>API Call - data</b><pre>' . $data . '</pre>';
 
@@ -207,8 +207,15 @@ class Client implements ClientInterface {
 
 			}
 
-			$this->debug_html .= '<b>API Call - RESULT</b><pre>' . print_r($result, true) . '</pre>';
-			if ( !empty( $msg ) ) {	throw new Exception( $msg ); }			
+			$this->debug_html .= '<b>API Call - RESULT</b><pre>' . print_r( $result, true ) . '</pre>';
+
+			if ( !empty( $msg ) ) {
+
+				if ( ini_get('display_errors') ) { $msg .= '<pre>' . print_r( $params ,true ) . '</pre>'; }
+				throw new Exception( $msg );
+
+			}
+
 			return $result;
 
 		} else {

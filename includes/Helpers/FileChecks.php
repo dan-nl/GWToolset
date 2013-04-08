@@ -42,7 +42,8 @@ class FileChecks {
 
 		if ( strlen( $title ) > 220 ) {
 
-			$title = mb_cut( $title, 0, 220, 'UTF-8' );
+			throw new Exception( wfMessage('gwtoolset-title-too-long', Filter::evaluate( $title ) ) );
+			$title = mb_strcut( $title, 0, 220, 'UTF-8' );
 
 		}
 

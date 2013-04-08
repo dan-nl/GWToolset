@@ -145,7 +145,7 @@ class MetadataDetectHandler extends FormHandler {
 			}
 
 			$this->_UploadHandler->getUploadedFileFromForm( $metadata_file_upload );
-			$result = $this->_UploadHandler->saveFile();
+			$result = $this->_UploadHandler->saveMetadataFile();
 	
 			if ( !$result['uploaded'] ) {
 	

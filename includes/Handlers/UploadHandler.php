@@ -419,11 +419,13 @@ class UploadHandler {
 	/**
 	 * upload the file
 	 */
-	protected function uploadFile() {
+	protected function uploadMetadataFile() {
 
 		$result = true;
 
-			$status = $this->_UploadBase->performUpload( null, null, null, $this->_User );
+			$comment = 'GWToolset uploading metdata file on behalf of User:' . $this->_User->getName();
+			$pagetext = '[[Category:' . Config::$metadata_file_category. ']]';
+			$status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
 			if ( !$status->isGood() ) { $result = $status->getWikiText(); }
 
 		return $result;
@@ -432,13 +434,13 @@ class UploadHandler {
 
 
 	/**
-	 * attempts to save the uploaded file to the wiki
+	 * attempts to save the uploaded metadata file to the wiki
 	 *
 	 * @return {array}
 	 *   $result['msg'] {string}
 	 *   $result['uploaded'] {boolean}
 	 */
-	public function saveFile() {
+	public function saveMetadataFile() {
 
 		$result = array( 'msg' => null, 'uploaded' => false );
 
@@ -452,7 +454,7 @@ class UploadHandler {
 			$WebRequest->setVal( 'wpDestFile', $this->getTitle() );
 
 			$this->_UploadBase = UploadBase::createFromRequest( $WebRequest );
-			$status = $this->uploadFile();
+			$status = $this->uploadMetadataFile();
 
 			if ( $status !== true ) {
 

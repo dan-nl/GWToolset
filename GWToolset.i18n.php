@@ -120,6 +120,7 @@ $messages['en'] = array(
 	'gwtoolset-mapping-url-invalid' => 'the metadata mapping url provided is invalid; please check it and submit again',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the json format is invalid. please try and correct it and then submit again [$1].',
 	'gwtoolset-metadata-mapping-wikitext-bad' => 'There’s a problem with the metadata mapping; most likely the json is not contained within a <mapping_json></mapping_json> element. please try and correct it and then submit again [$1].',
+	'gwtoolset-title-too-long' => 'The title for this media file, [$1], is too long.',
 
 
 	# metadata mapping

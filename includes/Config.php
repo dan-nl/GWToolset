@@ -230,9 +230,10 @@ class Config {
 	
 	public static $metadata_mapping_open_tag = '<mapping_json>';
 	public static $metadata_mapping_close_tag = '</mapping_json>';
-	public static $metadata_mapping_category = 'Category:GWToolset Metadata Mappings';
-	public static $metadata_mapping_subdirectory = 'metadata-mappings/';
+	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';
+	public static $metadata_mapping_subdirectory = 'Metadata-Mappings/';
 	public static $mediawiki_template_default_category = 'GWToolset Batch Upload';
+	public static $metadata_file_category = 'GWToolset Metadata Sets';
 
 
 }

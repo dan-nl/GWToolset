@@ -67,7 +67,7 @@ class MetadataDetectForm {
 								//$Mapping->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
 								'<input type="text" name="metadata-mapping-url" value="" placeholder="User:Gwtoolset\dublin core : Artwork" class="gwtoolset-url-input"/>' .
 							'</label><br/>' .
-							'<a href="' . str_replace( '$1', Config::$metadata_mapping_category, $wgArticlePath ) . '" target="_blank">' . Config::$metadata_mapping_category . '</a>' .
+							'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_mapping_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_mapping_category . '</a>' .
 						'</li>' .
 
 						'<li>' .

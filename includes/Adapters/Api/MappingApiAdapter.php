@@ -68,7 +68,7 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 			}
 
 			// nb: cannot filter the json - maybe need to test it as valid by converting it back and forth with json_decode/encode
-			$options['text'] = Config::$metadata_mapping_open_tag . $options['mapping_json'] . Config::$metadata_mapping_close_tag . '[[' . Config::$metadata_mapping_category . ']]';
+			$options['text'] = Config::$metadata_mapping_open_tag . $options['mapping_json'] . Config::$metadata_mapping_close_tag . '[[Category:' . Config::$metadata_mapping_category . ']]';
 			// yes this is a strange concatenation with the / but for now it's needed so that when the save mapping in step 2 happens the corret mapping name comes up
 			$options['title'] = 'User:' . $options['user_name'] . '/' . Config::$metadata_mapping_subdirectory . $options['mapping_name'];
 			$pageid = WikiPages::getTitlePageId( $options['title'] );
