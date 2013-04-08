@@ -28,6 +28,9 @@ use	Exception,
 class FileChecks {
 
 
+	public static $current_extension;
+
+
 	/**
 	 * File names may be up to 240 bytes long
 	 * 
@@ -192,7 +195,15 @@ class FileChecks {
 
 		if ( !in_array( $File->mime_type, $accepted_mime_types ) ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type', Filter::evaluate( $File->mime_type ) ) );
+			if ( 'xml' == self::$current_extension ) {
+
+				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type-for-xml', Filter::evaluate( $File->mime_type ) ) );
+
+			} else {
+
+				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type', Filter::evaluate( $File->mime_type ) ) );
+
+			}
 
 		}
 
@@ -252,6 +263,7 @@ class FileChecks {
 
 		}
 
+		self::$current_extension = $extension;
 		return true;
 
 	}
