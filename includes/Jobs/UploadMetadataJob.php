@@ -107,7 +107,17 @@ class UploadMetadataJob extends Job {
 			$this->_User = User::newFromName( $this->params['user'] );
 
 			$this->_MetadataMappingHandler = new MetadataMappingHandler( null, $this->_User );
-			$this->_MetadataMappingHandler->processRequest();
+
+			try {
+
+				$this->_MetadataMappingHandler->processRequest();
+
+			} catch( Exception $e ) {
+
+				error_log( $e->getMessage() );
+				error_log( print_r( $e, true ) );
+
+			}
 
 			$time_end = microtime( true );
 			$time = $time_end - $time_start;

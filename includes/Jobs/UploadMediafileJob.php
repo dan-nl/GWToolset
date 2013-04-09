@@ -57,7 +57,16 @@ class UploadMediafileJob extends Job {
 			WikiPages::$MWApiClient = $this->_MWApiClient;
 			$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
 
-			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
+			try {
+
+				$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
+
+			} catch( Exception $e ) {
+
+				error_log( $e->getMessage() );
+				error_log( print_r( $e, true ) );
+
+			}
 
 		return $result;
 

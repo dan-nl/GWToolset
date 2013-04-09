@@ -88,7 +88,7 @@ class MetadataMappingForm {
 
 						'<p style="left; margin-top:1em;">' .
 							'<b>' . wfMessage('summary') . '</b><br/>' .
-							'<input class="mw-summary" id="wpSummary" maxlength="255" tabindex="1" size="60" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
+							'<input class="mw-summary" id="wpSummary" maxlength="255" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
 						'</p>' .
 
 						'<p>' .
