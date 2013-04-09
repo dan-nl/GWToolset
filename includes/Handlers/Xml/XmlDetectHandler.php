@@ -367,7 +367,7 @@ class XmlDetectHandler extends XmlHandler {
 
 		if ( !( $this->_metadata_example_dom_element instanceof DOMElement ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-no-example-dom-element') );
+			throw new Exception( wfMessage('gwtoolset-no-example-dom-element')->plain() );
 
 		}
 

@@ -9,13 +9,13 @@
  * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset;
+namespace GWToolset;
 use	ErrorException,
-		Exception,
-		GWToolset\MediaWiki\Api\Client,
-		SpecialPage,
-		RecursiveArrayIterator,
-		RecursiveIteratorIterator;
+	Exception,
+	GWToolset\MediaWiki\Api\Client,
+	SpecialPage,
+	RecursiveArrayIterator,
+	RecursiveIteratorIterator;
 
 
 /**

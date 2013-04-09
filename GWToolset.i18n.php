@@ -116,11 +116,12 @@ $messages['en'] = array(
 	//'gwtoolset-metadata-file-url-not-present' => 'No metadata file url was given and no metadata file was uploaded so there’s no metadata to analyze. If you did include a metadata file url or uploaded a metadata file then please contact a developer; they will need to look further into this issue.',
 	//'gwtoolset-metadata-file-url-invalid' => 'The metadata file url was invalid; the file does not yet exist in the wiki. You need to first upload the metadata file from your computer if you want to use the file url reference in the metadata mapping form.',
 	'gwtoolset-file-url-invalid' => 'The file url was invalid; the file does not yet exist in the wiki. You need to first upload the file from your computer if you want to use the file url reference in the form.',
-	'gwtoolset-no-example-dom-element' => 'No xml element found for mapping.<br/>Did you enter a value in the form for “What is the xml element that contains each metadata record”?',
+	'gwtoolset-no-example-dom-element' => 'No XML element found for mapping.<br/>Did you enter a value in the form for “What is the xml element that contains each metadata record”?<br/>Is the XML file well-formed? Try this <a href="http://www.w3schools.com/xml/xml_validator.asp" target="_blank">XML Validator</a>',
 	'gwtoolset-mapping-url-invalid' => 'the metadata mapping url provided is invalid; please check it and submit again',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the json format is invalid. please try and correct it and then submit again [$1].',
 	'gwtoolset-metadata-mapping-wikitext-bad' => 'There’s a problem with the metadata mapping; most likely the json is not contained within a <mapping_json></mapping_json> element. please try and correct it and then submit again [$1].',
 	'gwtoolset-title-too-long' => 'The title for this media file, [$1], is too long.',
+	'gwtoolset-ensure-well-formed-xml' => 'Make sure the XML File is well-formed with this <a href="http://www.w3schools.com/xml/xml_validator.asp" target="_blank">XML Validator</a>',
 
 
 	# metadata mapping

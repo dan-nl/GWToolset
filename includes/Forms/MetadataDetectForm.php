@@ -71,6 +71,7 @@ class MetadataDetectForm {
 						'</li>' .
 
 						'<li>' .
+							wfMessage('gwtoolset-ensure-well-formed-xml')->plain() . '<br/>' .
 							wfMessage('gwtoolset-metadata-file-source') . '<br/>' .
 							wfMessage('gwtoolset-metadata-file-source-info') .
 							'<ul>' .
@@ -86,7 +87,7 @@ class MetadataDetectForm {
 										wfMessage('gwtoolset-metadata-file') . ' : ' .
 										'<input type="file" name="metadata-file-upload" ' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '>' .
 									'</label><br/>' .
-		
+
 									'<i>' .
 										wfMessage( 'gwtoolset-accepted-file-types' ) . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_types ) . '<br/>' .
 										wfMessage( 'upload-maxfilesize', number_format( FileChecks::gwToolsetMaxUploadSize() / 1024 ) ) . ' kilobytes' .
