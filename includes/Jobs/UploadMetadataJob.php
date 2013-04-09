@@ -115,7 +115,6 @@ class UploadMetadataJob extends Job {
 			} catch( Exception $e ) {
 
 				error_log( $e->getMessage() );
-				error_log( print_r( $e, true ) );
 
 			}
 

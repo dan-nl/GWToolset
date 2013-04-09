@@ -10,7 +10,9 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Jobs;
-use Job,
+use Exception,
+	MWException,
+	Job,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Helpers\WikiPages,
 	GWToolset\MediaWiki\Api\Client,
@@ -56,17 +58,7 @@ class UploadMediafileJob extends Job {
 
 			WikiPages::$MWApiClient = $this->_MWApiClient;
 			$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
-
-			try {
-
-				$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
-
-			} catch( Exception $e ) {
-
-				error_log( $e->getMessage() );
-				error_log( print_r( $e, true ) );
-
-			}
+			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
 
 		return $result;
 
@@ -130,12 +122,22 @@ class UploadMediafileJob extends Job {
 	public function run() {
 
 		$result = false;
-		
+
 			if ( !$this->validateParams() ) { die(); return false; }
 
 			$time_start = microtime( true );
 			$this->_User = User::newFromName( $this->params['user'] );
-			$result = $this->processMetadata();
+
+			try {
+
+				$result = $this->processMetadata();
+
+			} catch( Exception $e ) {
+
+				error_log( $e->getMessage() );
+
+			}
+
 			$time_end = microtime( true );
 			$time = $time_end - $time_start;
 
