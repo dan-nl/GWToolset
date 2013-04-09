@@ -146,10 +146,10 @@ class MediawikiTemplate extends Model {
 			$result = FileChecks::getValidTitle( $result . $this->mediawiki_template_array['title_identifier'] );
 			$pathinfo = pathinfo( $this->mediawiki_template_array['url_to_the_media_file'] );
 
-			if ( !empty( $pathinfo['extension'] ) ) {
+			if ( empty( $pathinfo['extension'] ) ) {
 
-				//throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url-extension') );
-$result .= '.' . $pathinfo['extension'];
+				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url-extension') );
+
 			}
 
 			
