@@ -196,10 +196,22 @@ class Config {
 
 	/**
 	 * which extension/mimetype combinations should the extension accept
+	 * for metadata files
 	 */
 	public static $accepted_types = array(
 
 		'xml' => array( 'text/xml', 'application/xml' )
+
+	);
+
+
+	/**
+	 * which extension/mimetype combinations should the extension accept
+	 * for media files
+	 */
+	public static $accepted_media_types = array(
+
+		'jpg' => array( 'image/jpeg' )
 
 	);
 

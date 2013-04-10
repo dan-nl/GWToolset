@@ -92,6 +92,32 @@ class Curl {
 
 
 	/**
+	 * Sends a GET request
+	 * @param string $url is the address of the page you are looking for
+	 * @returns string the page you asked for
+	 **/
+	public function getHeadersOnly( $url ) {
+
+		$this->setCurlOption( CURLOPT_URL, $url );
+		$this->setCurlOption( CURLOPT_FOLLOWLOCATION, true );
+		$this->setCurlOption( CURLOPT_MAXREDIRS, 10 );
+		$this->setCurlOption( CURLOPT_HEADER, true );
+		$this->setCurlOption( CURLOPT_NOBODY, true );
+		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
+		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, 15 );
+		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
+		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
+
+    //curl_setopt( $ch, CURLOPT_ENCODING, "" );
+    //curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
+    //curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );    # required for https urls
+
+		return $this->executeCurl();
+
+	}
+
+
+	/**
 	 * Sends a POST request
 	 * @param string $url is the address of the page you are looking for
 	 * @param array $data is the post data.

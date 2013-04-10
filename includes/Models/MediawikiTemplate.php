@@ -14,6 +14,7 @@ use	Exception,
 	GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
+	Php\Curl,
 	Php\Filter,
 	ReflectionClass,
 	ReflectionProperty,
@@ -119,16 +120,16 @@ class MediawikiTemplate extends Model {
 	 *
 	 *   - title
 	 *   - title identifier
+	 *   - url to the media file’s extension
 	 *
 	 * @todo: what if url is not to a file but a re-direct to the file
 	 * @todo: eliminate any "safe-guarded characters", e.g. : seems to tell the api
 	 * that the file does not exist so it uploads it aknew each time instead of editing it
 	 * @todo investigate using Title::makeTitleSafe
 	 */
-	public function getTitle() {
+	public function getTitle( array &$options ) {
 
 		$result = null;
-		$pathinfo = array();
 
 			if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
 
@@ -136,24 +137,22 @@ class MediawikiTemplate extends Model {
 
 			}
 
-			if ( empty( $this->mediawiki_template_array['url_to_the_media_file'] ) ) {
+			if ( empty( $options['url_to_the_media_file_evaluated'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url') );
+
+			}
+
+			if ( empty( $options['evaluated_media_file_extension'] ) ) {
+
+				throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad') );
 
 			}
 
 			$result = $this->mediawiki_template_array['title'];
 			if ( !empty( $result ) ) { $result .= Config::$title_separator; }
 			$result = FileChecks::getValidTitle( $result . $this->mediawiki_template_array['title_identifier'] );
-			$pathinfo = pathinfo( $this->mediawiki_template_array['url_to_the_media_file'] );
-
-			if ( empty( $pathinfo['extension'] ) ) {
-
-				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url-extension') );
-
-			}
-
-			$result .= '.' . $pathinfo['extension'];
+			$result .= '.' . $options['evaluated_media_file_extension'];
 
 		return $result;
 
