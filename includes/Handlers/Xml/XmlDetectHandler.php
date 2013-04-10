@@ -248,7 +248,7 @@ class XmlDetectHandler extends XmlHandler {
 				$parameter_as_id,
 				$parameter,
 				$required,
-				$parameter_as_id,
+				$parameter,
 				$parameter_as_id,
 				$this->_metadata_as_options
 			);
