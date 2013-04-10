@@ -181,7 +181,7 @@ class MetadataDetectHandler extends FormHandler {
 		if ( !empty( $result['metadata-mapping-url'] ) ) {
 
 			$mapping_details = WikiPages::getUsernameAndPageFromUrl( $result['metadata-mapping-url'] );
-			$result['metadata-mapping'] = str_replace( Config::$metadata_mapping_subdirectory, '', $mapping_details[1] );
+			$result['metadata-mapping'] = str_replace( array( Config::$metadata_mapping_subdirectory, str_replace( ' ', '_', Config::$metadata_mapping_subdirectory ) ), '', $mapping_details[1] );
 
 		}
 
