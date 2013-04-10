@@ -212,7 +212,6 @@ class UploadHandler {
 		$result = null;
 		$api_result = array();
 
-		
 			if ( empty( $options['title'] ) ) {
 
 				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no title provided' ) );
@@ -321,7 +320,7 @@ class UploadHandler {
 					'title' => $options['title'], // the page title to create/update
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
-					'url_to_the_media_file' => $options['url_to_the_media_file'],					
+					'url_to_the_media_file' => $options['url_to_the_media_file'],
 					'user' => $this->_User->getName(),
 					'user_options' => $this->user_options
 				)

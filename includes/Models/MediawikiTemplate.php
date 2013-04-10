@@ -54,7 +54,8 @@ class MediawikiTemplate extends Model {
 	 * @var array
 	 */
 	protected $_sub_templates = array(
-		'language' => '{{%s|%s}}'
+		'language' => '{{%s|%s}}',
+		'institution' => '{{Institution|name=%s|native name=|location=|latitude=|established=|website=|image=|image=|homecat=|linkback=|"authority=}}'
 	);
 
 
@@ -152,7 +153,7 @@ class MediawikiTemplate extends Model {
 
 			}
 
-			
+			$result .= '.' . $pathinfo['extension'];
 
 		return $result;
 
@@ -195,7 +196,18 @@ class MediawikiTemplate extends Model {
 
 			} else {
 
-				$sections .= '|' . $parameter . '=' . Filter::evaluate( $content )  . "\n";
+				//if ( 'institution' == $parameter ) {
+				//
+				//	$sections .= '|' . $parameter . '=' . sprintf(
+				//		$this->_sub_templates['institution'],
+				//		Filter::evaluate( $content )
+				//	) . "\n";
+				//
+				//} else {
+
+					$sections .= '|' . $parameter . '=' . Filter::evaluate( $content )  . "\n";
+
+				//}
 
 			}
 

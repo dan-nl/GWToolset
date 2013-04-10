@@ -102,7 +102,7 @@ $messages['en'] = array(
 
 	# metadata detect
 	'gwtoolset-metadata-detect-step-1' => 'Step 1 : Metadata Detect',
-	'gwtoolset-metadata-detect-step-1-instructions' => '<p>The Metadata Upload process consists of 3 steps:</p><ol><li>Metadata Detection</li><li>Metadata Mapping</li><li>Metadata Uploading</li></ol><p>In this step you upload your metadata file for evaluation. The application will attempt to extract the metadata fields available in the file, which you will map to the MediaWiki Template selected below in Step 2.</p>',
+	'gwtoolset-metadata-detect-step-1-instructions' => '<p>The Metadata Upload process consists of 3 steps:</p><ol><li>Metadata Detection</li><li>Metadata Mapping</li><li>Metadata Uploading</li></ol><p>In this step you upload your metadata file for evaluation. The toolset will attempt to extract the metadata fields available in the metadata file, which you will then map to a MediaWiki Template in Step 2 : Metadata Mapping.</p>',
 	'gwtoolset-record-element-name' => 'What is the xml element that contains each metadata record',
 	'gwtoolset-which-mediawiki-template' => 'Which MediaWiki Template',
 	'gwtoolset-which-metadata-mapping' => 'Which Metadata Mapping',

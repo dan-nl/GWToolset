@@ -48,30 +48,30 @@ class MetadataDetectForm {
 					'<ol>' .
 
 						'<li>' .
-							'<label>' .
+							'<p><label>' .
 								wfMessage('gwtoolset-record-element-name') . ' : ' .
 								'<input type="text" name="record-element-name" value="" placeholder="record"/>' .
-							'</label>' .
+							'</label> <span class="required">*</span></p>' .
 						'</li>' .
 
 						'<li>' .
-							'<label>' .
+							'<p><label>' .
 								wfMessage('gwtoolset-which-mediawiki-template') . ' : ' .
 									$MediawikiTemplate->getModelKeysAsSelect( 'mediawiki-template-name' ) .
-							'</label>' .
+							'</label> <span class="required">*</span></p>' .
 						'</li>' .
 
 						'<li>' .
-							'<label>' .
+							'<p><label>' .
 								wfMessage('gwtoolset-which-metadata-mapping') . ' : ' .
 								//$Mapping->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
 								'<input type="text" name="metadata-mapping-url" value="" placeholder="User:Gwtoolset\dublin core : Artwork" class="gwtoolset-url-input"/>' .
 							'</label><br/>' .
-							'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_mapping_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_mapping_category . '</a>' .
+							'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_mapping_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_mapping_category . '</a></p>' .
 						'</li>' .
 
 						'<li>' .
-							wfMessage('gwtoolset-ensure-well-formed-xml')->plain() . '<br/>' .
+							wfMessage('gwtoolset-ensure-well-formed-xml')->plain() . ' <span class="required">*</span><br/>' .
 							wfMessage('gwtoolset-metadata-file-source') . '<br/>' .
 							wfMessage('gwtoolset-metadata-file-source-info') .
 							'<ul>' .
@@ -79,7 +79,8 @@ class MetadataDetectForm {
 									'<label>' .
 										wfMessage('gwtoolset-metadata-file-url') . ' : ' .
 										'<input type="text" name="metadata-file-url" value="" placeholder="Two-images.xml" class="gwtoolset-url-input"/>' .
-									'</label>' .
+									'</label><br/>' .
+									'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_file_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_file_category . '</a>' .
 								'</li>' .
 	
 								'<li>' .
@@ -100,6 +101,7 @@ class MetadataDetectForm {
 
 				'</fieldset>' .
 
+				'<p><span class="required">*</span> denotes required field</p>' .
 				'<input type="submit" name="submit" value="' . wfMessage('emailusernamesubmit') . '">' .
 
 			'</form>';

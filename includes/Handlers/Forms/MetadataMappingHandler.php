@@ -207,7 +207,16 @@ class MetadataMappingHandler extends FormHandler {
 		$this->result = null;
 
 			$this->_user_options = $this->getUserOptions();
-			$this->_user_options['categories'] .= ', ' . Config::$mediawiki_template_default_category;
+
+			if ( !empty( $this->_user_options['categories'] ) ) {
+
+				$this->_user_options['categories'] .= ', ' . Config::$mediawiki_template_default_category;
+
+			} else {
+
+				$this->_user_options['categories'] = Config::$mediawiki_template_default_category;
+
+			}
 
 			$this->checkForRequiredFormFields(
 				array(
