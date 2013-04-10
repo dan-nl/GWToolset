@@ -101,8 +101,10 @@ class MetadataMappingHandler extends FormHandler {
 
 	protected function createMetadataBatchJob() {
 
+		global $wgArticlePath;
 		$job = null;
 		$job_result = false;
+		$view_uploads = null;
 		$result = null;
 
 			$job = new UploadMetadataJob(
@@ -118,7 +120,8 @@ class MetadataMappingHandler extends FormHandler {
 
 			if ( $job_result ) {
 
-				$result = wfMessage('gwtoolset-batchjob-metadata-created');
+				$view_uploads = '<a href="' . str_replace( '$1', 'Special:NewFiles', $wgArticlePath ) . '" target="_blank">Special:NewFiles</a>';
+				$result = wfMessage('gwtoolset-batchjob-metadata-created')->rawParams( $view_uploads );
 
 			} else {
 

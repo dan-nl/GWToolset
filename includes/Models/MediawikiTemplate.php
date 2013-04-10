@@ -137,12 +137,6 @@ class MediawikiTemplate extends Model {
 
 			}
 
-			if ( empty( $options['url_to_the_media_file_evaluated'] ) ) {
-
-				throw new Exception( wfMessage('gwtoolset-mapping-no-media-file-url') );
-
-			}
-
 			if ( empty( $options['evaluated_media_file_extension'] ) ) {
 
 				throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad') );

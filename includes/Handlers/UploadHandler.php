@@ -214,9 +214,9 @@ class UploadHandler {
 
 			}
 
-			if ( empty( $options['url_to_the_media_file_evaluated'] ) ) {
+			if ( empty( $options['url_to_the_media_file'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url_to_the_media_file_evaluated not set' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url_to_the_media_file not set' ) );
 
 			}
 
@@ -315,9 +315,9 @@ class UploadHandler {
 
 			}
 
-			if ( empty( $options['url_to_the_media_file_evaluated'] ) ) {
+			if ( empty( $options['url_to_the_media_file'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url_to_the_media_file_evaluated not set' ) );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'url_to_the_media_file not set' ) );
 
 			}
 
@@ -330,7 +330,7 @@ class UploadHandler {
 					'ignorewarnings' => $options['ignorewarnings'],
 					'text' => $options['text'],
 					'token' => $this->_MWApiClient->getEditToken(),
-					'url' => $options['url_to_the_media_file_evaluated']
+					'url' => $options['url_to_the_media_file']
 				)
 			);
 
@@ -366,20 +366,10 @@ class UploadHandler {
 	}
 
 
-	public function savePageViaApiUpload( $result_as_boolean = false ) {
+	public function savePageViaApiUpload( array &$options, $result_as_boolean = false ) {
 
 		$result = null;
-		$options = array();
 
-			$options['url_to_the_media_file'] = $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file'];
-			$evaluated_url = $this->evaluateMediafileUrl( $options['url_to_the_media_file'] );
-			$options['url_to_the_media_file_evaluated'] = $evaluated_url['url'];
-			$options['evaluated_media_file_extension'] = $evaluated_url['extension'];
-
-			$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
-			$options['ignorewarnings'] = true;
-			$options['comment'] = $this->user_options['comment'];
-			$options['text'] = $this->getText();
 			$options['pageid'] = WikiPages::getTitlePageId( 'File:' . $options['title'] );
 
 			if ( $options['pageid'] > -1 ) { // page already exists
@@ -397,7 +387,7 @@ class UploadHandler {
 	}
 
 
-	protected function savePageViaJob() {
+	protected function savePageViaJob( array &$options ) {
 
 		$result = false;
 		$job = null;
@@ -407,11 +397,11 @@ class UploadHandler {
 			$job = new UploadMediafileJob(
 				Title::newFromText( 'User:' . $this->_User->getName() ),
 				array(
-					//'comment' => $options['comment'],
-					//'title' => $options['title'], // the page title to create/update
-					//'ignorewarnings' => $options['ignorewarnings'],
-					//'text' => $options['text'],
-					//'url_to_the_media_file' => $options['url_to_the_media_file'],
+					'comment' => $options['comment'],
+					'title' => $options['title'], // the page title to create/update
+					'ignorewarnings' => $options['ignorewarnings'],
+					'text' => $options['text'],
+					'url_to_the_media_file' => $options['url_to_the_media_file'],
 					'user' => $this->_User->getName(),
 					'user_options' => $this->user_options
 				)
@@ -457,13 +447,25 @@ class UploadHandler {
 
 			}
 
+			$options = array();
+
+			$options['url_to_the_media_file'] = $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file'];
+			$evaluated_url = $this->evaluateMediafileUrl( $options['url_to_the_media_file'] );
+			$options['url_to_the_media_file'] = $evaluated_url['url'];
+			$options['evaluated_media_file_extension'] = $evaluated_url['extension'];
+
+			$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
+			$options['ignorewarnings'] = true;
+			$options['comment'] = $this->user_options['comment'];
+			$options['text'] = $this->getText();
+
 			if ( $this->user_options['save-as-batch-job'] ) {
 
-				$result = $this->savePageViaJob();
+				$result = $this->savePageViaJob( $options );
 
 			} else {
 
-				$result = $this->savePageViaApiUpload();
+				$result = $this->savePageViaApiUpload( $options, false );
 
 			}
 

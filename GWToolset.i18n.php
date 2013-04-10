@@ -176,7 +176,7 @@ $messages['en'] = array(
 	'gwtoolset-db-client-support' => 'The GWToolset extension currently supports only MySQL',
 	
 	# jobs
-	'gwtoolset-batchjob-metadata-created' => 'batch job added. your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process.',
+	'gwtoolset-batchjob-metadata-created' => 'Batch job added. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process.<br/>You can check the [$1] page to see when they have been uploaded.',
 	'gwtoolset-batchjobs-item-created' => 'Batch jobs for ($1) item(s) have been created; these will process one at a time via a background job.',
 	'gwtoolset-batchjobs-item-created-some' => 'Unfortunately not all items were added as batch jobs. Batch jobs were created for ($1) item(s); with ($2) items having an issue. Please contact a developer if this is a problem.'
 	

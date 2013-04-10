@@ -157,12 +157,13 @@ class XmlMappingHandler extends XmlHandler {
 							$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 	
 						} else {
-	
+
 							if ( 'title_identifier' == $template_parameter ) {
 
 								$elements_mapped[ $template_parameter ] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
-							} else {
+							// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
+							} else if ( 'url_to_the_media_file' != $template_parameter )  {
 
 								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 

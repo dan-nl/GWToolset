@@ -58,7 +58,7 @@ class UploadMediafileJob extends Job {
 
 			WikiPages::$MWApiClient = $this->_MWApiClient;
 			$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
-			$result = $this->_UploadHandler->savePageViaApiUpload( true );
+			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
 
 		return $result;
 
@@ -69,37 +69,9 @@ class UploadMediafileJob extends Job {
 
 		$result = true;
 
-			if ( !isset( $this->params['comment'] ) ) {
-
-				error_log( __METHOD__ . ' : no $this->params[\'comment\'] provided' . PHP_EOL );
-				$result = false;
-
-			}
-
-			if ( empty( $this->params['title'] ) ) {
-
-				error_log( __METHOD__ . ' : no $this->params[\'title\'] provided' . PHP_EOL );
-				$result = false;
-
-			}
-
-			if ( !isset( $this->params['ignorewarnings'] ) ) {
-
-				error_log( __METHOD__ . ' : no $this->params[\'ignorewarnings\'] provided' . PHP_EOL );
-				$result = false;
-
-			}
-
 			if ( empty( $this->params['user'] ) ) {
 
 				error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
-				$result = false;
-
-			}
-
-			if ( empty( $this->params['url_to_the_media_file'] ) ) {
-
-				error_log( __METHOD__ . ' : no $this->params[\'url_to_the_media_file\'] provided' .PHP_EOL );
 				$result = false;
 
 			}
