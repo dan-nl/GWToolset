@@ -81,7 +81,8 @@ class MetadataMappingForm {
 						'<p id="catlinks" style="left; margin-top:1em;">' .
 							'<b>' . wfMessage('categories') . '</b><br/>' .
 							wfMessage('gwtoolset-categories') . '<br/>' .
-							'<input type="text" name="categories" maxlength="255" size="100"/>' .
+							'<input type="text" name="categories" maxlength="255" size="100"/><br/>' .
+							wfMessage('gwtoolset-categories-tooltip') .
 						'</p>' .
 						//'<div id="catlinks" class="catlinks"><div id="mw-normal-catlinks" class="mw-normal-catlinks"></div></div>' .
 						//'<script>wgIsArticle = true; wgNamespaceNumber = 2;</script><span id="ca-edit"></span>' .

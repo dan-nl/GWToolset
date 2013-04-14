@@ -140,6 +140,7 @@ $messages['en'] = array(
 	'gwtoolset-add-as-a-job' => 'process as a background job',
 	'gwtoolset-add-as-a-job-description' => 'the metadata is processsed in the background; this is the recommended method. if you uncheck this option your request may not complete properly.',
 	'gwtoolset-categories' => 'Enter categories separated by a pipe |',
+	'gwtoolset-categories-tooltip' => 'These categories will be applied to every item in the batch upload.',
 
 
 	# mw api client
