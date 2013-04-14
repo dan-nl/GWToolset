@@ -166,7 +166,7 @@ class UploadHandler {
 
 			if ( !empty( $this->user_options['categories'] ) ) {
 
-				$categories = explode( ',', $this->user_options['categories'] );
+				$categories = explode( Config::$category_separator, $this->user_options['categories'] );
 
 				foreach( $categories as $category ) {
 

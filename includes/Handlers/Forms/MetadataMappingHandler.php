@@ -213,7 +213,7 @@ class MetadataMappingHandler extends FormHandler {
 
 			if ( !empty( $this->_user_options['categories'] ) ) {
 
-				$this->_user_options['categories'] .= ', ' . Config::$mediawiki_template_default_category;
+				$this->_user_options['categories'] .= Config::$category_separator . Config::$mediawiki_template_default_category;
 
 			} else {
 
