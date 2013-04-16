@@ -24,6 +24,7 @@ class Curl {
 
 	protected $curl;
 	protected $curl_timeout;
+	protected $curl_connect_timeout;
 	
 	protected $cookiejar;
 	protected $cookie_directory;
@@ -32,6 +33,15 @@ class Curl {
 	
 	protected $debug_on;
 	public $useragent;
+	public $raw_header;
+
+	
+	public function rawHeaders( $ch, $header ) {
+
+		$this->raw_header .= $header;
+		return strlen( $header);
+
+	}
 
 
 	public function getCurlInfo() {
@@ -82,7 +92,7 @@ class Curl {
 		$this->setCurlOption( CURLOPT_HEADER, false );
 		$this->setCurlOption( CURLOPT_HTTPGET, true );
 		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
-		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, 15 );
+		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, $this->curl_connect_timeout );
 		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
 
@@ -102,9 +112,10 @@ class Curl {
 		$this->setCurlOption( CURLOPT_FOLLOWLOCATION, true );
 		$this->setCurlOption( CURLOPT_MAXREDIRS, 10 );
 		$this->setCurlOption( CURLOPT_HEADER, true );
+		$this->setCurlOption( CURLOPT_HEADERFUNCTION, array( $this, 'rawHeaders' ) );
 		$this->setCurlOption( CURLOPT_NOBODY, true );
 		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
-		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, 15 );
+		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, $this->curl_connect_timeout );
 		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
 
@@ -132,7 +143,7 @@ class Curl {
 		$this->setCurlOption( CURLOPT_POST, true );
 		$this->setCurlOption( CURLOPT_POSTFIELDS, $data );
 		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
-		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, 15 );
+		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, $this->curl_connect_timeout );
 		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
 		$this->setCurlOption( CURLOPT_HTTPHEADER, array( 'Expect:' ) );
@@ -177,6 +188,7 @@ class Curl {
 		if ( isset( $options['cookie-extension'] ) ) { $this->cookie_extension = $options['cookie-extension']; }
 		if ( isset( $options['cookie-name'] ) ) { $this->cookie_name = $options['cookie-name']; }
 		if ( isset( $options['curl-timeout'] ) ) { $this->curl_timeout = (int) $options['curl-timeout']; }
+		if ( isset( $options['curl-connect-timeout'] ) ) { $this->curl_connect_timeout = (int) $options['curl-connect-timeout']; }
 		if ( isset( $options['debug-on'] ) ) { $this->debug_on = $options['debug-on']; }
 
 	}
@@ -186,12 +198,13 @@ class Curl {
 
 		$this->curl = null;
 		$this->curl_timeout = 40;
-		
+		$this->curl_connect_timeout = 15;
+
 		$this->cookiejar = null;
 		$this->cookie_directory = '/tmp';
 		$this->cookie_extension = '.dat';
 		$this->cookie_name = 'http.cookie';
-		
+
 		$this->debug_on = false;
 		$this->useragent = 'PHPcURL';
 

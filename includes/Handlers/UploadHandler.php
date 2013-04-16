@@ -82,15 +82,21 @@ class UploadHandler {
 		// text/html example - has a js redirect in it
 		//$url = 'http://aleph500.biblacad.ro:8991/F?func=service&doc_library=RAL01&doc_number=000245208&line_number=0001&func_code=DB_RECORDS&service_type=MEDIA';
 
-		// query string tells script which file to deliver
+		// url is to a script that returns the media file
+		//$url = https://www.rijksmuseum.nl/mediabin.jsp?id=RP-P-1956-764
 		//$url = 'http://europeanastatic.eu/api/image?uri=http%3A%2F%2Fcollections.smvk.se%3A8080%2Fcarlotta-em%2Fguest%2F1422401%2F13%2Fbild.jpg&size=LARGE&type=IMAGE';
 
-		// redirect
+		// url is redirected to another url that actually serves the media file
 		//$url = 'http://www.rijksmuseum.nl/media/assets/AK-RAK-1978-3';
+		//$url = 'http://www.rijksmuseum.nl/media/assets/RP-P-1956-764';
 
 		// forced downloads with Content-Disposition
-		//$url = 'http://academia.lndb.lv/xmlui/bitstream/handle/1/231/k_001_ktl1-1-27.jpg';
-		//$url = 'http://images.memorix.nl/gam/thumb/150x150/115165d2-1267-7db5-4abb-54d273c47a81.jpg';
+			// Content-Disposition: attachment;
+			// times out after 25000 milliseconds - how can we set api upload curl to > timeout
+			//$url = 'http://academia.lndb.lv/xmlui/bitstream/handle/1/231/k_001_ktl1-1-27.jpg';
+
+			// Content-Disposition: inline;
+			//$url = 'http://images.memorix.nl/gam/thumb/150x150/115165d2-1267-7db5-4abb-54d273c47a81.jpg';
 
 		$result = array( 'extension' => null, 'url' => null );
 		$pathinfo = array();
