@@ -33,7 +33,7 @@ abstract class Model implements ModelInterface {
 	/**
 	 * @var string table associated with this object
 	 */
-	protected $table_name;
+	public $table_name;
 
 
 	/**
@@ -134,55 +134,6 @@ abstract class Model implements ModelInterface {
 		$result .= '</select>';
 
 		return $result;
-
-	}
-
-
-	/**
-	 * @todo: implement this method so that it checks to see if the defaults exist
-	 * and if not adds them
-	 * @todo: if the defaults exist, determine if their is an update script for them
-	 * and run that if necessary
-	 *
-	 * based on core/includes/installer/MysqlUpdater.php::doUserGroupsUpdate
-	 */
-	//public function insertDefaultMappings() {
-
-		//global $wgGWToolsetDir;
-		//
-		//if ( !$updater->tableExists( 'gwtoolset_mappings' ) ) { return; }
-		//
-		//$updater->getDB()->
-		//	array(
-		//		'addField',
-		//		'uw_campaigns',
-		//		'uw_campaigns_name',
-		//		$wgGWToolsetDir . DIRECTORY_SEPARATOR . 'sql' . DIRECTORY_SEPARATOR . 'default-mappings-insert.sql',
-		//		true
-		//	)
-		//);
-
-	//}
-
-
-	public function createTable( DatabaseUpdater &$updater ) {
-
-		$updater->addExtensionTable(
-			$this->table_name,
-			$this->table_create_sql
-		);
-
-	}
-
-
-	protected function setTableCreateSql() {
-
-		global $wgGWToolsetDir;
-	
-		$this->table_create_sql =
-			$wgGWToolsetDir . DIRECTORY_SEPARATOR .
-			'sql' . DIRECTORY_SEPARATOR .
-			'table-create-' . str_replace( '_', '-', $this->table_name ) . '.sql';
 
 	}
 

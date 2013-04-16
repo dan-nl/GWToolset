@@ -116,7 +116,7 @@ class Config {
 
 	public static $hooks = array(
 
-		// placeholder 'LoadExtensionSchemaUpdates' => 'GWToolset\Hooks::onLoadExtensionSchemaUpdates'
+		'LoadExtensionSchemaUpdates' => 'GWToolset\Hooks::onLoadExtensionSchemaUpdates'
 
 	);
 
@@ -224,7 +224,8 @@ class Config {
 		'Artwork',
 		'Book',
 		'Musical work',
-		'Photograph'
+		'Photograph',
+		'Specimen'
 
 	);
 

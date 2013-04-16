@@ -247,7 +247,6 @@ class MetadataDetectHandler extends FormHandler {
 
 			$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 			$this->_Mapping = new Mapping( new MappingApiAdapter( $this->_MWApiClient ) );
-			//$this->_Mapping = new Mapping( new MappingDbAdapter() );
 
 			$result .= MetadataMappingForm::getForm(
 				$this->_SpecialPage->getContext(),

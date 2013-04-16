@@ -11,6 +11,8 @@
  */
 namespace GWToolset;
 use	DatabaseUpdater,
+	GWToolset\Adapters\Db\MappingDbAdapter,
+	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	MWException;
@@ -25,6 +27,7 @@ class Hooks {
 	/**
 	 * LoadExtensionSchemaUpdates hook handler
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
+	 * based on core/includes/installer/MysqlUpdater.php::doUserGroupsUpdate
 	 *
 	 * @param DatabaseUpdater $updater
 	 * @throws MWException
@@ -32,27 +35,23 @@ class Hooks {
 	 */
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 
-		//switch ( $updater->getDB()->getType() ) {
-		//
-		//	case 'mysql':
-		//
-		//		$Mapping = new Mapping();
-		//		$Mapping->createTable( $updater );
-		//
-		//		$MediawikiTemplate = new MediawikiTemplate();
-		//		$MediawikiTemplate->createTable( $updater );
-		//
-		//		break;
-		//
-		//
-		//	default:
-		//
-		//		throw new MWException( wfMessage( 'gwtoolset-db-client-support' ) );
-		//		break;
-		//
-		//}
-		//
-		//return true;
+		switch ( $updater->getDB()->getType() ) {
+
+			case 'mysql':
+
+				$MediawikiTemplateDbAdapter = new MediawikiTemplateDbAdapter();
+				$MediawikiTemplateDbAdapter->createTable( $updater );
+				break;
+
+
+			default:
+
+				throw new MWException( wfMessage( 'gwtoolset-db-client-support' ) );
+				break;
+
+		}
+
+		return true;
 
 	}
 

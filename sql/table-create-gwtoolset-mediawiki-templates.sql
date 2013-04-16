@@ -23,3 +23,6 @@ INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `mediawiki_template_name`, `med
 
 -- https://commons.wikimedia.org/wiki/Template:Photograph
 INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `mediawiki_template_name`, `mediawiki_template_json` ) VALUES ( 'Photograph', '{"photographer":"","title":"","description":"","depicted people":"","depicted place":"","date":"","medium":"","dimensions":"","institution":"","department":"","references":"","object history":"","exhibition history":"","credit line":"","inscriptions":"","notes":"","accession number":"","source":"","permission":"","other_versions":""}' );
+
+-- http://commons.wikimedia.org/wiki/Template:Specimen
+INSERT INTO /*_*/gwtoolset_mediawiki_templates ( `mediawiki_template_name`, `mediawiki_template_json` ) VALUES ( 'Specimen', '{"taxon":"","authority":"","institution":"","accession number":"","sex":"","discovery place":"","cultivar":"","author":"","source":"","date":"","description":"","period":"","depicted place":"","camera coord":"","dimensions":"","institution":"","location":"","object history":"","exhibition history":"","credit line":"","notes":"","references":"","permission":"","other versions":"","photographer":"","source":""}' );

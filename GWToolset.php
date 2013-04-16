@@ -115,11 +115,11 @@ foreach ( Config::$special_pages as $page => $values ) {
  * add hooks
  * not yet used
  */
-//foreach ( Config::$hooks as $hook => $method ) {
-//
-//	$wgHooks[$hook][] = $method;
-//
-//}
+foreach ( Config::$hooks as $hook => $method ) {
+
+	$wgHooks[$hook][] = $method;
+
+}
 
 
 /**

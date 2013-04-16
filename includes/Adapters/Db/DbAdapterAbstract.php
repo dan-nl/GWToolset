@@ -1,6 +1,7 @@
 <?php
 namespace GWToolset\Adapters\Db;
-use GWToolset\Adapters\DataAdapterInterface;
+use DatabaseUpdater,
+	GWToolset\Adapters\DataAdapterInterface;
 
 
 abstract class DbAdapterAbstract implements DataAdapterInterface {
