@@ -294,9 +294,9 @@ class MediawikiTemplate extends Model {
 
 
 	public function __construct( DataAdapterInterface $DataAdapter ) {
-	
+
 		$this->_DataAdapater = $DataAdapter;
-	
+
 	}
 
 

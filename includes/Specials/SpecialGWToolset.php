@@ -53,7 +53,7 @@ class SpecialGWToolset extends SpecialPage {
 			'>' .
 				wfMessage('gwtoolset-back-to-form') .
 			'</a>';
-		
+
 	}
 
 
@@ -110,7 +110,7 @@ class SpecialGWToolset extends SpecialPage {
 				}
 
 				$html .= $this->Handler->execute();
-	
+
 			} catch ( Exception $e ) {
 
 				if ( $e->getCode() == 1000 ) {

@@ -86,7 +86,7 @@ class WikiPages {
 			);
 
 			$result = explode( '/', $result, 2 );
-			
+
 			if ( count( $result ) != 2 ) {
 
 				throw new Exception( wfMessage( 'gwtoolset-mapping-url-invalid' ) );
@@ -222,7 +222,7 @@ class WikiPages {
 		}
 
 		foreach( $api_result['query']['pages'] as $page ) {
-	
+
 			if ( empty( $page['revisions'] )
 				|| empty( $page['revisions'][0]['*'] )
 			) {

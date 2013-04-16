@@ -21,8 +21,6 @@ class MetadataMappingForm {
 
 	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null ) {
 
-		//$mapping_name = json_decode( str_replace( "`", '"', $user_options['metadata-mapping'] ), true );
-		
 		return
 			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-2') . '</h2>' .
 			wfMessage('gwtoolset-metadata-detect-step-2-instructions')->params( $user_options['mediawiki-template-name'] ) .

@@ -65,11 +65,11 @@ class MetadataDetectHandler extends FormHandler {
 
 
 	/**
-	 *	returns an html string that is comprosed of table rows 
+	 *	returns an html string that is comprosed of table rows
 	 *
 	 * @param {array} $this->_user_options
 	 * an array of user options that was submitted in the html form
-	 * 
+	 *
 	 * @throws Exception
 	 *
 	 * @return string
@@ -146,13 +146,13 @@ class MetadataDetectHandler extends FormHandler {
 
 			$this->_UploadHandler->getUploadedFileFromForm( $metadata_file_upload );
 			$result = $this->_UploadHandler->saveMetadataFile();
-	
+
 			if ( !$result['uploaded'] ) {
-	
+
 				throw new Exception( $result['msg'] );
-	
+
 			}
-	
+
 			$user_options[ $metadata_file_url ] = $this->_UploadHandler->getSavedFileName();
 
 		return $result['msg'];
@@ -186,7 +186,7 @@ class MetadataDetectHandler extends FormHandler {
 		}
 
 		return $result;
-	
+
 	}
 
 

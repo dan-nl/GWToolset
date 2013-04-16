@@ -75,7 +75,7 @@ class Filter {
 					self::$value_result_array[$key] = $result;
 
 				}
-	
+
 			} else {
 
 				$result = filter_var( self::$value_result, self::$filter_validate, self::$filter_validate_options );
@@ -87,8 +87,8 @@ class Filter {
 		return true;
 
 	}
-	
-	
+
+
 	protected static function sanitize() {
 
 		if ( is_null( self::$filter_sanitize ) ) { return true; }
@@ -102,20 +102,20 @@ class Filter {
 					self::$value_result_array[$key] = $result;
 
 				}
-	
+
 			} else {
-	
+
 				$result = filter_var( self::$value_result, self::$filter_sanitize, self::$filter_sanitize_options );
 				if ( $result === false ) { return false; }
 				self::$value_result = $result;
-	
+
 			}
 
 		return true;
 
 	}
-	
-	
+
+
 	protected static function required() {
 
 		if ( !self::$required ) { return true; }
@@ -139,8 +139,8 @@ class Filter {
 		return true;
 
 	}
-	
-	
+
+
 	protected static function trim() {
 
 		if ( self::$value_raw_is_array ) {
@@ -158,8 +158,8 @@ class Filter {
 		}
 
 	}
-	
-	
+
+
 	protected static function processElement() {
 
 		self::trim();
@@ -196,15 +196,15 @@ class Filter {
 		}
 
 		if ( is_array( self::$source ) ) {
-			
+
 			if ( isset( $options['key-name'] ) ) {
 
 				self::$key_name = $options['key-name'];
-	
+
 			} else {
 
 				throw new FilterException( '$options provided as an array, but no $options[key-name] provided [' . print_r( $options, true ) . ']' );
-	
+
 			}
 
 		}
@@ -238,8 +238,8 @@ class Filter {
 		}
 
 	}
-	
-	
+
+
 	protected static function reset() {
 
 		self::$key_name = null;
@@ -293,6 +293,6 @@ class Filter {
 		}
 
 	}
-	
-	
+
+
 }

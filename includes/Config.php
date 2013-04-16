@@ -38,7 +38,7 @@ class Config {
 		'GWToolset\Forms\MetadataUploadForm' => '/includes/Forms/MetadataUploadForm.php',
 
 		'GWToolset\Handlers\Ajax\AjaxHandler' => '/includes/Handlers/Ajax/AjaxHandler.php',
-		'GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' => '/includes/Handlers/Ajax/MetadataMappingSaveHandler.php',		
+		'GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' => '/includes/Handlers/Ajax/MetadataMappingSaveHandler.php',
 
 		'GWToolset\Handlers\Forms\FormHandler' => '/includes/Handlers/Forms/FormHandler.php',
 		'GWToolset\Handlers\Forms\MetadataDetectHandler' => '/includes/Handlers/Forms/MetadataDetectHandler.php',
@@ -179,7 +179,8 @@ class Config {
 	 * @see GWToolset\Helpers\WikiChecks\checkUserWikiGroups
 	 */
 	public static $user_group = 'gwtoolset';
-	
+
+
 	/**
 	 * user permissions required in order to be able to use this extension
 	 * @see GWToolset\Helpers\WikiChecks\checkUserPermissions
@@ -241,7 +242,8 @@ class Config {
 	 * group that has the right, gwtoolset-debug
 	 */
 	public static $display_debug_output = false;
-	
+
+
 	public static $metadata_mapping_open_tag = '<mapping_json>';
 	public static $metadata_mapping_close_tag = '</mapping_json>';
 	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';

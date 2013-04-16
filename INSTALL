@@ -37,19 +37,9 @@ _enable uploads and url uploading_
 * `$wgEnableUploads  = true;`
 * `$wgAllowCopyUploads = true;`
 
-_group permissions_
-
-* `$wgGroupPermissions['gwtoolset'] = $wgGroupPermissions['user'];`
-* `$wgGroupPermissions['gwtoolset']['upload_by_url'] = true;`
-* `$wgGroupPermissions['sysop']['gwtoolset-debug'] = true;`
-
 _api user_
 * make sure you create or already have an api user account in your wiki
 * make sure that api user is part of the gwtoolset group, see `Special:UserRights`
-
-_allowed file extensions_
-
-* `$wgFileExtensions[] = 'xml';`
 
 _load the extension_
 
@@ -57,9 +47,8 @@ _load the extension_
 
 
 ### Assign Users
-Assign users to the GWToolset group as appropriate.
+Assign users to the gwtoolset group as appropriate.
 
 
 ### Image folder permissions
 Make sure the wiki’s image folder can be written to by the web server.
-

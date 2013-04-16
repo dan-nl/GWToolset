@@ -82,7 +82,7 @@ class MetadataDetectForm {
 									'</label><br/>' .
 									'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_file_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_file_category . '</a>' .
 								'</li>' .
-	
+
 								'<li>' .
 									'<label>' .
 										wfMessage('gwtoolset-metadata-file') . ' : ' .

@@ -116,7 +116,7 @@ class File {
 	 * e.g. of output application/xml; charset=us-ascii
 	 *
 	 * @return void
-	 * 
+	 *
 	 * @link http://www.php.net/manual/en/function.finfo-file.php
 	 * @link http://www.php.net/manual/en/fileinfo.constants.php
 	 */
@@ -225,6 +225,6 @@ class File {
 		if ( !empty( $file_field_name ) ) { $this->populate( $file_field_name ); }
 
 	}
-	
-	
+
+
 }

@@ -40,17 +40,17 @@ abstract class Model implements ModelInterface {
 	 * @var string path to the table create sql file
 	 */
 	protected $table_create_sql;
-	
-	
+
+
 	/**
 	 * this query should return a result set that contians a key_name and optionally
 	 * a key_group value
-	 * 
+	 *
 	 * @return {ResultWrapper} sql query result
 	 */
 	abstract protected function getKeys();
 
-	
+
 	/**
 	 *
 	 */
@@ -83,7 +83,8 @@ abstract class Model implements ModelInterface {
 		return $result;
 
 	}
-	
+
+
 	/**
 	 *
 	 */

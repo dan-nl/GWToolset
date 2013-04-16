@@ -29,7 +29,6 @@ class Mapping extends Model {
 
 	/**
 	 * @var array
-	 * 
 	 */
 	public $mapping_array = array();
 
@@ -297,10 +296,10 @@ class Mapping extends Model {
 
 
 	public function __construct( DataAdapterInterface $DataAdapter ) {
-	
+
 		$this->_DataAdapater = $DataAdapter;
-	
+
 	}
 
-}
 
+}

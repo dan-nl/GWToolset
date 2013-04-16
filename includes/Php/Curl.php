@@ -25,17 +25,17 @@ class Curl {
 	protected $curl;
 	protected $curl_timeout;
 	protected $curl_connect_timeout;
-	
+
 	protected $cookiejar;
 	protected $cookie_directory;
 	protected $cookie_extension;
 	protected $cookie_name;
-	
+
 	protected $debug_on;
 	public $useragent;
 	public $raw_header;
 
-	
+
 	public function rawHeaders( $ch, $header ) {
 
 		$this->raw_header .= $header;
@@ -64,7 +64,7 @@ class Curl {
 		}
 
 		return $result;
-	
+
 	}
 
 

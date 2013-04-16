@@ -143,11 +143,11 @@ class XmlMappingHandler extends XmlHandler {
 						if ( !isset( $elements_mapped[ $template_parameter ]['language'][ $lang ] ) ) {
 
 							$elements_mapped[ $template_parameter ]['language'][ $lang ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
-	
+
 						} else {
 
 							$elements_mapped[ $template_parameter ]['language'][ $lang ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
-	
+
 						}
 
 					} else {
@@ -155,7 +155,7 @@ class XmlMappingHandler extends XmlHandler {
 						if ( !isset( $elements_mapped[ $template_parameter ] ) ) {
 
 							$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
-	
+
 						} else {
 
 							if ( 'title_identifier' == $template_parameter ) {
@@ -168,8 +168,7 @@ class XmlMappingHandler extends XmlHandler {
 								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 							}
-							
-	
+
 						}
 
 					}
@@ -263,7 +262,6 @@ class XmlMappingHandler extends XmlHandler {
 	 * has been uploaded to the wiki earlier and is ready for use
 	 *
 	 * @return
-	 * 
 	 */
 	public function processXml( array &$user_options, $file_path_local = null ) {
 

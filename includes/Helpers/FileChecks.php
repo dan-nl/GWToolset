@@ -33,7 +33,7 @@ class FileChecks {
 
 	/**
 	 * File names may be up to 240 bytes long
-	 * 
+	 *
 	 * @see https://commons.wikimedia.org/wiki/Commons:File_naming
 	 * @see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)
 	 * @see http://www.mediawiki.org/wiki/Help:Bad_title

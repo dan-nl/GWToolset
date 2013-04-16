@@ -32,14 +32,14 @@ abstract class AjaxHandler extends SpecialPageHandler {
 		$result = null;
 
 			try {
-	
+
 				WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
 				$result .= $this->processRequest();
-	
+
 			} catch ( Exception $e ) {
-	
+
 				$result .=  '{ "status" : "error", "message" : "' . $e->getMessage() . '" }';
-	
+
 			}
 
 		header('Content-Type: application/json; charset=utf-8');

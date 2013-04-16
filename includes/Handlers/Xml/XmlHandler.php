@@ -57,9 +57,9 @@ abstract class XmlHandler {
 
 			foreach ($subNodes as $subNode) {
 
-				if (($subNode->nodeType != 3) || 
-					(($subNode->nodeType == 3) &&
-					(strlen(trim($subNode->wholeText))>=1))
+				if ( ( $subNode->nodeType != 3 ) ||
+					( ( $subNode->nodeType == 3 ) &&
+					( strlen( trim( $subNode->wholeText ) ) >= 1 ) )
 				) {
 					echo "Node name: ".$subNode->nodeName."<br/>";
 					echo "Node value: ".$subNode->nodeValue."<br/>";
@@ -101,7 +101,7 @@ abstract class XmlHandler {
 	 * @todo: handle mal-formed xml (future)
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
-	 * 
+	 *
 	 * @throws Exception
 	 *
 	 * @return {string|null}

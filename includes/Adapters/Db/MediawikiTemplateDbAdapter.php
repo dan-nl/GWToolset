@@ -19,9 +19,7 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 	}
 
 
-	public function create( array $options = array() ) {
-		
-	}
+	public function create( array $options = array() ) {}
 
 
 	public function retrieve( array $options = array() ) {

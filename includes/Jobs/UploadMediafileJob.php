@@ -38,7 +38,7 @@ class UploadMediafileJob extends Job {
 	 * @var User
 	 */
 	protected $_User;
-	
+
 	public $filename_metadata;
 
 	protected function processMetadata() {

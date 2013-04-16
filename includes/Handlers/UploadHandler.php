@@ -162,8 +162,8 @@ class UploadHandler {
 	/**
 	 *
 	 * @return string
-	 * the text 
-	 */	
+	 * the text
+	 */
 	protected function getText() {
 
 		$result = null;
@@ -261,9 +261,9 @@ class UploadHandler {
 				|| $api_result['edit']['result'] !== 'Success'
 				|| empty( $api_result['edit']['title'] )
 			) {
-	
+
 				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'api result was not in the expected format' ) );
-	
+
 			} else {
 
 				if ( $result_as_boolean ) {

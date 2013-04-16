@@ -154,7 +154,7 @@ class Client implements ClientInterface {
 						case 'code':
 
 							$msg .= 'Error Code : ' . $value . '<br/>';
-							
+
 							switch ( $value ) {
 
 								case 'internal-error' :

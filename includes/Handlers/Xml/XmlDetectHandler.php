@@ -47,8 +47,8 @@ class XmlDetectHandler extends XmlHandler {
 	 * in an html select element. none of the options has selected=selected
 	 */
 	protected $_metadata_as_options;
-	
-	
+
+
 	/**
 	 * adds an option to $this->metadata_as_html_options based on the DOMNode given
 	 * only adds unique nodeNames
@@ -57,46 +57,46 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return void
 	 */
 	public function getMetadataAsHtmlTableRows() {
-	
+
 		$result = null;
-	
+
 		foreach( $this->_metadata_example_dom_nodes as $DOMNode ) {
-	
+
 			$result .=
 				'<tr>' .
 					'<td>' . $DOMNode->nodeName . '</td>' .
 					'<td>' . $DOMNode->nodeValue . '</td>' .
 				'</tr>';
-	
+
 		}
-		
+
 		return $result;
-	
+
 	}
 
 
 	public function getMetadataAsOptions( $selected_option = null ) {
-	
+
 		$result = null;
-	
+
 		$result .= '<option></option>';
-	
+
 		foreach ( $this->_metadata_example_dom_nodes as $DOMNode ) {
-	
+
 			$result .= '<option';
-	
+
 			if ( !empty( $selected_option ) && $DOMNode->nodeName == $selected_option ) {
-	
+
 				$result .= ' selected="selected"';
-	
+
 			}
-	
+
 			$result .= '>' . $DOMNode->nodeName . '</option>';
-	
+
 		}
-		
+
 		return $result;
-		
+
 	}
 
 
@@ -150,15 +150,15 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		if ( empty( $this->_metadata_as_options ) ) {
-	
+
 			$this->_metadata_as_options = '<option></option>';
 
 			foreach ( $this->_metadata_example_dom_nodes as $DOMNode ) {
-	
+
 				$this->_metadata_as_options .= '<option>' . $DOMNode->nodeName . '</option>';
-	
+
 			}
-	
+
 		}
 
 		if ( in_array( $parameter_as_id, $required_fields ) ) {
@@ -180,7 +180,7 @@ class XmlDetectHandler extends XmlHandler {
 					$parameter_as_id,
 					$this->getMetadataAsOptions( $selected_options[0] )
 				);
-				
+
 			} else {
 
 				$result .= sprintf(
@@ -196,7 +196,7 @@ class XmlDetectHandler extends XmlHandler {
 			}
 
 		} else if ( count( $selected_options ) == 1 ) {
-	
+
 			$result .= sprintf(
 				$first_row,
 				$parameter_as_id,
@@ -240,7 +240,7 @@ class XmlDetectHandler extends XmlHandler {
 				}
 
 			}
-	
+
 		} else {
 
 			$result .= sprintf(
@@ -256,7 +256,7 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		return $result;
-	
+
 	}
 
 

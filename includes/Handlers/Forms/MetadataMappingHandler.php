@@ -61,21 +61,21 @@ class MetadataMappingHandler extends FormHandler {
 	 */
 	protected $_XmlMappingHandler;
 
-	protected function processMetadata() {	
+	protected function processMetadata() {
 
 		$wiki_file_path = null;
 		$this->_Mapping = null;
 		$this->_MediawikiTemplate = null;
 		$this->_UploadHandler = null;
 		$this->_XmlMappingHandler = null;
-		
+
 		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $this->_user_options );
 
 		$this->_MWApiClient = \GWToolset\getMWApiClient(
 			$this->_User->getName(),
 			( Config::$display_debug_output && $this->_User->isAllowed( 'gwtoolset-debug' ) )
-		);	
+		);
 
 		$this->_UploadHandler = new UploadHandler(
 			array(
@@ -143,7 +143,7 @@ class MetadataMappingHandler extends FormHandler {
 	 *
 	 * @todo: have the api replace/update the template when page already exists
 	 * @todo b. tell api to follow the redirect to get the file
-	 * 
+	 *
 	 * @param DOMElement $matching_element
 	 * @param array $user_options
 	 *
@@ -198,7 +198,7 @@ class MetadataMappingHandler extends FormHandler {
 			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null,
 			'categories' => !empty( $_POST['categories'] ) ? Filter::evaluate( $_POST['categories'] ) : null,
 		);
-	
+
 	}
 
 

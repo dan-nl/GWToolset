@@ -21,12 +21,12 @@
 
 		/**
 		 * @function deparam
-		 * 
+		 *
 		 * Takes a string of name value pairs and returns a Object literal that represents those params.
-		 * 
+		 *
 		 * @param {String} params a string like <code>"foo=bar&person[age]=3"</code>
 		 * @return {Object} A JavaScript Object that represents the params:
-		 * 
+		 *
 		 *     {
 		 *       foo: "bar",
 		 *       person: {
@@ -180,10 +180,10 @@
 		 * of using an alert
 		 */
 		handleAjaxError : function() {
-			
+
 			alert( mw.message('gwtoolset-save-mapping-error').escaped() );
 			console.log( arguments );
-			
+
 		},
 
 
@@ -328,7 +328,7 @@
 		 * This imports the latest version of HotCat from Commons.
 		 * HotCat is a gadget to make changes to categories much easier.
 		 * Full documentation can be found at http://commons.wikimedia.org/wiki/Help:Gadget-HotCat
-		 */		 
+		 */
 		 addHotCat : function() {
 
 			//window.hotcat_translations_from_commons = true;
