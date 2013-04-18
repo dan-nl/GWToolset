@@ -61,6 +61,7 @@ class MetadataMappingHandler extends FormHandler {
 	 */
 	protected $_XmlMappingHandler;
 
+
 	protected function processMetadata() {
 
 		$wiki_file_path = null;
@@ -77,14 +78,6 @@ class MetadataMappingHandler extends FormHandler {
 			( Config::$display_debug_output && $this->_User->isAllowed( 'gwtoolset-debug' ) )
 		);
 
-		$this->_UploadHandler = new UploadHandler(
-			array(
-				'MediawikiTemplate' => $this->_MediawikiTemplate,
-				'MWApiClient' => $this->_MWApiClient,
-				'User' => $this->_User
-			)
-		);
-
 		WikiPages::$MWApiClient = $this->_MWApiClient;
 		$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
 
@@ -92,6 +85,15 @@ class MetadataMappingHandler extends FormHandler {
 		$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray( $_POST );
 		$this->_Mapping->setTargetElements();
 		$this->_Mapping->reverseMap();
+
+		$this->_UploadHandler = new UploadHandler(
+			array(
+				'Mapping' => $this->_Mapping,
+				'MediawikiTemplate' => $this->_MediawikiTemplate,
+				'MWApiClient' => $this->_MWApiClient,
+				'User' => $this->_User
+			)
+		);
 
 		$this->_XmlMappingHandler = new XmlMappingHandler( $this->_Mapping, $this->_MediawikiTemplate, $this );
 		$this->_XmlMappingHandler->processXml( $this->_user_options, $wiki_file_path );
@@ -178,6 +180,29 @@ class MetadataMappingHandler extends FormHandler {
 	}
 
 
+	protected function getGlobalCategories() {
+
+		$this->_user_options['categories'] = Config::$mediawiki_template_default_category;
+
+		if ( isset( $_POST['category'] ) ) {
+
+			foreach( $_POST['category'] as $category ) {
+
+				$category = Filter::evaluate( $category );
+
+				if ( !empty( $category ) ) {
+
+					$this->_user_options['categories'] .= Config::$category_separator . $category;
+
+				}
+
+			}
+
+		}
+
+	}
+
+
 	/**
 	 * grabs various user options set in an html form, filters them and sets
 	 * default values where appropriate
@@ -196,7 +221,9 @@ class MetadataMappingHandler extends FormHandler {
 			'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
 			'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
 			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null,
-			'categories' => !empty( $_POST['categories'] ) ? Filter::evaluate( $_POST['categories'] ) : null,
+			'categories' => null,
+			'category-phrase' => !empty( $_POST['category-phrase'] ) ? $_POST['category-phrase'] : array(),
+			'category-metadata' => !empty( $_POST['category-metadata'] ) ? $_POST['category-metadata'] : array(),
 		);
 
 	}
@@ -211,15 +238,7 @@ class MetadataMappingHandler extends FormHandler {
 
 			$this->_user_options = $this->getUserOptions();
 
-			if ( !empty( $this->_user_options['categories'] ) ) {
-
-				$this->_user_options['categories'] .= Config::$category_separator . Config::$mediawiki_template_default_category;
-
-			} else {
-
-				$this->_user_options['categories'] = Config::$mediawiki_template_default_category;
-
-			}
+			$this->getGlobalCategories();
 
 			$this->checkForRequiredFormFields(
 				array(

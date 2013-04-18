@@ -139,8 +139,15 @@ $messages['en'] = array(
 	'gwtoolset-retrieve-media-explanation' => 'the media for each item will be retrieved from the url_to_the_media_file provided and uploaded to the wiki. if a page for the item does not yet exist, the media file will be uploaded even if this checkbox has not been checked.',
 	'gwtoolset-add-as-a-job' => 'process as a background job',
 	'gwtoolset-add-as-a-job-description' => 'the metadata is processsed in the background; this is the recommended method. if you uncheck this option your request may not complete properly.',
+	'gwtoolset-category' => 'category',
 	'gwtoolset-categories' => 'Enter categories separated by a pipe |',
 	'gwtoolset-categories-tooltip' => 'These categories will be applied to every item in the batch upload.',
+	'gwtoolset-global-categories' => 'Global Categories',
+	'gwtoolset-global-tooltip' => 'These category entries will be applied globally to all uploaded items',
+	'gwtoolset-specific-categories' => 'Item Specific Categories',
+	'gwtoolset-specific-tooltip' => 'Using the following fields you can apply a phrase (optional) plus a metadata field as the category entry for each individual uploaded item. For example, if the metadata file contains an element for the artist of each record, you could add that as a category entry for each record that would change to the value specific to each record. You could also add a phrase such as “<i>Painted by</i>” and then the artist metadata field, which would yield “<i>Painted by &lt;artist name></i>” as the category for each record.',
+	'gwtoolset-phrasing' => 'phrasing',
+	'gwtoolset-metadata-field' => 'metadata field',
 
 
 	# mw api client

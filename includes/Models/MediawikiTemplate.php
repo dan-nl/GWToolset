@@ -154,59 +154,61 @@ class MediawikiTemplate extends Model {
 
 
 	/**
-	 * @todo: make sure it only picks-up original tempalte fields and not the ones
+	 * @todo: make sure it only picks-up original template fields and not the ones
 	 * we've inserted, e.g. description_lang
 	 */
 	public function getTemplate() {
 
-		$result = null;
+		$result = '<!-- Mediawiki Template -->' . PHP_EOL;
 		$sections = null;
 		$template = '{{' . $this->mediawiki_template_name . "\n" . '%s}}';
 
-		foreach( $this->mediawiki_template_array as $parameter => $content ) {
+			foreach( $this->mediawiki_template_array as $parameter => $content ) {
 
-			if ( is_array( $content ) ) {
+				if ( is_array( $content ) ) {
 
-				$sections .= '|' . $parameter . '=';
+					$sections .= '|' . $parameter . '=';
 
-				foreach ( $content as $sub_template_name => $sub_template_content ) {
+					foreach ( $content as $sub_template_name => $sub_template_content ) {
 
-					if ( 'language' == $sub_template_name ) {
+						if ( 'language' == $sub_template_name ) {
 
-						foreach( $sub_template_content as $language => $language_content ) {
+							foreach( $sub_template_content as $language => $language_content ) {
 
-							$sections .= sprintf(
-								$this->_sub_templates['language'],
-								Filter::evaluate( $language ),
-								Filter::evaluate( $language_content )
-							) . "\n";
+								$sections .= sprintf(
+									$this->_sub_templates['language'],
+									Filter::evaluate( $language ),
+									Filter::evaluate( $language_content )
+								) . "\n";
+
+							}
 
 						}
 
 					}
 
+				} else {
+
+					//if ( 'institution' == $parameter ) {
+					//
+					//	$sections .= '|' . $parameter . '=' . sprintf(
+					//		$this->_sub_templates['institution'],
+					//		Filter::evaluate( $content )
+					//	) . "\n";
+					//
+					//} else {
+
+						$sections .= '|' . $parameter . '=' . Filter::evaluate( $content )  . "\n";
+
+					//}
+
 				}
-
-			} else {
-
-				//if ( 'institution' == $parameter ) {
-				//
-				//	$sections .= '|' . $parameter . '=' . sprintf(
-				//		$this->_sub_templates['institution'],
-				//		Filter::evaluate( $content )
-				//	) . "\n";
-				//
-				//} else {
-
-					$sections .= '|' . $parameter . '=' . Filter::evaluate( $content )  . "\n";
-
-				//}
 
 			}
 
-		}
+			$result .= sprintf( $template, $sections );
 
-		return sprintf( $template, $sections );
+		return $result;
 
 	}
 

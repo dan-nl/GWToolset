@@ -252,7 +252,8 @@ class MetadataDetectHandler extends FormHandler {
 				$this->_SpecialPage->getContext(),
 				$this->_user_options,
 				$this->getMetadataAsHtmlSelectsInTableRows( $this->_user_options ),
-				$this->_XmlDetectHandler->getMetadataAsHtmlTableRows( $this->_user_options )
+				$this->_XmlDetectHandler->getMetadataAsHtmlTableRows( $this->_user_options ),
+				$this->_XmlDetectHandler->getMetadataAsOptions()
 			);
 
 		return $result;

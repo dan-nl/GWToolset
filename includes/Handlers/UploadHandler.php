@@ -36,6 +36,12 @@ class UploadHandler {
 
 
 	/**
+	 * @var GWToolset\Models\Mapping
+	 */
+	protected $_Mapping;
+
+
+	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
 	protected $_MediawikiTemplate;
@@ -159,19 +165,72 @@ class UploadHandler {
 
 	}
 
-	/**
-	 *
-	 * @return string
-	 * the text
-	 */
-	protected function getText() {
+
+	protected function getMappedField( $field ) {
 
 		$result = null;
 
-			$result = $this->_MediawikiTemplate->getTemplate();
+			foreach( $this->_Mapping->target_dom_elements_mapped[ $field ] as $targeted_field ) {
+
+				$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $targeted_field ] . ' ';
+
+			}
+
+		return $result;
+
+	}
+
+
+	protected function addItemSpecificCategories() {
+
+		$category_count = 0;
+		$phrase = null;
+		$metadata = null;
+		$result = null;
+
+			if ( !empty( $this->user_options['category-metadata'] ) ) {
+
+				$category_count = count( $this->user_options['category-metadata'] );
+
+				for ( $i = 0; $i < $category_count; $i += 1 ) {
+
+					$phrase = null;
+					$metadata = null;
+
+					if ( !empty( $this->user_options['category-phrase'][$i] ) ) {
+
+						$phrase = Filter::evaluate( $this->user_options['category-phrase'][$i] ) . ' ';
+
+					}
+					
+					if ( !empty( $this->user_options['category-metadata'][$i] ) ) {
+
+						$metadata = Filter::evaluate( $this->getMappedField( $this->user_options['category-metadata'][$i] ) );
+
+					}
+
+					if ( !empty( $metadata ) ) {
+
+						$result .= '[[Category:' . $phrase . $metadata . ']]';
+
+					}
+
+				}
+
+			}
+
+		return $result;
+
+	}
+
+
+	protected function addGlobalCategories() {
+
+		$result = null;
 
 			if ( !empty( $this->user_options['categories'] ) ) {
 
+				$result .= PHP_EOL . PHP_EOL . '<!-- Categories -->' . PHP_EOL;
 				$categories = explode( Config::$category_separator, $this->user_options['categories'] );
 
 				foreach( $categories as $category ) {
@@ -181,6 +240,24 @@ class UploadHandler {
 				}
 
 			}
+
+		return $result;
+
+	}
+
+
+	/**
+	 *
+	 * @return string
+	 * the text
+	 */
+	protected function getText() {
+
+		$result = null;
+
+			$result .= $this->_MediawikiTemplate->getTemplate();
+			$result .= $this->addGlobalCategories();
+			$result .= $this->addItemSpecificCategories();
 
 		return $result;
 
@@ -600,6 +677,7 @@ class UploadHandler {
 	public function reset() {
 
 		$this->_File = null;
+		$this->_Mapping = null;
 		$this->_MediawikiTemplate = null;
 		$this->_MWApiClient = null;
 		$this->_SpecialPage = null;
@@ -614,7 +692,9 @@ class UploadHandler {
 
 	public function __construct( array $options = array() ) {
 
+		$this->reset();
 		if ( isset( $options['File'] ) ) { $this->_File = $options['File']; }
+		if ( isset( $options['Mapping'] ) ) { $this->_Mapping = $options['Mapping']; }
 		if ( isset( $options['MediawikiTemplate'] ) ) { $this->_MediawikiTemplate = $options['MediawikiTemplate']; }
 		if ( isset( $options['MWApiClient'] ) ) { $this->_MWApiClient = $options['MWApiClient']; }
 		if ( isset( $options['SpecialPage'] ) ) { $this->_SpecialPage = $options['SpecialPage']; }

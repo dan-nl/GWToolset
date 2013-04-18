@@ -114,12 +114,66 @@
 		$ajax_loader : $( '<div/>', { 'id':'gwtoolset-loader' }),
 		$template_table : $('#template-table > tbody'),
 		$save_mapping_button : $('<tr><td colspan="3" style="text-align:right;"><span id="save-mapping" title="' + mw.message('gwtoolset-save-mapping').escaped() + '">' + mw.message('gwtoolset-save-mapping').escaped() + '</span></td></tr>'),
-		$metadata_buttons : {
-			collection : $('.metadata-add, .metadata-subtract'),
-			//$add : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_snewtbl.png' }),
-			//$subtract : $('<input/>', { 'type' : 'image', 'src' : '/extensions/GWToolset/resources/images/b_drop.png' })
+		$buttons : {
 			$add : $('<img/>', { 'src' : '/extensions/GWToolset/resources/images/b_snewtbl.png', 'class' : 'gwtoolset-metadata-button' }),
 			$subtract : $('<img/>', { 'src' : '/extensions/GWToolset/resources/images/b_drop.png', 'class' : 'gwtoolset-metadata-button' })
+		},
+		$metadata_buttons : $('.metadata-add, .metadata-subtract'),
+		$category_buttons : $('.category-add, .category-subtract'),
+
+
+		handleCategoryButtonAddClick : function( evt ) {
+
+			var $target = $(this).parent().parent(),
+					$td_input = $(this).parent().next().clone(),
+					$td_select = $(this).parent().next().next().clone(),
+					$button = gwtoolset.$buttons.$subtract.clone().on( 'click', gwtoolset.handleCategoryButtonSubtractClick ),
+					$td_button = jQuery('<td/>',{'class':'category-subtract'}).html( $button ),
+					$row = jQuery('<tr></tr>');
+
+			evt.preventDefault();
+
+			$td_input.find('input').val('');
+			$td_select.find('option').prop("selected", false);
+			$row.append( $td_button ).append( $td_input ).append( $td_select );
+			$row.insertAfter( $target );
+
+		},
+
+
+		handleCategoryButtonSubtractClick : function( evt ) {
+
+			evt.preventDefault();
+			jQuery(this).parent().parent().remove();
+
+		},
+
+
+		addCategoryButtons : function() {
+
+			var $elm;
+
+			gwtoolset.$category_buttons.each(function() {
+
+				var class_name;
+
+				$elm =	jQuery(this);
+				class_name = $elm.attr('class');
+
+				if ( 'category-add' === class_name ) {
+
+					$elm.html( gwtoolset.$buttons.$add.clone().on( 'click', gwtoolset.handleCategoryButtonAddClick ) );
+
+				}
+
+				if ( 'category-subtract' === class_name ) {
+
+					$elm.html( gwtoolset.$buttons.$subtract.clone().on( 'click', gwtoolset.handleCategoryButtonSubtractClick ) );
+
+				}
+
+			});
+
 		},
 
 
@@ -127,12 +181,13 @@
 
 			var $target = $(this).parent().parent(),
 					$td_select = $(this).parent().next().clone(),
-					$button = gwtoolset.$metadata_buttons.$subtract.clone().on( 'click', gwtoolset.handleMetadataButtonSubtractClick ),
+					$button = gwtoolset.$buttons.$subtract.clone().on( 'click', gwtoolset.handleMetadataButtonSubtractClick ),
 					$td_button = jQuery('<td/>',{'class':'metadata-subtract'}).html( $button ),
 					$row = jQuery('<tr><td>&nbsp;</td></tr>');
 
 			evt.preventDefault();
 
+			$td_select.find('input').val('');
 			$td_select.find('option').prop("selected", false);
 			$row.append( $td_button ).append( $td_select );
 			$row.insertAfter( $target );
@@ -152,7 +207,7 @@
 
 			var $elm;
 
-			gwtoolset.$metadata_buttons.collection.each(function() {
+			gwtoolset.$metadata_buttons.each(function() {
 
 				var class_name;
 
@@ -161,13 +216,13 @@
 
 				if ( 'metadata-add' === class_name ) {
 
-					$elm.html( gwtoolset.$metadata_buttons.$add.clone().on( 'click', gwtoolset.handleMetadataButtonAddClick ) );
+					$elm.html( gwtoolset.$buttons.$add.clone().on( 'click', gwtoolset.handleMetadataButtonAddClick ) );
 
 				}
 
 				if ( 'metadata-subtract' === class_name ) {
 
-					$elm.html( gwtoolset.$metadata_buttons.$subtract.clone().on( 'click', gwtoolset.handleMetadataButtonSubtractClick ) );
+					$elm.html( gwtoolset.$buttons.$subtract.clone().on( 'click', gwtoolset.handleMetadataButtonSubtractClick ) );
 
 				}
 
@@ -324,19 +379,6 @@
 		},
 
 
-		/**
-		 * This imports the latest version of HotCat from Commons.
-		 * HotCat is a gadget to make changes to categories much easier.
-		 * Full documentation can be found at http://commons.wikimedia.org/wiki/Help:Gadget-HotCat
-		 */
-		 addHotCat : function() {
-
-			//window.hotcat_translations_from_commons = true;
-			//mw.loader.load('//commons.wikimedia.org/w/index.php?title=MediaWiki:Gadget-HotCat.js&action=raw&ctype=text/javascript');
-
-		},
-
-
 		setConsole : function() {
 
 			if ( window.console === undefined || !this.display_debug_output ) {
@@ -351,10 +393,10 @@
 		init : function() {
 
 			gwtoolset.setConsole();
-			gwtoolset.addHotCat();
 			gwtoolset.addFormListener();
 			gwtoolset.addSaveMappingButton();
 			gwtoolset.addMetadataButtons();
+			gwtoolset.addCategoryButtons();
 
 		}
 
