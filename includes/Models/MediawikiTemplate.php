@@ -56,7 +56,7 @@ class MediawikiTemplate extends Model {
 	 */
 	protected $_sub_templates = array(
 		'language' => '{{%s|%s}}',
-		'institution' => '{{Institution|name=%s|native name=|location=|latitude=|established=|website=|image=|image=|homecat=|linkback=|"authority=}}'
+		'institution' => '{{Institution:%s}}'
 	);
 
 
@@ -161,13 +161,13 @@ class MediawikiTemplate extends Model {
 
 		$result = '<!-- Mediawiki Template -->' . PHP_EOL;
 		$sections = null;
-		$template = '{{' . $this->mediawiki_template_name . "\n" . '%s}}';
+		$template = '{{' . $this->mediawiki_template_name . PHP_EOL . '%s}}';
 
 			foreach( $this->mediawiki_template_array as $parameter => $content ) {
 
-				if ( is_array( $content ) ) {
+				$sections .= ' | ' . $parameter . ' = ';
 
-					$sections .= '|' . $parameter . '=';
+				if ( is_array( $content ) ) {
 
 					foreach ( $content as $sub_template_name => $sub_template_content ) {
 
@@ -179,7 +179,7 @@ class MediawikiTemplate extends Model {
 									$this->_sub_templates['language'],
 									Filter::evaluate( $language ),
 									Filter::evaluate( $language_content )
-								) . "\n";
+								) . PHP_EOL;
 
 							}
 
@@ -189,18 +189,35 @@ class MediawikiTemplate extends Model {
 
 				} else {
 
-					//if ( 'institution' == $parameter ) {
-					//
-					//	$sections .= '|' . $parameter . '=' . sprintf(
-					//		$this->_sub_templates['institution'],
-					//		Filter::evaluate( $content )
-					//	) . "\n";
-					//
-					//} else {
+					if ( 'institution' == $parameter ) {
 
-						$sections .= '|' . $parameter . '=' . Filter::evaluate( $content )  . "\n";
+						$sections .= sprintf(
+							$this->_sub_templates['institution'],
+							Filter::evaluate( $content )
+						) . PHP_EOL;
 
-					//}
+					} else if ( 'permission' == $parameter ) {
+
+						// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
+						$sections .= Filter::evaluate(
+							str_replace(
+								array(
+									'http://creativecommons.org/publicdomain/mark/1.0/',
+									'http://creativecommons.org/licenses/by/3.0/'
+								),
+								array(
+									'{{cc-zero}}',
+									'{{cc-by-sa-3.0}}'
+								),
+								$content
+							)
+						) . PHP_EOL;
+
+					} else {
+
+						$sections .= Filter::evaluate( $content ) . PHP_EOL;
+
+					}
 
 				}
 
