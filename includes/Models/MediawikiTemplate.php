@@ -56,7 +56,8 @@ class MediawikiTemplate extends Model {
 	 */
 	protected $_sub_templates = array(
 		'language' => '{{%s|%s}}',
-		'institution' => '{{Institution:%s}}'
+		'institution' => '{{Institution:%s}}',
+		'creator' => '{{Creator:%s}}'
 	);
 
 
@@ -193,6 +194,13 @@ class MediawikiTemplate extends Model {
 
 						$sections .= sprintf(
 							$this->_sub_templates['institution'],
+							Filter::evaluate( $content )
+						) . PHP_EOL;
+
+					} else if ( 'creator' == $parameter ) {
+
+						$sections .= sprintf(
+							$this->_sub_templates['creator'],
 							Filter::evaluate( $content )
 						) . PHP_EOL;
 
