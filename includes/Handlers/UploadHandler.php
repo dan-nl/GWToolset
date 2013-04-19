@@ -539,7 +539,7 @@ class UploadHandler {
 
 			$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
 			$options['ignorewarnings'] = true;
-			$options['comment'] = $this->user_options['comment'];
+			$options['comment'] = trim( $this->user_options['comment']  . ' ' . wfMessage('gwtoolset-upload-on-behalf-of')->params( $this->_User->getName() ) );
 			$options['text'] = $this->getText();
 
 			if ( $this->user_options['save-as-batch-job'] ) {
@@ -584,7 +584,7 @@ class UploadHandler {
 
 		$result = true;
 
-			$comment = 'GWToolset uploading metdata file on behalf of User:' . $this->_User->getName();
+			$comment = wfMessage('gwtoolset-upload-on-behalf-of')->params( $this->_User->getName() );
 			$pagetext = '[[Category:' . Config::$metadata_file_category. ']]';
 			$status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
 			if ( !$status->isGood() ) { $result = $status->getWikiText(); }

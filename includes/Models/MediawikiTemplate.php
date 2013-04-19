@@ -166,6 +166,7 @@ class MediawikiTemplate extends Model {
 
 			foreach( $this->mediawiki_template_array as $parameter => $content ) {
 
+				if ( empty( $content ) ) { continue; }
 				$sections .= ' | ' . $parameter . ' = ';
 
 				if ( is_array( $content ) ) {
@@ -197,12 +198,18 @@ class MediawikiTemplate extends Model {
 							Filter::evaluate( $content )
 						) . PHP_EOL;
 
-					} else if ( 'creator' == $parameter ) {
+					} else if ( 'artist' == $parameter ) {
 
-						$sections .= sprintf(
-							$this->_sub_templates['creator'],
-							Filter::evaluate( $content )
-						) . PHP_EOL;
+						$creators = explode( Config::$metadata_separator, $content );
+
+						foreach( $creators as $creator ) {
+
+							$sections .= sprintf(
+								$this->_sub_templates['creator'],
+								Filter::evaluate( $creator )
+							) . PHP_EOL;
+
+						}
 
 					} else if ( 'permission' == $parameter ) {
 

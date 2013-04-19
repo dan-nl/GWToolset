@@ -98,6 +98,7 @@ $messages['en'] = array(
 
 	#metadata upload
 	'gwtoolset-metadata-upload-successful' => '<h3>your upload was successful</h3>the upload can be found here : <a href="%s">%s</a>',
+	'gwtoolset-upload-on-behalf-of' => 'Gwtoolset uploading on behalf of User:$1',
 
 
 	# metadata detect
