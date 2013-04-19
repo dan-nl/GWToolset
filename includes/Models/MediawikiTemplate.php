@@ -201,14 +201,8 @@ class MediawikiTemplate extends Model {
 						// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
 						$sections .= Filter::evaluate(
 							str_replace(
-								array(
-									'http://creativecommons.org/publicdomain/mark/1.0/',
-									'http://creativecommons.org/licenses/by/3.0/'
-								),
-								array(
-									'{{cc-zero}}',
-									'{{cc-by-sa-3.0}}'
-								),
+								array_keys( Config::$mediawiki_licensing_templates ),
+								array_values( Config::$mediawiki_licensing_templates ),
 								$content
 							)
 						) . PHP_EOL;
