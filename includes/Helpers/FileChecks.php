@@ -14,7 +14,6 @@ use	Exception,
 	GWToolset\Config,
 	Php\File,
 	Php\Filter,
-	finfo,
 	OutputPage;
 
 

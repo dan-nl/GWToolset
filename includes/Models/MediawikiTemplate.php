@@ -200,9 +200,25 @@ class MediawikiTemplate extends Model {
 
 					} else if ( 'artist' == $parameter ) {
 
+						// assumes that there could be more than one creator and uses the
+						// configured metadata separator to determine that
 						$creators = explode( Config::$metadata_separator, $content );
 
 						foreach( $creators as $creator ) {
+
+							// assumes that a creator entry could be last name, first
+							// no other assumptions are made other than this one
+							$creator = explode( ',', $creator, 2 );
+
+							if ( 2 == count( $creator ) ) {
+
+								$creator = trim( $creator[1] ) . ' ' . $creator[0];
+
+							} else {
+
+								$creator = trim( $creator[0] );
+
+							}
 
 							$sections .= sprintf(
 								$this->_sub_templates['creator'],
