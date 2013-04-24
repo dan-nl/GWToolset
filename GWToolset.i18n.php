@@ -149,6 +149,9 @@ $messages['en'] = array(
 	'gwtoolset-specific-tooltip' => 'Using the following fields you can apply a phrase (optional) plus a metadata field as the category entry for each individual uploaded item. For example, if the metadata file contains an element for the artist of each record, you could add that as a category entry for each record that would change to the value specific to each record. You could also add a phrase such as “<i>Painted by</i>” and then the artist metadata field, which would yield “<i>Painted by &lt;artist name></i>” as the category for each record.',
 	'gwtoolset-phrasing' => 'phrasing',
 	'gwtoolset-metadata-field' => 'metadata field',
+	'gwtoolset-partner' => 'Partner',
+	'gwtoolset-partner-template' => 'partner template',
+	'gwtoolset-partner-explanation' => 'Partner templates are pulled into the source field of the mediawiki template when provided. You can find a list of current Partner Templates on the Category:Source templates page; see link below. Once you’ve found the Partner Template you wish to use place the url to it in this field. You can also create a new Partner Template if necessary.',
 
 
 	# mw api client

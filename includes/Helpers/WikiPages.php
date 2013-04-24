@@ -66,7 +66,34 @@ class WikiPages {
 
 
 	/**
-	 * parses a url to get at the core filename
+	 * parses a url to get the template name
+	 */
+	public static function getTemplateNameFromUrl( $template_url ) {
+
+		$result = null;
+		global $wgServer;
+
+			if ( empty( $template_url ) ) {
+
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no template url provided to parse' ) );
+
+			}
+
+			$result = str_replace(
+				array( $wgServer, 'index.php', '//', 'Template:' ),
+				'',
+				$template_url
+			);
+
+			$result = str_replace( ' ', '_', $result );
+
+		return $result;
+
+	}
+
+
+	/**
+	 * parses a url to extract the user name and mapping template path & name
 	 */
 	public static function getUsernameAndPageFromUrl( $file_url ) {
 

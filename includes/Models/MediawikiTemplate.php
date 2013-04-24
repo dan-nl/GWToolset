@@ -26,6 +26,13 @@ class MediawikiTemplate extends Model {
 
 	/**
 	 * @var string
+	 * a raw representation of the original metadata
+	 */
+	public $metadata_raw;
+
+
+	/**
+	 * @var string
 	 * the mediawiki template name
 	 */
 	public $mediawiki_template_name;
@@ -155,10 +162,12 @@ class MediawikiTemplate extends Model {
 
 
 	/**
+	 * @param array $user_options
+	 *
 	 * @todo: make sure it only picks-up original template fields and not the ones
 	 * we've inserted, e.g. description_lang
 	 */
-	public function getTemplate() {
+	public function getTemplate( array $user_options ) {
 
 		$result = '<!-- Mediawiki Template -->' . PHP_EOL;
 		$sections = null;
@@ -237,6 +246,18 @@ class MediawikiTemplate extends Model {
 								$content
 							)
 						) . PHP_EOL;
+
+					} else if ( 'source' == $parameter ) {
+
+						if ( !empty( $user_options['partner-template-name'] ) ) {
+
+							$sections .= Filter::evaluate( $content ) . '{{' . $user_options['partner-template-name'] . '}}' . PHP_EOL;
+
+						} else {
+
+							$sections .= Filter::evaluate( $content ) . PHP_EOL;
+
+						}
 
 					} else {
 

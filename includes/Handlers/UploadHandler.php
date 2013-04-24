@@ -181,6 +181,22 @@ class UploadHandler {
 	}
 
 
+	protected function addMetadata() {
+
+		$result = null;
+
+			$result .= '<!-- Metadata Mapped -->' . PHP_EOL;
+			$result .= '<!-- <metadata_mapped_json>' . json_encode( $this->_MediawikiTemplate->mediawiki_template_array ) . '</metadata_mapped_json> -->' . PHP_EOL . PHP_EOL;
+			
+			$result .= '<!-- Metadata Raw -->' . PHP_EOL;
+			$result .= '<!-- <metadata_raw>' . PHP_EOL . $this->_MediawikiTemplate->metadata_raw . PHP_EOL . '</metadata_raw> -->' . PHP_EOL;
+			//$result .= json_encode( simplexml_load_string( $xml_reader->readOuterXml() ) );
+
+		return $result;
+
+	}
+
+
 	protected function addItemSpecificCategories() {
 
 		$category_count = 0;
@@ -230,7 +246,7 @@ class UploadHandler {
 
 			if ( !empty( $this->user_options['categories'] ) ) {
 
-				$result .= PHP_EOL . PHP_EOL . '<!-- Categories -->' . PHP_EOL;
+				$result .= '<!-- Categories -->' . PHP_EOL;
 				$categories = explode( Config::$category_separator, $this->user_options['categories'] );
 
 				foreach( $categories as $category ) {
@@ -255,9 +271,10 @@ class UploadHandler {
 
 		$result = null;
 
-			$result .= $this->_MediawikiTemplate->getTemplate();
+			$result .= $this->_MediawikiTemplate->getTemplate( $this->user_options ) . PHP_EOL . PHP_EOL;
 			$result .= $this->addGlobalCategories();
-			$result .= $this->addItemSpecificCategories();
+			$result .= $this->addItemSpecificCategories() . PHP_EOL . PHP_EOL;
+			$result .= $this->addMetadata();
 
 		return $result;
 

@@ -229,7 +229,7 @@ class XmlMappingHandler extends XmlHandler {
 
 						if ( !empty( $DOMElement ) && $DOMElement instanceof DOMElement ) {
 
-							$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ) );
+							$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ), $xml_reader->readOuterXml() );
 
 							$result['msg'] =
 								'<p>' . $user_options['record-count'] . ' record(s) uploaded. Links to the uploaded file(s)</p>' .

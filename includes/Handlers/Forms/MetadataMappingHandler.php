@@ -156,10 +156,11 @@ class MetadataMappingHandler extends FormHandler {
 	 *
 	 * @todo run a try catch on the create/update page so that if there’s an api issue the script can continue
 	 */
-	public function processMatchingElement( $element_mapped_to_mediawiki_template ) {
+	public function processMatchingElement( $element_mapped_to_mediawiki_template, $metadata_raw ) {
 
 		$result = null;
 
+			$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
 			$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
 			$result = $this->_UploadHandler->saveMediawikiTemplateAsPage( $this->_user_options );
 
@@ -211,7 +212,7 @@ class MetadataMappingHandler extends FormHandler {
 	 */
 	protected function getUserOptions() {
 
-		return array(
+		$result = array(
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
 			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
 			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
@@ -224,7 +225,16 @@ class MetadataMappingHandler extends FormHandler {
 			'categories' => null,
 			'category-phrase' => !empty( $_POST['category-phrase'] ) ? $_POST['category-phrase'] : array(),
 			'category-metadata' => !empty( $_POST['category-metadata'] ) ? $_POST['category-metadata'] : array(),
+			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ? Filter::evaluate( $_POST['partner-template-url'] ) : null,
 		);
+
+		if ( !empty( $result['partner-template-url'] ) ) {
+
+			$result['partner-template-name'] = WikiPages::getTemplateNameFromUrl( $result['partner-template-url'] );
+
+		}
+
+		return $result;
 
 	}
 

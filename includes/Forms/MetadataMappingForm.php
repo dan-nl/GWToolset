@@ -21,6 +21,7 @@ class MetadataMappingForm {
 
 	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null, $metadata_select = null ) {
 
+		global $wgArticlePath;
 		return
 			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-2') . '</h2>' .
 			wfMessage('gwtoolset-metadata-detect-step-2-instructions')->params( $user_options['mediawiki-template-name'] ) .
@@ -93,9 +94,9 @@ class MetadataMappingForm {
 							'<table>' .
 								'<tbody>' .
 									'<tr>' .
-										'<td><label for="permission">' . wfMessage('gwtoolset-category') . ' :</label></td>' .
+										'<td><label for="gwtoolset-category">' . wfMessage('gwtoolset-category') . ' :</label></td>' .
 										'<td class="metadata-add"></td>' .
-										'<td><input type="text" name="category[]"/></td>' .
+										'<td><input type="text" id="gwtoolset-category" name="category[]"/></td>' .
 									'</tr>' .
 								'</tbody>' .
 							'</table>' .
@@ -120,9 +121,18 @@ class MetadataMappingForm {
 								'</tbody>' .
 							'</table>' .
 
+						'<h3 style="margin-top:1em;">' . wfMessage('gwtoolset-partner') . '</h3>' .
+						'<p>' .
+							wfMessage('gwtoolset-partner-explanation') . '<br/>' .
+							'<label>' .
+								wfMessage('gwtoolset-partner-template') . ' : ' .
+								'<input type="text" name="partner-template-url" value="" placeholder="Template:Europeana" class="gwtoolset-url-input"/>' .
+							'</label><br/>' .
+							'<a href="' . str_replace( '$1', 'Category:Source_templates', $wgArticlePath ) . '" target="_blank">' . 'Category:Source templates</a>' .
+						'</p>' .
+
 						'<h3 style="margin-top:1em;">' . wfMessage('summary') . '</h3>' .
 						'<p>' .
-							//'<b>' . wfMessage('summary') . '</b><br/>' .
 							'<input class="mw-summary" id="wpSummary" maxlength="255" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
 						'</p>' .
 
