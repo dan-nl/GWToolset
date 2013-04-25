@@ -252,7 +252,7 @@ class Config {
 	public static $metadata_file_category = 'GWToolset Metadata Sets';
 
 	public static $mediawiki_licensing_templates = array(
-		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}',
+		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}{{PD-old}}',
 		'http://creativecommons.org/licenses/by/3.0/' => '{{cc-by-sa-3.0}}'
 	);
 

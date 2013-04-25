@@ -12,7 +12,7 @@
  * based on Curl class developed by Chris G - http://en.wikipedia.org/wiki/User:Chris_G
  */
 namespace	Php;
-use 		Exception;
+use Exception;
 
 
 /**
@@ -25,11 +25,16 @@ class Curl {
 	protected $curl;
 	protected $curl_timeout;
 	protected $curl_connect_timeout;
+	protected $max_redirects;
 
 	protected $cookiejar;
 	protected $cookie_directory;
 	protected $cookie_extension;
 	protected $cookie_name;
+
+	protected $curl_info;
+	protected $curl_error;
+	protected $curl_errno;
 
 	protected $debug_on;
 	public $useragent;
@@ -55,13 +60,17 @@ class Curl {
 
 		$result = curl_exec( $this->curl );
 
-		if ( curl_errno( $this->curl ) != 0 ) {
+			$this->curl_info = curl_getinfo( $this->curl );
+			$this->curl_error = curl_error( $this->curl );
+			$this->curl_errno = curl_errno( $this->curl );
 
-			$msg = 'cURL Error: ' . curl_error( $this->curl ) . ' (' . curl_errno( $this->curl ) . ')';
-			if ( $this->debug_on ) { $msg .= '<pre>' . print_r( curl_getinfo( $this->curl ), true ) . '</pre>'; }
-			throw new Exception( $msg );
+			if ( $this->curl_errno != 0 ) {
 
-		}
+				$msg = 'cURL Error: ' . $this->curl_error . ' (' . $this->curl_errno . ')';
+				if ( $this->debug_on ) { $msg .= '<pre>' . print_r( $this->curl_info, true ) . '</pre>'; }
+				throw new Exception( $msg );
+
+			}
 
 		return $result;
 
@@ -77,6 +86,19 @@ class Curl {
 		}
 
 	}
+	
+	
+	protected function isUrlValid( &$url ) {
+
+		if ( !filter_var( $url, FILTER_VALIDATE_URL ) ) {
+
+			throw new Exception('invalid url : [' . Filter::evaluate( $url ) . ']');
+
+		}
+
+		return true;
+
+	}
 
 
 	/**
@@ -86,15 +108,17 @@ class Curl {
 	 **/
 	public function get( $url ) {
 
+		$this->isUrlValid( $url );
+
 		$this->setCurlOption( CURLOPT_URL, $url );
 		$this->setCurlOption( CURLOPT_FOLLOWLOCATION, true );
-		$this->setCurlOption( CURLOPT_MAXREDIRS, 10 );
+		$this->setCurlOption( CURLOPT_MAXREDIRS, $this->max_redirects );
 		$this->setCurlOption( CURLOPT_HEADER, false );
 		$this->setCurlOption( CURLOPT_HTTPGET, true );
 		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
 		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, $this->curl_connect_timeout );
-		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
+		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 
 		return $this->executeCurl();
 
@@ -110,18 +134,14 @@ class Curl {
 
 		$this->setCurlOption( CURLOPT_URL, $url );
 		$this->setCurlOption( CURLOPT_FOLLOWLOCATION, true );
-		$this->setCurlOption( CURLOPT_MAXREDIRS, 10 );
+		$this->setCurlOption( CURLOPT_MAXREDIRS, $this->max_redirects );
 		$this->setCurlOption( CURLOPT_HEADER, true );
 		$this->setCurlOption( CURLOPT_HEADERFUNCTION, array( $this, 'rawHeaders' ) );
 		$this->setCurlOption( CURLOPT_NOBODY, true );
 		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
 		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, $this->curl_connect_timeout );
-		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
-
-    //curl_setopt( $ch, CURLOPT_ENCODING, "" );
-    //curl_setopt( $ch, CURLOPT_AUTOREFERER, true );
-    //curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );    # required for https urls
+		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 
 		return $this->executeCurl();
 
@@ -134,19 +154,21 @@ class Curl {
 	 * @param array $data is the post data.
 	 * @returns string the page you asked for
 	 **/
-	public function post( $url, $data ) {
+	public function post( $url, array $data = array() ) {
+
+		$this->isUrlValid( $url );
 
 		$this->setCurlOption( CURLOPT_URL, $url );
 		$this->setCurlOption( CURLOPT_FOLLOWLOCATION, true );
-		$this->setCurlOption( CURLOPT_MAXREDIRS, 10 );
+		$this->setCurlOption( CURLOPT_MAXREDIRS, $this->max_redirects );
 		$this->setCurlOption( CURLOPT_HEADER, false );
 		$this->setCurlOption( CURLOPT_POST, true );
 		$this->setCurlOption( CURLOPT_POSTFIELDS, $data );
 		$this->setCurlOption( CURLOPT_RETURNTRANSFER, true );
 		$this->setCurlOption( CURLOPT_CONNECTTIMEOUT, $this->curl_connect_timeout );
-		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 		$this->setCurlOption( CURLOPT_USERAGENT, $this->useragent );
 		$this->setCurlOption( CURLOPT_HTTPHEADER, array( 'Expect:' ) );
+		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 
 		return $this->executeCurl();
 
@@ -189,6 +211,7 @@ class Curl {
 		if ( isset( $options['cookie-name'] ) ) { $this->cookie_name = $options['cookie-name']; }
 		if ( isset( $options['curl-timeout'] ) ) { $this->curl_timeout = (int) $options['curl-timeout']; }
 		if ( isset( $options['curl-connect-timeout'] ) ) { $this->curl_connect_timeout = (int) $options['curl-connect-timeout']; }
+		if ( isset( $options['max-redirects'] ) ) { $this->max_redirects = (int) $options['max-redirects']; }
 		if ( isset( $options['debug-on'] ) ) { $this->debug_on = $options['debug-on']; }
 
 	}
@@ -197,13 +220,18 @@ class Curl {
 	public function reset() {
 
 		$this->curl = null;
-		$this->curl_timeout = 40;
-		$this->curl_connect_timeout = 15;
+		$this->curl_timeout = 60;
+		$this->curl_connect_timeout = 30;
+		$this->max_redirects = 10;
 
 		$this->cookiejar = null;
 		$this->cookie_directory = '/tmp';
 		$this->cookie_extension = '.dat';
 		$this->cookie_name = 'http.cookie';
+
+		$this->curl_info = array();
+		$this->curl_error = null;
+		$this->curl_errno = 0;
 
 		$this->debug_on = false;
 		$this->useragent = 'PHPcURL';
@@ -213,7 +241,11 @@ class Curl {
 
 	public function __destruct () {
 
-		curl_close( $this->curl );
+		if ( is_resource( $this->curl ) ) {
+
+			curl_close( $this->curl );
+
+		}
 
 		if ( file_exists( $this->cookiejar ) ) {
 
@@ -246,4 +278,3 @@ class Curl {
 
 
 }
-
