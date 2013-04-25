@@ -253,7 +253,7 @@ class Config {
 
 	public static $mediawiki_licensing_templates = array(
 		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}{{PD-old}}',
-		'http://creativecommons.org/licenses/by/3.0/' => '{{cc-by-sa-3.0}}'
+		'http://creativecommons.org/licenses/by/3.0/' => '{{Cc-by-sa-3.0}}'
 	);
 
 }
