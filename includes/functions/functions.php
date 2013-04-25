@@ -63,9 +63,9 @@ function getArraySecondLevelValues( array $array = array() ) {
 }
 
 
-function getMWApiClient( $user_name = null, $debug_on = false ) {
+function getMWApiClient( $user_name = null, array $curl_options = array() ) {
 
-	$MWApiClient = new Client( Config::$api_internal_endpoint, $user_name, $debug_on );
+	$MWApiClient = new Client( Config::$api_internal_endpoint, $user_name, $curl_options );
 	$MWApiClient->login( Config::$api_internal_lgname, Config::$api_internal_lgpassword );
 	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
 	return $MWApiClient;

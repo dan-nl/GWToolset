@@ -131,8 +131,18 @@ foreach( Config::$jobs as $job => $method ) {
 
 }
 
+
 /**
  * register resources with ResourceLoader
  */
 Config::$resources['localBasePath'] = $wgGWToolsetDir;
 $wgResourceModules['ext.GWToolset'] = Config::$resources;
+
+
+/**
+ * check environment variables
+ */
+if ( (int)ini_get('memory_limit') < 256) { ini_set('memory_limit', '256M'); } // 128M default
+if ( $wgMaxImageArea < 64000000 ) { $wgMaxImageArea = 64000000; } // 12500000 default
+//$wgMaxShellMemory = 102400; // 102400 default
+if ( $wgHTTPTimeout < 1200 ) { $wgHTTPTimeout = 1200; } // 20 minutes, 25 seconds default

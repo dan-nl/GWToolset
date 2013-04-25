@@ -220,7 +220,7 @@ class Curl {
 	public function reset() {
 
 		$this->curl = null;
-		$this->curl_timeout = 60;
+		$this->curl_timeout = 1200; // 20 minutes
 		$this->curl_connect_timeout = 30;
 		$this->max_redirects = 10;
 

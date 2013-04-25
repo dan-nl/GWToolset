@@ -493,7 +493,7 @@ class Client implements ClientInterface {
 	}
 
 
-	public function __construct( $endpoint = null, $user_name = 'GWToolset', $debug_on = false ) {
+	public function __construct( $endpoint = null, $user_name = 'GWToolset', array $curl_options = array() ) {
 
 		if ( empty( $endpoint ) ) {
 
@@ -504,7 +504,8 @@ class Client implements ClientInterface {
 		$this->reset();
 		$this->endpoint = $endpoint;
 		$this->useragent = 'PHPcURL : ' . $user_name;
-		$this->_Curl = new Curl( array( 'useragent' => $this->useragent, 'debug-on' => $debug_on ) );
+		$curl_options['useragent'] = $this->useragent;
+		$this->_Curl = new Curl( $curl_options );
 
 	}
 

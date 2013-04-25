@@ -292,9 +292,9 @@ class UploadHandler {
 	 */
 	protected function updatePage( array &$options, $result_as_boolean = false ) {
 
+		global $wgArticlePath;
 		$result = null;
 		$api_result = array();
-		global $wgArticlePath;
 
 			if ( empty( $options['title'] ) ) {
 
