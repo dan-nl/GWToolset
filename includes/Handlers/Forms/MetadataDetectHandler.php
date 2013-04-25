@@ -225,7 +225,7 @@ class MetadataDetectHandler extends FormHandler {
 
 			$this->_MWApiClient = \GWToolset\getMWApiClient(
 				$this->_SpecialPage->getUser()->getName(),
-				array( 'debug-on' => ( Config::$display_debug_output && $this->_SpecialPage->getUser()->isAllowed( 'gwtoolset-debug' ) ) )
+				array( 'debug-on' => ( Config::$display_debug_output && $this->_User->getUser()->isAllowed( 'gwtoolset-debug' ) ) )
 			);
 
 			$this->_UploadHandler = new UploadHandler(
