@@ -178,11 +178,16 @@ class MediawikiTemplate extends Model {
 				if ( empty( $content ) ) { continue; }
 				$sections .= ' | ' . $parameter . ' = ';
 
+				// sometimes the metadata element has several "shared" metadata elements with 
+				// the same element name. at the moment the application will add elements that 
+				// use lang= attribute to an associative array element 'language' indicating 
+				// that the mediawiki template should use the language subtemplate
 				if ( is_array( $content ) ) {
 
 					foreach ( $content as $sub_template_name => $sub_template_content ) {
 
-						if ( 'language' == $sub_template_name ) {
+						// currently only language is handled as a sub-template
+						if ( 'language' === $sub_template_name ) {
 
 							foreach( $sub_template_content as $language => $language_content ) {
 
@@ -193,6 +198,13 @@ class MediawikiTemplate extends Model {
 								) . PHP_EOL;
 
 							}
+
+						// sometimes the "shared" metadata element will indicate lang, sometimes not
+						// this section handles those "shared" metadata elements that do not
+						// specify a lang attribute
+						} else {
+
+							$sections .= Filter::evaluate( $sub_template_content ) . PHP_EOL;
 
 						}
 

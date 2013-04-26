@@ -165,7 +165,26 @@ class XmlMappingHandler extends XmlHandler {
 							// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
 							} else if ( 'url_to_the_media_file' != $template_parameter )  {
 
-								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+								// if a template_parameter has some elements with a lang attribute and some not, the non
+								// lang attribute versions need their own array element
+								if ( isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
+
+									if ( !isset( $elements_mapped[ $template_parameter ][0] ) ) {
+
+										$elements_mapped[ $template_parameter ][0] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+
+									} else {
+
+										$elements_mapped[ $template_parameter ][0] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+
+									}
+
+								} else {
+
+									$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+
+								}
+								
 
 							}
 

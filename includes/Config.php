@@ -232,7 +232,7 @@ class Config {
 
 
 	public static $category_separator = '|';
-	public static $metadata_separator = ';';
+	public static $metadata_separator = '; ';
 	public static $title_separator = '-';
 
 
