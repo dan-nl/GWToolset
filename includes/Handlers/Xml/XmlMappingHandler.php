@@ -175,7 +175,8 @@ class XmlMappingHandler extends XmlHandler {
 
 									} else {
 
-										$elements_mapped[ $template_parameter ][0] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+										// .= produces PHP Fatal error:  Cannot use assign-op operators with overloaded objects nor string offsets 
+										$elements_mapped[ $template_parameter ][0] = $elements_mapped[ $template_parameter ][0] . Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 									}
 
