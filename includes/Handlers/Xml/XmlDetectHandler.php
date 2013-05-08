@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset\Handlers\Xml;
-use	DOMElement,
+namespace GWToolset\Handlers\Xml;
+use DOMElement,
 	Exception,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
@@ -77,9 +75,7 @@ class XmlDetectHandler extends XmlHandler {
 
 	public function getMetadataAsOptions( $selected_option = null ) {
 
-		$result = null;
-
-		$result .= '<option></option>';
+		$result = '<option></option>';
 
 		foreach ( $this->_metadata_example_dom_nodes as $DOMNode ) {
 
@@ -195,7 +191,7 @@ class XmlDetectHandler extends XmlHandler {
 
 			}
 
-		} else if ( count( $selected_options ) == 1 ) {
+		} elseif ( count( $selected_options ) == 1 ) {
 
 			$result .= sprintf(
 				$first_row,
@@ -207,7 +203,7 @@ class XmlDetectHandler extends XmlHandler {
 				$this->getMetadataAsOptions( $selected_options[0] )
 			);
 
-		} else if ( count( $selected_options ) > 1 ) {
+		} elseif ( count( $selected_options ) > 1 ) {
 
 			foreach( $selected_options as $option ) {
 
@@ -312,38 +308,38 @@ class XmlDetectHandler extends XmlHandler {
 
 		$result = array( 'msg' => null, 'stop-reading' => false );
 
-			if ( empty( $xml_reader ) ) {
+		if ( empty( $xml_reader ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no XMLReader provided' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlreader' )->plain() )->parse() );
 
-			}
+		}
 
-			if ( !isset( $user_options['record-element-name'] ) || !isset( $user_options['record-count'] ) || !isset( $user_options['record-number-for-mapping'] ) ) {
+		if ( !isset( $user_options['record-element-name'] ) || !isset( $user_options['record-count'] ) || !isset( $user_options['record-number-for-mapping'] ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('record-element-name, record-count or record-number-for-mapping not provided' ) );
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage( 'gwtoolset-dom-record-issue' )->plain() )->parse() );
 
-			}
+		}
 
-			switch ( $xml_reader->nodeType ) {
+		switch ( $xml_reader->nodeType ) {
 
-				case ( XMLReader::ELEMENT ):
+			case ( XMLReader::ELEMENT ):
 
-					if ( $xml_reader->name == $user_options['record-element-name'] ) {
+				if ( $xml_reader->name == $user_options['record-element-name'] ) {
 
-						$user_options['record-count'] += 1;
+					$user_options['record-count'] += 1;
 
-						if ( $user_options['record-count'] == $user_options['record-number-for-mapping'] ) {
+					if ( $user_options['record-count'] == $user_options['record-number-for-mapping'] ) {
 
-							$this->_metadata_example_dom_element = $xml_reader->expand();
-							$result['stop-reading'] = true;
-
-						}
+						$this->_metadata_example_dom_element = $xml_reader->expand();
+						$result['stop-reading'] = true;
 
 					}
 
-					break;
+				}
 
-			}
+				break;
+
+		}
 
 		return $result;
 
@@ -367,7 +363,7 @@ class XmlDetectHandler extends XmlHandler {
 
 		if ( !( $this->_metadata_example_dom_element instanceof DOMElement ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-no-example-dom-element')->plain() );
+			throw new Exception( wfMessage('gwtoolset-no-example-dom-element')->parse() );
 
 		}
 

@@ -22,23 +22,33 @@ Requirements
 Configuration
 -------------
 ### `DefaultSettings.php`
-The following values are usually in the wiki’s `DefaultSettings.php`; they need to
-both be set to true.
+The following values are usually in the wiki’s `DefaultSettings.php`; they need
+to both be set to true; if they are not, you can add the changes in the
+`LocalSettings.php` file.
 
 * `$wgEnableAPI = true`
 * `$wgEnableWriteAPI = true`
 
 
 ### `LocalSettings.php`
-The following settings should be added to your `LocalSettings.php` file :
+The following settings should be added or already present in the
+`LocalSettings.php` file :
 
 _enable uploads and url uploading_
 
 * `$wgEnableUploads  = true;`
 * `$wgAllowCopyUploads = true;`
 
+_api end_
+* set the following variable to the api endpoint for your wiki
+*	`$wgGWToolsetApiEndpont = 'http://127.0.0.1/api.php';`
+
 _api user_
-* make sure you create or already have an api user account in your wiki
+* make sure you create or already have an api user account in your wiki and set
+	the following global variables to that user name with its corresponding
+	password :
+*	`$wgGWToolsetApiUser = 'gwtoolset';`
+*	`$wgGWToolsetApiUserPassword = 'api_users_password';`
 * make sure that api user is part of the gwtoolset group, see `Special:UserRights`
 
 _load the extension_

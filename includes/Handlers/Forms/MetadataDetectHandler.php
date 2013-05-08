@@ -5,14 +5,11 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
 use Exception,
 	GWToolset\Adapters\Api\MappingApiAdapter,
-	GWToolset\Adapters\Db\MappingDbAdapter,
 	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\MetadataMappingForm,
@@ -82,7 +79,7 @@ class MetadataDetectHandler extends FormHandler {
 
 		if ( !isset( $user_options['mediawiki-template-name'] ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no mediawiki-template-name provided') );
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage( 'gwtoolset-no-mediawiki-template' )->plain() )->parse() );
 
 		}
 
@@ -91,7 +88,7 @@ class MetadataDetectHandler extends FormHandler {
 
 		if ( !empty( $user_options['metadata-mapping'] ) && empty( $this->_Mapping->mapping_array ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-metadata-mapping-not-found')->rawParams( Filter::evaluate( $user_options['metadata-mapping'] ) ) );
+			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->rawParams( Filter::evaluate( $user_options['metadata-mapping'] ) )->plain() );
 
 		}
 
@@ -132,28 +129,28 @@ class MetadataDetectHandler extends FormHandler {
 
 		$result = array( 'msg' => null, 'uploaded' => false );
 
-			if ( !isset( $user_options[ $metadata_file_url ] ) && !isset( $_FILES[ $metadata_file_upload ] ) ) {
+		if ( !isset( $user_options[ $metadata_file_url ] ) && !isset( $_FILES[ $metadata_file_upload ] ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-metadata-file-url-not-present') );
+			throw new Exception( wfMessage( 'gwtoolset-metadata-file-url-not-present' )->plain() );
 
-			}
+		}
 
-			if ( !empty( $user_options[ $metadata_file_url ] ) ) {
+		if ( !empty( $user_options[ $metadata_file_url ] ) ) {
 
-				return $result['msg'];
+			return $result['msg'];
 
-			}
+		}
 
-			$this->_UploadHandler->getUploadedFileFromForm( $metadata_file_upload );
-			$result = $this->_UploadHandler->saveMetadataFile();
+		$this->_UploadHandler->getUploadedFileFromForm( $metadata_file_upload );
+		$result = $this->_UploadHandler->saveMetadataFile();
 
-			if ( !$result['uploaded'] ) {
+		if ( !$result['uploaded'] ) {
 
-				throw new Exception( $result['msg'] );
+			throw new Exception( $result['msg'] );
 
-			}
+		}
 
-			$user_options[ $metadata_file_url ] = $this->_UploadHandler->getSavedFileName();
+		$user_options[ $metadata_file_url ] = $this->_UploadHandler->getSavedFileName();
 
 		return $result['msg'];
 
@@ -210,51 +207,50 @@ class MetadataDetectHandler extends FormHandler {
 		$this->_MediawikiTemplate = null;
 		$this->_Mapping = null;
 
-			$this->_user_options = $this->getUserOptions();
+		$this->_user_options = $this->getUserOptions();
 
-			$this->checkForRequiredFormFields(
-				array(
-					'record-element-name',
-					'mediawiki-template-name',
-					'record-number-for-mapping',
-					'record-count'
-				)
-			);
+		$this->checkForRequiredFormFields(
+			array(
+				'record-element-name',
+				'mediawiki-template-name',
+				'record-number-for-mapping',
+				'record-count'
+			)
+		);
 
-			$this->_File = new File();
+		$this->_File = new File();
 
-			$this->_MWApiClient = \GWToolset\getMWApiClient(
-				$this->_SpecialPage->getUser()->getName(),
-				array( 'debug-on' => ( Config::$display_debug_output && $this->_User->isAllowed( 'gwtoolset-debug' ) ) )
-			);
+		$this->_MWApiClient = \GWToolset\getMWApiClient(
+			array( 'debug-on' => ( ini_get('display_errors') && $this->_User->isAllowed( 'gwtoolset-debug' ) ) )
+		);
 
-			$this->_UploadHandler = new UploadHandler(
-				array(
-					'File' => new File,
-					'MWApiClient' => $this->_MWApiClient,
-					'SpecialPage' => $this->_SpecialPage,
-					'User' => $this->_SpecialPage->getUser()
-				)
-			);
+		$this->_UploadHandler = new UploadHandler(
+			array(
+				'File' => new File,
+				'MWApiClient' => $this->_MWApiClient,
+				'SpecialPage' => $this->_SpecialPage,
+				'User' => $this->_SpecialPage->getUser()
+			)
+		);
 
-			$result .= $this->getUploadedFile( $this->_user_options );
+		$result .= $this->getUploadedFile( $this->_user_options );
 
-			WikiPages::$MWApiClient = $this->_MWApiClient;
-			$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
+		WikiPages::$MWApiClient = $this->_MWApiClient;
+		$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
 
-			$this->_XmlDetectHandler = new XmlDetectHandler();
-			$this->_XmlDetectHandler->processXml( $this->_user_options, $wiki_file_path );
+		$this->_XmlDetectHandler = new XmlDetectHandler();
+		$this->_XmlDetectHandler->processXml( $this->_user_options, $wiki_file_path );
 
-			$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
-			$this->_Mapping = new Mapping( new MappingApiAdapter( $this->_MWApiClient ) );
+		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
+		$this->_Mapping = new Mapping( new MappingApiAdapter( $this->_MWApiClient ) );
 
-			$result .= MetadataMappingForm::getForm(
-				$this->_SpecialPage->getContext(),
-				$this->_user_options,
-				$this->getMetadataAsHtmlSelectsInTableRows( $this->_user_options ),
-				$this->_XmlDetectHandler->getMetadataAsHtmlTableRows( $this->_user_options ),
-				$this->_XmlDetectHandler->getMetadataAsOptions()
-			);
+		$result .= MetadataMappingForm::getForm(
+			$this->_SpecialPage->getContext(),
+			$this->_user_options,
+			$this->getMetadataAsHtmlSelectsInTableRows( $this->_user_options ),
+			$this->_XmlDetectHandler->getMetadataAsHtmlTableRows( $this->_user_options ),
+			$this->_XmlDetectHandler->getMetadataAsOptions()
+		);
 
 		return $result;
 

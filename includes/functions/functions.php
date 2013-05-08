@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
-use	ErrorException,
+use ErrorException,
 	Exception,
 	GWToolset\MediaWiki\Api\Client,
 	SpecialPage,
@@ -63,10 +61,11 @@ function getArraySecondLevelValues( array $array = array() ) {
 }
 
 
-function getMWApiClient( $user_name = null, array $curl_options = array() ) {
+function getMWApiClient( array $curl_options = array() ) {
 
-	$MWApiClient = new Client( Config::$api_internal_endpoint, $user_name, $curl_options );
-	$MWApiClient->login( Config::$api_internal_lgname, Config::$api_internal_lgpassword );
+	global $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword;
+	$MWApiClient = new Client( $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $curl_options );
+	$MWApiClient->login( $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword );
 	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
 	return $MWApiClient;
 
@@ -113,10 +112,10 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 	if ( ini_get('display_errors') && error_reporting() >= E_ALL ) {
 
 		$errormsg =
-				'<pre>' .
-					$errstr . "\n" .
-					print_r( debug_backtrace(), true ) .
-				'</pre>';
+			'<pre>' .
+				$errstr . "\n" .
+				print_r( debug_backtrace(), true ) .
+			'</pre>';
 
 		if ( $errno > E_WARNING ) {
 
@@ -130,7 +129,7 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
 		}
 
-	} else if ( error_reporting() >= E_ALL ) {
+	} elseif ( error_reporting() >= E_ALL ) {
 
 		error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
 

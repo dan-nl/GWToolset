@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\MediaWiki\Api;
-use	Exception,
+use Exception,
 	GWToolset\MediaWiki\Api\Login,
 	Php\Curl,
 	Php\Filter;
@@ -113,7 +111,7 @@ class Client implements ClientInterface {
 
 		if ( !array_key_exists( $module, $this->valid_modules ) ) {
 
-			throw new Exception( wfMessage('mw-api-client-invalid-module')->rawParams( Filter::evaluate( $module ) ) );
+			throw new Exception( wfMessage( 'mw-api-client-invalid-module' )->rawParams( Filter::evaluate( $module ) )->plain() );
 
 		}
 
@@ -158,11 +156,11 @@ class Client implements ClientInterface {
 							switch ( $value ) {
 
 								case 'internal-error' :
-									$msg .=	wfMessage('mw-api-client-internal-error')->plain();
+									$msg .=	wfMessage( 'mw-api-client-internal-error' )->parse();
 									break;
 
 								case 'permissiondenied' :
-									$msg .= wfMessage('mw-api-client-permissiondenied')->plain();
+									$msg .= wfMessage( 'mw-api-client-permissiondenied' )->parse();
 									break;
 
 							}
@@ -220,7 +218,7 @@ class Client implements ClientInterface {
 
 		} else {
 
-			throw new Exception( wfMessage('mw-api-client-response-is-not-serializable')->plain() . ' ' . wfMessage('mw-api-client-troubleshooting-tips') );
+			throw new Exception( wfMessage( 'mw-api-client-api-response-is-not-serializable' )->parse() . wfMessage( 'mw-api-client-troubleshooting-tips' )->plain() );
 
 		}
 
@@ -238,7 +236,7 @@ class Client implements ClientInterface {
 
 		if ( !isset( $result['tokens'] ) || !isset( $result['tokens']['edittoken'] ) || empty( $result['tokens']['edittoken'] ) ) {
 
-			$msg = wfMessage('mw-api-client-no-edit-token');
+			$msg = wfMessage( 'mw-api-client-no-edit-token' )->plain();
 
 			if ( isset( $result['warnings'] ) && isset( $result['warnings']['tokens'] ) && isset( $result['warnings']['tokens']['*'] ) ) {
 				$msg = $result['warnings']['tokens']['*'];
@@ -322,7 +320,7 @@ class Client implements ClientInterface {
 		// expects an empty array on return so if something else is returned there has been a problem
 		if ( $this->apiCall( 'logout' ) ) {
 
-			throw new Exception( wfMessage('mw-api-client-no-logout') );
+			throw new Exception( wfMessage( 'mw-api-client-no-logout' )->plain() );
 
 		}
 
@@ -361,17 +359,17 @@ class Client implements ClientInterface {
 		);
 
 		$errors = array(
-			'NoName' => wfMessage('mw-api-client-NoName')->plain(),
-			'Illegal' => wfMessage('mw-api-client-Illegal'),
-			'NotExists' => wfMessage('mw-api-client-NotExists')->plain(),
-			'EmptyPass' => wfMessage('mw-api-client-EmptyPass')->plain(),
-			'WrongPass' => wfMessage('mw-api-client-WrongPass')->plain(),
-			'WrongPluginPass' => wfMessage('mw-api-client-WrongPluginPass')->plain(),
-			'CreateBlocked' => wfMessage('mw-api-client-CreateBlocked'),
-			'Throttled' => wfMessage('mw-api-client-Throttled')->plain(),
-			'Blocked' => wfMessage('mw-api-client-Blocked'),
-			'mustbeposted' => wfMessage('mw-api-client-mustbeposted')->plain(),
-			'NeedToken' => wfMessage('mw-api-client-NeedToken')->plain()
+			'NoName' => wfMessage( 'mw-api-client-NoName' )->parse(),
+			'Illegal' => wfMessage( 'mw-api-client-Illegal' )->plain(),
+			'NotExists' => wfMessage( 'mw-api-client-NotExists' )->parse(),
+			'EmptyPass' => wfMessage( 'mw-api-client-EmptyPass' )->parse(),
+			'WrongPass' => wfMessage( 'mw-api-client-WrongPass' )->parse(),
+			'WrongPluginPass' => wfMessage( 'mw-api-client-WrongPluginPass' )->parse(),
+			'CreateBlocked' => wfMessage( 'mw-api-client-CreateBlocked' )->plain(),
+			'Throttled' => wfMessage( 'mw-api-client-Throttled' )->parse(),
+			'Blocked' => wfMessage( 'mw-api-client-Blocked' )->plain(),
+			'mustbeposted' => wfMessage( 'mw-api-client-mustbeposted' )->parse(),
+			'NeedToken' => wfMessage( 'mw-api-client-NeedToken' )->parse()
 		);
 
 		if ( $this->Login ) {
@@ -384,13 +382,13 @@ class Client implements ClientInterface {
 
 		if ( empty( $result['login']['result'] ) ) {
 
-			$msg .= wfMessage('mw-api-client-could-not-log-in') . ' ' . wfMessage('mw-api-client-troubleshooting-tips');
+			$msg .= wfMessage( 'mw-api-client-could-not-log-in' )->plain() . ' ' . wfMessage( 'mw-api-client-troubleshooting-tips' )->parse();
 
-		} else if ( empty( $msg ) && $result['login']['result'] == 'NeedToken' ) {
+		} elseif ( empty( $msg ) && $result['login']['result'] == 'NeedToken' ) {
 
 			if ( empty( $result['login']['token'] ) ) {
 
-				$msg .= wfMessage('mw-api-client-no login-token-received') . ' ' . wfMessage('mw-api-client-troubleshooting-tips');
+				$msg .= wfMessage( 'mw-api-client-no login-token-received' )->plain() . ' ' . wfMessage( 'mw-api-client-troubleshooting-tips' )->parse();
 
 			}
 
@@ -400,7 +398,7 @@ class Client implements ClientInterface {
 
 			}
 
-		} else if ( $result['login']['result'] != 'Success' ) {
+		} elseif ( $result['login']['result'] != 'Success' ) {
 
 			$msg .= 'Login Error Code : ' . $result['login']['result'] . '<br/>';
 
@@ -493,11 +491,18 @@ class Client implements ClientInterface {
 	}
 
 
-	public function __construct( $endpoint = null, $user_name = 'GWToolset', array $curl_options = array() ) {
+	public function __construct( $endpoint = null, $user_name = null, array $curl_options = array() ) {
 
 		if ( empty( $endpoint ) ) {
 
-			throw new Exception( wfMessage('mw-api-client-endpoint-not-set')->plain() );
+			global $wgServer;
+			$endpoint = $wgServer . '/api.php';
+
+		}
+
+		if ( empty( $user_name ) ) {
+
+			$user_name = 'gwtoolset';
 
 		}
 
@@ -511,4 +516,3 @@ class Client implements ClientInterface {
 
 
 }
-

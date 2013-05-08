@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
-use	Exception,
+use Exception,
 	GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Helpers\WikiChecks;
 
@@ -38,7 +36,7 @@ abstract class FormHandler extends SpecialPageHandler {
 		if ( !is_null( $msg ) ) {
 
 			$msg =
-				'<p class="error">' . wfMessage('gwtoolset-metadata-user-options-error') . '</p>' .
+				'<p class="error">' . wfMessage( 'gwtoolset-metadata-user-options-error' )->plain() . '</p>' .
 				'<ul>' . $msg . '</ul>' .
 				'<p>' . $this->_SpecialPage->getBackToFormLink() . '</p>';
 
@@ -53,7 +51,7 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		if ( is_null( $module_name ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no module name was specified') );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-module' )->plain() )->parse() );
 
 		}
 
@@ -71,7 +69,7 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		if ( !class_exists( $form_class ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-no-form') );
+			throw new Exception( wfMessage( 'gwtoolset-no-form' )->plain() );
 
 		}
 
@@ -84,8 +82,8 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		$result = null;
 
-			WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
-			$result .= $this->processRequest();
+		WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
+		$result .= $this->processRequest();
 
 		return $result;
 

@@ -5,13 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @datetime 2012-12-01 11:05 gmt +1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  * based on Curl class developed by Chris G - http://en.wikipedia.org/wiki/User:Chris_G
  */
-namespace	Php;
+namespace Php;
 use Exception;
 
 
@@ -60,17 +57,17 @@ class Curl {
 
 		$result = curl_exec( $this->curl );
 
-			$this->curl_info = curl_getinfo( $this->curl );
-			$this->curl_error = curl_error( $this->curl );
-			$this->curl_errno = curl_errno( $this->curl );
+		$this->curl_info = curl_getinfo( $this->curl );
+		$this->curl_error = curl_error( $this->curl );
+		$this->curl_errno = curl_errno( $this->curl );
 
-			if ( $this->curl_errno != 0 ) {
+		if ( $this->curl_errno != 0 ) {
 
-				$msg = 'cURL Error: ' . $this->curl_error . ' (' . $this->curl_errno . ')';
-				if ( $this->debug_on ) { $msg .= '<pre>' . print_r( $this->curl_info, true ) . '</pre>'; }
-				throw new Exception( $msg );
+			$msg = 'cURL Error: ' . $this->curl_error . ' (' . $this->curl_errno . ')';
+			if ( $this->debug_on ) { $msg .= '<pre>' . print_r( $this->curl_info, true ) . '</pre>'; }
+			throw new Exception( $msg );
 
-			}
+		}
 
 		return $result;
 
@@ -179,7 +176,7 @@ class Curl {
 
 		if ( !file_exists( $this->cookie_directory ) ) {
 
-			throw new Exception( wfMessage('mw-api-client-curl-no-cookie-directory')->plain() );
+			throw new Exception( wfMessage( 'mw-api-client-curl-no-cookie-directory' )->parse() );
 
 		}
 
@@ -187,7 +184,7 @@ class Curl {
 
 		if ( !touch( $this->cookiejar ) ) {
 
-			throw new Exception( wfMessage('mw-api-client-curl-no-cookie-create')->plain() );
+			throw new Exception( wfMessage('mw-api-client-curl-no-cookie-create')->parse() );
 
 		}
 
@@ -268,7 +265,7 @@ class Curl {
 
 		if ( !$this->curl ) {
 
-			throw new Exception( wfMessage('mw-api-client-curl-no-handle-create') );
+			throw new Exception( wfMessage( 'mw-api-client-curl-no-handle-create' )->plain() );
 
 		}
 

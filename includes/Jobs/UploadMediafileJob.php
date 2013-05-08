@@ -5,8 +5,6 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Jobs;
@@ -45,20 +43,20 @@ class UploadMediafileJob extends Job {
 
 		$result = false;
 
-			$this->_MWApiClient = \GWToolset\getMWApiClient( $this->_User->getName() );
+		$this->_MWApiClient = \GWToolset\getMWApiClient();
 
-			$this->_UploadHandler = new UploadHandler(
-				array(
-					'MWApiClient' => $this->_MWApiClient,
-					'User' => $this->_User
-				)
-			);
+		$this->_UploadHandler = new UploadHandler(
+			array(
+				'MWApiClient' => $this->_MWApiClient,
+				'User' => $this->_User
+			)
+		);
 
-			$this->_UploadHandler->user_options = $this->params['user_options'];
+		$this->_UploadHandler->user_options = $this->params['user_options'];
 
-			WikiPages::$MWApiClient = $this->_MWApiClient;
-			$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
-			$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
+		WikiPages::$MWApiClient = $this->_MWApiClient;
+		$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
+		$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
 
 		return $result;
 
@@ -69,19 +67,19 @@ class UploadMediafileJob extends Job {
 
 		$result = true;
 
-			if ( empty( $this->params['user'] ) ) {
+		if ( empty( $this->params['user'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
-				$result = false;
+			error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
+			$result = false;
 
-			}
+		}
 
-			if ( empty( $this->params['user_options'] ) ) {
+		if ( empty( $this->params['user_options'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'user_options\'] provided' . PHP_EOL );
-				$result = false;
+			error_log( __METHOD__ . ' : no $this->params[\'user_options\'] provided' . PHP_EOL );
+			$result = false;
 
-			}
+		}
 
 		return $result;
 
@@ -95,33 +93,33 @@ class UploadMediafileJob extends Job {
 
 		$result = false;
 
-			if ( !$this->validateParams() ) { die(); return false; }
+		if ( !$this->validateParams() ) { return false; }
 
-			$time_start = microtime( true );
-			$this->_User = User::newFromName( $this->params['user'] );
+		$time_start = microtime( true );
+		$this->_User = User::newFromName( $this->params['user'] );
 
-			try {
+		try {
 
-				$result = $this->processMetadata();
+			$result = $this->processMetadata();
 
-			} catch( Exception $e ) {
+		} catch( Exception $e ) {
 
-				error_log( $e->getMessage() );
+			error_log( $e->getMessage() );
 
-			}
+		}
 
-			$time_end = microtime( true );
-			$time = $time_end - $time_start;
+		$time_end = microtime( true );
+		$time = $time_end - $time_start;
 
-			if ( $result ) {
+		if ( $result ) {
 
-				error_log( "Saved {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
+			error_log( "Saved {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
 
-			} else {
+		} else {
 
-				error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
+			error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
 
-			}
+		}
 
 		return $result;
 

@@ -5,8 +5,6 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Jobs;
@@ -73,19 +71,19 @@ class UploadMetadataJob extends Job {
 
 		$result = true;
 
-			if ( empty( $this->params['user'] ) ) {
+		if ( empty( $this->params['user'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
-				$result = false;
+			error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
+			$result = false;
 
-			}
+		}
 
-			if ( empty( $this->params['post'] ) ) {
+		if ( empty( $this->params['post'] ) ) {
 
-				error_log( __METHOD__ . ' : no $this->params[\'post\'] provided' . PHP_EOL );
-				$result = false;
+			error_log( __METHOD__ . ' : no $this->params[\'post\'] provided' . PHP_EOL );
+			$result = false;
 
-			}
+		}
 
 		return $result;
 
@@ -100,27 +98,27 @@ class UploadMetadataJob extends Job {
 
 		$result = false;
 
-			if ( !$this->validateParams() ) { die(); return false; }
+		if ( !$this->validateParams() ) { return false; }
 
-			$time_start = microtime(true);
-			$_POST = $this->params['post'];
-			$this->_User = User::newFromName( $this->params['user'] );
+		$time_start = microtime(true);
+		$_POST = $this->params['post'];
+		$this->_User = User::newFromName( $this->params['user'] );
 
-			$this->_MetadataMappingHandler = new MetadataMappingHandler( null, $this->_User );
+		$this->_MetadataMappingHandler = new MetadataMappingHandler( null, $this->_User );
 
-			try {
+		try {
 
-				$this->_MetadataMappingHandler->processRequest();
+			$this->_MetadataMappingHandler->processRequest();
 
-			} catch( Exception $e ) {
+		} catch( Exception $e ) {
 
-				error_log( $e->getMessage() );
+			error_log( $e->getMessage() );
 
-			}
+		}
 
-			$time_end = microtime( true );
-			$time = $time_end - $time_start;
-			error_log( 'Creation of metadata job took ' . $time . ' seconds to complete.' );
+		$time_end = microtime( true );
+		$time = $time_end - $time_start;
+		error_log( 'Creation of metadata job took ' . $time . ' seconds to complete.' );
 
 		return $result;
 

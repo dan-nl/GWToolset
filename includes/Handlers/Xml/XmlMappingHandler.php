@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
-use	DOMElement,
+use DOMElement,
 	Exception,
 	GWToolset\Config,
 	GWToolset\Models\Mapping,
@@ -58,24 +56,24 @@ class XmlMappingHandler extends XmlHandler {
 	 */
 	protected function getFilteredNodeValue( DOMElement &$DOMNodeElement, $is_url = false ) {
 
-		$result = null;
+	$result = null;
 
-			if ( $is_url ) {
+		if ( $is_url ) {
 
-				return Filter::evaluate(
-					array(
-						'source' => $DOMNodeElement->nodeValue,
-						'filter-sanitize' => FILTER_SANITIZE_URL
-					)
-				);
+			$result = Filter::evaluate(
+				array(
+					'source' => $DOMNodeElement->nodeValue,
+					'filter-sanitize' => FILTER_SANITIZE_URL
+				)
+			);
 
-			} else {
+		} else {
 
-				return Filter::evaluate( $DOMNodeElement->nodeValue );
+			$result = Filter::evaluate( $DOMNodeElement->nodeValue );
 
-			}
+		}
 
-		return $result;
+	return $result;
 
 	}
 
@@ -107,87 +105,85 @@ class XmlMappingHandler extends XmlHandler {
 		$lang = null;
 		$DOMNodeList = $DOMElement->getElementsByTagName( '*' );
 
-			foreach( $DOMNodeList as $DOMNodeElement ) {
+		foreach( $DOMNodeList as $DOMNodeElement ) {
 
-				if ( !key_exists( $DOMNodeElement->tagName, $this->_Mapping->target_dom_elements_mapped ) ) { continue; }
-				$template_parameters = $this->_Mapping->target_dom_elements_mapped[ $DOMNodeElement->tagName ];
-				$lang = null;
+			if ( !key_exists( $DOMNodeElement->tagName, $this->_Mapping->target_dom_elements_mapped ) ) { continue; }
+			$template_parameters = $this->_Mapping->target_dom_elements_mapped[ $DOMNodeElement->tagName ];
+			$lang = null;
 
-				if ( $DOMNodeElement->hasAttributes() ) {
+			if ( $DOMNodeElement->hasAttributes() ) {
 
-					foreach( $DOMNodeElement->attributes as $DOMAttribute ) {
+				foreach( $DOMNodeElement->attributes as $DOMAttribute ) {
 
-						if ( 'lang' == $DOMAttribute->name ) {
+					if ( 'lang' == $DOMAttribute->name ) {
 
-							$lang = Filter::evaluate( $DOMAttribute->value );
-							break;
-
-						}
+						$lang = Filter::evaluate( $DOMAttribute->value );
+						break;
 
 					}
 
 				}
 
-				foreach( $template_parameters as $template_parameter ) {
+			}
 
-					if ( strpos( $template_parameter, 'url' ) !== false ) { $is_url = true; } else { $is_url = false; }
+			foreach( $template_parameters as $template_parameter ) {
 
-					if ( !empty( $lang ) ) {
+				if ( strpos( $template_parameter, 'url' ) !== false ) { $is_url = true; } else { $is_url = false; }
 
-						if ( !isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
+				if ( !empty( $lang ) ) {
 
-							$elements_mapped[ $template_parameter ]['language'] = array();
+					if ( !isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
 
-						}
+						$elements_mapped[ $template_parameter ]['language'] = array();
 
-						if ( !isset( $elements_mapped[ $template_parameter ]['language'][ $lang ] ) ) {
+					}
 
-							$elements_mapped[ $template_parameter ]['language'][ $lang ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+					if ( !isset( $elements_mapped[ $template_parameter ]['language'][ $lang ] ) ) {
 
-						} else {
-
-							$elements_mapped[ $template_parameter ]['language'][ $lang ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
-
-						}
+						$elements_mapped[ $template_parameter ]['language'][ $lang ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 					} else {
 
-						if ( !isset( $elements_mapped[ $template_parameter ] ) ) {
+						$elements_mapped[ $template_parameter ]['language'][ $lang ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
-							$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+					}
 
-						} else {
+				} else {
 
-							if ( 'title_identifier' == $template_parameter ) {
+					if ( !isset( $elements_mapped[ $template_parameter ] ) ) {
 
-								$elements_mapped[ $template_parameter ] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+						$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
-							// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
-							} else if ( 'url_to_the_media_file' != $template_parameter )  {
+					} else {
 
-								// if a template_parameter has some elements with a lang attribute and some not, the non
-								// lang attribute versions need their own array element
-								if ( isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
+						if ( 'title_identifier' == $template_parameter ) {
 
-									if ( !isset( $elements_mapped[ $template_parameter ][0] ) ) {
+							$elements_mapped[ $template_parameter ] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
-										$elements_mapped[ $template_parameter ][0] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+						// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
+						} elseif ( 'url_to_the_media_file' != $template_parameter )  {
 
-									} else {
+							// if a template_parameter has some elements with a lang attribute and some not, the non
+							// lang attribute versions need their own array element
+							if ( isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
 
-										// .= produces PHP Fatal error:  Cannot use assign-op operators with overloaded objects nor string offsets 
-										$elements_mapped[ $template_parameter ][0] = $elements_mapped[ $template_parameter ][0] . Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+								if ( !isset( $elements_mapped[ $template_parameter ][0] ) ) {
 
-									}
+									$elements_mapped[ $template_parameter ][0] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 								} else {
 
-									$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+									// .= produces PHP Fatal error:  Cannot use assign-op operators with overloaded objects nor string offsets 
+									$elements_mapped[ $template_parameter ][0] = $elements_mapped[ $template_parameter ][0] . Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 								}
-								
+
+							} else {
+
+								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 							}
+							
 
 						}
 
@@ -196,6 +192,8 @@ class XmlMappingHandler extends XmlHandler {
 				}
 
 			}
+
+		}
 
 		return $elements_mapped;
 
@@ -226,44 +224,44 @@ class XmlMappingHandler extends XmlHandler {
 		$result = array( 'msg' => null, 'stop-reading' => false );
 		$DOMElement = null;
 
-			if ( empty( $xml_reader ) ) {
+		if ( empty( $xml_reader ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no XMLReader provided' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlreader' )->plain() )->parse() );
 
-			}
+		}
 
-			if ( !isset( $user_options['record-element-name'] ) || !isset( $user_options['record-count'] ) ) {
+		if ( !isset( $user_options['record-element-name'] ) || !isset( $user_options['record-count'] ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('record-element-name, record-count not provided' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-dom-record-issue' )->plain() )->parse() );
 
-			}
+		}
 
-			switch ( $xml_reader->nodeType ) {
+		switch ( $xml_reader->nodeType ) {
 
-				case ( XMLReader::ELEMENT ):
+			case ( XMLReader::ELEMENT ):
 
-					if ( $xml_reader->name == $user_options['record-element-name'] ) {
+				if ( $xml_reader->name == $user_options['record-element-name'] ) {
 
-						$user_options['record-count'] += 1;
-						$DOMElement = $xml_reader->expand();
+					$user_options['record-count'] += 1;
+					$DOMElement = $xml_reader->expand();
 
-						if ( !empty( $DOMElement ) && $DOMElement instanceof DOMElement ) {
+					if ( !empty( $DOMElement ) && $DOMElement instanceof DOMElement ) {
 
-							$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ), $xml_reader->readOuterXml() );
+						$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ), $xml_reader->readOuterXml() );
 
-							$result['msg'] =
-								'<p>' . $user_options['record-count'] . ' record(s) uploaded. Links to the uploaded file(s)</p>' .
-								'<ul>' .
-									$result['msg'] .
-								'</ul>';
-
-						}
+						$result['msg'] =
+							'<p>' . $user_options['record-count'] . ' record(s) uploaded. Links to the uploaded file(s)</p>' .
+							'<ul>' .
+								$result['msg'] .
+							'</ul>';
 
 					}
 
-					break;
+				}
 
-			}
+				break;
+
+		}
 
 		return $result;
 
@@ -281,14 +279,13 @@ class XmlMappingHandler extends XmlHandler {
 	 * a local wiki path to the xml metadata file. the assumption is that it
 	 * has been uploaded to the wiki earlier and is ready for use
 	 *
-	 * @return
+	 * @return string
 	 */
 	public function processXml( array &$user_options, $file_path_local = null ) {
 
-		$result = null;
-
-			$result .= '<h2>Results</h2>';
-			$result .= $this->readXml( $user_options, $file_path_local, 'processDOMElements' );
+		$result =
+			'<h2>Results</h2>' .
+			$this->readXml( $user_options, $file_path_local, 'processDOMElements' );
 
 		return $result;
 

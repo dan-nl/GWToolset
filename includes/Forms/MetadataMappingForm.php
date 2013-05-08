@@ -5,8 +5,6 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Forms;
@@ -23,14 +21,14 @@ class MetadataMappingForm {
 
 		global $wgArticlePath;
 		return
-			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-2') . '</h2>' .
-			wfMessage('gwtoolset-metadata-detect-step-2-instructions')->params( $user_options['mediawiki-template-name'] ) .
+			'<h2>' . wfMessage( 'gwtoolset-metadata-detect-step-2' )->plain() . '</h2>' .
+			'<p>' . wfMessage( 'gwtoolset-metadata-detect-step-2-instructions' )->params( $user_options['mediawiki-template-name'] )->parse() . '</p>' .
 
 			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post" enctype="multipart/form-data">' .
 
 				'<fieldset>' .
 
-						'<legend>' . wfMessage('gwtoolset-metadata-mapping-legend') . '</legend>' .
+						'<legend>' . wfMessage( 'gwtoolset-metadata-mapping-legend' )->plain() . '</legend>' .
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
@@ -42,7 +40,7 @@ class MetadataMappingForm {
 						'<input type="hidden" name="MAX_FILE_SIZE"  value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
 
 						'<h3>' .
-							wfMessage('gwtoolset-mediawiki-template')->params( $user_options['mediawiki-template-name'] ) .
+							wfMessage( 'gwtoolset-mediawiki-template' )->params( $user_options['mediawiki-template-name'] )->plain() .
 							( !empty( $mapping_name['user-name'] ) ? ', ' . $mapping_name['user-name'] : null ) .
 							( !empty( $mapping_name['mapping-name'] ) ? ' : ' . $mapping_name['mapping-name'] : null ) .
 						'</h3>' .
@@ -64,37 +62,25 @@ class MetadataMappingForm {
 							'</tbody>' .
 						'</table>' .
 
-						'<p style="clear:both;">&nbsp;</p>' .
-
-						'<p>' . wfMessage('gwtoolset-required-field') . '</p>' .
-
-						'<p>' .
-							wfMessage('copyrightwarning2') .
-						'</p>' .
+						'<p style="clear:both;padding-top:2em;">' . wfMessage( 'gwtoolset-required-field' )->plain() . '</p>' .
+						wfMessage( 'copyrightwarning2' )->parseAsBlock() .
 
 						'<p style="left; margin-top:1em;">' .
-							'<b>' . wfMessage('gwtoolset-metadata-file-url') . '</b><br/>' .
+							'<b>' . wfMessage( 'gwtoolset-metadata-file-url' )->plain() . '</b><br/>' .
 							$user_options['metadata-file-url'] .
 						'</p>' .
 
-						//'<p id="catlinks" style="left; margin-top:1em;">' .
-						//	'<b>' . wfMessage('categories') . '</b><br/>' .
-						//	wfMessage('gwtoolset-categories') . '<br/>' .
-						//	'<input type="text" name="categories" maxlength="255" size="100"/><br/>' .
-						//	wfMessage('gwtoolset-categories-tooltip') .
-						//'</p>' .
-
-						'<h3 style="margin-top:1em;">' . wfMessage('categories') . '</h3>' .
+						'<h3 style="margin-top:1em;">' . wfMessage( 'categories' )->plain() . '</h3>' .
 
 							'<p>' .
-								'<i><u>' . wfMessage('gwtoolset-global-categories') . '</u></i><br/>' .
-								wfMessage('gwtoolset-global-tooltip') .
+								'<i><u>' . wfMessage( 'gwtoolset-global-categories' )->plain() . '</u></i><br/>' .
+								wfMessage( 'gwtoolset-global-tooltip' )->plain() .
 							'</p>' .
 
 							'<table>' .
 								'<tbody>' .
 									'<tr>' .
-										'<td><label for="gwtoolset-category">' . wfMessage('gwtoolset-category') . ' :</label></td>' .
+										'<td><label for="gwtoolset-category">' . wfMessage( 'gwtoolset-category' )->plain() . ' :</label></td>' .
 										'<td class="metadata-add"></td>' .
 										'<td><input type="text" id="gwtoolset-category" name="category[]"/></td>' .
 									'</tr>' .
@@ -102,15 +88,15 @@ class MetadataMappingForm {
 							'</table>' .
 
 							'<p style="margin-top:1em;">' .
-								'<i><u>' . wfMessage('gwtoolset-specific-categories') . '</u></i><br/>' .
-								wfMessage('gwtoolset-specific-tooltip') .
+								'<i><u>' . wfMessage( 'gwtoolset-specific-categories' )->plain() . '</u></i><br/>' .
+								wfMessage( 'gwtoolset-specific-tooltip' )->plain() .
 							'</p>' .
 
 							'<table>' .
 								'<thead>' .
 									'<th>&nbsp;</th>' .
-									'<th>' . wfMessage('gwtoolset-phrasing'). '</th>' .
-									'<th>' . wfMessage('gwtoolset-metadata-field'). '</th>' .
+									'<th>' . wfMessage( 'gwtoolset-phrasing' )->plain(). '</th>' .
+									'<th>' . wfMessage( 'gwtoolset-metadata-field' )->plain(). '</th>' .
 								'</thead>' .
 								'<tbody>' .
 									'<tr>' .
@@ -121,29 +107,29 @@ class MetadataMappingForm {
 								'</tbody>' .
 							'</table>' .
 
-						'<h3 style="margin-top:1em;">' . wfMessage('gwtoolset-partner') . '</h3>' .
+						'<h3 style="margin-top:1em;">' . wfMessage( 'gwtoolset-partner' )->plain() . '</h3>' .
 						'<p>' .
-							wfMessage('gwtoolset-partner-explanation') . '<br/>' .
+							wfMessage( 'gwtoolset-partner-explanation' )->plain() . '<br/>' .
 							'<label>' .
-								wfMessage('gwtoolset-partner-template') . ' : ' .
+								wfMessage( 'gwtoolset-partner-template' )->plain() . ' : ' .
 								'<input type="text" name="partner-template-url" value="" placeholder="Template:Europeana" class="gwtoolset-url-input"/>' .
 							'</label><br/>' .
 							'<a href="' . str_replace( '$1', 'Category:Source_templates', $wgArticlePath ) . '" target="_blank">' . 'Category:Source templates</a>' .
 						'</p>' .
 
-						'<h3 style="margin-top:1em;">' . wfMessage('summary') . '</h3>' .
+						'<h3 style="margin-top:1em;">' . wfMessage( 'summary' )->plain() . '</h3>' .
 						'<p>' .
 							'<input class="mw-summary" id="wpSummary" maxlength="255" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
 						'</p>' .
 
 						'<p>' .
-							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage('gwtoolset-retrieve-media') . '</label><br/>' .
-							wfMessage('gwtoolset-retrieve-media-explanation') .
+							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage( 'gwtoolset-retrieve-media' )->plain() . '</label><br/>' .
+							wfMessage( 'gwtoolset-retrieve-media-explanation' )->plain() .
 						'</p>' .
 
 						'<p>' .
-							'<label><input type="checkbox" name="save-as-batch-job" value="true" checked/> ' . wfMessage('gwtoolset-add-as-a-job') . '</label><br/>' .
-							wfMessage('gwtoolset-add-as-a-job-description') .
+							'<label><input type="checkbox" name="save-as-batch-job" value="true" checked/> ' . wfMessage( 'gwtoolset-add-as-a-job' )->plain() . '</label><br/>' .
+							wfMessage( 'gwtoolset-add-as-a-job-description' )->plain() .
 						'</p>'.
 
 						'<input type="submit" name="submit" value="process file">' .
@@ -156,4 +142,3 @@ class MetadataMappingForm {
 
 
 }
-

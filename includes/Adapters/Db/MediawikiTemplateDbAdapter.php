@@ -1,4 +1,12 @@
 <?php
+/**
+ * GWToolset
+ *
+ * @file
+ * @ingroup Extensions
+ * @version 0.0.1
+ * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ */
 namespace GWToolset\Adapters\Db;
 use Php\Filter;
 
@@ -10,7 +18,7 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 
 		return $this->dbr->select(
 			'gwtoolset_mediawiki_templates',
-			'mediawiki_template_name AS key_name',
+			array( 'key_name' => 'mediawiki_template_name' ),
 			null,
 			null,
 			array( 'ORDER BY' => 'mediawiki_template_name ASC' )
@@ -27,7 +35,7 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 		return $this->dbr->select(
 			Filter::evaluate( $this->table_name ),
 			'mediawiki_template_name, mediawiki_template_json',
-			"mediawiki_template_name = '" . Filter::evaluate( $options['mediawiki_template_name'] ) . "'"
+			'mediawiki_template_name = ' . $this->dbr->addQuotes( Filter::evaluate( $options['mediawiki_template_name'] ) )
 		);
 
 	}

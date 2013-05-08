@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Helpers;
-use	Exception,
+use Exception,
 	GWToolset\Config,
 	Php\File,
 	Php\Filter,
@@ -41,7 +39,7 @@ class FileChecks {
 
 		if ( strlen( $title ) > 220 ) {
 
-			throw new Exception( wfMessage('gwtoolset-title-too-long', Filter::evaluate( $title ) ) );
+			throw new Exception( wfMessage( 'gwtoolset-title-too-long', Filter::evaluate( $title ) )->plain() );
 			$title = mb_strcut( $title, 0, 220, 'UTF-8' );
 
 		}
@@ -160,7 +158,7 @@ class FileChecks {
 
 		if ( !isset( $File->pathinfo['extension'] ) || empty( $File->pathinfo['extension'] ) ) {
 
-			$msg = wfMessage('gwtoolset-unaccepted-extension');
+			$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->plain();
 
 		}
 
@@ -170,7 +168,7 @@ class FileChecks {
 				'gwtoolset-mime-type-mismatch',
 				Filter::evaluate( $File->pathinfo['extension'] ),
 				Filter::evaluate( $File->mime_type )
-			);
+			)->plain();
 
 		}
 
@@ -197,11 +195,11 @@ class FileChecks {
 
 			if ( 'xml' == self::$current_extension ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type-for-xml', Filter::evaluate( $File->mime_type ) ) );
+				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type-for-xml', Filter::evaluate( $File->mime_type ) )->plain() );
 
 			} else {
 
-				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type', Filter::evaluate( $File->mime_type ) ) );
+				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type', Filter::evaluate( $File->mime_type ) )->plain() );
 
 			}
 
@@ -235,7 +233,7 @@ class FileChecks {
 
 			if ( !isset( $pathinfo['extension'] ) ) {
 
-				$msg = wfMessage('gwtoolset-unaccepted-extension');
+				$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->plain();
 
 			} else {
 
@@ -247,13 +245,13 @@ class FileChecks {
 
 		if ( !isset( $extension ) || empty( $extension ) ) {
 
-			$msg = wfMessage('gwtoolset-unaccepted-extension');
+			$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->plain();
 
 		}
 
 		if ( is_null( $msg ) && !in_array( $extension, $accepted_extensions ) ) {
 
-			$msg = wfMessage('gwtoolset-unaccepted-extension-specific', Filter::evaluate( $extension ) );
+			$msg = wfMessage( 'gwtoolset-unaccepted-extension-specific', Filter::evaluate( $extension ) )->plain();
 
 		}
 
@@ -277,7 +275,7 @@ class FileChecks {
 
 		if ( !$File->is_uploaded_file ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-improper-upload' ) );
+			throw new Exception( wfMessage( 'gwtoolset-improper-upload' )->plain() );
 
 		}
 
@@ -298,13 +296,13 @@ class FileChecks {
 		switch ( $File->error ) {
 
 			case UPLOAD_ERR_OK: break;
-			case UPLOAD_ERR_INI_SIZE :  $msg = wfMessage( 'gwtoolset-over-max-ini' ); break;
-			case UPLOAD_ERR_FORM_SIZE : $msg = wfMessage( 'gwtoolset-over-max-file-size' ); break;
-			case UPLOAD_ERR_PARTIAL : $msg = wfMessage( 'gwtoolset-partial-upload' ); break;
-			case UPLOAD_ERR_NO_FILE : $msg = wfMessage( 'gwtoolset-no-file' ); break;
-			case UPLOAD_ERR_NO_TMP_DIR : $msg = wfMessage( 'gwtoolset-missing-temp-folder' ); break;
-			case UPLOAD_ERR_CANT_WRITE : $msg = wfMessage( 'gwtoolset-disk-write-failure' ); break;
-			case UPLOAD_ERR_EXTENSION : $msg = wfMessage( 'gwtoolset-php-extension-error' ); break;
+			case UPLOAD_ERR_INI_SIZE :  $msg = wfMessage( 'gwtoolset-over-max-ini' )->plain(); break;
+			case UPLOAD_ERR_FORM_SIZE : $msg = wfMessage( 'gwtoolset-over-max-file-size' )->plain(); break;
+			case UPLOAD_ERR_PARTIAL : $msg = wfMessage( 'gwtoolset-partial-upload' )->plain(); break;
+			case UPLOAD_ERR_NO_FILE : $msg = wfMessage( 'gwtoolset-no-file' )->plain(); break;
+			case UPLOAD_ERR_NO_TMP_DIR : $msg = wfMessage( 'gwtoolset-missing-temp-folder' )->plain(); break;
+			case UPLOAD_ERR_CANT_WRITE : $msg = wfMessage( 'gwtoolset-disk-write-failure' )->plain(); break;
+			case UPLOAD_ERR_EXTENSION : $msg = wfMessage( 'gwtoolset-php-extension-error' )->plain(); break;
 
 		}
 
@@ -330,7 +328,7 @@ class FileChecks {
 
 		if ( $File->size === 0 ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-file-is-empty' ) );
+			throw new Exception( wfMessage( 'gwtoolset-file-is-empty' )->plain() );
 
 		}
 
@@ -365,4 +363,3 @@ class FileChecks {
 
 
 }
-

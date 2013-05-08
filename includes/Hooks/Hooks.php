@@ -5,13 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
-use	DatabaseUpdater,
-	GWToolset\Adapters\Db\MappingDbAdapter,
+use DatabaseUpdater,
 	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
@@ -46,7 +43,7 @@ class Hooks {
 
 			default:
 
-				throw new MWException( wfMessage( 'gwtoolset-db-client-support' ) );
+				throw new MWException( wfMessage( 'gwtoolset-db-client-support' )->plain() );
 				break;
 
 		}

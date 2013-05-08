@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Models;
-use	Exception,
+use Exception,
 	GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Helpers\WikiPages,
 	Php\Filter,
@@ -72,23 +70,23 @@ class Mapping extends Model {
 
 		$result = array();
 
-			if ( isset( $options['metadata-mapping'] ) ) {
+		if ( isset( $options['metadata-mapping'] ) ) {
 
-				$result = json_decode( str_replace( "`", '"', $options['metadata-mapping'] ), true );
+			$result = json_decode( str_replace( "`", '"', $options['metadata-mapping'] ), true );
 
-			}
+		}
 
-			if ( isset( $options['metadata-mapping-url'] ) ) {
+		if ( isset( $options['metadata-mapping-url'] ) ) {
 
-				$result = WikiPages::getUsernameAndPageFromUrl( $options['metadata-mapping-url'] );
+			$result = WikiPages::getUsernameAndPageFromUrl( $options['metadata-mapping-url'] );
 
-			}
+		}
 
-			if ( !empty( $result ) && ( !isset( $result['user-name'] ) || !isset( $result['mapping-name'] ) ) ) {
+		if ( !empty( $result ) && ( !isset( $result['user-name'] ) || !isset( $result['mapping-name'] ) ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'mapping : user-name and/or mapping-name not set' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-mapping-info-missing' )->plain() )->parse() );
 
-			}
+		}
 
 		return $result;
 
@@ -216,7 +214,7 @@ class Mapping extends Model {
 					$mapping_template .
 				'</a>';
 
-			throw new Exception( wfMessage('gwtoolset-metadata-mapping-bad')->rawParams( $error_msg ) );
+			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-bad' )->rawParams( $error_msg )->plain() );
 
 		}
 
@@ -266,25 +264,25 @@ class Mapping extends Model {
 
 		$result = array();
 
-			$mapping_details = $this->getMappingDetails( $options );
+		$mapping_details = $this->getMappingDetails( $options );
 
-			if ( empty( $options['mediawiki-template-name'] ) ) {
+		if ( empty( $options['mediawiki-template-name'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'cannot retrieve mapping, no mediawiki-tepmplate-name provided' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-cannot-retrieve-mapping' )->plain() )->parse() );
 
-			}
+		}
 
-			if ( !empty( $mapping_details ) ) {
+		if ( !empty( $mapping_details ) ) {
 
-				$result = $this->_DataAdapater->retrieve(
-					array(
-						'user-name' => $mapping_details['user-name'],
-						'mapping-name' => $mapping_details['mapping-name'],
-						'mediawiki-template-name' => $options['mediawiki-template-name']
-					)
-				);
+			$result = $this->_DataAdapater->retrieve(
+				array(
+					'user-name' => $mapping_details['user-name'],
+					'mapping-name' => $mapping_details['mapping-name'],
+					'mediawiki-template-name' => $options['mediawiki-template-name']
+				)
+			);
 
-			}
+		}
 
 		$this->populate( $result );
 

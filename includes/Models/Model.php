@@ -5,8 +5,6 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Models;
@@ -54,40 +52,6 @@ abstract class Model implements ModelInterface {
 	/**
 	 *
 	 */
-	public function getModelKeysAsOptionGroup( &$options = array() ) {
-
-		$result = '<option></option>';
-		$value = null;
-		$option_group = null;
-		$key_group = null;
-		$key_name = null;
-
-		foreach( $options as $option ) {
-
-			if ( $option_group != $option->key_group ) {
-
-				if ( !empty( $option_group ) ) { $result .= '</optgroup>'; }
-
-				$key_group = Filter::evaluate( $option->key_group );
-				$result .= sprintf( '<optgroup label="%s">', $key_group );
-				$option_group = $option->key_group;
-
-			}
-
-			$key_name = Filter::evaluate( $option->key_name );
-			$value = "{`user-name`:`" . $key_group . "`,`mapping-name`:`" . $key_name . "`}";
-			$result .= sprintf( '<option value="%s">%s</option>', $value, $key_name );
-
-		}
-
-		return $result;
-
-	}
-
-
-	/**
-	 *
-	 */
 	public function getModelKeysAsOptions( &$options = array() ) {
 
 		$result = '<option></option>';
@@ -113,37 +77,19 @@ abstract class Model implements ModelInterface {
 	 * @param string $id form id that should be given to the select
 	 * @return string an html select element
 	 */
-	public function getModelKeysAsSelect( $name = null, $id = null, $option_group = false ) {
+	public function getModelKeysAsSelect( $name = null, $id = null ) {
 
 		if ( !empty( $name ) ) { $name = sprintf( ' name="%s"', Filter::evaluate( $name ) ); }
 		if ( !empty( $id ) ) { $id = sprintf( ' id="%s"', Filter::evaluate( $id ) ); }
 
 		$options = $this->getKeys();
 
-		$result = sprintf( '<select%s%s>', $name, $id );
-
-			if ( $option_group ) {
-
-				$result .= $this->getModelKeysAsOptionGroup( $options );
-
-			} else {
-
-				$result .= $this->getModelKeysAsOptions( $options );
-
-			}
-
-		$result .= '</select>';
+		$result =
+			sprintf( '<select%s%s>', $name, $id ) .
+			$this->getModelKeysAsOptions( $options ) .
+			'</select>';
 
 		return $result;
-
-	}
-
-
-	public function reset() {
-
-		$this->dbr = \wfGetDB( DB_SLAVE );
-		$this->dbw = \wfGetDB( DB_MASTER );
-		$this->table_name = null;
 
 	}
 
@@ -152,9 +98,10 @@ abstract class Model implements ModelInterface {
 	 * @param string $table_name
 	 * @param string $table_create_sql filename containing the create table sql statements
 	 */
-	public function __construct( $table_name ) {
+	public function __construct( $table_name = null ) {
 
-		$this->reset();
+		$this->dbr = \wfGetDB( DB_SLAVE );
+		$this->dbw = \wfGetDB( DB_MASTER );
 		$this->table_name = $table_name;
 		$this->setTableCreateSql();
 

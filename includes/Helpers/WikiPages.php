@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Helpers;
-use	Exception,
+use Exception,
 	GWToolset\Config,
 	GWToolset\MediaWiki\Api\Client,
 	Php\Filter;
@@ -29,7 +27,7 @@ class WikiPages {
 
 		if ( !( self::$MWApiClient instanceof Client ) ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'MWApiClient not set in WikiPages Helper' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-mwapiclient-creation-failed' )->plain() )->parse() );
 
 		}
 
@@ -51,14 +49,14 @@ class WikiPages {
 		$page_id = -1;
 		$api_result = array();
 
-			self::checkforMWApiClient();
-			$api_result = self::$MWApiClient->query( array( 'titles' => Filter::evaluate( $filename ), 'indexpageids' => '' ) );
+		self::checkforMWApiClient();
+		$api_result = self::$MWApiClient->query( array( 'titles' => Filter::evaluate( $filename ), 'indexpageids' => '' ) );
 
-			if ( empty( $api_result['query']['pageids'] ) ) {
+		if ( empty( $api_result['query']['pageids'] ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'api-result does not contain expected keys [query] and/or [query][pageids]' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-api-result-missing-pageids' )->plain() )->parse() );
 
-			}
+		}
 
 		return (int)$api_result['query']['pageids'][0];
 
@@ -73,19 +71,19 @@ class WikiPages {
 		$result = null;
 		global $wgServer;
 
-			if ( empty( $template_url ) ) {
+		if ( empty( $template_url ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no template url provided to parse' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-template-url' )->plain() )->parse() );
 
-			}
+		}
 
-			$result = str_replace(
-				array( $wgServer, 'index.php', '//', 'Template:' ),
-				'',
-				$template_url
-			);
+		$result = str_replace(
+			array( $wgServer, 'index.php', '//', 'Template:' ),
+			'',
+			$template_url
+		);
 
-			$result = str_replace( ' ', '_', $result );
+		$result = str_replace( ' ', '_', $result );
 
 		return $result;
 
@@ -100,28 +98,28 @@ class WikiPages {
 		$result = null;
 		global $wgServer;
 
-			if ( empty( $file_url ) ) {
+		if ( empty( $file_url ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no file_url provided to parse' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-file-url' )->plain() )->parse() );
 
-			}
+		}
 
-			$result = str_replace(
-				array( $wgServer, 'index.php', '//', 'User:' ),
-				'',
-				$file_url
-			);
+		$result = str_replace(
+			array( $wgServer, 'index.php', '//', 'User:' ),
+			'',
+			$file_url
+		);
 
-			$result = explode( '/', $result, 2 );
+		$result = explode( '/', $result, 2 );
 
-			if ( count( $result ) != 2 ) {
+		if ( count( $result ) != 2 ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-mapping-url-invalid' ) );
+			throw new Exception( wfMessage( 'gwtoolset-mapping-url-invalid' )->plain() );
 
-			}
+		}
 
-			$result['user-name'] = $result[0];
-			$result['mapping-name'] = $result[1];
+		$result['user-name'] = $result[0];
+		$result['mapping-name'] = $result[1];
 
 		return $result;
 
@@ -136,22 +134,22 @@ class WikiPages {
 		$result = null;
 		global $wgServer;
 
-			if ( empty( $file_url ) ) {
+		if ( empty( $file_url ) ) {
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( 'no file url provided to parse' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-file-url' )->plain() )->parse() );
 
-			}
+		}
 
-			FileChecks::isAcceptedFileExtension(
-				$file_url,
-				FileChecks::getAcceptedExtensions( Config::$accepted_types )
-			);
+		FileChecks::isAcceptedFileExtension(
+			$file_url,
+			FileChecks::getAcceptedExtensions( Config::$accepted_types )
+		);
 
-			$result = str_replace(
-				array( $wgServer, 'index.php', '/', 'File:' ),
-				'',
-				$file_url
-			);
+		$result = str_replace(
+			array( $wgServer, 'index.php', '/', 'File:' ),
+			'',
+			$file_url
+		);
 
 		return $result;
 
@@ -173,46 +171,46 @@ class WikiPages {
 		$file_name = null;
 		$api_result = array();
 
-			$file_name = self::getFilenameFromUrl( $file_url );
-			$file_name = 'File:' . Filter::evaluate( $file_name );
+		$file_name = self::getFilenameFromUrl( $file_url );
+		$file_name = 'File:' . Filter::evaluate( $file_name );
 
-			self::checkforMWApiClient();
+		self::checkforMWApiClient();
 
-			$api_result = self::$MWApiClient->query(
-				array(
-					'titles' => $file_name,
-					'prop' => 'imageinfo',
-					'iiprop' => 'url'
-				)
-			);
+		$api_result = self::$MWApiClient->query(
+			array(
+				'titles' => $file_name,
+				'prop' => 'imageinfo',
+				'iiprop' => 'url'
+			)
+		);
 
-			if ( empty( $api_result['query']['pages'] ) || isset( $api_result['query']['pages'][-1] ) ) {
+		if ( empty( $api_result['query']['pages'] ) || isset( $api_result['query']['pages'][-1] ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-file-url-invalid') );
+			throw new Exception( wfMessage( 'gwtoolset-file-url-invalid' )->plain() );
 
-			}
+		}
 
-			foreach( $api_result['query']['pages'] as $page ) {
+		foreach( $api_result['query']['pages'] as $page ) {
 
-				if ( empty( $page['imageinfo'] )
-					|| empty( $page['imageinfo'][0] )
-					|| empty( $page['imageinfo'][0]['url'] )
-				) {
+			if ( empty( $page['imageinfo'] )
+				|| empty( $page['imageinfo'][0] )
+				|| empty( $page['imageinfo'][0]['url'] )
+			) {
 
-					throw new Exception( wfMessage('gwtoolset-developer-issue')->params('api returned no imageinfo url') );
-
-				}
-
-				$result = $IP . str_replace( $wgServer, '', $page['imageinfo'][0]['url'] );
-				break; // should only need to run through this once
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-api-returned-no-imageinfo' )->plain() )->parse() );
 
 			}
 
-			if ( !file_exists( $result ) ) {
+			$result = $IP . str_replace( $wgServer, '', $page['imageinfo'][0]['url'] );
+			break; // should only need to run through this once
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('api resolved file path does not exist') );
+		}
 
-			}
+		if ( !file_exists( $result ) ) {
+
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-api-no-resolved-path' )->plain() )->parse() );
+
+		}
 
 		return $result;
 
@@ -244,7 +242,7 @@ class WikiPages {
 
 		if ( empty( $api_result['query']['pages'] ) || isset( $api_result['query']['pages'][-1] ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-file-url-invalid') );
+			throw new Exception( wfMessage( 'gwtoolset-file-url-invalid' )->plain() );
 
 		}
 
@@ -254,7 +252,7 @@ class WikiPages {
 				|| empty( $page['revisions'][0]['*'] )
 			) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('api returned no content for the mapping page') );
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-api-returned-no-content' )->plain() )->parse() );
 
 			}
 

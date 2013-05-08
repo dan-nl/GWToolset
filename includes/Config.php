@@ -5,8 +5,6 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
@@ -30,7 +28,6 @@ class Config {
 		'GWToolset\Adapters\Api\MappingApiAdapter' => '/includes/Adapters/Api/MappingApiAdapter.php',
 
 		'GWToolset\Adapters\Db\DbAdapterAbstract' => '/includes/Adapters/Db/DbAdapterAbstract.php',
-		'GWToolset\Adapters\Db\MappingDbAdapter' => '/includes/Adapters/Db/MappingDbAdapter.php',
 		'GWToolset\Adapters\Db\MediawikiTemplateDbAdapter' => '/includes/Adapters/Db/MediawikiTemplateDbAdapter.php',
 
 		'GWToolset\Forms\MetadataDetectForm' => '/includes/Forms/MetadataDetectForm.php',
@@ -130,27 +127,6 @@ class Config {
 
 
 	/**
-	 * api settings
-	 *
-	 * depending on your server set-up you may need to specify http://127.0.0.1/api.php
-	 * instead of http://yourdomain.com/api.php
-	 *
-	 * these values should be set in the includes/ConfigCustom.php file
-	 * @see includes/ConfigCustom.example.php
-	 *
-	 * @todo: find out if it's possible to use the logged in user’s credentials
-	 * with the api; using $User->getEditToken() does not work
-	 */
-	public static $api_internal_endpoint = null;
-	public static $api_internal_lgname = null;
-	public static $api_internal_lgpassword = null;
-
-	public static $api_external_endpoint = null;
-	public static $api_external_lgname = null;
-	public static $api_external_lgpassword = null;
-
-
-	/**
 	 * @see SpecialPage __constructor
 	 *
 	 * $name string
@@ -235,17 +211,14 @@ class Config {
 	public static $metadata_separator = '; ';
 	public static $title_separator = '-';
 
-
 	/**
-	 * a flag to indicate whether or not to display debug information when available.
-	 * in order to see this output, the user must also be a member of a permissions
-	 * group that has the right, gwtoolset-debug
+	 * note that this mapping tag has a hardcoded pregmatch in
+	 * GWToolset/includes/Adapters/Api/MappingApiAdapter.php
+	 * that needs to change if this value changes
 	 */
-	public static $display_debug_output = false;
-
-
 	public static $metadata_mapping_open_tag = '<mapping_json>';
 	public static $metadata_mapping_close_tag = '</mapping_json>';
+
 	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';
 	public static $metadata_mapping_subdirectory = 'Metadata Mappings/';
 	public static $mediawiki_template_default_category = 'GWToolset Batch Upload';

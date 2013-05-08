@@ -5,13 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Forms;
-use	GWToolset\Adapters\Db\MappingDbAdapter,
-	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
+use GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Models\Mapping,
@@ -28,18 +25,17 @@ class MetadataDetectForm {
 	public static function getForm( IContextSource $Context ) {
 
 		global $wgArticlePath;
-		$Mapping = new Mapping( new MappingDbAdapter() );
 		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 
 		return
-			'<h2>' . wfMessage('gwtoolset-metadata-detect-step-1') . '</h2>' .
-			wfMessage('gwtoolset-metadata-detect-step-1-instructions')->plain() .
+			'<h2>' . wfMessage( 'gwtoolset-metadata-detect-step-1' )->plain() . '</h2>' .
+			'<p>' . wfMessage( 'gwtoolset-metadata-detect-step-1-instructions' )->parse() . '</p>' .
 
 			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post" enctype="multipart/form-data">' .
 
 				'<fieldset>' .
 
-					'<legend>' . wfMessage('gwtoolset-upload-legend') . '</legend>' .
+					'<legend>' . wfMessage( 'gwtoolset-upload-legend' )->plain() . '</legend>' .
 
 					'<input type="hidden" name="gwtoolset-form" value="metadata-detect"/>' .
 					'<input type="hidden" name="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
@@ -49,35 +45,34 @@ class MetadataDetectForm {
 
 						'<li>' .
 							'<p><label>' .
-								wfMessage('gwtoolset-record-element-name') . ' : ' .
+								wfMessage( 'gwtoolset-record-element-name' )->plain() . ' : ' .
 								'<input type="text" name="record-element-name" value="" placeholder="record"/>' .
 							'</label> <span class="required">*</span></p>' .
 						'</li>' .
 
 						'<li>' .
 							'<p><label>' .
-								wfMessage('gwtoolset-which-mediawiki-template') . ' : ' .
+								wfMessage( 'gwtoolset-which-mediawiki-template' )->plain() . ' : ' .
 									$MediawikiTemplate->getModelKeysAsSelect( 'mediawiki-template-name' ) .
 							'</label> <span class="required">*</span></p>' .
 						'</li>' .
 
 						'<li>' .
 							'<p><label>' .
-								wfMessage('gwtoolset-which-metadata-mapping') . ' : ' .
-								//$Mapping->getModelKeysAsSelect( 'metadata-mapping', null, true ) .
+								wfMessage( 'gwtoolset-which-metadata-mapping' )->plain() . ' : ' .
 								'<input type="text" name="metadata-mapping-url" value="" placeholder="User:Gwtoolset\dublin core : Artwork" class="gwtoolset-url-input"/>' .
 							'</label><br/>' .
 							'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_mapping_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_mapping_category . '</a></p>' .
 						'</li>' .
 
 						'<li>' .
-							wfMessage('gwtoolset-ensure-well-formed-xml')->plain() . ' <span class="required">*</span><br/>' .
-							wfMessage('gwtoolset-metadata-file-source') . '<br/>' .
-							wfMessage('gwtoolset-metadata-file-source-info') .
+							wfMessage( 'gwtoolset-ensure-well-formed-xml' )->parse() . ' <span class="required">*</span><br/>' .
+							wfMessage( 'gwtoolset-metadata-file-source' )->plain() . '<br/>' .
+							wfMessage( 'gwtoolset-metadata-file-source-info' )->plain() .
 							'<ul>' .
 								'<li>' .
 									'<label>' .
-										wfMessage('gwtoolset-metadata-file-url') . ' : ' .
+										wfMessage( 'gwtoolset-metadata-file-url' )->plain() . ' : ' .
 										'<input type="text" name="metadata-file-url" value="" placeholder="Two-images.xml" class="gwtoolset-url-input"/>' .
 									'</label><br/>' .
 									'<a href="' . str_replace( '$1', 'Category:' . Config::$metadata_file_category, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$metadata_file_category . '</a>' .
@@ -85,13 +80,13 @@ class MetadataDetectForm {
 
 								'<li>' .
 									'<label>' .
-										wfMessage('gwtoolset-metadata-file') . ' : ' .
+										wfMessage( 'gwtoolset-metadata-file' )->plain() . ' : ' .
 										'<input type="file" name="metadata-file-upload" ' . FileChecks::getFileAcceptAttribute( Config::$accepted_types ) . '>' .
 									'</label><br/>' .
 
 									'<i>' .
-										wfMessage( 'gwtoolset-accepted-file-types' ) . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_types ) . '<br/>' .
-										wfMessage( 'upload-maxfilesize', number_format( FileChecks::gwToolsetMaxUploadSize() / 1024 ) ) . ' kilobytes' .
+										wfMessage( 'gwtoolset-accepted-file-types' )->plain() . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_types ) . '<br/>' .
+										wfMessage( 'upload-maxfilesize' )->params( number_format( FileChecks::gwToolsetMaxUploadSize() / 1024 ) )->plain() . ' kilobytes' .
 									'</i>' .
 								'</li>' .
 							'</ul>' .
@@ -101,8 +96,8 @@ class MetadataDetectForm {
 
 				'</fieldset>' .
 
-				'<p><span class="required">*</span> denotes required field</p>' .
-				'<input type="submit" name="submit" value="' . wfMessage('emailusernamesubmit') . '">' .
+				wfMessage( 'gwtoolset-required-field' )->parseAsBlock() .
+				'<input type="submit" name="submit" value="' . wfMessage( 'emailusernamesubmit' )->plain() . '">' .
 
 			'</form>';
 
@@ -110,4 +105,3 @@ class MetadataDetectForm {
 
 
 }
-

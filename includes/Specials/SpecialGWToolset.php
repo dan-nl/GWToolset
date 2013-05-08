@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
-namespace	GWToolset;
-use	Exception,
+namespace GWToolset;
+use Exception,
 	GWToolset\Models\Menu,
 	GWToolset\Helpers\WikiChecks,
 	PermissionsError,
@@ -51,7 +49,7 @@ class SpecialGWToolset extends SpecialPage {
 				$this->module_key . '"' .
 				' onclick="history.back();return false;"' .
 			'>' .
-				wfMessage('gwtoolset-back-to-form') .
+				wfMessage( 'gwtoolset-back-to-form' )->plain() .
 			'</a>';
 
 	}
@@ -69,7 +67,7 @@ class SpecialGWToolset extends SpecialPage {
 
 			if ( is_null( $this->module_key ) ) {
 
-				$html .=  wfMessage('gwtoolset-intro')->plain();
+				$html .=  wfMessage( 'gwtoolset-intro' )->parseAsBlock();
 
 			} else {
 
@@ -80,7 +78,7 @@ class SpecialGWToolset extends SpecialPage {
 				} catch( Exception $e ) {
 
 					$html .=
-						'<h2>' . wfMessage( 'gwtoolset-technical-error' ) . '</h2>' .
+						'<h2>' . wfMessage( 'gwtoolset-technical-error' )->plain() . '</h2>' .
 						'<p class="error">' . $e->getMessage() . '</p>';
 
 				}
@@ -93,15 +91,15 @@ class SpecialGWToolset extends SpecialPage {
 
 				if ( !( $this->Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
 
-					$msg = wfMessage('gwtoolset-developer-issue')->params('no upload handler was created');
+					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->plain() )->parse();
 
-					if ( Config::$display_debug_output && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
+					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 
 						$msg .= '<br/><pre>' . print_r( error_get_last(), true ) . '</pre>';
 
 					} else {
 
-						$msg = wfMessage('gwtoolset-no-upload-handler');
+						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->plain();
 
 					}
 
@@ -120,7 +118,7 @@ class SpecialGWToolset extends SpecialPage {
 				} else {
 
 					$html .=
-						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' ) . '</h2>' .
+						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' )->plain() . '</h2>' .
 						'<p class="error">' . $e->getMessage() . '</p>';
 
 				}
@@ -176,7 +174,7 @@ class SpecialGWToolset extends SpecialPage {
 
 		try {
 
-			if ( !WikiChecks::pageIsReadyForThisUser( $this ) ) { return; }
+			if ( !WikiChecks::pageIsReadyForThisUser( $this ) ) { return false; }
 
 		} catch ( Exception $e ) {
 
@@ -187,7 +185,7 @@ class SpecialGWToolset extends SpecialPage {
 			} else {
 
 				$this->getOutput()->addHTML(
-					'<h2>' . wfMessage( 'gwtoolset-wiki-checks-not-passed' ) . '</h2>' .
+					'<h2>' . wfMessage( 'gwtoolset-wiki-checks-not-passed' )->plain() . '</h2>' .
 					$e->getMessage() . '<br/>'
 				);
 
@@ -239,4 +237,3 @@ class SpecialGWToolset extends SpecialPage {
 
 
 }
-

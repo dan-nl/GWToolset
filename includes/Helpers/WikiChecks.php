@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Helpers;
-use	ErrorPageError,
+use ErrorPageError,
 	Exception,
 	GWToolset\Config,
 	PermissionsError,
@@ -26,23 +24,6 @@ use	ErrorPageError,
  * - user access to the wiki
  */
 class WikiChecks {
-
-
-	/**
-	 * @throws Exception
-	 * @return boolean
-	 */
-	public static function isApiEndpointSet() {
-
-		if ( empty( Config::$api_internal_endpoint ) ) {
-
-			throw new Exception( wfMessage('mw-api-client-internal-endpoint-not-set')->plain() );
-
-		}
-
-		return true;
-
-	}
 
 
 	/**
@@ -74,7 +55,7 @@ class WikiChecks {
 
 		if ( !$SpecialPage->getUser()->matchEditToken( $SpecialPage->getRequest()->getVal( 'wpEditToken' ) ) ) {
 
-			throw new Exception( wfMessage( 'exception-nologin-text' ), 1000 );
+			throw new Exception( wfMessage( 'exception-nologin-text' )->plain(), 1000 );
 
 		}
 
@@ -94,7 +75,7 @@ class WikiChecks {
 
 		if ( !in_array( Config::$user_group, $SpecialPage->getUser()->getEffectiveGroups() ) ) {
 
-			throw new Exception( wfMessage( 'exception-nologin-text' ), 1000 );
+			throw new Exception( wfMessage( 'exception-nologin-text' )->plain(), 1000 );
 
 		}
 
@@ -198,7 +179,7 @@ class WikiChecks {
 
 		if ( !$wgEnableWriteAPI ) {
 
-			throw new Exception( wfMessage('gwtoolset-verify-api-writeable')->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-verify-api-writeable' )->parse() );
 
 		}
 
@@ -217,7 +198,7 @@ class WikiChecks {
 
 		if ( !$wgEnableAPI ) {
 
-			throw new Exception( wfMessage('gwtoolset-verify-api-enabled')->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-verify-api-enabled' )->parse() );
 
 		}
 
@@ -234,7 +215,7 @@ class WikiChecks {
 
 		if ( !class_exists('finfo') ) {
 
-			throw new Exception( wfMessage('gwtoolset-verify-finfo')->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-verify-finfo' )->parse() );
 
 		}
 
@@ -251,7 +232,7 @@ class WikiChecks {
 
 		if ( !class_exists('XMLReader') ) {
 
-			throw new Exception( wfMessage('gwtoolset-verify-xmlreader')->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-verify-xmlreader' )->parse() );
 
 		}
 
@@ -268,7 +249,7 @@ class WikiChecks {
 
 		if ( !function_exists('curl_init') ) {
 
-			throw new Exception( wfMessage('gwtoolset-verify-curl')->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-verify-curl' )->parse() );
 
 		}
 
@@ -283,13 +264,11 @@ class WikiChecks {
 	 */
 	public static function verifyPHPVersion() {
 
-		if ( !defined( 'PHP_VERSION_ID' )
-			|| PHP_MAJOR_VERSION < 5
-			|| PHP_MINOR_VERSION < 3
-			|| PHP_RELEASE_VERSION < 3
+		if ( !defined( 'PHP_VERSION' )
+			|| version_compare( PHP_VERSION, '5.3.3', '<' )
 		) {
 
-			throw new Exception( wfMessage('gwtoolset-verify-php-version')->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-verify-php-version' )->parse() );
 
 		}
 
@@ -322,12 +301,9 @@ class WikiChecks {
 		if ( !self::checkUserWikiPermissions( $SpecialPage ) ) { return false; }
 		if ( !self::isUserBlocked( $SpecialPage ) ) { return false; }
 
-		if ( !self::isApiEndpointSet() ) { return false; }
-
 		return true;
 
 	}
 
 
 }
-

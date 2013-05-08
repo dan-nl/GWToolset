@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
-use	Exception,
+use Exception,
 	GWToolset\Models\MediawikiTemplate,
 	GWToolset\Handlers\Xml\XmlDetectHandler,
 	GWToolset\Handlers\Xml\XmlDetectHandler\findSampleDOMElement,
@@ -112,39 +110,39 @@ abstract class XmlHandler {
 		$read_result = array( 'msg' => null, 'stop-reading' => false );
 		$xml_reader = null;
 
-			if ( empty( $file_path_local ) ) {
+		if ( empty( $file_path_local ) ) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('local file path has not been specified' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-local-path' )->plain() )->parse() );
+
+		}
+
+		if ( empty( $callback ) ) {
+
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-callback' )->plain() )->parse() );
+
+		}
+
+		$xml_reader = new XMLReader();
+
+			if ( !$xml_reader->open( $file_path_local ) ) {
+
+				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-open-xml' )->plain() )->parse() );
+
+			}
+
+			while ( $xml_reader->read() ) {
+
+				$read_result = $this->$callback( $xml_reader, $user_options );
+				$result .= $read_result['msg'];
+				if ( $read_result['stop-reading'] ) { break; }
 
 			}
 
-			if ( empty( $callback ) ) {
+		if ( !$xml_reader->close() ) {
 
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('no callback passed to this method' ) );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-close-xml' )->plain() )->parse() );
 
-			}
-
-			$xml_reader = new XMLReader();
-
-				if ( !$xml_reader->open( $file_path_local ) ) {
-
-					throw new Exception( wfMessage('gwtoolset-developer-issue')->params('could not open the XML File for reading') );
-
-				}
-
-				while ( $xml_reader->read() ) {
-
-					$read_result = $this->$callback( $xml_reader, $user_options );
-					$result .= $read_result['msg'];
-					if ( $read_result['stop-reading'] ) { break; }
-
-				}
-
-			if ( !$xml_reader->close() ) {
-
-				throw new Exception( wfMessage('gwtoolset-developer-issue')->params('could not close the XMLReader') );
-
-			}
+		}
 
 		return $result;
 

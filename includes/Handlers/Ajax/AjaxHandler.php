@@ -5,12 +5,10 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @author dan entous pennlinepublishing.com
- * @copyright © 2012 dan entous
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Ajax;
-use	Exception,
+use Exception,
 	GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Helpers\WikiChecks;
 
@@ -31,16 +29,16 @@ abstract class AjaxHandler extends SpecialPageHandler {
 
 		$result = null;
 
-			try {
+		try {
 
-				WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
-				$result .= $this->processRequest();
+			WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
+			$result .= $this->processRequest();
 
-			} catch ( Exception $e ) {
+		} catch ( Exception $e ) {
 
-				$result .=  '{ "status" : "error", "message" : "' . $e->getMessage() . '" }';
+			$result .=  '{ "status" : "error", "message" : "' . $e->getMessage() . '" }';
 
-			}
+		}
 
 		header('Content-Type: application/json; charset=utf-8');
 		echo $result;
