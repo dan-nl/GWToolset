@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers;
@@ -111,9 +110,7 @@ class UploadHandler {
 
 		// final url resolved by curl
 		if ( empty( $curl_info['url'] ) ) {
-
 			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-bad')->rawParams( Filter::evaluate( $url ) )->plain() );
-
 		}
 
 		$result['url'] = $curl_info['url'];
@@ -129,34 +126,28 @@ class UploadHandler {
 		} else {
 
 			if ( empty( $curl_info['content_type'] ) ) {
-
 				throw new Exception( wfMessage('gwtoolset-mapping-media-file-no-content-type')->rawParams( Filter::evaluate( $url ) )->plain() );
-
 			}
 
 			foreach( Config::$accepted_media_types as $extension => $mime_types ) {
 
 				foreach( $mime_types as $mime_type ) {
-
 					if ( $curl_info['content_type'] == $mime_type ) {
-
 						$result['extension'] = $extension;
 						break;
-
 					}
-
 				}
 
-				if ( !empty( $result['extension'] ) ) { break; }
+				if ( !empty( $result['extension'] ) ) {
+					break;
+				}
 
 			}
 
 		}
 
 		if ( empty( $result['extension'] ) ) {
-
 			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $url ) )->plain() );
-
 		}
 
 		return $result;
@@ -169,9 +160,7 @@ class UploadHandler {
 		$result = null;
 
 		foreach( $this->_Mapping->target_dom_elements_mapped[ $field ] as $targeted_field ) {
-
 			$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $targeted_field ] . ' ';
-
 		}
 
 		return $result;
@@ -185,7 +174,7 @@ class UploadHandler {
 
 		$result .= '<!-- Metadata Mapped -->' . PHP_EOL;
 		$result .= '<!-- <metadata_mapped_json>' . json_encode( $this->_MediawikiTemplate->mediawiki_template_array ) . '</metadata_mapped_json> -->' . PHP_EOL . PHP_EOL;
-		
+
 		$result .= '<!-- Metadata Raw -->' . PHP_EOL;
 		$result .= '<!-- <metadata_raw>' . PHP_EOL . $this->_MediawikiTemplate->metadata_raw . PHP_EOL . '</metadata_raw> -->' . PHP_EOL;
 		//$result .= json_encode( simplexml_load_string( $xml_reader->readOuterXml() ) );
@@ -212,21 +201,15 @@ class UploadHandler {
 				$metadata = null;
 
 				if ( !empty( $this->user_options['category-phrase'][$i] ) ) {
-
 					$phrase = Filter::evaluate( $this->user_options['category-phrase'][$i] ) . ' ';
-
 				}
-				
+
 				if ( !empty( $this->user_options['category-metadata'][$i] ) ) {
-
 					$metadata = Filter::evaluate( $this->getMappedField( $this->user_options['category-metadata'][$i] ) );
-
 				}
 
 				if ( !empty( $metadata ) ) {
-
 					$result .= '[[Category:' . $phrase . $metadata . ']]';
-
 				}
 
 			}
@@ -248,9 +231,7 @@ class UploadHandler {
 			$categories = explode( Config::$category_separator, $this->user_options['categories'] );
 
 			foreach( $categories as $category ) {
-
 				$result .= '[[Category:' . Filter::evaluate( $category ) . ']]';
-
 			}
 
 		}
@@ -294,37 +275,29 @@ class UploadHandler {
 		$api_result = array();
 
 		if ( empty( $options['title'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-title' )->plain() )->parse() );
-
 		}
 
 		if ( !isset( $options['ignorewarnings'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-ignorewarnings' )->plain() )->parse() );
-
 		}
 
-		if ( empty( $options['text'] ) ) { // assumes that text must be something
-
+		// assumes that text must be something
+		if ( empty( $options['text'] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-text' )->plain() )->parse() );
-
 		}
 
 		if ( empty( $options['url_to_the_media_file'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-url-to-media' )->plain() )->parse() );
-
 		}
 
-		if ( empty( $options['pageid'] ) ) { // assumes that pageid is a positive int
-
+		// assumes that pageid is a positive int
+		if ( empty( $options['pageid'] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-pageid' )->plain() )->parse() );
-
 		}
 
-		if ( $this->user_options['upload-media'] ) { // upload another version of the media
-
+		// upload another version of the media
+		if ( $this->user_options['upload-media'] ) {
 			$api_result = $this->_MWApiClient->upload(
 				array(
 					'filename' => $options['title'],
@@ -334,7 +307,6 @@ class UploadHandler {
 					'url' => $options['url_to_the_media_file']
 				)
 			);
-
 		}
 
 		// creating a new page a comment is used
@@ -352,17 +324,11 @@ class UploadHandler {
 			|| $api_result['edit']['result'] !== 'Success'
 			|| empty( $api_result['edit']['title'] )
 		) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->plain() )->parse() );
-
 		} else {
-
 			if ( $result_as_boolean ) {
-
 				$result = true;
-
 			} else {
-
 				$result .=
 					'<li>' .
 						'<a href="' . str_replace( '$1', $api_result['edit']['title'], $wgArticlePath ) . '">' .
@@ -370,9 +336,7 @@ class UploadHandler {
 							( isset( $api_result['edit']['oldrevid'] ) ? ' ( revised )' : ' ( no change )' ) .
 						'</a>' .
 					'</li>';
-
 			}
-
 		}
 
 		return $result;
@@ -395,27 +359,20 @@ class UploadHandler {
 		$api_result = array();
 
 		if ( empty( $options['title'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-title' )->plain() )->parse() );
-
 		}
 
 		if ( !isset( $options['ignorewarnings'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-ignorewarnings' )->plain() )->parse() );
-
 		}
 
-		if ( empty( $options['text'] ) ) { // assumes that text must be something
-
+		// assumes that text must be something
+		if ( empty( $options['text'] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-text' )->plain() )->parse() );
-
 		}
 
 		if ( empty( $options['url_to_the_media_file'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-url-to-media' )->plain() )->parse() );
-
 		}
 
 		// upload media no matter the user_option['upload-media'] value
@@ -436,26 +393,18 @@ class UploadHandler {
 			|| empty( $api_result['upload']['imageinfo']['descriptionurl'] )
 			|| empty( $api_result['upload']['filename'] )
 		) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )-plain() )->parse() );
-
 		} else {
-
 			if ( $result_as_boolean ) {
-
 				$result = true;
-
 			} else {
-
 				$result =
 					'<li>' .
 						'<a href="' . $api_result['upload']['imageinfo']['descriptionurl'] . '">' .
 							$api_result['upload']['filename'] .
 						'</a>' .
 					'</li>';
-
 			}
-
 		}
 
 		return $result;
@@ -469,14 +418,13 @@ class UploadHandler {
 
 		$options['pageid'] = WikiPages::getTitlePageId( 'File:' . $options['title'] );
 
-		if ( $options['pageid'] > -1 ) { // page already exists
-
+		// page already exists
+		if ( $options['pageid'] > -1 ) {
 			$result = $this->updatePage( $options, $result_as_boolean );
 
-		} else { // page does not yet exist
-
+		// page does not yet exist
+		} else {
 			$result = $this->createPage( $options, $result_as_boolean );
-
 		}
 
 		return $result;
@@ -489,10 +437,10 @@ class UploadHandler {
 		$result = false;
 		$job = null;
 
-		if ( $this->jobs_added > 10 ) { return; }
+		if ( $this->jobs_added > Config::$job_throttle ) { return; }
 
 		$job = new UploadMediafileJob(
-			Title::newFromText( 'User:' . $this->_User->getName() ),
+			Title::newFromText( 'File:' . $options['title'] ),
 			array(
 				'comment' => $options['comment'],
 				'title' => $options['title'], // the page title to create/update
@@ -553,7 +501,7 @@ class UploadHandler {
 
 		$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
 		$options['ignorewarnings'] = true;
-		$options['comment'] = trim( $this->user_options['comment']  . ' ' . wfMessage( 'gwtoolset-upload-on-behalf-of' )->params( $this->_User->getName() ) )->plain();
+		$options['comment'] = trim( $this->user_options['comment']  . ' ' . wfMessage( 'gwtoolset-upload-on-behalf-of' )->params( $this->_User->getName() )->plain() );
 		$options['text'] = $this->getText();
 
 		if ( $this->user_options['save-as-batch-job'] ) {

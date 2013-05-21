@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Helpers;
@@ -179,7 +178,8 @@ class WikiChecks {
 
 		if ( !$wgEnableWriteAPI ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-verify-api-writeable' )->parse() );
+			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-api-writeable' )->parse() . '</span>';
+			throw new Exception( $msg );
 
 		}
 
@@ -198,7 +198,8 @@ class WikiChecks {
 
 		if ( !$wgEnableAPI ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-verify-api-enabled' )->parse() );
+			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-api-enabled' )->parse() . '</span>';
+			throw new Exception( $msg );
 
 		}
 
@@ -215,7 +216,8 @@ class WikiChecks {
 
 		if ( !class_exists('finfo') ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-verify-finfo' )->parse() );
+			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-finfo' )->parse() . '</span>';
+			throw new Exception( $msg );
 
 		}
 
@@ -232,7 +234,8 @@ class WikiChecks {
 
 		if ( !class_exists('XMLReader') ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-verify-xmlreader' )->parse() );
+			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-xmlreader' )->parse() . '</span>';
+			throw new Exception( $msg );
 
 		}
 
@@ -249,7 +252,8 @@ class WikiChecks {
 
 		if ( !function_exists('curl_init') ) {
 
-			throw new Exception( wfMessage( 'gwtoolset-verify-curl' )->parse() );
+			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-curl' )->parse() . '</span>';
+			throw new Exception( $msg );
 
 		}
 
@@ -268,7 +272,8 @@ class WikiChecks {
 			|| version_compare( PHP_VERSION, '5.3.3', '<' )
 		) {
 
-			throw new Exception( wfMessage( 'gwtoolset-verify-php-version' )->parse() );
+			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-php-version' )->parse() . '</span>';
+			throw new Exception( $msg );
 
 		}
 

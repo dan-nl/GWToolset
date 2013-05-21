@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\MediaWiki\Api;
@@ -93,7 +92,7 @@ class UploadParams {
 
 		if ( empty( $params ) ) {
 
-			$msg .= 'No Upload Parameters specified.';
+			$msg .= wfMessage( 'mw-api-client-no-params' )->plain();
 			throw new MWException( $msg );
 
 		}
@@ -102,8 +101,8 @@ class UploadParams {
 
 			if ( !in_array( $key, $this->allowed_params ) ) {
 
-			$msg .= 'The Upload Parameter <code><b>[' . $key . ']</b></code> is not a valid upload parameter.';
-			throw new MWException( $msg );
+				$msg .= wfMessage( 'mw-api-client-not-valid-param' )->params( $key )->parse();
+				throw new MWException( $msg );
 
 			}
 

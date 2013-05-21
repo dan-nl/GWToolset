@@ -6,12 +6,12 @@
 
 CREATE TABLE IF NOT EXISTS /*_*/gwtoolset_mappings (
 
-	`user_name`					varchar(255)	NOT NULL,
-	`mediawiki_template_name`	varchar(255)	NOT NULL,
-	`mapping_name`				varchar(255)	NOT NULL,
-	`mapping_json`				blob			NOT NULL,
-	`created`					datetime		NOT NULL,
-	KEY `user_name/mapping_name` (`user_name`,`mapping_name`)
+	`user_name` varchar(255) NOT NULL,
+	`mediawiki_template_name` varchar(255) NOT NULL,
+	`mapping_name` varchar(255) NOT NULL,
+	`mapping_json` blob NOT NULL,
+	`created` datetime NOT NULL,
+	/*i*/KEY `user_name/mapping_name` (`user_name`,`mapping_name`)
 
 ) /*$wgDBTableOptions*/;
 

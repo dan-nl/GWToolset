@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace Php;
@@ -62,7 +61,9 @@ class Filter {
 
 	protected static function validate() {
 
-		if ( is_null( self::$filter_validate ) ) { return true; }
+		if ( self::$filter_validate === null ) {
+			return true;
+		}
 
 		if ( self::$value_raw_is_array ) {
 
@@ -89,7 +90,9 @@ class Filter {
 
 	protected static function sanitize() {
 
-		if ( is_null( self::$filter_sanitize ) ) { return true; }
+		if ( self::$filter_sanitize === null ) {
+			return true;
+		}
 
 			if ( self::$value_raw_is_array ) {
 
@@ -120,17 +123,23 @@ class Filter {
 
 		if ( self::$value_raw_is_array ) {
 
-			if ( empty(self::$value_raw) ) { return false; }
+			if ( empty( self::$value_raw ) ) {
+				return false;
+			}
 
 			foreach( self::$value_result_array as $key => $value ) {
 
-				if ( is_null( $value ) || strlen( $value ) < 1  ) { return false; }
+				if ( $value === null || strlen( $value ) < 1  ) {
+					return false;
+				}
 
 			}
 
 		} else {
 
-			if ( is_null( self::$value_result ) || strlen( self::$value_result ) < 1  ) { return false; }
+			if ( self::$value_result === null || strlen( self::$value_result ) < 1  ) {
+				return false;
+			}
 
 		}
 

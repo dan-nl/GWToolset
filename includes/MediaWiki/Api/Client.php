@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\MediaWiki\Api;
@@ -111,7 +110,7 @@ class Client implements ClientInterface {
 
 		if ( !array_key_exists( $module, $this->valid_modules ) ) {
 
-			throw new Exception( wfMessage( 'mw-api-client-invalid-module' )->rawParams( Filter::evaluate( $module ) )->plain() );
+			throw new Exception( wfMessage( 'mw-api-client-invalid-module' )->rawParams( Filter::evaluate( $module ) )->parse() );
 
 		}
 
@@ -151,7 +150,7 @@ class Client implements ClientInterface {
 
 						case 'code':
 
-							$msg .= 'Error Code : ' . $value . '<br/>';
+							$msg .= 'Error Code : ' . $value . '<br />';
 
 							switch ( $value ) {
 
@@ -170,7 +169,7 @@ class Client implements ClientInterface {
 
 						case 'info':
 
-							$msg .= 'Error Info : ' . $value . '<br/>';
+							$msg .= 'Error Info : ' . $value . '<br />';
 							break;
 
 
@@ -178,7 +177,7 @@ class Client implements ClientInterface {
 
 							foreach( $value as $detail ) {
 
-								$msg .= 'Error Detail : ' . $detail . '<br/>';
+								$msg .= 'Error Detail : ' . $detail . '<br />';
 
 							}
 							break;
@@ -192,7 +191,7 @@ class Client implements ClientInterface {
 
 							} else {
 
-								$msg .= ' Additional Info : ' . $value . '<br/>';
+								$msg .= ' Additional Info : ' . $value . '<br />';
 
 							}
 
@@ -400,7 +399,7 @@ class Client implements ClientInterface {
 
 		} elseif ( $result['login']['result'] != 'Success' ) {
 
-			$msg .= 'Login Error Code : ' . $result['login']['result'] . '<br/>';
+			$msg .= 'Login Error Code : ' . $result['login']['result'] . '<br />';
 
 			if ( isset( $errors[$result['login']['result']] ) ) {
 
@@ -408,7 +407,7 @@ class Client implements ClientInterface {
 
 			}
 
-			$msg .= '<br/>';
+			$msg .= '<br />';
 
 		} else {
 

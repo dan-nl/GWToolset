@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Jobs;
@@ -93,32 +92,20 @@ class UploadMediafileJob extends Job {
 
 		$result = false;
 
-		if ( !$this->validateParams() ) { return false; }
+		if ( !$this->validateParams() ) {
+			return false;
+		}
 
-		$time_start = microtime( true );
 		$this->_User = User::newFromName( $this->params['user'] );
 
 		try {
-
 			$result = $this->processMetadata();
-
 		} catch( Exception $e ) {
-
 			error_log( $e->getMessage() );
-
 		}
 
-		$time_end = microtime( true );
-		$time = $time_end - $time_start;
-
-		if ( $result ) {
-
-			error_log( "Saved {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
-
-		} else {
-
+		if ( !$result ) {
 			error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
-
 		}
 
 		return $result;

@@ -4,13 +4,13 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
 use Exception,
 	GWToolset\Models\Menu,
 	GWToolset\Helpers\WikiChecks,
+	Linker,
 	PermissionsError,
 	Php\Filter,
 	SpecialPage,
@@ -42,21 +42,20 @@ class SpecialGWToolset extends SpecialPage {
 
 	public function getBackToFormLink() {
 
-		return
-			'<a href="' .
-				$this->getContext()->getTitle()->getFullURL() .
-				'?gwtoolset-form=' .
-				$this->module_key . '"' .
-				' onclick="history.back();return false;"' .
-			'>' .
-				wfMessage( 'gwtoolset-back-to-form' )->plain() .
-			'</a>';
+		$result = Linker::link(
+			$this->getContext()->getTitle(),
+			wfMessage( 'gwtoolset-back-to-form' )->plain(),
+			array( 'onclick' => 'history.back();return false;' ),
+			array( 'gwtoolset-form' => $this->module_key )
+		);
+
+		return $result;
 
 	}
 
 
 	/**
-	 * @throws PermissionsError
+	 * @throws PermissionsError | Exception
 	 * @return void
 	 */
 	protected function processRequest() {
@@ -65,7 +64,7 @@ class SpecialGWToolset extends SpecialPage {
 
 		if ( !$this->getRequest()->wasPosted() ) {
 
-			if ( is_null( $this->module_key ) ) {
+			if ( $this->module_key === null ) {
 
 				$html .=  wfMessage( 'gwtoolset-intro' )->parseAsBlock();
 
@@ -79,7 +78,7 @@ class SpecialGWToolset extends SpecialPage {
 
 					$html .=
 						'<h2>' . wfMessage( 'gwtoolset-technical-error' )->plain() . '</h2>' .
-						'<p class="error">' . $e->getMessage() . '</p>';
+						'<p class="error">' . Filter::evaluate( $e->getMessage() ) . '</p>';
 
 				}
 
@@ -95,7 +94,7 @@ class SpecialGWToolset extends SpecialPage {
 
 					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 
-						$msg .= '<br/><pre>' . print_r( error_get_last(), true ) . '</pre>';
+						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
 
 					} else {
 
@@ -130,7 +129,7 @@ class SpecialGWToolset extends SpecialPage {
 		$this->setHeaders();
 		$this->getOutput()->addModules( 'ext.GWToolset' );
 		$this->getOutput()->addHtml( Menu::getMenu() );
-		$this->getOutput()->addHTML( $html );
+		$this->getOutput()->addHtml( $html );
 
 	}
 
@@ -138,26 +137,13 @@ class SpecialGWToolset extends SpecialPage {
 	protected function setModuleAndHandler() {
 
 		$this->module_key = null;
+		$gwtoolset_form = $this->getRequest()->getVal( 'gwtoolset-form' );
 
-		if ( $this->getRequest()->wasPosted() ) {
-
-			if ( isset( $_POST['gwtoolset-form'] ) && key_exists( $_POST['gwtoolset-form'], $this->registered_modules ) ) {
-
-				$this->module_key = Filter::evaluate( $_POST['gwtoolset-form'] );
-
-			}
-
-		} else {
-
-			if ( isset( $_GET['gwtoolset-form'] ) && key_exists( $_GET['gwtoolset-form'], $this->registered_modules ) ) {
-
-				$this->module_key = Filter::evaluate( $_GET['gwtoolset-form'] );
-
-			}
-
+		if ( key_exists( $gwtoolset_form, $this->registered_modules ) ) {
+			$this->module_key = $gwtoolset_form;
 		}
 
-		if ( !is_null( $this->module_key ) ) {
+		if ( $this->module_key !== null ) {
 
 			$handler = $this->registered_modules[ $this->module_key ]['handler'];
 			$this->Handler = new $handler( $this );
@@ -186,7 +172,7 @@ class SpecialGWToolset extends SpecialPage {
 
 				$this->getOutput()->addHTML(
 					'<h2>' . wfMessage( 'gwtoolset-wiki-checks-not-passed' )->plain() . '</h2>' .
-					$e->getMessage() . '<br/>'
+					$e->getMessage() . '<br />'
 				);
 
 			}
@@ -205,7 +191,10 @@ class SpecialGWToolset extends SpecialPage {
 	 */
 	public function execute( $par ) {
 
-		if ( !$this->wikiChecks() ) { return; }
+		if ( !$this->wikiChecks() ) {
+			return;
+		}
+
 		$this->setModuleAndHandler();
 		$this->processRequest();
 

@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Helpers;
@@ -30,6 +29,12 @@ class FileChecks {
 
 	/**
 	 * File names may be up to 240 bytes long
+	 *
+	 * @param string $title
+	 * working title
+	 *
+	 * @param string $replacement
+	 * replaces a restricted character if found in the working title
 	 *
 	 * @see https://commons.wikimedia.org/wiki/Commons:File_naming
 	 * @see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)
@@ -68,7 +73,7 @@ class FileChecks {
 
 		if ( is_array( $wgMaxUploadSize ) ) {
 
-			if ( !is_null( $forType ) && isset( $wgMaxUploadSize[$forType] ) ) {
+			if ( $forType !== null && isset( $wgMaxUploadSize[$forType] ) ) {
 
 				return $wgMaxUploadSize[$forType];
 
@@ -124,11 +129,15 @@ class FileChecks {
 	 */
 	public static function getFileAcceptAttribute( array &$accepted_types = array() ) {
 
-		if ( Config::$use_file_accept_attribute ) {
+		$result = null;
 
-			return 'accept="' . \GWToolset\getArrayAsList( self::getAcceptedMimeTypes( $accepted_types ) ) . '"';
+		if ( !empty( $accepted_types ) && Config::$use_file_accept_attribute ) {
+
+			$result = 'accept="' . implode( ', ', self::getAcceptedMimeTypes( $accepted_types ) ) . '"';
 
 		}
+
+		return $result;
 
 	}
 
@@ -142,7 +151,15 @@ class FileChecks {
 	 */
 	public static function getAcceptedExtensionsAsList ( array &$accepted_types = array() ) {
 
-		return \GWToolset\getArrayAsList( self::getAcceptedExtensions( $accepted_types ) );
+		$result = null;
+
+		if ( !empty( $accepted_types ) ) {
+
+			$result = implode( ', ', self::getAcceptedExtensions( $accepted_types ) );
+
+		}
+	
+		return $result;
 
 	}
 
@@ -172,7 +189,7 @@ class FileChecks {
 
 		}
 
-		if ( !is_null( $msg ) ) {
+		if ( $msg !== null ) {
 
 			throw new Exception( $msg );
 
@@ -249,13 +266,13 @@ class FileChecks {
 
 		}
 
-		if ( is_null( $msg ) && !in_array( $extension, $accepted_extensions ) ) {
+		if ( $msg === null && !in_array( $extension, $accepted_extensions ) ) {
 
 			$msg = wfMessage( 'gwtoolset-unaccepted-extension-specific', Filter::evaluate( $extension ) )->plain();
 
 		}
 
-		if ( !is_null( $msg ) ) {
+		if ( $msg !== null ) {
 
 			throw new Exception( $msg );
 
@@ -306,15 +323,11 @@ class FileChecks {
 
 		}
 
-		if ( !is_null( $msg ) ) {
-
+		if ( $msg !== null ) {
 			throw new Exception( $msg );
-
-		} else {
-
-			return true;
-
 		}
+
+		return true;
 
 	}
 

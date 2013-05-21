@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
@@ -23,19 +22,6 @@ use ErrorException,
 function debugArray( $var ) {
 
 	return '<pre>' . print_r( $var, true ) . '</pre>';
-
-}
-
-
-/**
- * @param array $array
- * @param string $delimiter
- * @return string
- */
-function getArrayAsList( array $array, $delimiter = ', ' ) {
-
-	if ( empty( $array ) ) { return null; }
-	return implode( $delimiter, $array );
 
 }
 
@@ -66,7 +52,7 @@ function getMWApiClient( array $curl_options = array() ) {
 	global $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword;
 	$MWApiClient = new Client( $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $curl_options );
 	$MWApiClient->login( $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword );
-	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br/>' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
+	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br />' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
 	return $MWApiClient;
 
 }

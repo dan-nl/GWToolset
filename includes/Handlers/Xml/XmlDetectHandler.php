@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
@@ -309,15 +308,14 @@ class XmlDetectHandler extends XmlHandler {
 		$result = array( 'msg' => null, 'stop-reading' => false );
 
 		if ( empty( $xml_reader ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlreader' )->plain() )->parse() );
-
 		}
 
-		if ( !isset( $user_options['record-element-name'] ) || !isset( $user_options['record-count'] ) || !isset( $user_options['record-number-for-mapping'] ) ) {
-
+		if ( !isset( $user_options['record-element-name'] )
+				|| !isset( $user_options['record-count'] )
+				|| !isset( $user_options['record-number-for-mapping'] )
+		) {
 			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage( 'gwtoolset-dom-record-issue' )->plain() )->parse() );
-
 		}
 
 		switch ( $xml_reader->nodeType ) {
@@ -363,7 +361,11 @@ class XmlDetectHandler extends XmlHandler {
 
 		if ( !( $this->_metadata_example_dom_element instanceof DOMElement ) ) {
 
-			throw new Exception( wfMessage('gwtoolset-no-example-dom-element')->parse() );
+			$msg =
+				'<span class="error">' . wfMessage('gwtoolset-no-xml-element')->plain() . '</span>' . PHP_EOL .
+				wfMessage('gwtoolset-no-example-dom-element')->parse();
+
+			throw new Exception( $msg );
 
 		}
 

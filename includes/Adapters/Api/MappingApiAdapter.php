@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Adapters\Api;
@@ -48,21 +47,15 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		$result = false;
 
 		if ( empty( $options['mapping_json'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-mapping-json' )->plain() )->parse() );
-
 		}
 
 		if ( empty( $options['user_name'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-username' )->plain() )->parse() );
-
 		}
 
 		if ( empty( $options['mapping_name'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-mapping' )-plain() )->parse() );
-
 		}
 
 		// nb: cannot filter the json - maybe need to test it as valid by converting it back and forth with json_decode/encode
@@ -71,14 +64,13 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		$options['title'] = 'User:' . $options['user_name'] . '/' . Config::$metadata_mapping_subdirectory . $options['mapping_name'];
 		$pageid = WikiPages::getTitlePageId( $options['title'] );
 
-		if ( $pageid > -1 ) { // page already exists
-
+		// page already exists
+		if ( $pageid > -1 ) {
 			$options['summary'] = 'updating metadata mapping for User:' . $options['user_name'];
 
-		} else { // page does not yet exist
-
+		 // page does not yet exist
+		 } else {
 			$options['summary'] = 'creating metadata mapping for User:' . $options['user_name'];
-
 		}
 
 		$api_result = $this->savePage( $options );
@@ -86,12 +78,12 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		if ( empty( $api_result['edit'] )
 			|| $api_result['edit']['result'] !== 'Success'
 		) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-result' )->plain() )->parse() );
-
 		}
 
-		if ( $api_result['edit']['result'] == 'Success' ) {	$result = true; }
+		if ( $api_result['edit']['result'] == 'Success' ) {
+			$result = true;
+		}
 
 		return $result;
 

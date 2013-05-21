@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Models;
@@ -176,9 +175,9 @@ class MediawikiTemplate extends Model {
 			if ( empty( $content ) ) { continue; }
 			$sections .= ' | ' . $parameter . ' = ';
 
-			// sometimes the metadata element has several "shared" metadata elements with 
-			// the same element name. at the moment the application will add elements that 
-			// use lang= attribute to an associative array element 'language' indicating 
+			// sometimes the metadata element has several "shared" metadata elements with
+			// the same element name. at the moment the application will add elements that
+			// use lang= attribute to an associative array element 'language' indicating
 			// that the mediawiki template should use the language subtemplate
 			if ( is_array( $content ) ) {
 

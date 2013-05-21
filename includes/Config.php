@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
@@ -211,6 +210,7 @@ class Config {
 	public static $metadata_separator = '; ';
 	public static $title_separator = '-';
 
+
 	/**
 	 * note that this mapping tag has a hardcoded pregmatch in
 	 * GWToolset/includes/Adapters/Api/MappingApiAdapter.php
@@ -219,14 +219,37 @@ class Config {
 	public static $metadata_mapping_open_tag = '<mapping_json>';
 	public static $metadata_mapping_close_tag = '</mapping_json>';
 
+
+	// category automatically assigned to saved metadata mappings
 	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';
+
+	// sub directory used to place a saved metadata mapping within a user’s namespace
 	public static $metadata_mapping_subdirectory = 'Metadata Mappings/';
+
+	// category automatically added to items uploaded by GWToolset
 	public static $mediawiki_template_default_category = 'GWToolset Batch Upload';
+
+	// category automatically assigned to metadata files uploaded by GWToolset
 	public static $metadata_file_category = 'GWToolset Metadata Sets';
 
+	// Category:Source_templates is the category on commons for partner templates
+	public static $source_templates = 'Source templates';
+
+
 	public static $mediawiki_licensing_templates = array(
-		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}{{PD-old}}',
-		'http://creativecommons.org/licenses/by/3.0/' => '{{Cc-by-sa-3.0}}'
+		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}{{PD-old}}', // Public Domain Mark 1.0
+		'http://creativecommons.org/publicdomain/zero/1.0/' => '{{Cc-zero}}', // CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+		'http://creativecommons.org/licenses/by/3.0/' => '{{Cc-by-3.0}}', // Attribution 3.0 Unported (CC BY 3.0)
+		'http://creativecommons.org/licenses/by-sa/3.0/' => '{{Cc-by-sa-3.0}}', // Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
+
+		'http://creativecommons.org/licenses/by-nd/3.0/' => '{{Cc-by-nd-3.0}}', // Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)
+		'http://creativecommons.org/licenses/by-nc/3.0/' => '{{Cc-by-nc-3.0}}', // Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)
+		'http://creativecommons.org/licenses/by-nc-sa/3.0/' => '{{Cc-by-nc-sa-3.0}}', // Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0
+		'http://creativecommons.org/licenses/by-nc-nd/3.0/' => '{{Cc-by-nc-nd-3.0}}' // Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)
 	);
+
+
+	public static $job_throttle = 10;
+
 
 }

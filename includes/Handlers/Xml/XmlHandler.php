@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
@@ -25,21 +24,21 @@ abstract class XmlHandler {
 	 */
 	protected function displayCurrentNodeProperties( XMLReader $reader ) {
 
-		echo 'attributeCount : ' . $reader->attributeCount . '<br/>';
-		echo 'baseURI : ' .$reader->baseURI . '<br/>';
-		echo 'depth : ' .$reader->depth . '<br/>';
-		echo 'hasAttributes : ' .$reader->hasAttributes . '<br/>';
-		echo 'hasValue : ' .$reader->hasValue . '<br/>';
-		echo 'isDefault : ' .$reader->isDefault . '<br/>';
-		echo 'isEmptyElemet : ' .$reader->isEmptyElement . '<br/>';
-		echo 'localName : ' .$reader->localName . '<br/>';
-		echo 'name : ' .$reader->name . '<br/>';
-		echo 'namespaceURI : ' .$reader->namespaceURI . '<br/>';
-		echo 'nodeType : ' .$reader->nodeType . '<br/>';
-		echo 'prefix : ' .$reader->prefix . '<br/>';
-		echo 'value : ' .$reader->value . '<br/>';
-		echo 'xmlLang : ' .$reader->xmlLang . '<br/>';
-		echo '<br/>';
+		echo 'attributeCount : ' . $reader->attributeCount . '<br />';
+		echo 'baseURI : ' .$reader->baseURI . '<br />';
+		echo 'depth : ' .$reader->depth . '<br />';
+		echo 'hasAttributes : ' .$reader->hasAttributes . '<br />';
+		echo 'hasValue : ' .$reader->hasValue . '<br />';
+		echo 'isDefault : ' .$reader->isDefault . '<br />';
+		echo 'isEmptyElemet : ' .$reader->isEmptyElement . '<br />';
+		echo 'localName : ' .$reader->localName . '<br />';
+		echo 'name : ' .$reader->name . '<br />';
+		echo 'namespaceURI : ' .$reader->namespaceURI . '<br />';
+		echo 'nodeType : ' .$reader->nodeType . '<br />';
+		echo 'prefix : ' .$reader->prefix . '<br />';
+		echo 'value : ' .$reader->value . '<br />';
+		echo 'xmlLang : ' .$reader->xmlLang . '<br />';
+		echo '<br />';
 
 	}
 
@@ -59,9 +58,9 @@ abstract class XmlHandler {
 					( ( $subNode->nodeType == 3 ) &&
 					( strlen( trim( $subNode->wholeText ) ) >= 1 ) )
 				) {
-					echo "Node name: ".$subNode->nodeName."<br/>";
-					echo "Node value: ".$subNode->nodeValue."<br/>";
-					echo '<br/>';
+					echo "Node name: ".$subNode->nodeName."<br />";
+					echo "Node value: ".$subNode->nodeValue."<br />";
+					echo '<br />';
 				}
 
 				$this->getNodesInfo($subNode);
@@ -102,7 +101,7 @@ abstract class XmlHandler {
 	 *
 	 * @throws Exception
 	 *
-	 * @return {string|null}
+	 * @return {string}
 	 */
 	protected function readXml( array &$user_options, $file_path_local = null, $callback = null ) {
 
@@ -111,37 +110,32 @@ abstract class XmlHandler {
 		$xml_reader = null;
 
 		if ( empty( $file_path_local ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-local-path' )->plain() )->parse() );
-
 		}
 
 		if ( empty( $callback ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-callback' )->plain() )->parse() );
-
 		}
 
 		$xml_reader = new XMLReader();
 
-			if ( !$xml_reader->open( $file_path_local ) ) {
+		if ( !$xml_reader->open( $file_path_local ) ) {
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-open-xml' )->plain() )->parse() );
+		}
 
-				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-open-xml' )->plain() )->parse() );
+		while ( $xml_reader->read() ) {
 
+			$read_result = $this->$callback( $xml_reader, $user_options );
+			$result .= $read_result['msg'];
+
+			if ( $read_result['stop-reading'] ) {
+				break;
 			}
 
-			while ( $xml_reader->read() ) {
-
-				$read_result = $this->$callback( $xml_reader, $user_options );
-				$result .= $read_result['msg'];
-				if ( $read_result['stop-reading'] ) { break; }
-
-			}
+		}
 
 		if ( !$xml_reader->close() ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-close-xml' )->plain() )->parse() );
-
 		}
 
 		return $result;

@@ -28,12 +28,12 @@ $messages['en'] = array(
 	 * wiki checks
 	 */
 	'gwtoolset-wiki-checks-not-passed' => 'Wiki checks did not pass',
-	'gwtoolset-verify-php-version' => '<span class="error">The GWToolset Extension requires PHP >= 5.3.3</span>',
-	'gwtoolset-verify-curl' => '<span class="error">The GWToolset Extension requires that PHP [http://www.php.net/manual/en/curl.setup.php cURL functions] be installed.</span>',
-	'gwtoolset-verify-xmlreader' => '<span class="error">The GWToolset Extension requires that PHP [http://www.php.net/manual/en/xmlreader.setup.php XMLReader] be installed.</span>',
-	'gwtoolset-verify-finfo' => '<span class="error">The GWToolset Extension requires that the PHP [http://www.php.net/manual/en/fileinfo.setup.php finfo] extension be installed.</span>',
-	'gwtoolset-verify-api-enabled' => '<span class="error">The GWToolset Extension requires that the wiki API is enabled.</span><br />Please make sure <tt>$wgEnableAPI</tt> is set to <tt>true</tt> in the <tt>DefaultSettings.php</tt> file or is overridden to <tt>true</tt> in the <tt>LocalSettings.php</tt> file.',
-	'gwtoolset-verify-api-writeable' => '<span class="error">The GWToolset Extension requires that the wiki API can perform write actions for authorized users.</span><br />Please make sure <tt>$wgEnableWriteAPI</tt> is set to <tt>true</tt> in the <tt>DefaultSettings.php</tt> file or is overridden to <tt>true</tt> in the <tt>LocalSettings.php</tt> file.',
+	'gwtoolset-verify-php-version' => 'The GWToolset Extension requires PHP >= 5.3.3',
+	'gwtoolset-verify-curl' => 'The GWToolset Extension requires that PHP [http://www.php.net/manual/en/curl.setup.php cURL functions] be installed.',
+	'gwtoolset-verify-xmlreader' => 'The GWToolset Extension requires that PHP [http://www.php.net/manual/en/xmlreader.setup.php XMLReader] be installed.',
+	'gwtoolset-verify-finfo' => 'The GWToolset Extension requires that the PHP [http://www.php.net/manual/en/fileinfo.setup.php finfo] extension be installed.',
+	'gwtoolset-verify-api-enabled' => 'The GWToolset Extension requires that the wiki API is enabled.<br />Please make sure <tt>$wgEnableAPI</tt> is set to <tt>true</tt> in the <tt>DefaultSettings.php</tt> file or is overridden to <tt>true</tt> in the <tt>LocalSettings.php</tt> file.',
+	'gwtoolset-verify-api-writeable' => 'The GWToolset Extension requires that the wiki API can perform write actions for authorized users.<br />Please make sure <tt>$wgEnableWriteAPI</tt> is set to <tt>true</tt> in the <tt>DefaultSettings.php</tt> file or is overridden to <tt>true</tt> in the <tt>LocalSettings.php</tt> file.',
 
 
 	/**
@@ -83,7 +83,7 @@ $messages['en'] = array(
 	'gwtoolset-technical-error' => 'There was a Technical Error',
 	'gwtoolset-back-to-form' => 'back to form',
 	'gwtoolset-no-form' => 'There is no form for this module',
-	'gwtoolset-required-field' => '<span class="required">*</span> denotes required field',
+	'gwtoolset-required-field' => ' denotes required field',
 
 
 	/**
@@ -140,18 +140,19 @@ $messages['en'] = array(
 	 */
 	'gwtoolset-metadata-detect-step-1' => 'Step 1 : Metadata Detect',
 	'gwtoolset-metadata-detect-step-1-instructions' => 'The Metadata Upload process consists of 3 steps:' . PHP_EOL . '# Metadata Detection' . PHP_EOL . '# Metadata Mapping' . PHP_EOL . '# Metadata Uploading' . PHP_EOL . 'In this step you upload your metadata file for evaluation. The toolset will attempt to extract the metadata fields available in the metadata file, which you will then map to a MediaWiki Template in Step 2 : Metadata Mapping.',
-	'gwtoolset-record-element-name' => 'What is the xml element that contains each metadata record',
-	'gwtoolset-which-mediawiki-template' => 'Which MediaWiki Template',
-	'gwtoolset-which-metadata-mapping' => 'Which Metadata Mapping',
+	'gwtoolset-record-element-name' => 'What is the xml element that contains each metadata record : ',
+	'gwtoolset-which-mediawiki-template' => 'Which MediaWiki Template : ',
+	'gwtoolset-which-metadata-mapping' => 'Which Metadata Mapping : ',
 	'gwtoolset-metadata-detect-error' => 'Metadata Detect Error',
 	'gwtoolset-metadata-file-source-info' => '... either a file that has been previously uploaded or a file you wish to upload from your computer',
 	'gwtoolset-metadata-file-source' => 'Select the metadata file source',
-	'gwtoolset-metadata-file-url' => 'Metadata file wiki url',
-	'gwtoolset-metadata-file' => 'Metadata file upload',
+	'gwtoolset-metadata-file-url' => 'Metadata file wiki url : ',
+	'gwtoolset-metadata-file' => 'Metadata file upload : ',
 	'gwtoolset-mediawiki-template-not-found' => 'No mediawiki template found for [$1]',
 	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping found for [$1]',
 	'gwtoolset-file-url-invalid' => 'The file url was invalid; the file does not yet exist in the wiki. You need to first upload the file from your computer if you want to use the file url reference in the form.',
-	'gwtoolset-no-example-dom-element' => '<span class="error">No XML element found for mapping.</span>' . PHP_EOL . '* Did you enter a value in the form for “What is the xml element that contains each metadata record”?' . PHP_EOL . '* Is the XML file well-formed? Try this [http://www.w3schools.com/xml/xml_validator.asp XML Validator]',
+	'gwtoolset-no-xml-element' => 'No XML element found for mapping.',
+	'gwtoolset-no-example-dom-element' => '* Did you enter a value in the form for “What is the xml element that contains each metadata record”?' . PHP_EOL . '* Is the XML file well-formed? Try this [http://www.w3schools.com/xml/xml_validator.asp XML Validator]',
 	'gwtoolset-mapping-url-invalid' => 'the metadata mapping url provided is invalid; please check it and submit again',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the json format is invalid. please try and correct it and then submit again [$1].',
 	'gwtoolset-metadata-mapping-wikitext-bad' => 'There’s a problem with the metadata mapping; most likely the json is not contained within a <tt>&lt;mapping_json>&lt;/mapping_json></tt> element. please try and correct it and then submit again [ $1 ].',
@@ -166,6 +167,11 @@ $messages['en'] = array(
 	'gwtoolset-metadata-detect-step-2-instructions' => 'Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.' . PHP_EOL . '* Left column contains a list of all fields in the MediaWiki Template.' . PHP_EOL . '* Right column contains drop-downs with the metadata fields found in your metadata file.' . PHP_EOL . '====For each Mediawiki Template field :====' . PHP_EOL . '# select a metadata value from your uploaded metadata file that corresponds with the Mediwiki Template field' . PHP_EOL . '# you do not need to provide a match for every Mediawiki Template field.',
 	'gwtoolset-metadata-mapping-error' => 'Metadata Mapping Error',
 	'gwtoolset-metadata-mapping-legend' => 'Map your metadata',
+	'gwtoolset-template-field' => 'template field',
+	'gwtoolset-maps-to' => 'maps to',
+	'gwtoolset-results' => 'Results',
+	'gwtoolset-example-record' => 'metadata’s example record’s contents',
+	'gwtoolset-painted-by' => 'Painted by',
 	'gwtoolset-mapping-no-title' => 'The metadata contains no title, which is needed in order to create the page',
 	'gwtoolset-mapping-no-title-identifier' => 'The metadata contains no title identifier, which is used to create a unique page title; make sure you map a metadata field to the mediawiki template parameter title identifier',
 	'gwtoolset-mapping-no-media-file-url' => 'No evaluated media file url was provided',
@@ -186,7 +192,7 @@ $messages['en'] = array(
 	'gwtoolset-phrasing' => 'phrasing',
 	'gwtoolset-metadata-field' => 'metadata field',
 	'gwtoolset-partner' => 'Partner',
-	'gwtoolset-partner-template' => 'partner template',
+	'gwtoolset-partner-template' => 'partner template : ',
 	'gwtoolset-partner-explanation' => 'Partner templates are pulled into the source field of the mediawiki template when provided. You can find a list of current Partner Templates on the Category:Source templates page; see link below. Once you’ve found the Partner Template you wish to use place the url to it in this field. You can also create a new Partner Template if necessary.',
 
 
@@ -198,8 +204,8 @@ $messages['en'] = array(
 	'mw-api-client-curl-no-handle-create' => 'Could not create a cURL handle',
 	'mw-api-client-no-edit-token' => 'Could not get an Edit Token for this user.',
 	'mw-api-client-unknown-error' => 'An unknown error occurred.',
-	'mw-api-client-invalid-module' => 'The module <b><tt>[$1]</tt></b> is not a valid API module.',
-	'mw-api-client-internal-error' => 'Most likely a problem with creating a directory for the upload.<br />Check file permissions on the public image directory.',
+	'mw-api-client-invalid-module' => "The module '''<tt>[$1]</tt>''' is not a valid API module.",
+	'mw-api-client-internal-error' => 'Most likely a problem with creating a directory for the upload. Check file permissions on the public image directory.',
 	'mw-api-client-permissiondenied' => 'Most likely the api user utilized by GWToolset does not belong to a group that has <tt>upload</tt> or <tt>upload_by_url</tt> rights. Make sure the api user utilized by GWToolset, specified in <tt>LocalSettings.php</tt> as <tt>$wgGWToolsetApiUser</tt>, belongs to a group that has the <tt>upload</tt> and <tt>upload_by_url</tt> rights and that the api user belongs to the <tt>gwtoolset</tt> group.',
 	'mw-api-client-no-logout' => 'Logut Error : Could not properly log out.',
 	'mw-api-client-NoName' => 'You didn’t set the api lgname parameter. Is the <tt>$wgGWToolsetApiUser</tt> setting correct in the <tt>LocalSettings.php</tt> file and before the include of the extension?',
@@ -218,6 +224,8 @@ $messages['en'] = array(
 	'mw-api-client-no login-token-received' => 'Did not receive a login token from the application.',
 	'mw-api-client-api-response-is-not-serializable' => 'Result returned is not unserializable; make sure:',
 	'mw-api-client-troubleshooting-tips' => '* the api endpoint is set properly' . PHP_EOL . '* the application is up and running' . PHP_EOL . '* the api call is correctly formed' . PHP_EOL . '* the wiki can properly use curl to connect with the api',
+	'mw-api-client-no-params' => 'No Upload Parameters specified.',
+	'mw-api-client-not-valid-param' => "The Upload Parameter '''<tt>[$1]</tt>''' is not a valid upload parameter.",
 
 
 	/**
@@ -229,7 +237,7 @@ $messages['en'] = array(
 	/**
 	 * jobs
 	 */
-	'gwtoolset-batchjob-metadata-created' => 'Batch job added. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process.<br />You can check the [$1] page to see when they have been uploaded.',
+	'gwtoolset-batchjob-metadata-created' => 'Batch job added. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process. You can check the [$1] page to see when they have been uploaded.',
 	'gwtoolset-batchjobs-item-created' => 'Batch jobs for ($1) item(s) have been created; these will process one at a time via a background job.',
 	'gwtoolset-batchjobs-item-created-some' => 'Unfortunately not all items were added as batch jobs. Batch jobs were created for ($1) item(s); with ($2) items having an issue. Please contact a developer if this is a problem.'
 

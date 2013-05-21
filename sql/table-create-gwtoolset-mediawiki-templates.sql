@@ -6,8 +6,8 @@
 
 CREATE TABLE IF NOT EXISTS /*_*/gwtoolset_mediawiki_templates (
 
-	`mediawiki_template_name`		varchar(255)	NOT NULL,
-	`mediawiki_template_json`		blob			NOT NULL,
+	`mediawiki_template_name` varchar(255) NOT NULL,
+	`mediawiki_template_json` blob NOT NULL,
 	PRIMARY KEY (`mediawiki_template_name`)
 
 ) /*$wgDBTableOptions*/;

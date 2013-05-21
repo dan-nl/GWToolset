@@ -25,7 +25,7 @@ if ( !defined( 'MEDIAWIKI' ) ) {
 /**
  * set extension directory reference to this directory
  */
-$wgGWToolsetDir = realpath( dirname( __FILE__ ) );
+$wgGWToolsetDir = realpath( __DIR__ );
 
 
 /*
@@ -140,7 +140,16 @@ $wgResourceModules['ext.GWToolset'] = Config::$resources;
 /**
  * check environment variables
  */
-if ( (int)ini_get('memory_limit') < 256) { ini_set('memory_limit', '256M'); } // 128M default
-if ( $wgMaxImageArea < 64000000 ) { $wgMaxImageArea = 64000000; } // 12500000 default
+if ( (int)ini_get('memory_limit') < 256) {
+	ini_set('memory_limit', '256M'); // 128M default
+}
+
+if ( $wgMaxImageArea < 64000000 ) {
+	$wgMaxImageArea = 64000000; // 12500000 default
+}
+
 //$wgMaxShellMemory = 102400; // 102400 default
-if ( $wgHTTPTimeout < 1200 ) { $wgHTTPTimeout = 1200; } // 20 minutes, 25 seconds default
+
+if ( $wgHTTPTimeout < 1200 ) {
+	$wgHTTPTimeout = 1200; // 20 minutes, 25 seconds default
+}

@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
@@ -78,24 +77,18 @@ class MetadataDetectHandler extends FormHandler {
 		$result = null;
 
 		if ( !isset( $user_options['mediawiki-template-name'] ) ) {
-
 			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage( 'gwtoolset-no-mediawiki-template' )->plain() )->parse() );
-
 		}
 
 		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $user_options );
 		$this->_Mapping->retrieve( $user_options );
 
 		if ( !empty( $user_options['metadata-mapping'] ) && empty( $this->_Mapping->mapping_array ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->rawParams( Filter::evaluate( $user_options['metadata-mapping'] ) )->plain() );
-
 		}
 
 		foreach( $this->_MediawikiTemplate->mediawiki_template_array as $parameter => $value ) {
-
 			$result .= $this->_XmlDetectHandler->getMetadataAsTableCells( $parameter, $this->_MediawikiTemplate, $this->_Mapping );
-
 		}
 
 		return $result;
@@ -130,28 +123,21 @@ class MetadataDetectHandler extends FormHandler {
 		$result = array( 'msg' => null, 'uploaded' => false );
 
 		if ( !isset( $user_options[ $metadata_file_url ] ) && !isset( $_FILES[ $metadata_file_upload ] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-metadata-file-url-not-present' )->plain() );
-
 		}
 
 		if ( !empty( $user_options[ $metadata_file_url ] ) ) {
-
 			return $result['msg'];
-
 		}
 
 		$this->_UploadHandler->getUploadedFileFromForm( $metadata_file_upload );
 		$result = $this->_UploadHandler->saveMetadataFile();
 
 		if ( !$result['uploaded'] ) {
-
 			throw new Exception( $result['msg'] );
-
 		}
 
 		$user_options[ $metadata_file_url ] = $this->_UploadHandler->getSavedFileName();
-
 		return $result['msg'];
 
 	}
@@ -176,10 +162,8 @@ class MetadataDetectHandler extends FormHandler {
 		);
 
 		if ( !empty( $result['metadata-mapping-url'] ) ) {
-
 			$mapping_details = WikiPages::getUsernameAndPageFromUrl( $result['metadata-mapping-url'] );
 			$result['metadata-mapping'] = str_replace( array( Config::$metadata_mapping_subdirectory, str_replace( ' ', '_', Config::$metadata_mapping_subdirectory ) ), '', $mapping_details[1] );
-
 		}
 
 		return $result;

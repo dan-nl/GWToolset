@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
@@ -173,7 +172,7 @@ class XmlMappingHandler extends XmlHandler {
 
 								} else {
 
-									// .= produces PHP Fatal error:  Cannot use assign-op operators with overloaded objects nor string offsets 
+									// .= produces PHP Fatal error:  Cannot use assign-op operators with overloaded objects nor string offsets
 									$elements_mapped[ $template_parameter ][0] = $elements_mapped[ $template_parameter ][0] . Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 								}
@@ -183,7 +182,6 @@ class XmlMappingHandler extends XmlHandler {
 								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
 							}
-							
 
 						}
 
@@ -202,11 +200,12 @@ class XmlMappingHandler extends XmlHandler {
 
 	/**
 	 * using an xml reader, for stream reading of the xml file, find dom elements
-	 * that match the metadata record, indicated by the user form,
+	 * that match the metadata record element indicated by the user form,
 	 * $user_options['record-element-name']
 	 *
-	 * each matched metadata record, is sent to processMatchingElement() to be
-	 * saved as a new wiki page or to update an existing wiki page for the record
+	 * each matched metadata record, is sent to
+	 * $this->_MappingHandler->processMatchingElement() to be saved as a new
+	 * wiki page or to update an existing wiki page for the record
 	 *
 	 * @param {XMLReader} $xml_reader
 	 *
@@ -219,21 +218,19 @@ class XmlMappingHandler extends XmlHandler {
 	 * - $result['msg'] an html string with the <li> results from the api createPage(), updatePage() calls
 	 * - $result['stop-reading'] boolean stating whether or not to conitnue reading the XML document
 	 */
-	public function processDOMElements( XMLReader &$xml_reader, array &$user_options ) {
+	public function processDOMElements( XMLReader $xml_reader, array &$user_options ) {
 
 		$result = array( 'msg' => null, 'stop-reading' => false );
 		$DOMElement = null;
 
 		if ( empty( $xml_reader ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlreader' )->plain() )->parse() );
-
 		}
 
-		if ( !isset( $user_options['record-element-name'] ) || !isset( $user_options['record-count'] ) ) {
-
+		if ( !isset( $user_options['record-element-name'] )
+			|| !isset( $user_options['record-count'] )
+		) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-dom-record-issue' )->plain() )->parse() );
-
 		}
 
 		switch ( $xml_reader->nodeType ) {
@@ -243,18 +240,25 @@ class XmlMappingHandler extends XmlHandler {
 				if ( $xml_reader->name == $user_options['record-element-name'] ) {
 
 					$user_options['record-count'] += 1;
+
+					if ( empty( $this->_MappingHandler->_SpecialPage ) ) {
+
+						if ( $user_options['record-count'] < $user_options['record-begin'] ) {
+							break;
+						}
+
+						if ( $user_options['record-count'] > $user_options['record-begin'] + Config::$job_throttle ) {
+							$result['stop-reading'] = true;
+							break;
+						}
+
+					}
+
 					$DOMElement = $xml_reader->expand();
 
 					if ( !empty( $DOMElement ) && $DOMElement instanceof DOMElement ) {
-
 						$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ), $xml_reader->readOuterXml() );
-
-						$result['msg'] =
-							'<p>' . $user_options['record-count'] . ' record(s) uploaded. Links to the uploaded file(s)</p>' .
-							'<ul>' .
-								$result['msg'] .
-							'</ul>';
-
+						$result['msg'] = '<ul>' . $result['msg'] . '</ul>';
 					}
 
 				}
@@ -279,12 +283,12 @@ class XmlMappingHandler extends XmlHandler {
 	 * a local wiki path to the xml metadata file. the assumption is that it
 	 * has been uploaded to the wiki earlier and is ready for use
 	 *
-	 * @return string
+	 * @return {string}
 	 */
 	public function processXml( array &$user_options, $file_path_local = null ) {
 
 		$result =
-			'<h2>Results</h2>' .
+			'<h2>' . wfMessage('gwtoolset-results')->plain() . '</h2>' .
 			$this->readXml( $user_options, $file_path_local, 'processDOMElements' );
 
 		return $result;

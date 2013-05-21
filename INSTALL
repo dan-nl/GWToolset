@@ -35,7 +35,6 @@ The following settings should be added or already present in the
 `LocalSettings.php` file :
 
 _enable uploads and url uploading_
-
 * `$wgEnableUploads  = true;`
 * `$wgAllowCopyUploads = true;`
 
@@ -47,17 +46,17 @@ _api user_
 * make sure you create or already have an api user account in your wiki and set
 	the following global variables to that user name with its corresponding
 	password :
-*	`$wgGWToolsetApiUser = 'gwtoolset';`
+*	`$wgGWToolsetApiUser = 'Gwtoolset';`
 *	`$wgGWToolsetApiUserPassword = 'api_users_password';`
 * make sure that api user is part of the gwtoolset group, see `Special:UserRights`
 
 _load the extension_
-
 * `require_once( "$IP/extensions/GWToolset/GWToolset.php" );`
 
 
 ### Assign Users
-Assign users to the gwtoolset group as appropriate.
+Assign users to the gwtoolset group as appropriate with the Special:UserRights
+page
 
 
 ### Image folder permissions

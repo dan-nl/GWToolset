@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  * based on Curl class developed by Chris G - http://en.wikipedia.org/wiki/User:Chris_G
  */
@@ -83,8 +82,8 @@ class Curl {
 		}
 
 	}
-	
-	
+
+
 	protected function isUrlValid( &$url ) {
 
 		if ( !filter_var( $url, FILTER_VALIDATE_URL ) ) {

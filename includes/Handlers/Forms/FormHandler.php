@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
@@ -33,7 +32,7 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		}
 
-		if ( !is_null( $msg ) ) {
+		if ( $msg !== null ) {
 
 			$msg =
 				'<p class="error">' . wfMessage( 'gwtoolset-metadata-user-options-error' )->plain() . '</p>' .
@@ -49,7 +48,7 @@ abstract class FormHandler extends SpecialPageHandler {
 
 	protected function getFormClass( $module_name ) {
 
-		if ( is_null( $module_name ) ) {
+		if ( $module_name === null ) {
 
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-module' )->plain() )->parse() );
 

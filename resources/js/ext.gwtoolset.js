@@ -364,7 +364,7 @@
 		addAjaxLoader : function() {
 
 			this.$ajax_loader
-				.append('<p><img src="/skins/common/images/ajax-loader.gif"/><br/>' + mw.msg('gwtoolset-loading') + '</p>');
+				.append('<p><img src="/skins/common/images/ajax-loader.gif"/><br />' + mw.msg('gwtoolset-loading') + '</p>');
 			this.$form.prepend( this.$ajax_loader );
 
 		},
