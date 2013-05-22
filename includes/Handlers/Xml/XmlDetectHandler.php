@@ -21,20 +21,17 @@ class XmlDetectHandler extends XmlHandler {
 
 
 	/**
-	 * @var DOMElement
-	 * a place to store the example DOMElement at the class scope level. if the
-	 * DOMElement is placed in a function scope variable, it will be losed if passed
-	 * to another function because the DOMElement will no longer exist outside of the
-	 * function scope
-	 *
-	 * @see https://bugs.php.net/bug.php?id=39593
+	 * @var array
+	 * an array collection of nodeName => nodeValues[] that are taken from the
+	 * first matched dom element and will be used during the metadata mapping step
+	 * of the upload process
 	 */
-	protected $_metadata_example_dom_element;
+	protected $_metadata_example_dom_element = array();
 
 
 	/**
 	 * @var array
-	 * an array collection of DOMNodes found in $this->_metadata_example_dom_element
+	 * an array collection of nodeName => nodeValue matches
 	 */
 	protected $_metadata_example_dom_nodes = array();
 
@@ -57,13 +54,17 @@ class XmlDetectHandler extends XmlHandler {
 
 		$result = null;
 
-		foreach( $this->_metadata_example_dom_nodes as $DOMNode ) {
+		foreach( $this->_metadata_example_dom_element as $nodeName => $nodeValues ) {
 
-			$result .=
-				'<tr>' .
-					'<td>' . $DOMNode->nodeName . '</td>' .
-					'<td>' . $DOMNode->nodeValue . '</td>' .
-				'</tr>';
+			foreach( $nodeValues as $nodeValue ) {
+
+				$result .=
+					'<tr>' .
+						'<td>' . $nodeName . '</td>' .
+						'<td>' . $nodeValue . '</td>' .
+					'</tr>';
+
+			}
 
 		}
 
@@ -76,17 +77,15 @@ class XmlDetectHandler extends XmlHandler {
 
 		$result = '<option></option>';
 
-		foreach ( $this->_metadata_example_dom_nodes as $DOMNode ) {
+		foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
 
 			$result .= '<option';
 
-			if ( !empty( $selected_option ) && $DOMNode->nodeName == $selected_option ) {
-
+			if ( !empty( $selected_option ) && $nodeName == $selected_option ) {
 				$result .= ' selected="selected"';
-
 			}
 
-			$result .= '>' . $DOMNode->nodeName . '</option>';
+			$result .= '>' . $nodeName . '</option>';
 
 		}
 
@@ -139,27 +138,21 @@ class XmlDetectHandler extends XmlHandler {
 			'</tr>';
 
 		if ( isset( $Mapping->mapping_array[ $parameter ] ) ) {
-
 			$selected_options = $Mapping->mapping_array[ $parameter ];
-
 		}
 
 		if ( empty( $this->_metadata_as_options ) ) {
 
 			$this->_metadata_as_options = '<option></option>';
 
-			foreach ( $this->_metadata_example_dom_nodes as $DOMNode ) {
-
-				$this->_metadata_as_options .= '<option>' . $DOMNode->nodeName . '</option>';
-
+			foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
+				$this->_metadata_as_options .= '<option>' . $nodeName . '</option>';
 			}
 
 		}
 
 		if ( in_array( $parameter_as_id, $required_fields ) ) {
-
 			$required = ' <span class="required">*</span>';
-
 		}
 
 		if ( 'url_to_the_media_file' == $parameter_as_id ) {
@@ -256,6 +249,33 @@ class XmlDetectHandler extends XmlHandler {
 
 
 	/**
+	 * @param {DOMElement} $DOMElement
+	 * @return void
+	 */
+	protected function createExampleDOMElement( DOMElement $DOMElement ) {
+
+		foreach( $DOMElement->childNodes as $DOMNode ) {
+
+			if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
+
+				if ( isset( $this->_metadata_example_dom_element[ $DOMNode->nodeName ] ) ) {
+
+					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][] = $DOMNode->nodeValue;
+
+				} else {
+
+					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][0] = $DOMNode->nodeValue;
+
+				}
+
+			}
+
+		}
+
+	}
+
+
+	/**
 	 * 1. takes in a DOMElement that will be used as the basis for the metadata mapping
 	 * 2. adds the first level children of the DOMElement as an array collection
 	 * of DOMNodes in $this->_metadata_example_dom_nodes
@@ -264,21 +284,19 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return void
 	 */
 	protected function findExampleDOMNodes( DOMElement $DOMElement ) {
-
+	
 		foreach( $DOMElement->childNodes as $DOMNode ) {
-
+	
 			if ( $DOMNode->nodeType == XML_ELEMENT_NODE
 				&& !array_key_exists( $DOMNode->nodeName, $this->_metadata_example_dom_nodes )
 			) {
-
-				$this->_metadata_example_dom_nodes[ $DOMNode->nodeName ] = $DOMNode;
-
+				$this->_metadata_example_dom_nodes[ $DOMNode->nodeName ] = $DOMNode->nodeValue;
 			}
-
+	
 		}
-
+	
 		ksort( $this->_metadata_example_dom_nodes );
-
+	
 	}
 
 
@@ -289,7 +307,6 @@ class XmlDetectHandler extends XmlHandler {
 	 *
 	 * - $user_options['record-element-name']
 	 * - $user_options['record-count']
-	 * - $user_options['record-number-for-mapping']
 	 *
 	 * if a matching dom element is found it is placed in
 	 * $this->_metadata_example_dom_element
@@ -306,6 +323,7 @@ class XmlDetectHandler extends XmlHandler {
 	protected function findExampleDOMElement( XMLReader &$xml_reader, array &$user_options ) {
 
 		$result = array( 'msg' => null, 'stop-reading' => false );
+		$record = null;
 
 		if ( empty( $xml_reader ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlreader' )->plain() )->parse() );
@@ -313,7 +331,6 @@ class XmlDetectHandler extends XmlHandler {
 
 		if ( !isset( $user_options['record-element-name'] )
 				|| !isset( $user_options['record-count'] )
-				|| !isset( $user_options['record-number-for-mapping'] )
 		) {
 			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage( 'gwtoolset-dom-record-issue' )->plain() )->parse() );
 		}
@@ -325,13 +342,13 @@ class XmlDetectHandler extends XmlHandler {
 				if ( $xml_reader->name == $user_options['record-element-name'] ) {
 
 					$user_options['record-count'] += 1;
+					$record = $xml_reader->expand();
 
-					if ( $user_options['record-count'] == $user_options['record-number-for-mapping'] ) {
-
-						$this->_metadata_example_dom_element = $xml_reader->expand();
-						$result['stop-reading'] = true;
-
+					if ( $user_options['record-count'] == 1 ) {
+						$this->createExampleDOMElement( $record );
 					}
+
+					$this->findExampleDOMNodes( $record );
 
 				}
 
@@ -345,8 +362,10 @@ class XmlDetectHandler extends XmlHandler {
 
 
 	/**
-	 * acts as a control function for retrieving one metadata dom element from
-	 * the xml to be used for mapping the mediawiki template to the xml metadata elements
+	 * acts as a control method for retrieving dom elements from the
+	 * metadata xml to be used for creating option menus and an example xml record
+	 * that will be used for mapping the mediawiki template attributes to the
+	 * xml metadata elements
 	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
@@ -358,18 +377,6 @@ class XmlDetectHandler extends XmlHandler {
 	public function processXml( array &$user_options, $file_path_local = null ) {
 
 		$this->readXml( $user_options, $file_path_local, 'findExampleDOMElement' );
-
-		if ( !( $this->_metadata_example_dom_element instanceof DOMElement ) ) {
-
-			$msg =
-				'<span class="error">' . wfMessage('gwtoolset-no-xml-element')->plain() . '</span>' . PHP_EOL .
-				wfMessage('gwtoolset-no-example-dom-element')->parse();
-
-			throw new Exception( $msg );
-
-		}
-
-		$this->findExampleDOMNodes( $this->_metadata_example_dom_element );
 
 	}
 

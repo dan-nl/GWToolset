@@ -157,7 +157,6 @@ class MetadataDetectHandler extends FormHandler {
 			'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : null,
 			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
 			'metadata-mapping-url' => !empty( $_POST['metadata-mapping-url'] ) ? Filter::evaluate( $_POST['metadata-mapping-url'] ) : null,
-			'record-number-for-mapping' => 1,
 			'record-count' => 0
 		);
 
@@ -197,7 +196,6 @@ class MetadataDetectHandler extends FormHandler {
 			array(
 				'record-element-name',
 				'mediawiki-template-name',
-				'record-number-for-mapping',
 				'record-count'
 			)
 		);
