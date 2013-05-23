@@ -26,7 +26,7 @@ class XmlDetectHandler extends XmlHandler {
 	 * first matched dom element and will be used during the metadata mapping step
 	 * of the upload process
 	 */
-	protected $_metadata_example_dom_element = array();
+	protected $_metadata_example_dom_element;
 
 
 	/**
@@ -373,15 +373,44 @@ class XmlDetectHandler extends XmlHandler {
 	 * @param {string} $file_path_local
 	 * a local wiki path to the xml metadata file. the assumption is that it
 	 * has been uploaded to the wiki earlier and is ready for use
+	 *
+	 * @throws Exception
+	 * @return void
 	 */
 	public function processXml( array &$user_options, $file_path_local = null ) {
 
 		$this->readXml( $user_options, $file_path_local, 'findExampleDOMElement' );
 
+		if ( empty( $this->_metadata_example_dom_element ) ) {
+
+			$msg =
+				'<span class="error">' . wfMessage('gwtoolset-no-xml-element')->plain() . '</span>' . PHP_EOL .
+				wfMessage('gwtoolset-no-example-dom-element')->parse() . '<br />' . PHP_EOL .
+				$this->_SpecialPage->getBackToFormLink();
+
+				throw new Exception( $msg );
+
+		}
+
 	}
 
 
-	public function __construct() {}
+	public function reset() {
+
+		$this->_metadata_as_options = null;
+		$this->_metadata_example_dom_element = array();
+		$this->_metadata_example_dom_nodes = array();
+		$this->_SpecialPage = null;
+
+	}
+
+
+	public function __construct( array $options = array() ) {
+
+		$this->reset();
+		if ( isset( $options['SpecialPage'] ) ) { $this->_SpecialPage = $options['SpecialPage']; }
+
+	}
 
 
 }

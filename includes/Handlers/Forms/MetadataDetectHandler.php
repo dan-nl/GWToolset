@@ -220,7 +220,7 @@ class MetadataDetectHandler extends FormHandler {
 		WikiPages::$MWApiClient = $this->_MWApiClient;
 		$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
 
-		$this->_XmlDetectHandler = new XmlDetectHandler();
+		$this->_XmlDetectHandler = new XmlDetectHandler( array( 'SpecialPage' => $this->_SpecialPage ) );
 		$this->_XmlDetectHandler->processXml( $this->_user_options, $wiki_file_path );
 
 		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
