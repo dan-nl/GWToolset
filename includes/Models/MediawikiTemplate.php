@@ -181,6 +181,8 @@ class MediawikiTemplate extends Model {
 					}
 				}
 			} else {
+				$content = trim( $content );
+
 				if ( 'institution' == $parameter ) {
 					$sections .= sprintf(
 						$this->_sub_templates['institution'],
@@ -197,7 +199,7 @@ class MediawikiTemplate extends Model {
 						$creator = explode( ',', $creator, 2 );
 
 						if ( 2 == count( $creator ) ) {
-							$creator = trim( $creator[1] ) . ' ' . $creator[0];
+							$creator = trim( $creator[1] ) . ' ' . trim( $creator[0] );
 						} else {
 							$creator = trim( $creator[0] );
 						}
@@ -209,13 +211,47 @@ class MediawikiTemplate extends Model {
 					}
 				} elseif ( 'permission' == $parameter ) {
 					// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
-					$sections .= Filter::evaluate(
-						str_replace(
-							array_keys( Config::$mediawiki_licensing_templates ),
-							array_values( Config::$mediawiki_licensing_templates ),
-							$content
-						)
-					) . PHP_EOL;
+					if ( strstr( $content, 'http://creativecommons.org/' ) ) {
+						$patterns = array(
+							'/http:\/\/creativecommons.org\/publicdomain\/mark\/1.0\//',
+							'/http:\/\/creativecommons.org\/publicdomain\/zero\/1.0\//',
+							'/http:\/\/creativecommons.org\/licenses\//'
+						);
+
+						$replacements = array(
+							'{{PD-US}}{{PD-old}}', // Public Domain Mark 1.0
+							'{{Cc-zero}}', // CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+							''
+						);
+
+						$result = preg_replace( $patterns, $replacements, $content );
+						$result = explode( '/', $result );
+
+						if ( count( $result ) > 1 ) {
+							$i = 0;
+							$string = '{{Cc-';
+
+							foreach( $result as $piece ) {
+								if ( !empty( $piece ) ) {
+									$string .= $piece . '-';
+								}
+
+								$i++;
+
+								if ( $i == 3 ) {
+									break;
+								}
+							}
+
+							$string = substr( $string, 0, strlen( $string ) - 1 );
+							$string .= '}}';
+							$result = $string;
+						} else {
+							$result = $result[0];
+						}
+					}
+
+					$sections .= Filter::evaluate( $result ) . PHP_EOL;
 				} elseif ( 'source' == $parameter ) {
 					if ( !empty( $user_options['partner-template-name'] ) ) {
 						$sections .= Filter::evaluate( $content ) . '{{' . $user_options['partner-template-name'] . '}}' . PHP_EOL;

@@ -200,18 +200,8 @@ class Config {
 	// Category:Source_templates is the category on commons for partner templates
 	public static $source_templates = 'Source templates';
 
-	public static $mediawiki_licensing_templates = array(
-		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}{{PD-old}}', // Public Domain Mark 1.0
-		'http://creativecommons.org/publicdomain/zero/1.0/' => '{{Cc-zero}}', // CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
-		'http://creativecommons.org/licenses/by/3.0/' => '{{Cc-by-3.0}}', // Attribution 3.0 Unported (CC BY 3.0)
-		'http://creativecommons.org/licenses/by-sa/3.0/' => '{{Cc-by-sa-3.0}}', // Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0)
-
-		'http://creativecommons.org/licenses/by-nd/3.0/' => '{{Cc-by-nd-3.0}}', // Attribution-NoDerivs 3.0 Unported (CC BY-ND 3.0)
-		'http://creativecommons.org/licenses/by-nc/3.0/' => '{{Cc-by-nc-3.0}}', // Attribution-NonCommercial 3.0 Unported (CC BY-NC 3.0)
-		'http://creativecommons.org/licenses/by-nc-sa/3.0/' => '{{Cc-by-nc-sa-3.0}}', // Attribution-NonCommercial-ShareAlike 3.0 Unported (CC BY-NC-SA 3.0
-		'http://creativecommons.org/licenses/by-nc-nd/3.0/' => '{{Cc-by-nc-nd-3.0}}' // Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)
-	);
-
 	public static $job_throttle = 10;
+
+	public static $preview_throttle = 5;
 
 }
