@@ -224,14 +224,14 @@ class MediawikiTemplate extends Model {
 							''
 						);
 
-						$result = preg_replace( $patterns, $replacements, $content );
-						$result = explode( '/', $result );
+						$new_string = preg_replace( $patterns, $replacements, $content );
+						$new_string = explode( '/', $new_string );
 
-						if ( count( $result ) > 1 ) {
+						if ( count( $new_string ) > 1 ) {
 							$i = 0;
 							$string = '{{Cc-';
 
-							foreach( $result as $piece ) {
+							foreach( $new_string as $piece ) {
 								if ( !empty( $piece ) ) {
 									$string .= $piece . '-';
 								}
@@ -245,13 +245,13 @@ class MediawikiTemplate extends Model {
 
 							$string = substr( $string, 0, strlen( $string ) - 1 );
 							$string .= '}}';
-							$result = $string;
+							$new_string = $string;
 						} else {
-							$result = $result[0];
+							$new_string = $new_string[0];
 						}
 					}
 
-					$sections .= Filter::evaluate( $result ) . PHP_EOL;
+					$sections .= Filter::evaluate( $new_string ) . PHP_EOL;
 				} elseif ( 'source' == $parameter ) {
 					if ( !empty( $user_options['partner-template-name'] ) ) {
 						$sections .= Filter::evaluate( $content ) . '{{' . $user_options['partner-template-name'] . '}}' . PHP_EOL;
