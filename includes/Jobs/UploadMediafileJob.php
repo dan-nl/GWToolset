@@ -15,31 +15,33 @@ use Exception,
 	GWToolset\MediaWiki\Api\Client,
 	User;
 
-
 class UploadMediafileJob extends Job {
-
 
 	/**
 	 * @var GWToolset\MediaWiki\Api\Client
 	 */
 	protected $_MWApiClient;
 
-
 	/**
 	 * GWToolset\Handlers\UploadHandler
 	 */
 	protected $_UploadHandler;
-
 
 	/**
 	 * @var User
 	 */
 	protected $_User;
 
+	/**
+	 * @var string
+	 */
 	public $filename_metadata;
 
-	protected function processMetadata() {
+	public function __construct( $title, $params, $id = 0 ) {
+		parent::__construct( 'gwtoolsetUploadMediafileJob', $title, $params, $id );
+	}
 
+	protected function processMetadata() {
 		$result = false;
 
 		$this->_MWApiClient = \GWToolset\getMWApiClient();
@@ -55,33 +57,25 @@ class UploadMediafileJob extends Job {
 
 		WikiPages::$MWApiClient = $this->_MWApiClient;
 		$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
-		$result = $this->_UploadHandler->savePageViaApiUpload( $this->params, true );
+		$result = $this->_UploadHandler->savePageNow( $this->params, true );
 
 		return $result;
-
 	}
 
-
 	protected function validateParams() {
-
 		$result = true;
 
-		if ( empty( $this->params['user'] ) ) {
-
-			error_log( __METHOD__ . ' : no $this->params[\'user\'] provided' . PHP_EOL );
+		if ( empty( $this->params['username'] ) ) {
+			error_log( __METHOD__ . ' : no $this->params[\'username\'] provided' . PHP_EOL );
 			$result = false;
-
 		}
 
 		if ( empty( $this->params['user_options'] ) ) {
-
 			error_log( __METHOD__ . ' : no $this->params[\'user_options\'] provided' . PHP_EOL );
 			$result = false;
-
 		}
 
 		return $result;
-
 	}
 
 	/**
@@ -89,14 +83,13 @@ class UploadMediafileJob extends Job {
 	 * return false seems to do nothing
 	 */
 	public function run() {
-
 		$result = false;
 
 		if ( !$this->validateParams() ) {
-			return false;
+			return $result;
 		}
 
-		$this->_User = User::newFromName( $this->params['user'] );
+		$this->_User = User::newFromName( $this->params['username'] );
 
 		try {
 			$result = $this->processMetadata();
@@ -105,19 +98,10 @@ class UploadMediafileJob extends Job {
 		}
 
 		if ( !$result ) {
-			error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source. Job took $time seconds to complete." );
+			error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source." );
 		}
 
 		return $result;
-
 	}
-
-
-	public function __construct( $title, $params, $id = 0 ) {
-
-		parent::__construct( 'gwtoolsetUploadMediafileJob', $title, $params, $id );
-
-	}
-
 
 }

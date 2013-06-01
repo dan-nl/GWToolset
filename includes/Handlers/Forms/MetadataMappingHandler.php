@@ -22,48 +22,54 @@ use GWToolset\Adapters\Api\MappingApiAdapter,
 	Title,
 	User;
 
-
 class MetadataMappingHandler extends FormHandler {
-
 
 	/**
 	 * @var GWToolset\Models\Mapping
 	 */
 	protected $_Mapping;
 
-
 	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
 	protected $_MediawikiTemplate;
-
 
 	/**
 	 * @var GWToolset\MediaWiki\Api\Client
 	 */
 	protected $_MWApiClient;
 
-
 	/**
-	 * GWToolset\Handlers\UploadHandler
+	 * @var GWToolset\Handlers\UploadHandler
 	 */
 	protected $_UploadHandler;
 
-
+	/**
+	 * @var array
+	 */
 	protected $_user_options;
-
 
 	/**
 	 * @var GWToolset\Handlers\Xml\XmlMappingHandler
 	 */
 	protected $_XmlMappingHandler;
 
+	/**
+	 * allow parent constructor to be overridden so that this class can be used
+	 * from a Job Queue job without a special page
+	 */
+	public function __construct( SpecialPage $SpecialPage = null, User $User = null ) {
+		if ( !empty( $SpecialPage ) ) {
+			parent::__construct( $SpecialPage, $User );
+		} elseif ( !empty( $User ) ) {
+			$this->_User = $User;
+		}
+	}
 
 	/**
 	 * @return void
 	 */
 	protected function processMetadata() {
-
 		$result = null;
 		$wiki_file_path = null;
 		$this->_Mapping = null;
@@ -106,12 +112,9 @@ class MetadataMappingHandler extends FormHandler {
 		}
 
 		return $result;
-
 	}
 
-
 	protected function createMetadataBatchJob() {
-
 		global $wgArticlePath;
 		$job = null;
 		$job_result = false;
@@ -119,9 +122,9 @@ class MetadataMappingHandler extends FormHandler {
 		$result = null;
 
 		$job = new UploadMetadataJob(
-			Title::newFromText( 'User:' . $this->_User->getName() ),
+			Title::newFromText( 'User:' . $this->_User->getName() . '/GWToolset Batch Upload' ),
 			array(
-				'user' => $this->_User->getName(),
+				'username' => $this->_User->getName(),
 				'user_options' => $this->_user_options,
 				'post' => $_POST
 			)
@@ -137,7 +140,6 @@ class MetadataMappingHandler extends FormHandler {
 		}
 
 		return $result;
-
 	}
 
 	/**
@@ -161,7 +163,6 @@ class MetadataMappingHandler extends FormHandler {
 	 * @todo run a try catch on the create/update page so that if there’s an api issue the script can continue
 	 */
 	public function processMatchingElement( $element_mapped_to_mediawiki_template, $metadata_raw ) {
-
 		$result = null;
 
 		$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
@@ -177,12 +178,9 @@ class MetadataMappingHandler extends FormHandler {
 		}
 
 		return $result;
-
 	}
 
-
 	protected function getGlobalCategories() {
-
 		$this->_user_options['categories'] = Config::$mediawiki_template_default_category;
 
 		if ( isset( $_POST['category'] ) ) {
@@ -193,9 +191,7 @@ class MetadataMappingHandler extends FormHandler {
 				}
 			}
 		}
-
 	}
-
 
 	/**
 	 * grabs various user options set in an html form, filters them and sets
@@ -204,7 +200,6 @@ class MetadataMappingHandler extends FormHandler {
 	 * @return array
 	 */
 	protected function getUserOptions() {
-
 		$result = array(
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
 			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
@@ -227,19 +222,15 @@ class MetadataMappingHandler extends FormHandler {
 		}
 
 		return $result;
-
 	}
 
-
 	/**
+	 * entry point
 	 * @return string
 	 */
 	public function processRequest() {
-
 		$this->result = null;
-
 		$this->_user_options = $this->getUserOptions();
-
 		$this->getGlobalCategories();
 
 		$this->checkForRequiredFormFields(
@@ -253,45 +244,21 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		/**
-		 * @todo: this process needs further review. feel that it could
-		 * be better handled
-		 */
 		if ( $this->_user_options['save-as-batch-job'] ) {
-
 			// assumption is that if SpecialPage is not empty then this is
 			// the creation of the initial job queue job
 			if ( !empty( $this->_SpecialPage ) ) {
 				$this->result = $this->createMetadataBatchJob();
-
 			// assumption is that this is a job queue job that will create the
 			// mediafile upload jobs
 			} else {
 				$this->result = $this->processMetadata();
 			}
-
 		} else {
 			$this->result = $this->processMetadata();
 		}
 
 		return $this->result;
-
 	}
-
-
-	/**
-	 * allow parent constructor to be overridden so that this class can be used
-	 * from a Job Queue job without a special page
-	 */
-	public function __construct( SpecialPage $SpecialPage = null, User $User = null ) {
-
-		if ( !empty( $SpecialPage ) ) {
-			parent::__construct( $SpecialPage, $User );
-		} elseif ( !empty( $User ) ) {
-			$this->_User = $User;
-		}
-
-	}
-
 
 }

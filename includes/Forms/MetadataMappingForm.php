@@ -12,12 +12,9 @@ use Exception,
 	GWToolset\Helpers\FileChecks,
 	IContextSource;
 
-
 class MetadataMappingForm {
 
-
 	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null, $metadata_select = null ) {
-
 		global $wgArticlePath;
 		return
 			'<h2>' . wfMessage( 'gwtoolset-metadata-detect-step-2' )->plain() . '</h2>' .
@@ -136,8 +133,6 @@ class MetadataMappingForm {
 				'</fieldset>' .
 
 			'</form>';
-
 	}
-
 
 }

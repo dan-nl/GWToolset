@@ -8,21 +8,17 @@
  */
 namespace GWToolset\MediaWiki\Api;
 
-
 interface ClientInterface {
-
 
 	/**
 	 * @link <https://www.mediawiki.org/wiki/API:Upload>
 	 */
 	public function upload( array $UploadParams = array() );
 
-
 	/**
 	 * @link <https://www.mediawiki.org/wiki/API:Edit>
 	 */
 	public function edit();
-
 
 	/**
 	 * The logout procedure deletes the login tokens and other browser cookies.
@@ -32,7 +28,6 @@ interface ClientInterface {
 	 * @return void
 	 */
 	public function logout();
-
 
 	/**
 	 * Log in and get the authentication tokens. In the event of a successful log-in,
@@ -53,12 +48,10 @@ interface ClientInterface {
 	 */
 	public function login( $lgname, $lgpassword, $lgdomain, $lgtoken );
 
-
 	/**
 	 * Resets class properties to the default values set within the method
 	 * @return void
 	 */
 	public function reset();
-
 
 }

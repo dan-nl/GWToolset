@@ -8,9 +8,7 @@
  */
 namespace GWToolset;
 
-
 class Config {
-
 
 	public static $name = 'GWToolset';
 	public static $author =  array( 'dan entous' );
@@ -18,9 +16,7 @@ class Config {
 	public static $descriptionmsg = 'gwtoolset-desc';
 	public static $version = '0.0.1';
 
-
 	public static $autoloader_classes = array(
-
 		'GWToolset\Adapters\DataAdapterInterface' => '/includes/Adapters/DataAdapterInterface.php',
 
 		'GWToolset\Adapters\Api\ApiAdapterAbstract' => '/includes/Adapters/Api/ApiAdapterAbstract.php',
@@ -53,6 +49,7 @@ class Config {
 
 		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
 
+		'GWToolset\Jobs\UploadFromUrlJob' => '/includes/Jobs/UploadFromUrlJob.php',
 		'GWToolset\Jobs\UploadMediafileJob' => '/includes/Jobs/UploadMediafileJob.php',
 		'GWToolset\Jobs\UploadMetadataJob' => '/includes/Jobs/UploadMetadataJob.php',
 
@@ -72,31 +69,22 @@ class Config {
 		'Php\File' => '/includes/Php/File.php',
 		'Php\FileException' => '/includes/Php/FileException.php',
 		'Php\Filter' => '/includes/Php/Filter.php',
-		'Php\FilterException' => '/includes/Php/FilterException.php',
-
+		'Php\FilterException' => '/includes/Php/FilterException.php'
 	);
-
 
 	public static $messages = array(
-
 		'GWToolset' => '/GWToolset.i18n.php',
 		'GWToolsetAlias' => '/GWToolset.alias.php'
-
 	);
 
-
 	public static $special_pages = array(
-
 		'GWToolset' => array(
 			'class_name' => 'GWToolset\SpecialGWToolset',
 			'group' => 'media'
 		)
-
 	);
 
-
 	public static $resources = array(
-
 		'scripts' => 'resources/js/ext.gwtoolset.js',
 		'styles' => 'resources/css/ext.gwtoolset.css',
 		'messages' => array(
@@ -106,24 +94,17 @@ class Config {
 			'gwtoolset-save-mapping-failed',
 			'gwtoolset-save-mapping-succeeded'
 		)
-
 	);
-
 
 	public static $hooks = array(
-
 		'LoadExtensionSchemaUpdates' => 'GWToolset\Hooks::onLoadExtensionSchemaUpdates'
-
 	);
-
 
 	public static $jobs = array(
-
+		'gwtoolsetUploadFromUrlJob' => 'GWToolset\Jobs\UploadFromUrlJob',
 		'gwtoolsetUploadMediafileJob' => 'GWToolset\Jobs\UploadMediafileJob',
 		'gwtoolsetUploadMetadataJob' => 'GWToolset\Jobs\UploadMetadataJob'
-
 	);
-
 
 	/**
 	 * @see SpecialPage __constructor
@@ -141,13 +122,11 @@ class Config {
 	public static $restriction = 'upload_by_url';
 	public static $listed = true;
 
-
 	/**
 	 * set to null or 0 to use the wiki’s value
 	 * value must be a positive integer
 	 */
 	public static $max_file_upload = null;
-
 
 	/**
 	 * the user group the user musr be a member of in order to be able to use this extension
@@ -155,13 +134,11 @@ class Config {
 	 */
 	public static $user_group = 'gwtoolset';
 
-
 	/**
 	 * user permissions required in order to be able to use this extension
 	 * @see GWToolset\Helpers\WikiChecks\checkUserPermissions
 	 */
 	public static $user_permissions = array( 'upload', 'upload_by_url', 'edit' );
-
 
 	/**
 	 * tells the upload form to place the $accepted_mime_types in a comma
@@ -169,47 +146,36 @@ class Config {
 	 */
 	public static $use_file_accept_attribute = true;
 
-
 	/**
 	 * which extension/mimetype combinations should the extension accept
 	 * for metadata files
 	 */
 	public static $accepted_types = array(
-
 		'xml' => array( 'text/xml', 'application/xml' )
-
 	);
-
 
 	/**
 	 * which extension/mimetype combinations should the extension accept
 	 * for media files
 	 */
 	public static $accepted_media_types = array(
-
 		'jpg' => array( 'image/jpeg' )
-
 	);
-
 
 	/**
 	 * which MediaWiki Templates are allowed for mapping
 	 */
 	public static $allowed_templates = array(
-
 		'Artwork',
 		'Book',
 		'Musical work',
 		'Photograph',
 		'Specimen'
-
 	);
-
 
 	public static $category_separator = '|';
 	public static $metadata_separator = '; ';
 	public static $title_separator = '-';
-
 
 	/**
 	 * note that this mapping tag has a hardcoded pregmatch in
@@ -218,7 +184,6 @@ class Config {
 	 */
 	public static $metadata_mapping_open_tag = '<mapping_json>';
 	public static $metadata_mapping_close_tag = '</mapping_json>';
-
 
 	// category automatically assigned to saved metadata mappings
 	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';
@@ -235,7 +200,6 @@ class Config {
 	// Category:Source_templates is the category on commons for partner templates
 	public static $source_templates = 'Source templates';
 
-
 	public static $mediawiki_licensing_templates = array(
 		'http://creativecommons.org/publicdomain/mark/1.0/' => '{{PD-US}}{{PD-old}}', // Public Domain Mark 1.0
 		'http://creativecommons.org/publicdomain/zero/1.0/' => '{{Cc-zero}}', // CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
@@ -248,8 +212,6 @@ class Config {
 		'http://creativecommons.org/licenses/by-nc-nd/3.0/' => '{{Cc-by-nc-nd-3.0}}' // Attribution-NonCommercial-NoDerivs 3.0 Unported (CC BY-NC-ND 3.0)
 	);
 
-
 	public static $job_throttle = 10;
-
 
 }

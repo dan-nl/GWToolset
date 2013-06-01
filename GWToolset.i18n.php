@@ -12,17 +12,14 @@
  */
 $messages = array();
 
-
 /**
  * English
  * @author dan-nl
  */
 $messages['en'] = array(
-
 	'gwtoolset' => 'GWToolset',
 	'gwtoolset-desc' => 'GWToolset, a mass upload tool for GLAM’s',
 	'gwtoolset-intro' => 'GWToolset is a MediaWiki extension that allows GLAMs the ability to mass upload content based on an xml file containing respective metadata about the content. The intent is to allow for a variety of xml schemas. Further information about the project can be found on its [https://commons.wikimedia.org/wiki/Commons:GLAMToolset_project project page]. Feel free to contacts us on that page as well. Select one of the menu items above to begin the upload process.',
-
 
 	/**
 	 * wiki checks
@@ -34,7 +31,6 @@ $messages['en'] = array(
 	'gwtoolset-verify-finfo' => 'The GWToolset Extension requires that the PHP [http://www.php.net/manual/en/fileinfo.setup.php finfo] extension be installed.',
 	'gwtoolset-verify-api-enabled' => 'The GWToolset Extension requires that the wiki API is enabled.<br />Please make sure <tt>$wgEnableAPI</tt> is set to <tt>true</tt> in the <tt>DefaultSettings.php</tt> file or is overridden to <tt>true</tt> in the <tt>LocalSettings.php</tt> file.',
 	'gwtoolset-verify-api-writeable' => 'The GWToolset Extension requires that the wiki API can perform write actions for authorized users.<br />Please make sure <tt>$wgEnableWriteAPI</tt> is set to <tt>true</tt> in the <tt>DefaultSettings.php</tt> file or is overridden to <tt>true</tt> in the <tt>LocalSettings.php</tt> file.',
-
 
 	/**
 	 * developer issues
@@ -72,7 +68,6 @@ $messages['en'] = array(
 	'gwtoolset-cannot-retrieve-mapping' => 'cannot retrieve mapping, no mediawiki-tepmplate-name provided',
 	'gwtoolset-no-upload-handler' => 'no upload handler was created',
 
-
 	/**
 	 * general form
 	 */
@@ -85,7 +80,6 @@ $messages['en'] = array(
 	'gwtoolset-no-form' => 'There is no form for this module',
 	'gwtoolset-required-field' => ' denotes required field',
 
-
 	/**
 	 * js
 	 */
@@ -95,13 +89,11 @@ $messages['en'] = array(
 	'gwtoolset-save-mapping-succeeded' => 'Your mapping has been successfully saved.',
 	'gwtoolset-save-mapping-name' => 'How would you like to name this mapping?',
 
-
 	/**
 	 * xmlreader
 	 */
 	'gwtoolset-xmlreader-open-error' => 'could not open the XML File for reading by XMLReader',
 	'gwtoolset-xmlreader-close-error' => 'could not close the XMLReader',
-
 
 	/**
 	 * prototype api
@@ -127,13 +119,11 @@ $messages['en'] = array(
 	'gwtoolset-file-interpretation-error' => 'There was a problem interpretting the metadata file',
 	'gwtoolset-api-error' => 'An api error occurred',
 
-
 	/**
 	 * metadata upload
 	 */
 	'gwtoolset-metadata-upload-successful' => '====Your metadata file upload was successful====' . PHP_EOL . 'The uploaded file can be found here : [$1 $2]',
-	'gwtoolset-upload-on-behalf-of' => 'Gwtoolset uploading on behalf of User:$1',
-
+	'gwtoolset-upload-on-behalf-of' => 'Uploaded using the GWToolset Extension.',
 
 	/**
 	 * metadata detect
@@ -158,7 +148,6 @@ $messages['en'] = array(
 	'gwtoolset-metadata-mapping-wikitext-bad' => 'There’s a problem with the metadata mapping; most likely the json is not contained within a <tt>&lt;mapping_json>&lt;/mapping_json></tt> element. please try and correct it and then submit again [ $1 ].',
 	'gwtoolset-title-too-long' => 'The title for this media file, [$1], is too long.',
 	'gwtoolset-ensure-well-formed-xml' => 'Make sure the XML File is well-formed with this [http://www.w3schools.com/xml/xml_validator.asp XML Validator]',
-
 
 	/**
 	 * metadata mapping
@@ -195,7 +184,6 @@ $messages['en'] = array(
 	'gwtoolset-partner-template' => 'partner template : ',
 	'gwtoolset-partner-explanation' => 'Partner templates are pulled into the source field of the mediawiki template when provided. You can find a list of current Partner Templates on the Category:Source templates page; see link below. Once you’ve found the Partner Template you wish to use place the url to it in this field. You can also create a new Partner Template if necessary.',
 
-
 	/**
 	 * mw api client
 	 */
@@ -227,12 +215,10 @@ $messages['en'] = array(
 	'mw-api-client-no-params' => 'No Upload Parameters specified.',
 	'mw-api-client-not-valid-param' => "The Upload Parameter '''<tt>[$1]</tt>''' is not a valid upload parameter.",
 
-
 	/**
 	 * db client
 	 */
 	'gwtoolset-db-client-support' => 'The GWToolset extension currently supports only MySQL',
-
 
 	/**
 	 * jobs
@@ -240,16 +226,12 @@ $messages['en'] = array(
 	'gwtoolset-batchjob-metadata-created' => 'Batch job added. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process. You can check the [$1] page to see when they have been uploaded.',
 	'gwtoolset-batchjobs-item-created' => 'Batch jobs for ($1) item(s) have been created; these will process one at a time via a background job.',
 	'gwtoolset-batchjobs-item-created-some' => 'Unfortunately not all items were added as batch jobs. Batch jobs were created for ($1) item(s); with ($2) items having an issue. Please contact a developer if this is a problem.'
-
 );
-
 
 /**
  * Message documentation
  * @author dan-nl
  */
 $messages['qqq'] = array(
-
 	'gwtoolset-desc' => '{{desc|name=GWToolset|url=https://www.mediawiki.org/wiki/Extension:GWToolset}}'
-
 );

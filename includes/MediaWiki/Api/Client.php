@@ -12,21 +12,17 @@ use Exception,
 	Php\Curl,
 	Php\Filter;
 
-
 class Client implements ClientInterface {
-
 
 	/**
 	 * @var string
 	 */
 	public $debug_html;
 
-
 	/**
 	 * @var string
 	 */
 	public $endpoint;
-
 
 	/**
 	 * @var GWToolset\MediaWiki\Api\Login
@@ -34,18 +30,15 @@ class Client implements ClientInterface {
 	 */
 	public $Login;
 
-
 	/**
 	 * @var string
 	 */
 	public $useragent;
 
-
 	/**
 	 * @var Php\Curl
 	 */
 	protected $_Curl;
-
 
 	/**
 	 * @var String
@@ -54,7 +47,6 @@ class Client implements ClientInterface {
 	 * valid values : json, jsonfm, php, phpfm, wddx, wddxfm, xml, xmlfm, yaml, yamlfm, rawfm, txt, txtfm, dbg, dbgfm, dump, dumpfm
 	 */
 	private $valid_formats;
-
 
 	/**
 	 * @var String
@@ -67,24 +59,33 @@ class Client implements ClientInterface {
 	 */
 	private $valid_modules;
 
+	public function __construct( $endpoint = null, $user_name = null, array $curl_options = array() ) {
+		if ( empty( $endpoint ) ) {
+			global $wgServer;
+			$endpoint = $wgServer . '/api.php';
+		}
+
+		if ( empty( $user_name ) ) {
+			$user_name = 'gwtoolset';
+		}
+
+		$this->reset();
+		$this->endpoint = $endpoint;
+		$this->useragent = 'PHPcURL : ' . $user_name;
+		$curl_options['useragent'] = $this->useragent;
+		$this->_Curl = new Curl( $curl_options );
+	}
 
 	private function buildQueryString( array $params = array() ) {
-
 		$query_string = null;
 
 		foreach ( $params as $key => $value ) {
-
-			/**
-			 * @todo: check for valid key/value pairs
-			 */
+			// @todo: check for valid key/value pairs
 			$query_string .= '&' . urlencode( $key ) . '=' . urlencode( $value );
-
 		}
 
 		return $query_string;
-
 	}
-
 
 	/**
 	 * apiCall
@@ -97,7 +98,6 @@ class Client implements ClientInterface {
 	 * @return $result
 	 */
 	public function apiCall( $module, array $params = array() ) {
-
 		$msg = null;
 		$data = null;
 		$result = null;
@@ -107,53 +107,40 @@ class Client implements ClientInterface {
 		$this->debug_html .= '<b>API Call - endpoint</b><pre>' . $this->endpoint . '</pre>';
 		$this->debug_html .= '<b>API Call - URL</b><pre>' . $url . '</pre>';
 
-
 		if ( !array_key_exists( $module, $this->valid_modules ) ) {
-
 			throw new Exception( wfMessage( 'mw-api-client-invalid-module' )->rawParams( Filter::evaluate( $module ) )->parse() );
-
 		}
 
 		if ( isset( $this->valid_modules[$module]['method'] ) && $this->valid_modules[$module]['method'] == 'post' ) {
-
 			$method = 'post';
-
 		}
 
 		if ( $method == 'post' ) {
-
 			$this->debug_html .= '<b>API Call - POST</b><pre>module : ' . $module . PHP_EOL . print_r( $params, true ) . '</pre>';
 			$data = $this->_Curl->post( $url, $params );
 			$this->debug_html .= '<b>API Call - data</b><pre>' . $data . '</pre>';
-
 		} else {
-
 			$this->debug_html .= '<b>API Call - GET</b><pre>module : ' . $module . PHP_EOL . print_r( $params, true ) . '</pre>';
 			$data = $this->_Curl->get( $url . $this->buildQueryString( $params ) );
 			$this->debug_html .= '<b>API Call - data</b><pre>' . $data . '</pre>';
-
 		}
 
 		// @link <http://stackoverflow.com/questions/1369936/check-to-see-if-a-string-is-serialized#answer-1369946>
 		$result = @unserialize( $data );
 
 		if ( $data === 'b:0;' || $result !== false ) {
-
 			if ( !empty( $result['error'] ) ) {
-
 				foreach( $result['error'] as $key => $value ) {
-
 					$key = Filter::evaluate( strval( $key ) );
-					if ( !is_array( $value ) ) { $value = Filter::evaluate( $value ); }
+
+					if ( !is_array( $value ) ) {
+						$value = Filter::evaluate( $value );
+					}
 
 					switch( $key ) {
-
 						case 'code':
-
 							$msg .= 'Error Code : ' . $value . '<br />';
-
 							switch ( $value ) {
-
 								case 'internal-error' :
 									$msg .=	wfMessage( 'mw-api-client-internal-error' )->parse();
 									break;
@@ -161,66 +148,43 @@ class Client implements ClientInterface {
 								case 'permissiondenied' :
 									$msg .= wfMessage( 'mw-api-client-permissiondenied' )->parse();
 									break;
-
 							}
-
 							break;
 
-
 						case 'info':
-
 							$msg .= 'Error Info : ' . $value . '<br />';
 							break;
 
-
 						case 'details':
-
 							foreach( $value as $detail ) {
-
 								$msg .= 'Error Detail : ' . $detail . '<br />';
-
 							}
 							break;
-
 
 						default:
-
 							if ( is_array( $value ) ) {
-
 								$msg .= ' Additional Info : <pre>' . print_r( $value, true ) . '</pre>';
-
 							} else {
-
 								$msg .= ' Additional Info : ' . $value . '<br />';
-
 							}
-
 							break;
-
-
 					}
-
 				}
-
 			}
 
 			$this->debug_html .= '<b>API Call - RESULT</b><pre>' . print_r( $result, true ) . '</pre>';
 
 			if ( !empty( $msg ) ) {
-
-				if ( ini_get('display_errors') ) { $msg .= '<pre>' . print_r( $params ,true ) . '</pre>'; }
+				if ( ini_get('display_errors') ) {
+					$msg .= '<pre>' . print_r( $params ,true ) . '</pre>';
+				}
 				throw new Exception( $msg );
-
 			}
 
 			return $result;
-
 		} else {
-
 			throw new Exception( wfMessage( 'mw-api-client-api-response-is-not-serializable' )->parse() . wfMessage( 'mw-api-client-troubleshooting-tips' )->plain() );
-
 		}
-
 	}
 
 
@@ -230,11 +194,12 @@ class Client implements ClientInterface {
 	 * @access private
 	 */
 	public function getEditToken() {
-
 		$result = $this->apiCall( 'tokens', array( 'type' => 'edit' ) );
 
-		if ( !isset( $result['tokens'] ) || !isset( $result['tokens']['edittoken'] ) || empty( $result['tokens']['edittoken'] ) ) {
-
+		if ( !isset( $result['tokens'] )
+			|| !isset( $result['tokens']['edittoken'] )
+			|| empty( $result['tokens']['edittoken'] )
+		) {
 			$msg = wfMessage( 'mw-api-client-no-edit-token' )->plain();
 
 			if ( isset( $result['warnings'] ) && isset( $result['warnings']['tokens'] ) && isset( $result['warnings']['tokens']['*'] ) ) {
@@ -242,13 +207,10 @@ class Client implements ClientInterface {
 			}
 
 			throw new Exception( $msg );
-
 		}
 
 		return $result['tokens']['edittoken'];
-
 	}
-
 
 	/**
 	 * accepts an array with with the following parameters :
@@ -291,16 +253,11 @@ class Client implements ClientInterface {
 	 * @link <https://www.mediawiki.org/wiki/API:Upload>
 	 */
 	public function upload( array $params = array() ) {
-
 		return $this->apiCall( 'upload', $params );
-
 	}
 
-
 	public function query( array $params = array() ) {
-
 		return $this->apiCall( 'query', $params );
-
 	}
 
 
@@ -308,23 +265,17 @@ class Client implements ClientInterface {
 	 * @link <https://www.mediawiki.org/wiki/API:Edit>
 	 */
 	public function edit( array $params = array() ) {
-
 		return $this->apiCall( 'edit', $params );
-
 	}
 
 
 	public function logout() {
-
 		// expects an empty array on return so if something else is returned there has been a problem
 		if ( $this->apiCall( 'logout' ) ) {
-
 			throw new Exception( wfMessage( 'mw-api-client-no-logout' )->plain() );
-
 		}
 
 		$this->Login = null;
-
 	}
 
 
@@ -346,7 +297,6 @@ class Client implements ClientInterface {
 	 * @return boolean
 	 */
 	public function login( $lgname, $lgpassword, $lgdomain = null, $lgtoken = null ) {
-
 		$msg = null;
 		$result = null;
 
@@ -372,62 +322,41 @@ class Client implements ClientInterface {
 		);
 
 		if ( $this->Login ) {
-
 			throw new Exception('mw-api-client-already-logged-in');
-
 		}
 
 		$result = $this->apiCall( 'login', $post_values );
 
 		if ( empty( $result['login']['result'] ) ) {
-
 			$msg .= wfMessage( 'mw-api-client-could-not-log-in' )->plain() . ' ' . wfMessage( 'mw-api-client-troubleshooting-tips' )->parse();
-
 		} elseif ( empty( $msg ) && $result['login']['result'] == 'NeedToken' ) {
-
 			if ( empty( $result['login']['token'] ) ) {
-
 				$msg .= wfMessage( 'mw-api-client-no login-token-received' )->plain() . ' ' . wfMessage( 'mw-api-client-troubleshooting-tips' )->parse();
-
 			}
 
 			if ( empty( $msg ) ) {
-
 				$this->login( $lgname, $lgpassword, $lgdomain, $result['login']['token'] );
-
 			}
-
 		} elseif ( $result['login']['result'] != 'Success' ) {
-
 			$msg .= 'Login Error Code : ' . $result['login']['result'] . '<br />';
 
 			if ( isset( $errors[$result['login']['result']] ) ) {
-
 				$msg .= ' ' . $errors[$result['login']['result']];
-
 			}
 
 			$msg .= '<br />';
-
 		} else {
-
 			$this->Login = new Login( $result['login'] );
-
 		}
 
 		if ( !empty( $msg ) ) {
-
 			throw new Exception( $msg );
-
 		}
 
 		return true;
-
 	}
 
-
 	public function reset() {
-
 		$this->_Curl = null;
 		$this->debug_html = null;
 		$this->endpoint = null;
@@ -486,32 +415,6 @@ class Client implements ClientInterface {
 			'userrights' => array( 'method' => 'get' ),
 			'watch' => array( 'method' => 'get' )
 		);
-
 	}
-
-
-	public function __construct( $endpoint = null, $user_name = null, array $curl_options = array() ) {
-
-		if ( empty( $endpoint ) ) {
-
-			global $wgServer;
-			$endpoint = $wgServer . '/api.php';
-
-		}
-
-		if ( empty( $user_name ) ) {
-
-			$user_name = 'gwtoolset';
-
-		}
-
-		$this->reset();
-		$this->endpoint = $endpoint;
-		$this->useragent = 'PHPcURL : ' . $user_name;
-		$curl_options['useragent'] = $this->useragent;
-		$this->_Curl = new Curl( $curl_options );
-
-	}
-
 
 }

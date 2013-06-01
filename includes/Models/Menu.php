@@ -8,21 +8,15 @@
  */
 namespace GWToolset\Models;
 
-
 class Menu {
 
-
 	static public function getMenu() {
-
 		return
 			'<ul>' .
 
 				'<li><a href="?gwtoolset-form=metadata-detect">Metadata Mapping</a></li>' .
 
 			'</ul>';
-
 	}
 
-
 }
-

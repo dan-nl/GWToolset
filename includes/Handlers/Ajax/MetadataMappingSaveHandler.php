@@ -11,27 +11,22 @@ use GWToolset\Adapters\Api\MappingApiAdapter,
 	GWToolset\Helpers\WikiPages,
 	GWToolset\Models\Mapping;
 
-
 class MetadataMappingSaveHandler extends AjaxHandler {
-
 
 	/**
 	 * @var GWToolset\Models\Mapping
 	 */
 	protected $_Mapping;
 
-
 	/**
 	 * @var GWToolset\MediaWiki\Api\Client
 	 */
 	protected $_MWApiClient;
 
-
 	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
 	protected $_MediawikiTemplate;
-
 
 	/**
 	 * @todo make sure we're handling various server side errors, thus the ajax request is successful, but not the server side process of the request
@@ -40,7 +35,6 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 	 * @todo: sanitize the incoming form fields from ajac, e.g. metadata-mappings, mapping-name-to-use, etc.
 	 */
 	protected function processRequest() {
-
 		$result = json_encode( array( 'status' => 'failed' ) );
 		$mapping_result = false;
 
@@ -60,11 +54,11 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 			)
 		);
 
-		if ( $mapping_result ) { $result = json_encode( array( 'status' => 'succeeded' ) ); }
+		if ( $mapping_result ) {
+			$result = json_encode( array( 'status' => 'succeeded' ) );
+		}
 
 		return $result;
-
 	}
-
 
 }

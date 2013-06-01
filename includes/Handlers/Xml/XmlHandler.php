@@ -14,16 +14,15 @@ use Exception,
 	SpecialPage,
 	XmlReader;
 
-
 abstract class XmlHandler {
 
+	public abstract function __construct();
 
 	/**
 	 * a debug method for testing the reader
 	 * @param XMLReader $reader
 	 */
 	protected function displayCurrentNodeProperties( XMLReader $reader ) {
-
 		echo 'attributeCount : ' . $reader->attributeCount . '<br />';
 		echo 'baseURI : ' .$reader->baseURI . '<br />';
 		echo 'depth : ' .$reader->depth . '<br />';
@@ -39,21 +38,16 @@ abstract class XmlHandler {
 		echo 'value : ' .$reader->value . '<br />';
 		echo 'xmlLang : ' .$reader->xmlLang . '<br />';
 		echo '<br />';
-
 	}
-
 
 	/**
 	 * a debug method
 	 */
 	protected function getNodesInfo( $node ) {
-
 		if ($node->hasChildNodes() ) {
-
 			$subNodes = $node->childNodes;
 
 			foreach ($subNodes as $subNode) {
-
 				if ( ( $subNode->nodeType != 3 ) ||
 					( ( $subNode->nodeType == 3 ) &&
 					( strlen( trim( $subNode->wholeText ) ) >= 1 ) )
@@ -62,15 +56,10 @@ abstract class XmlHandler {
 					echo "Node value: ".$subNode->nodeValue."<br />";
 					echo '<br />';
 				}
-
 				$this->getNodesInfo($subNode);
-
 			}
-
 		}
-
 	}
-
 
 	/**
 	 * opens the xml file as a stream and sends the stream to other methods in
@@ -104,7 +93,6 @@ abstract class XmlHandler {
 	 * @return {string}
 	 */
 	protected function readXml( array &$user_options, $file_path_local = null, $callback = null ) {
-
 		$result = null;
 		$read_result = array( 'msg' => null, 'stop-reading' => false );
 		$xml_reader = null;
@@ -124,14 +112,12 @@ abstract class XmlHandler {
 		}
 
 		while ( $xml_reader->read() ) {
-
 			$read_result = $this->$callback( $xml_reader, $user_options );
 			$result .= $read_result['msg'];
 
 			if ( $read_result['stop-reading'] ) {
 				break;
 			}
-
 		}
 
 		if ( !$xml_reader->close() ) {
@@ -139,14 +125,8 @@ abstract class XmlHandler {
 		}
 
 		return $result;
-
 	}
 
-
 	public abstract function processXml( array &$user_options, $file_path_local = null );
-
-
-	public abstract function __construct();
-
 
 }

@@ -10,13 +10,11 @@
 namespace Php;
 use Exception;
 
-
 /**
  * This class is designed to provide a simplified interface to cURL which maintains cookies.
  * @author Chris
  **/
 class Curl {
-
 
 	protected $curl;
 	protected $curl_timeout;
@@ -36,24 +34,32 @@ class Curl {
 	public $useragent;
 	public $raw_header;
 
+	/**
+	 * @param array $options
+	 * useragent, cookie_directory, cookie_extension, cookie_name
+	 */
+	public function __construct( array $options = array() ) {
+		$this->reset();
+		$this->setClassProperties( $options );
+		$this->curl = curl_init();
+
+		if ( !$this->curl ) {
+			throw new Exception( wfMessage( 'mw-api-client-curl-no-handle-create' )->plain() );
+		}
+
+		$this->createCookie();
+	}
 
 	public function rawHeaders( $ch, $header ) {
-
 		$this->raw_header .= $header;
 		return strlen( $header);
-
 	}
-
 
 	public function getCurlInfo() {
-
 		return curl_getinfo( $this->curl );
-
 	}
 
-
 	protected function executeCurl() {
-
 		$result = curl_exec( $this->curl );
 
 		$this->curl_info = curl_getinfo( $this->curl );
@@ -61,41 +67,31 @@ class Curl {
 		$this->curl_errno = curl_errno( $this->curl );
 
 		if ( $this->curl_errno != 0 ) {
-
 			$msg = 'cURL Error: ' . $this->curl_error . ' (' . $this->curl_errno . ')';
-			if ( $this->debug_on ) { $msg .= '<pre>' . print_r( $this->curl_info, true ) . '</pre>'; }
-			throw new Exception( $msg );
 
+			if ( $this->debug_on ) {
+				$msg .= '<pre>' . print_r( $this->curl_info, true ) . '</pre>';
+			}
+
+			throw new Exception( $msg );
 		}
 
 		return $result;
-
 	}
-
 
 	protected function setCurlOption( $option, $value ) {
-
 		if ( !curl_setopt( $this->curl, $option, $value ) ) {
-
 			throw new Exception('could not set cURL option [' . Filter::evaluate( $option ) . '] to value [' . Filter::evaluate( $value ) . ']');
-
 		}
-
 	}
 
-
 	protected function isUrlValid( &$url ) {
-
 		if ( !filter_var( $url, FILTER_VALIDATE_URL ) ) {
-
 			throw new Exception('invalid url : [' . Filter::evaluate( $url ) . ']');
-
 		}
 
 		return true;
-
 	}
-
 
 	/**
 	 * Sends a GET request
@@ -103,7 +99,6 @@ class Curl {
 	 * @returns string the page you asked for
 	 **/
 	public function get( $url ) {
-
 		$this->isUrlValid( $url );
 
 		$this->setCurlOption( CURLOPT_URL, $url );
@@ -117,9 +112,7 @@ class Curl {
 		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 
 		return $this->executeCurl();
-
 	}
-
 
 	/**
 	 * Sends a GET request
@@ -127,7 +120,6 @@ class Curl {
 	 * @returns string the page you asked for
 	 **/
 	public function getHeadersOnly( $url ) {
-
 		$this->setCurlOption( CURLOPT_URL, $url );
 		$this->setCurlOption( CURLOPT_FOLLOWLOCATION, true );
 		$this->setCurlOption( CURLOPT_MAXREDIRS, $this->max_redirects );
@@ -140,9 +132,7 @@ class Curl {
 		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 
 		return $this->executeCurl();
-
 	}
-
 
 	/**
 	 * Sends a POST request
@@ -151,7 +141,6 @@ class Curl {
 	 * @returns string the page you asked for
 	 **/
 	public function post( $url, array $data = array() ) {
-
 		$this->isUrlValid( $url );
 
 		$this->setCurlOption( CURLOPT_URL, $url );
@@ -167,54 +156,67 @@ class Curl {
 		$this->setCurlOption( CURLOPT_TIMEOUT, $this->curl_timeout );
 
 		return $this->executeCurl();
-
 	}
 
-
 	protected function createCookie() {
-
 		if ( !file_exists( $this->cookie_directory ) ) {
-
 			throw new Exception( wfMessage( 'mw-api-client-curl-no-cookie-directory' )->parse() );
-
 		}
 
 		$this->cookiejar = $this->cookie_directory . '/' . $this->cookie_name . '.' . dechex( rand( 0,99999999 ) ) . $this->cookie_extension;
 
 		if ( !touch( $this->cookiejar ) ) {
-
 			throw new Exception( wfMessage('mw-api-client-curl-no-cookie-create')->parse() );
-
 		}
 
 		chmod( $this->cookiejar, 0600 );
 		curl_setopt( $this->curl, CURLOPT_COOKIEJAR, $this->cookiejar );
 		curl_setopt( $this->curl, CURLOPT_COOKIEFILE, $this->cookiejar );
-
 	}
-
 
 	/**
 	 * @todo: validate options array
 	 */
 	protected function setClassProperties( array &$options ) {
 
-		if ( empty( $options ) ) { return; }
+		if ( empty( $options ) ) {
+			return;
+		}
 
-		if ( isset( $options['useragent'] ) ) { $this->useragent = $options['useragent']; }
-		if ( isset( $options['cookie-directory'] ) ) { $this->cookie_directory = $options['cookie-directory']; }
-		if ( isset( $options['cookie-extension'] ) ) { $this->cookie_extension = $options['cookie-extension']; }
-		if ( isset( $options['cookie-name'] ) ) { $this->cookie_name = $options['cookie-name']; }
-		if ( isset( $options['curl-timeout'] ) ) { $this->curl_timeout = (int) $options['curl-timeout']; }
-		if ( isset( $options['curl-connect-timeout'] ) ) { $this->curl_connect_timeout = (int) $options['curl-connect-timeout']; }
-		if ( isset( $options['max-redirects'] ) ) { $this->max_redirects = (int) $options['max-redirects']; }
-		if ( isset( $options['debug-on'] ) ) { $this->debug_on = $options['debug-on']; }
+		if ( isset( $options['useragent'] ) ) {
+			$this->useragent = $options['useragent'];
+		}
 
+		if ( isset( $options['cookie-directory'] ) ) {
+			$this->cookie_directory = $options['cookie-directory'];
+		}
+
+		if ( isset( $options['cookie-extension'] ) ) {
+			$this->cookie_extension = $options['cookie-extension'];
+		}
+
+		if ( isset( $options['cookie-name'] ) ) {
+			$this->cookie_name = $options['cookie-name'];
+		}
+
+		if ( isset( $options['curl-timeout'] ) ) {
+			$this->curl_timeout = (int) $options['curl-timeout'];
+		}
+
+		if ( isset( $options['curl-connect-timeout'] ) ) {
+			$this->curl_connect_timeout = (int) $options['curl-connect-timeout'];
+		}
+
+		if ( isset( $options['max-redirects'] ) ) {
+			$this->max_redirects = (int) $options['max-redirects'];
+		}
+
+		if ( isset( $options['debug-on'] ) ) {
+			$this->debug_on = $options['debug-on'];
+		}
 	}
 
-
 	public function reset() {
-
 		$this->curl = null;
 		$this->curl_timeout = 1200; // 20 minutes
 		$this->curl_connect_timeout = 30;
@@ -231,46 +233,16 @@ class Curl {
 
 		$this->debug_on = false;
 		$this->useragent = 'PHPcURL';
-
 	}
 
-
 	public function __destruct () {
-
 		if ( is_resource( $this->curl ) ) {
-
 			curl_close( $this->curl );
-
 		}
 
 		if ( file_exists( $this->cookiejar ) ) {
-
 			unlink( $this->cookiejar );
-
 		}
-
 	}
-
-
-	/**
-	 * @param array $options
-	 * useragent, cookie_directory, cookie_extension, cookie_name
-	 */
-	public function __construct( array $options = array() ) {
-
-		$this->reset();
-		$this->setClassProperties( $options );
-		$this->curl = curl_init();
-
-		if ( !$this->curl ) {
-
-			throw new Exception( wfMessage( 'mw-api-client-curl-no-handle-create' )->plain() );
-
-		}
-
-		$this->createCookie();
-
-	}
-
 
 }

@@ -17,189 +17,23 @@ use Exception,
 	Title,
 	JobQueueGroup;
 
-
 class SpecialGWToolset extends SpecialPage {
-
 
 	/**
 	 * @var string
 	 */
 	public $module_key;
 
-
 	/**
 	 * @var GWToolset\HandlerInterface
 	 */
 	protected $Handler;
-
 
 	protected $registered_modules = array(
 		'metadata-detect' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataDetectHandler', 'form' => '\GWToolset\Forms\MetadataDetectForm' ),
 		'metadata-mapping' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler', 'form' => '\GWToolset\Forms\MetadataMappingForm' ),
 		'metadata-mapping-save' => array( 'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' )
 	);
-
-
-	public function getBackToFormLink() {
-
-		$result = Linker::link(
-			$this->getContext()->getTitle(),
-			wfMessage( 'gwtoolset-back-to-form' )->plain(),
-			array( 'onclick' => 'history.back();return false;' ),
-			array( 'gwtoolset-form' => $this->module_key )
-		);
-
-		return $result;
-
-	}
-
-
-	/**
-	 * @throws PermissionsError | Exception
-	 * @return void
-	 */
-	protected function processRequest() {
-
-		$html = null;
-
-		if ( !$this->getRequest()->wasPosted() ) {
-
-			if ( $this->module_key === null ) {
-
-				$html .=  wfMessage( 'gwtoolset-intro' )->parseAsBlock();
-
-			} else {
-
-				try {
-
-					$html .= $this->Handler->getHtmlForm( $this->registered_modules[$this->module_key] );
-
-				} catch( Exception $e ) {
-
-					$html .=
-						'<h2>' . wfMessage( 'gwtoolset-technical-error' )->plain() . '</h2>' .
-						'<p class="error">' . Filter::evaluate( $e->getMessage() ) . '</p>';
-
-				}
-
-			}
-
-		} else {
-
-			try {
-
-				if ( !( $this->Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
-
-					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->plain() )->parse();
-
-					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
-
-						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
-
-					} else {
-
-						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->plain();
-
-					}
-
-					throw new Exception( $msg );
-
-				}
-
-				$html .= $this->Handler->execute();
-
-			} catch ( Exception $e ) {
-
-				if ( $e->getCode() == 1000 ) {
-
-					throw new PermissionsError( $e->getMessage() );
-
-				} else {
-
-					$html .=
-						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' )->plain() . '</h2>' .
-						'<p class="error">' . $e->getMessage() . '</p>';
-
-				}
-
-			}
-
-		}
-
-		$this->setHeaders();
-		$this->getOutput()->addModules( 'ext.GWToolset' );
-		$this->getOutput()->addHtml( Menu::getMenu() );
-		$this->getOutput()->addHtml( $html );
-
-	}
-
-
-	protected function setModuleAndHandler() {
-
-		$this->module_key = null;
-		$gwtoolset_form = $this->getRequest()->getVal( 'gwtoolset-form' );
-
-		if ( key_exists( $gwtoolset_form, $this->registered_modules ) ) {
-			$this->module_key = $gwtoolset_form;
-		}
-
-		if ( $this->module_key !== null ) {
-
-			$handler = $this->registered_modules[ $this->module_key ]['handler'];
-			$this->Handler = new $handler( $this );
-
-		}
-
-	}
-
-
-	/**
-	 * @return boolean
-	 */
-	protected function wikiChecks() {
-
-		try {
-
-			if ( !WikiChecks::pageIsReadyForThisUser( $this ) ) { return false; }
-
-		} catch ( Exception $e ) {
-
-			if ( $e->getCode() == 1000 ) {
-
-				throw new PermissionsError( $e->getMessage() );
-
-			} else {
-
-				$this->getOutput()->addHTML(
-					'<h2>' . wfMessage( 'gwtoolset-wiki-checks-not-passed' )->plain() . '</h2>' .
-					$e->getMessage() . '<br />'
-				);
-
-			}
-
-			return false;
-
-		}
-
-		return true;
-
-	}
-
-
-	/**
-	 * SpecialPage entry point
-	 */
-	public function execute( $par ) {
-
-		if ( !$this->wikiChecks() ) {
-			return;
-		}
-
-		$this->setModuleAndHandler();
-		$this->processRequest();
-
-	}
-
 
 	/**
 	 * Default constructor for special pages
@@ -219,10 +53,119 @@ class SpecialGWToolset extends SpecialPage {
 	 * @param $includable Bool: whether the page can be included in normal pages
 	 */
 	public function __construct() {
-
 		parent::__construct( Config::$special_page_name, Config::$restriction, Config::$listed );
-
 	}
 
+	public function getBackToFormLink() {
+		$result = Linker::link(
+			$this->getContext()->getTitle(),
+			wfMessage( 'gwtoolset-back-to-form' )->plain(),
+			array( 'onclick' => 'history.back();return false;' ),
+			array( 'gwtoolset-form' => $this->module_key )
+		);
+
+		return $result;
+	}
+
+	/**
+	 * @throws PermissionsError | Exception
+	 * @return void
+	 */
+	protected function processRequest() {
+		$html = null;
+
+		if ( !$this->getRequest()->wasPosted() ) {
+			if ( $this->module_key === null ) {
+				$html .=  wfMessage( 'gwtoolset-intro' )->parseAsBlock();
+			} else {
+				try {
+					$html .= $this->Handler->getHtmlForm( $this->registered_modules[$this->module_key] );
+				} catch( Exception $e ) {
+					$html .=
+						'<h2>' . wfMessage( 'gwtoolset-technical-error' )->plain() . '</h2>' .
+						'<p class="error">' . Filter::evaluate( $e->getMessage() ) . '</p>';
+				}
+			}
+		} else {
+			try {
+				if ( !( $this->Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
+					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->plain() )->parse();
+					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
+						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
+					} else {
+						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->plain();
+					}
+
+					throw new Exception( $msg );
+				}
+
+				$html .= $this->Handler->execute();
+			} catch ( Exception $e ) {
+				if ( $e->getCode() == 1000 ) {
+					throw new PermissionsError( $e->getMessage() );
+				} else {
+					$html .=
+						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' )->plain() . '</h2>' .
+						'<p class="error">' . $e->getMessage() . '</p>';
+				}
+			}
+		}
+
+		$this->setHeaders();
+		$this->getOutput()->addModules( 'ext.GWToolset' );
+		$this->getOutput()->addHtml( Menu::getMenu() );
+		$this->getOutput()->addHtml( $html );
+	}
+
+	protected function setModuleAndHandler() {
+		$this->module_key = null;
+		$gwtoolset_form = $this->getRequest()->getVal( 'gwtoolset-form' );
+
+		if ( key_exists( $gwtoolset_form, $this->registered_modules ) ) {
+			$this->module_key = $gwtoolset_form;
+		}
+
+		if ( $this->module_key !== null ) {
+			$handler = $this->registered_modules[ $this->module_key ]['handler'];
+			$this->Handler = new $handler( $this );
+		}
+	}
+
+	/**
+	 * @return boolean
+	 */
+	protected function wikiChecks() {
+		try {
+			if ( !WikiChecks::pageIsReadyForThisUser( $this ) ) {
+				return false;
+			}
+		} catch ( Exception $e ) {
+			if ( $e->getCode() == 1000 ) {
+				throw new PermissionsError( $e->getMessage() );
+			} else {
+				$this->getOutput()->addHTML(
+					'<h2>' . wfMessage( 'gwtoolset-wiki-checks-not-passed' )->plain() . '</h2>' .
+					$e->getMessage() . '<br />'
+				);
+			}
+
+			return false;
+		}
+
+		return true;
+	}
+
+
+	/**
+	 * SpecialPage entry point
+	 */
+	public function execute( $par ) {
+		if ( !$this->wikiChecks() ) {
+			return;
+		}
+
+		$this->setModuleAndHandler();
+		$this->processRequest();
+	}
 
 }

@@ -14,7 +14,6 @@ use GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Models\MediawikiTemplate,
 	IContextSource;
 
-
 class MetadataDetectForm {
 
 	/**
@@ -22,7 +21,6 @@ class MetadataDetectForm {
 	 * dynamic algorithm that indiactes which mw templates are accepted
 	 */
 	public static function getForm( IContextSource $Context ) {
-
 		global $wgArticlePath;
 		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 
@@ -99,8 +97,6 @@ class MetadataDetectForm {
 				'<input type="submit" name="submit" value="' . wfMessage( 'emailusernamesubmit' )->plain() . '">' .
 
 			'</form>';
-
 	}
-
 
 }

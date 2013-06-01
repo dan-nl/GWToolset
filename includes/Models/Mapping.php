@@ -13,9 +13,7 @@ use Exception,
 	Php\Filter,
 	ResultWrapper;
 
-
 class Mapping extends Model {
-
 
 	public $user_name;
 	public $mapping_name;
@@ -23,12 +21,10 @@ class Mapping extends Model {
 	public $mapping_json;
 	public $created;
 
-
 	/**
 	 * @var array
 	 */
 	public $mapping_array = array();
-
 
 	/**
 	 * @var array
@@ -38,7 +34,6 @@ class Mapping extends Model {
 	 */
 	public $target_dom_elements = array();
 
-
 	/**
 	 * @var array
 	 * holds an array of metadata dom elements mapped to their corresponding
@@ -46,12 +41,14 @@ class Mapping extends Model {
 	 */
 	public $target_dom_elements_mapped = array();
 
-
 	/**
 	 * @var GWToolset\Adapters\DataAdapterInterface
 	 */
 	protected $_DataAdapater;
 
+	public function __construct( DataAdapterInterface $DataAdapter ) {
+		$this->_DataAdapater = $DataAdapter;
+	}
 
 	/**
 	 * assumes that the details for the metadata-mapping are in
@@ -66,76 +63,49 @@ class Mapping extends Model {
 	 *   - mapping-name = page name in wiki
 	 */
 	protected function getMappingDetails( array &$options ) {
-
 		$result = array();
 
 		if ( isset( $options['metadata-mapping'] ) ) {
-
 			$result = json_decode( str_replace( "`", '"', $options['metadata-mapping'] ), true );
-
 		}
 
 		if ( isset( $options['metadata-mapping-url'] ) ) {
-
 			$result = WikiPages::getUsernameAndPageFromUrl( $options['metadata-mapping-url'] );
-
 		}
 
-		if ( !empty( $result ) && ( !isset( $result['user-name'] ) || !isset( $result['mapping-name'] ) ) ) {
-
+		if ( !empty( $result )
+			&& ( !isset( $result['user-name'] ) || !isset( $result['mapping-name'] ) )
+		) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-mapping-info-missing' )->plain() )->parse() );
-
 		}
 
 		return $result;
-
 	}
 
 
 	public function reverseMap() {
-
 		foreach( $this->target_dom_elements as $element ) {
-
 			foreach( $this->mapping_array as $mediawiki_parameter => $target_dom_elements ) {
-
 				if ( in_array( $element, $target_dom_elements ) ) {
-
 					$this->target_dom_elements_mapped[ $element ][] = $mediawiki_parameter;
-
 				}
-
 			}
-
 		}
-
 	}
-
 
 	public function setTargetElements() {
-
 		foreach( $this->mapping_array as $key => $value ) {
-
 			foreach( $value as $item ) {
-
 				if ( !in_array( $item, $this->target_dom_elements ) && !empty( $item ) ) {
-
 					$this->target_dom_elements[] = $item;
-
 				}
-
 			}
-
 		}
-
 	}
-
 
 	protected function getKeys() {
-
 		return $this->_DataAdapater->getKeys();
-
 	}
-
 
 	/**
 	 * expects a properites array containing
@@ -154,13 +124,14 @@ class Mapping extends Model {
 	 * @todo filter/sanitize created
 	 */
 	protected function populate( array &$properties ) {
-
 		global $wgArticlePath;
 		$error_msg = null;
 		$mapping_template = null;
 		$json_error = JSON_ERROR_NONE;
 
-		if ( empty( $properties ) ) { return; }
+		if ( empty( $properties ) ) {
+			return;
+		}
 
 		$this->user_name = Filter::evaluate( $properties['user_name'] );
 		$this->mapping_name = Filter::evaluate( $properties['mapping_name'] );
@@ -172,9 +143,7 @@ class Mapping extends Model {
 		$json_error = json_last_error();
 
 		if ( $json_error != JSON_ERROR_NONE ) {
-
 			switch ( json_last_error() ) {
-
 				case JSON_ERROR_NONE:
 					$error_msg = 'No errors';
 					break;
@@ -202,7 +171,6 @@ class Mapping extends Model {
 				default:
 					$error_msg = 'Unknown error';
 					break;
-
 			}
 
 			$mapping_template = 'User:' . Filter::evaluate( $properties['user_name'] ) . '/' . Filter::evaluate( $properties['mapping_name'] );
@@ -214,24 +182,18 @@ class Mapping extends Model {
 				'</a>';
 
 			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-bad' )->rawParams( $error_msg )->plain() );
-
 		}
 
 		$this->setTargetElements();
 		$this->reverseMap();
-
 	}
-
 
 	/**
 	 * @todo validate the array
 	 */
 	public function create( array $options = array() ) {
-
 		return $this->_DataAdapater->create( $options );
-
 	}
-
 
 	/**
 	 * relies on hard coded keys in the $user_options to retrieve a metadata
@@ -260,19 +222,15 @@ class Mapping extends Model {
 	 * @return void
 	 */
 	public function retrieve( array $options = array() ) {
-
 		$result = array();
 
 		$mapping_details = $this->getMappingDetails( $options );
 
 		if ( empty( $options['mediawiki-template-name'] ) ) {
-
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-cannot-retrieve-mapping' )->plain() )->parse() );
-
 		}
 
 		if ( !empty( $mapping_details ) ) {
-
 			$result = $this->_DataAdapater->retrieve(
 				array(
 					'user-name' => $mapping_details['user-name'],
@@ -280,23 +238,13 @@ class Mapping extends Model {
 					'mediawiki-template-name' => $options['mediawiki-template-name']
 				)
 			);
-
 		}
 
 		$this->populate( $result );
-
 	}
-
 
 	public function update( array $options = array() ) {}
+
 	public function delete( array $options = array() ) {}
-
-
-	public function __construct( DataAdapterInterface $DataAdapter ) {
-
-		$this->_DataAdapater = $DataAdapter;
-
-	}
-
 
 }

@@ -13,12 +13,10 @@ use DOMElement,
 	GWToolset\Models\MediawikiTemplate,
 	XMLReader;
 
-
 /**
  * @todo pull out the decorator methods and place them in the appropriate form handler
  */
 class XmlDetectHandler extends XmlHandler {
-
 
 	/**
 	 * @var array
@@ -27,7 +25,6 @@ class XmlDetectHandler extends XmlHandler {
 	 * of the upload process
 	 */
 	protected $_metadata_example_dom_element;
-
 
 	/**
 	 * @var array
@@ -42,6 +39,12 @@ class XmlDetectHandler extends XmlHandler {
 	 */
 	protected $_metadata_as_options;
 
+	public function __construct( array $options = array() ) {
+		$this->reset();
+		if ( isset( $options['SpecialPage'] ) ) {
+			$this->_SpecialPage = $options['SpecialPage'];
+		}
+	}
 
 	/**
 	 * adds an option to $this->metadata_as_html_options based on the DOMNode given
@@ -51,34 +54,25 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return void
 	 */
 	public function getMetadataAsHtmlTableRows() {
-
 		$result = null;
 
 		foreach( $this->_metadata_example_dom_element as $nodeName => $nodeValues ) {
-
 			foreach( $nodeValues as $nodeValue ) {
-
 				$result .=
 					'<tr>' .
 						'<td>' . $nodeName . '</td>' .
 						'<td>' . $nodeValue . '</td>' .
 					'</tr>';
-
 			}
-
 		}
 
 		return $result;
-
 	}
 
-
 	public function getMetadataAsOptions( $selected_option = null ) {
-
 		$result = '<option></option>';
 
 		foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
-
 			$result .= '<option';
 
 			if ( !empty( $selected_option ) && $nodeName == $selected_option ) {
@@ -86,13 +80,10 @@ class XmlDetectHandler extends XmlHandler {
 			}
 
 			$result .= '>' . $nodeName . '</option>';
-
 		}
 
 		return $result;
-
 	}
-
 
 	/**
 	 * returns an html string made up of html option elements that can be placed
@@ -108,7 +99,6 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return {string} an html string of select options
 	 */
 	public function getMetadataAsTableCells( $parameter, MediawikiTemplate $MediawikiTemplate, Mapping $Mapping ) {
-
 		$result = null;
 		$selected_options = array();
 		$parameter_as_id = $MediawikiTemplate->getParameterAsId( $parameter );
@@ -142,13 +132,11 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		if ( empty( $this->_metadata_as_options ) ) {
-
 			$this->_metadata_as_options = '<option></option>';
 
 			foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
 				$this->_metadata_as_options .= '<option>' . $nodeName . '</option>';
 			}
-
 		}
 
 		if ( in_array( $parameter_as_id, $required_fields ) ) {
@@ -156,9 +144,7 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		if ( 'url_to_the_media_file' == $parameter_as_id ) {
-
 			if ( isset( $selected_options[0] ) ) {
-
 				$result .= sprintf(
 					$no_metadata_button_row,
 					$parameter_as_id,
@@ -168,9 +154,7 @@ class XmlDetectHandler extends XmlHandler {
 					$parameter_as_id,
 					$this->getMetadataAsOptions( $selected_options[0] )
 				);
-
 			} else {
-
 				$result .= sprintf(
 					$no_metadata_button_row,
 					$parameter_as_id,
@@ -180,11 +164,8 @@ class XmlDetectHandler extends XmlHandler {
 					$parameter_as_id,
 					$this->getMetadataAsOptions()
 				);
-
 			}
-
 		} elseif ( count( $selected_options ) == 1 ) {
-
 			$result .= sprintf(
 				$first_row,
 				$parameter_as_id,
@@ -194,15 +175,10 @@ class XmlDetectHandler extends XmlHandler {
 				$parameter_as_id,
 				$this->getMetadataAsOptions( $selected_options[0] )
 			);
-
 		} elseif ( count( $selected_options ) > 1 ) {
-
 			foreach( $selected_options as $option ) {
-
 				if ( key_exists( $option, $this->_metadata_example_dom_nodes ) ) {
-
 					if ( !$first_row_placed ) {
-
 						$result .= sprintf(
 							$first_row,
 							$parameter_as_id,
@@ -212,25 +188,17 @@ class XmlDetectHandler extends XmlHandler {
 							$parameter_as_id,
 							$this->getMetadataAsOptions( $option )
 						);
-
 						$first_row_placed = true;
-
 					} else {
-
 						$result .= sprintf(
 							$following_row,
 							$parameter,
 							$this->getMetadataAsOptions( $option )
 						);
-
 					}
-
 				}
-
 			}
-
 		} else {
-
 			$result .= sprintf(
 				$first_row,
 				$parameter_as_id,
@@ -240,40 +208,25 @@ class XmlDetectHandler extends XmlHandler {
 				$parameter_as_id,
 				$this->_metadata_as_options
 			);
-
 		}
-
 		return $result;
-
 	}
-
 
 	/**
 	 * @param {DOMElement} $DOMElement
 	 * @return void
 	 */
 	protected function createExampleDOMElement( DOMElement $DOMElement ) {
-
 		foreach( $DOMElement->childNodes as $DOMNode ) {
-
 			if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
-
 				if ( isset( $this->_metadata_example_dom_element[ $DOMNode->nodeName ] ) ) {
-
 					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][] = $DOMNode->nodeValue;
-
 				} else {
-
 					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][0] = $DOMNode->nodeValue;
-
 				}
-
 			}
-
 		}
-
 	}
-
 
 	/**
 	 * 1. takes in a DOMElement that will be used as the basis for the metadata mapping
@@ -284,21 +237,16 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return void
 	 */
 	protected function findExampleDOMNodes( DOMElement $DOMElement ) {
-	
 		foreach( $DOMElement->childNodes as $DOMNode ) {
-	
 			if ( $DOMNode->nodeType == XML_ELEMENT_NODE
 				&& !array_key_exists( $DOMNode->nodeName, $this->_metadata_example_dom_nodes )
 			) {
 				$this->_metadata_example_dom_nodes[ $DOMNode->nodeName ] = $DOMNode->nodeValue;
 			}
-	
 		}
-	
-		ksort( $this->_metadata_example_dom_nodes );
-	
-	}
 
+		ksort( $this->_metadata_example_dom_nodes );
+	}
 
 	/**
 	 * attempts to find an example dom element in the metadata xml file that will
@@ -321,7 +269,6 @@ class XmlDetectHandler extends XmlHandler {
 	 * - $result['stop-reading'] boolean stating whether or not to conitnue reading the XML document
 	 */
 	protected function findExampleDOMElement( XMLReader &$xml_reader, array &$user_options ) {
-
 		$result = array( 'msg' => null, 'stop-reading' => false );
 		$record = null;
 
@@ -336,11 +283,8 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		switch ( $xml_reader->nodeType ) {
-
 			case ( XMLReader::ELEMENT ):
-
 				if ( $xml_reader->name == $user_options['record-element-name'] ) {
-
 					$user_options['record-count'] += 1;
 					$record = $xml_reader->expand();
 
@@ -349,17 +293,12 @@ class XmlDetectHandler extends XmlHandler {
 					}
 
 					$this->findExampleDOMNodes( $record );
-
 				}
-
 				break;
-
 		}
 
 		return $result;
-
 	}
-
 
 	/**
 	 * acts as a control method for retrieving dom elements from the
@@ -378,39 +317,23 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return void
 	 */
 	public function processXml( array &$user_options, $file_path_local = null ) {
-
 		$this->readXml( $user_options, $file_path_local, 'findExampleDOMElement' );
 
 		if ( empty( $this->_metadata_example_dom_element ) ) {
-
 			$msg =
 				'<span class="error">' . wfMessage('gwtoolset-no-xml-element')->plain() . '</span>' . PHP_EOL .
 				wfMessage('gwtoolset-no-example-dom-element')->parse() . '<br />' . PHP_EOL .
 				$this->_SpecialPage->getBackToFormLink();
 
 				throw new Exception( $msg );
-
 		}
-
 	}
 
-
 	public function reset() {
-
 		$this->_metadata_as_options = null;
 		$this->_metadata_example_dom_element = array();
 		$this->_metadata_example_dom_nodes = array();
 		$this->_SpecialPage = null;
-
 	}
-
-
-	public function __construct( array $options = array() ) {
-
-		$this->reset();
-		if ( isset( $options['SpecialPage'] ) ) { $this->_SpecialPage = $options['SpecialPage']; }
-
-	}
-
 
 }

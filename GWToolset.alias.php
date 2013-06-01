@@ -11,13 +11,10 @@
  */
 $specialPageAliases = array();
 
-
 /**
  * English
  * @author dan-nl
  */
 $specialPageAliases['en'] = array(
-
 	'MyExtension' => array( 'GWToolset', 'GWToolset' )
-
 );

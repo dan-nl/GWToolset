@@ -10,12 +10,10 @@ namespace Php;
 use finfo,
 	Php\FileException;
 
-
 /**
  * @link http://php.net/manual/en/reserved.variables.files.php
  */
 class File {
-
 
 	/**
 	 * @var array
@@ -23,13 +21,11 @@ class File {
 	 */
 	public $original_file_array;
 
-
 	/**
 	 * @var string
 	 * The original name of the file on the client machine.
 	 */
 	public $name;
-
 
 	/**
 	 * @var string
@@ -37,20 +33,17 @@ class File {
 	 */
 	public $type;
 
-
 	/**
 	 * @var string
 	 * The size, in bytes, of the uploaded file.
 	 */
 	public $size;
 
-
 	/**
 	 * @var string
 	 * The temporary filename of the file in which the uploaded file was stored on the server.
 	 */
 	public $tmp_name;
-
 
 	/**
 	 * @var string
@@ -79,7 +72,6 @@ class File {
 	 */
 	public $error;
 
-
 	/**
 	 * @var boolean
 	 * Tells whether the file was uploaded via HTTP POST
@@ -87,7 +79,6 @@ class File {
 	 * @link http://www.php.net/manual/en/function.is-uploaded-file.php
 	 */
 	public $is_uploaded_file;
-
 
 	/**
 	 * @var array
@@ -97,12 +88,21 @@ class File {
 	 */
 	public $pathinfo;
 
-
 	/**
 	 * @var string
 	 */
 	public $mime_type;
 
+	/**
+	 * @param array $file
+	 * @return null
+	 */
+	public function __construct( $file_field_name = null ) {
+		$this->reset();
+		if ( !empty( $file_field_name ) ) {
+			$this->populate( $file_field_name );
+		}
+	}
 
 	/**
 	 * finfo runs a best guess at mime-type and character encoding.
@@ -117,25 +117,20 @@ class File {
 	 * @link http://www.php.net/manual/en/fileinfo.constants.php
 	 */
 	protected function setMimeType() {
-
-		if ( !class_exists('finfo') ) { return; }
+		if ( !class_exists('finfo') ) {
+			return;
+		}
 		$finfo = new finfo( FILEINFO_MIME_TYPE );
 		$this->mime_type = $finfo->file( $this->tmp_name );
-
 	}
 
 
 	protected function setPathInfo() {
-
 		$this->pathinfo = pathinfo( $this->name );
-
 	}
 
-
 	protected function isFileUploaded() {
-
 		$this->is_uploaded_file = is_uploaded_file( $this->tmp_name );
-
 	}
 
 
@@ -144,46 +139,81 @@ class File {
 	 * @return boolean
 	 */
 	protected function isFileInfoComplete() {
-
 		$result = false;
 
 		do {
+			if ( !isset( $this->error ) ) {
+				break;
+			}
 
-			if ( !isset( $this->error ) ) { break; }
-			if ( empty( $this->name ) ) { break; }
-			if ( !isset( $this->type ) ) { break; }
-			if ( !isset( $this->size ) ) { break; }
-			if ( empty( $this->tmp_name ) ) { break; }
+			if ( empty( $this->name ) ) {
+				break;
+			}
+
+			if ( !isset( $this->type ) ) {
+				break;
+			}
+
+			if ( !isset( $this->size ) ) {
+				break;
+			}
+
+			if ( empty( $this->tmp_name ) ) {
+				break;
+			}
 
 			$result = true;
-
 		} while( false );
 
-		if ( !$result ) { throw new FileException(  'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' ); }
+		if ( !$result ) {
+			throw new FileException(  'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' );
+		}
+
 		return $result;
-
 	}
-
 
 	/**
 	 * @throws FileException
 	 * @return void
 	 */
 	public function populate( $file_field_name ) {
-
 		$file_field_name = Filter::evaluate( $file_field_name );
-		if ( !isset( $_FILES[ $file_field_name ] ) ) { throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist. (Php\File)' ); }
+
+		if ( !isset( $_FILES[ $file_field_name ] ) ) {
+			throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist. (Php\File)' );
+		}
 
 		$file = $_FILES[ $file_field_name ];
-		if ( empty( $file ) ) { throw new FileException( 'The file submitted contains no information; it is most likely an empty file. (Php\File)' ); }
-		if ( isset( $file[0] ) ) { throw new FileException( 'The file submitted contains information on more than one file ($_FILES has multiple values). (Php\File)' ); }
+
+		if ( empty( $file ) ) {
+			throw new FileException( 'The file submitted contains no information; it is most likely an empty file. (Php\File)' );
+		}
+
+		if ( isset( $file[0] ) ) {
+			throw new FileException( 'The file submitted contains information on more than one file ($_FILES has multiple values). (Php\File)' );
+		}
 
 		$this->original_file_array = $file;
-		if ( isset( $file['error'] ) ) { $this->error = $file['error']; }
-		if ( isset( $file['name'] ) ) { $this->name = $file['name']; }
-		if ( isset( $file['size'] ) ) { $this->size = $file['size']; }
-		if ( isset( $file['tmp_name'] ) ) { $this->tmp_name = $file['tmp_name']; }
-		if ( isset( $file['type'] ) ) { $this->type = $file['type']; }
+
+		if ( isset( $file['error'] ) ) {
+			$this->error = $file['error'];
+		}
+
+		if ( isset( $file['name'] ) ) {
+			$this->name = $file['name'];
+		}
+
+		if ( isset( $file['size'] ) ) {
+			$this->size = $file['size'];
+		}
+
+		if ( isset( $file['tmp_name'] ) ) {
+			$this->tmp_name = $file['tmp_name'];
+		}
+
+		if ( isset( $file['type'] ) ) {
+			$this->type = $file['type'];
+		}
 
 		$this->isFileInfoComplete();
 		$this->isFileUploaded();
@@ -192,12 +222,10 @@ class File {
 
 	}
 
-
 	/**
 	 * @return void
 	 */
 	public function reset() {
-
 		$this->original_file_array = array();
 		$this->error = null;
 		$this->name = null;
@@ -207,20 +235,6 @@ class File {
 		$this->is_uploaded_file = false;
 		$this->pathinfo = array();
 		$this->mime_type= null;
-
 	}
-
-
-	/**
-	 * @param array $file
-	 * @return null
-	 */
-	public function __construct( $file_field_name = null ) {
-
-		$this->reset();
-		if ( !empty( $file_field_name ) ) { $this->populate( $file_field_name ); }
-
-	}
-
 
 }

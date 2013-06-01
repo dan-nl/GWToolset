@@ -13,12 +13,10 @@ use DatabaseUpdater,
 	GWToolset\Models\MediawikiTemplate,
 	MWException;
 
-
 /**
  * placeholder class not yet used
  */
 class Hooks {
-
 
 	/**
 	 * LoadExtensionSchemaUpdates hook handler
@@ -30,26 +28,18 @@ class Hooks {
 	 * @return bool
 	 */
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
-
 		switch ( $updater->getDB()->getType() ) {
-
 			case 'mysql':
-
 				$MediawikiTemplateDbAdapter = new MediawikiTemplateDbAdapter();
 				$MediawikiTemplateDbAdapter->createTable( $updater );
 				break;
 
-
 			default:
-
 				throw new MWException( wfMessage( 'gwtoolset-db-client-support' )->plain() );
 				break;
-
 		}
 
 		return true;
-
 	}
-
 
 }

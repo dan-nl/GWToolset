@@ -11,33 +11,27 @@ use DatabaseUpdater,
 	Php\Filter,
 	ResultWrapper;
 
-
 abstract class Model implements ModelInterface {
-
 
 	/**
 	 * @var DatabaseBase
 	 */
 	protected $dbr;
 
-
 	/**
 	 * @var DatabaseBase
 	 */
 	protected $dbw;
-
 
 	/**
 	 * @var string table associated with this object
 	 */
 	public $table_name;
 
-
 	/**
 	 * @var string path to the table create sql file
 	 */
 	protected $table_create_sql;
-
 
 	/**
 	 * this query should return a result set that contians a key_name and optionally
@@ -47,24 +41,29 @@ abstract class Model implements ModelInterface {
 	 */
 	abstract protected function getKeys();
 
+	/**
+	 * @param string $table_name
+	 * @param string $table_create_sql filename containing the create table sql statements
+	 */
+	public function __construct( $table_name = null ) {
+		$this->dbr = \wfGetDB( DB_SLAVE );
+		$this->dbw = \wfGetDB( DB_MASTER );
+		$this->table_name = $table_name;
+		$this->setTableCreateSql();
+	}
 
 	/**
 	 *
 	 */
 	public function getModelKeysAsOptions( &$options = array() ) {
-
 		$result = '<option></option>';
 
 		foreach( $options as $option ) {
-
 			$result .= sprintf( '<option>%s</option>', $option->key_name );
-
 		}
 
 		return $result;
-
 	}
-
 
 	/**
 	 * creates an html select element that allows the user to select a row from
@@ -77,9 +76,13 @@ abstract class Model implements ModelInterface {
 	 * @return string an html select element
 	 */
 	public function getModelKeysAsSelect( $name = null, $id = null ) {
+		if ( !empty( $name ) ) {
+			$name = sprintf( ' name="%s"', Filter::evaluate( $name ) );
+		}
 
-		if ( !empty( $name ) ) { $name = sprintf( ' name="%s"', Filter::evaluate( $name ) ); }
-		if ( !empty( $id ) ) { $id = sprintf( ' id="%s"', Filter::evaluate( $id ) ); }
+		if ( !empty( $id ) ) {
+			$id = sprintf( ' id="%s"', Filter::evaluate( $id ) );
+		}
 
 		$options = $this->getKeys();
 
@@ -89,22 +92,6 @@ abstract class Model implements ModelInterface {
 			'</select>';
 
 		return $result;
-
 	}
-
-
-	/**
-	 * @param string $table_name
-	 * @param string $table_create_sql filename containing the create table sql statements
-	 */
-	public function __construct( $table_name = null ) {
-
-		$this->dbr = \wfGetDB( DB_SLAVE );
-		$this->dbw = \wfGetDB( DB_MASTER );
-		$this->table_name = $table_name;
-		$this->setTableCreateSql();
-
-	}
-
 
 }

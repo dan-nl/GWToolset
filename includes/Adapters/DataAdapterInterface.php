@@ -8,7 +8,6 @@
  */
 namespace GWToolset\Adapters;
 
-
 interface DataAdapterInterface {
 
 	public function create( array $options = array() );

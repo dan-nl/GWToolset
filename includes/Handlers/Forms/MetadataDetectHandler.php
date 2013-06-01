@@ -20,48 +20,40 @@ use Exception,
 	Php\File,
 	Php\Filter;
 
-
 class MetadataDetectHandler extends FormHandler {
-
 
 	/**
 	 * @var Php\File
 	 */
 	protected $_File;
 
-
 	/**
 	 * @var GWToolset\Models\Mapping
 	 */
 	protected $_Mapping;
-
 
 	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
 	protected $_MediawikiTemplate;
 
-
 	/**
 	 * @var GWToolset\MediaWiki\Api\Client
 	 */
 	protected $_MWApiClient;
-
 
 	/**
 	 * GWToolset\Handlers\UploadHandler
 	 */
 	protected $_UploadHandler;
 
-
 	/**
 	 * @var GWToolset\Handlers\XmlDetectHandler
 	 */
 	protected $_XmlDetectHandler;
 
-
 	/**
-	 *	returns an html string that is comprosed of table rows
+	 * returns an html string that is comprosed of table rows
 	 *
 	 * @param {array} $this->_user_options
 	 * an array of user options that was submitted in the html form
@@ -73,7 +65,6 @@ class MetadataDetectHandler extends FormHandler {
 	 * be used to match the attributes/properties in the wiki template
 	 */
 	protected function getMetadataAsHtmlSelectsInTableRows( array &$user_options ) {
-
 		$result = null;
 
 		if ( !isset( $user_options['mediawiki-template-name'] ) ) {
@@ -92,9 +83,7 @@ class MetadataDetectHandler extends FormHandler {
 		}
 
 		return $result;
-
 	}
-
 
 	/**
 	 * if the html form does not contain a url to the metadata file in the local
@@ -119,7 +108,6 @@ class MetadataDetectHandler extends FormHandler {
 	 * @return {string}
 	 */
 	protected function getUploadedFile( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
-
 		$result = array( 'msg' => null, 'uploaded' => false );
 
 		if ( !isset( $user_options[ $metadata_file_url ] ) && !isset( $_FILES[ $metadata_file_upload ] ) ) {
@@ -139,9 +127,7 @@ class MetadataDetectHandler extends FormHandler {
 
 		$user_options[ $metadata_file_url ] = $this->_UploadHandler->getSavedFileName();
 		return $result['msg'];
-
 	}
-
 
 	/**
 	 * grabs various user options set in an html form, filters them and sets
@@ -150,7 +136,6 @@ class MetadataDetectHandler extends FormHandler {
 	 * @return array
 	 */
 	protected function getUserOptions() {
-
 		$result = array(
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
 			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
@@ -166,9 +151,7 @@ class MetadataDetectHandler extends FormHandler {
 		}
 
 		return $result;
-
 	}
-
 
 	/**
 	 * a control function that steps through the methods necessary for processing the request
@@ -181,7 +164,6 @@ class MetadataDetectHandler extends FormHandler {
 	 * @return {string} html content including the metadata mapping form
 	 */
 	protected function processRequest() {
-
 		$result = null;
 		$wiki_file_path = null;
 		$user_options = array();
@@ -235,8 +217,6 @@ class MetadataDetectHandler extends FormHandler {
 		);
 
 		return $result;
-
 	}
-
 
 }

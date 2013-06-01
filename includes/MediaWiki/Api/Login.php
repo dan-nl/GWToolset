@@ -8,7 +8,6 @@
  */
 namespace GWToolset\MediaWiki\Api;
 
-
 class Login {
 
 	protected $lguserid;
@@ -17,16 +16,12 @@ class Login {
 	protected $cookieprefix;
 	protected $sessionid;
 
-
 	public function __construct( array $login ) {
-
 		$this->lguserid = $login['lguserid'];
 		$this->lgusername = $login['lgusername'];
 		$this->lgtoken = $login['lgtoken'];
 		$this->cookieprefix = $login['cookieprefix'];
 		$this->sessionid = $login['sessionid'];
-
 	}
-
 
 }

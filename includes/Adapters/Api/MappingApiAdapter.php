@@ -13,12 +13,13 @@ use Exception,
 	GWToolset\Helpers\WikiPages,
 	Php\Filter;
 
-
 class MappingApiAdapter extends ApiAdapterAbstract {
 
+	public function __construct( Client $MWApiClient ) {
+		parent::__construct( $MWApiClient );
+	}
 
 	protected function savePage( array &$options ) {
-
 		return $this->_MWApiClient->edit(
 			array(
 				'title' => $options['title'],
@@ -27,9 +28,7 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 				'token' => $this->_MWApiClient->getEditToken()
 			)
 		);
-
 	}
-
 
 	/**
 	 * @param array $options
@@ -41,7 +40,6 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 	 *   $options['created']
 	 */
 	public function create( array $options = array() ) {
-
 		$pageid = -1;
 		$title = null;
 		$result = false;
@@ -68,8 +66,8 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		if ( $pageid > -1 ) {
 			$options['summary'] = 'updating metadata mapping for User:' . $options['user_name'];
 
-		 // page does not yet exist
-		 } else {
+		// page does not yet exist
+		} else {
 			$options['summary'] = 'creating metadata mapping for User:' . $options['user_name'];
 		}
 
@@ -86,9 +84,7 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		}
 
 		return $result;
-
 	}
-
 
 	/**
 	 * @param {array} $options
@@ -96,7 +92,6 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 	 *   $options[mapping-name] = the path to the page
 	 */
 	public function retrieve( array $options = array() ) {
-
 		global $wgArticlePath;
 		$result = array();
 		$api_result = null;
@@ -113,7 +108,6 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		$api_result = preg_match('/(?<=<mapping_json>)(.*)(?=<\/mapping_json>)/', $api_result, $matches );
 
 		if ( !isset( $matches[0] ) ) {
-
 			$mapping_template = 'User:' . $options['user-name'] . '/' . $options['mapping-name'];
 
 			$error_msg .=
@@ -122,7 +116,6 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 				'</a>';
 
 			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-wikitext-bad' )->params( $error_msg )->plain() );
-
 		}
 
 		$result['user_name'] = $options['user-name'];
@@ -132,21 +125,10 @@ class MappingApiAdapter extends ApiAdapterAbstract {
 		$result['created'] = null;
 
 		return $result;
-
 	}
-
 
 	public function update( array $options = array() ) {}
 
-
 	public function delete( array $options = array() ) {}
-
-
-	public function __construct( Client $MWApiClient ) {
-
-		parent::__construct( $MWApiClient );
-
-	}
-
 
 }
