@@ -211,11 +211,15 @@ class MediawikiTemplate extends Model {
 					}
 				} elseif ( 'permission' == $parameter ) {
 					// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
-					if ( strstr( $content, 'http://creativecommons.org/' ) ) {
+					$permission = strtolower( $content );
+
+					if ( strstr( $permission, 'http://creativecommons.org/' )
+							|| strstr( $permission, 'https://creativecommons.org/' )
+					) {
 						$patterns = array(
-							'/http:\/\/creativecommons.org\/publicdomain\/mark\/1.0\//',
-							'/http:\/\/creativecommons.org\/publicdomain\/zero\/1.0\//',
-							'/http:\/\/creativecommons.org\/licenses\//'
+							'/(http|https):\/\/creativecommons.org\/publicdomain\/mark\/1.0\//',
+							'/(http|https):\/\/creativecommons.org\/publicdomain\/zero\/1.0\//',
+							'/(http|https):\/\/creativecommons.org\/licenses\//'
 						);
 
 						$replacements = array(
@@ -224,20 +228,21 @@ class MediawikiTemplate extends Model {
 							''
 						);
 
-						$new_string = preg_replace( $patterns, $replacements, $content );
-						$new_string = explode( '/', $new_string );
+						$permission = preg_replace( $patterns, $replacements, $permission );
+						$permission = explode( '/', $permission );
 
-						if ( count( $new_string ) > 1 ) {
+						if ( count( $permission ) > 1 ) {
 							$i = 0;
 							$string = '{{Cc-';
 
-							foreach( $new_string as $piece ) {
+							foreach( $permission as $piece ) {
 								if ( !empty( $piece ) ) {
 									$string .= $piece . '-';
 								}
 
 								$i++;
 
+								// limit licenses path depth to 3
 								if ( $i == 3 ) {
 									break;
 								}
@@ -245,13 +250,15 @@ class MediawikiTemplate extends Model {
 
 							$string = substr( $string, 0, strlen( $string ) - 1 );
 							$string .= '}}';
-							$new_string = $string;
+							$permission = $string;
 						} else {
-							$new_string = $new_string[0];
+							$permission = $permission[0];
 						}
+					} else {
+						$permission = $content;
 					}
 
-					$sections .= Filter::evaluate( $new_string ) . PHP_EOL;
+					$sections .= Filter::evaluate( $permission ) . PHP_EOL;
 				} elseif ( 'source' == $parameter ) {
 					if ( !empty( $user_options['partner-template-name'] ) ) {
 						$sections .= Filter::evaluate( $content ) . '{{' . $user_options['partner-template-name'] . '}}' . PHP_EOL;
