@@ -213,18 +213,18 @@ class MediawikiTemplate extends Model {
 					// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
 					$permission = strtolower( $content );
 
-					if ( strstr( $permission, 'http://creativecommons.org/' )
-							|| strstr( $permission, 'https://creativecommons.org/' )
-					) {
+					if ( strstr( $permission, 'creativecommons.org/' ) ) {
 						$patterns = array(
-							'/(http|https):\/\/creativecommons.org\/publicdomain\/mark\/1.0\//',
-							'/(http|https):\/\/creativecommons.org\/publicdomain\/zero\/1.0\//',
-							'/(http|https):\/\/creativecommons.org\/licenses\//'
+								'/(http|https):\/\/(www\.|)creativecommons.org\/publicdomain\/mark\/1.0\//',
+								'/(http|https):\/\/(www\.|)creativecommons.org\/publicdomain\/zero\/1.0\//',
+								'/(http|https):\/\/(www\.|)creativecommons.org\/licenses\//',
+								'/deed\.*/'
 						);
 
 						$replacements = array(
 							'{{PD-US}}{{PD-old}}', // Public Domain Mark 1.0
 							'{{Cc-zero}}', // CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
+							'',
 							''
 						);
 
