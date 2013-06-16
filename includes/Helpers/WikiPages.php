@@ -57,7 +57,7 @@ class WikiPages {
 		global $wgServer;
 
 		if ( empty( $template_url ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-template-url' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-template-url' )->escpaed() )->parse() );
 		}
 
 		$result = str_replace(
@@ -164,7 +164,7 @@ class WikiPages {
 				throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-api-returned-no-imageinfo' )->plain() )->parse() );
 			}
 
-			$result = $IP . str_replace( $wgServer, '', $page['imageinfo'][0]['url'] );
+			$result = $IP . str_replace( $wgServer, '', urldecode( $page['imageinfo'][0]['url'] ) );
 			break; // should only need to run through this once
 		}
 

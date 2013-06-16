@@ -27,7 +27,7 @@ class Config {
 
 		'GWToolset\Forms\MetadataDetectForm' => '/includes/Forms/MetadataDetectForm.php',
 		'GWToolset\Forms\MetadataMappingForm' => '/includes/Forms/MetadataMappingForm.php',
-		'GWToolset\Forms\MetadataUploadForm' => '/includes/Forms/MetadataUploadForm.php',
+		'GWToolset\Forms\PreviewForm' => '/includes/Forms/PreviewForm.php',
 
 		'GWToolset\Handlers\Ajax\AjaxHandler' => '/includes/Handlers/Ajax/AjaxHandler.php',
 		'GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' => '/includes/Handlers/Ajax/MetadataMappingSaveHandler.php',
@@ -35,7 +35,6 @@ class Config {
 		'GWToolset\Handlers\Forms\FormHandler' => '/includes/Handlers/Forms/FormHandler.php',
 		'GWToolset\Handlers\Forms\MetadataDetectHandler' => '/includes/Handlers/Forms/MetadataDetectHandler.php',
 		'GWToolset\Handlers\Forms\MetadataMappingHandler' => '/includes/Handlers/Forms/MetadataMappingHandler.php',
-		'GWToolset\Handlers\Forms\MetadataUploadHandler' => '/includes/Handlers/Forms/MetadataUploadHandler.php',
 
 		'GWToolset\Handlers\SpecialPageHandler' => '/includes/Handlers/SpecialPageHandler.php',
 		'GWToolset\Handlers\UploadHandler' => '/includes/Handlers/UploadHandler.php',
@@ -92,7 +91,8 @@ class Config {
 			'gwtoolset-save-mapping',
 			'gwtoolset-save-mapping-name',
 			'gwtoolset-save-mapping-failed',
-			'gwtoolset-save-mapping-succeeded'
+			'gwtoolset-save-mapping-succeeded',
+			'gwtoolset-step-2'
 		)
 	);
 
@@ -202,6 +202,6 @@ class Config {
 
 	public static $job_throttle = 10;
 
-	public static $preview_throttle = 5;
+	public static $preview_throttle = 3;
 
 }

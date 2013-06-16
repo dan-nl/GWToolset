@@ -29,13 +29,6 @@ $wgGWToolsetDir = realpath( __DIR__ );
 require_once $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'Config.php';
 
 /*
- * load extension custom configuraton
- */
-if ( file_exists( $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'config-custom.php' ) ) {
-	require_once $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'config-custom.php';
-}
-
-/*
  * load extension functions
  */
 require_once $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';

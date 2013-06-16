@@ -10,6 +10,7 @@ namespace GWToolset\Handlers\Forms;
 use GWToolset\Adapters\Api\MappingApiAdapter,
 	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Config,
+	GWToolset\Forms\PreviewForm,
 	GWToolset\Jobs\UploadMetadataJob,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlMappingHandler,
@@ -97,11 +98,17 @@ class MetadataMappingHandler extends FormHandler {
 				'Mapping' => $this->_Mapping,
 				'MediawikiTemplate' => $this->_MediawikiTemplate,
 				'MWApiClient' => $this->_MWApiClient,
-				'User' => $this->_User
+				'User' => $this->_User,
 			)
 		);
 
-		$this->_XmlMappingHandler = new XmlMappingHandler( $this->_Mapping, $this->_MediawikiTemplate, $this );
+		$this->_XmlMappingHandler = new XmlMappingHandler(
+			array(
+				'Mapping' => $this->_Mapping,
+				'MediawikiTemplate' => $this->_MediawikiTemplate,
+				'MappingHandler' => $this
+			)
+		);
 		$result = $this->_XmlMappingHandler->processXml( $this->_user_options, $wiki_file_path );
 
 		if ( empty( $this->_SpecialPage )
@@ -201,20 +208,22 @@ class MetadataMappingHandler extends FormHandler {
 	 */
 	protected function getUserOptions() {
 		$result = array(
-			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
-			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
-			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
-			'record-count' => 0,
-			'record-begin' => isset( $_POST['record-begin'] ) ? (int) $_POST['record-begin'] : 0,
-			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ? (bool)Filter::evaluate( $_POST['save-as-batch-job'] ) : false,
-			'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
-			'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
-			'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
-			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null,
 			'categories' => null,
 			'category-phrase' => !empty( $_POST['category-phrase'] ) ? $_POST['category-phrase'] : array(),
 			'category-metadata' => !empty( $_POST['category-metadata'] ) ? $_POST['category-metadata'] : array(),
-			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ? Filter::evaluate( $_POST['partner-template-url'] ) : null,
+			'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
+			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? urldecode( Filter::evaluate( $_POST['metadata-file-url'] ) ) : null,
+			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ? urldecode( Filter::evaluate( $_POST['partner-template-url'] ) ) : null,
+			//'record-count' => !empty( $_POST['record-count'] ) ? (int) $_POST['record-count'] : 0,
+			'preview' => !empty( $_POST['gwtoolset-preview'] ) ? true : false,
+			'record-count' => 0,
+			'record-begin' => !empty( $_POST['record-begin'] ) ? (int) $_POST['record-begin'] : 0,
+			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
+			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ? (bool)Filter::evaluate( $_POST['save-as-batch-job'] ) : false,
+			'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
+			'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
+			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null
 		);
 
 		if ( !empty( $result['partner-template-url'] ) ) {
@@ -244,18 +253,37 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		if ( $this->_user_options['save-as-batch-job'] ) {
-			// assumption is that if SpecialPage is not empty then this is
-			// the creation of the initial job queue job
+		//if ( $this->_user_options['save-as-batch-job'] ) {
+		//	// assumption is that if SpecialPage is not empty then this is
+		//	// the creation of the initial job queue job
+		//	if ( !empty( $this->_SpecialPage ) ) {
+		//		$this->result = $this->createMetadataBatchJob();
+		//	// assumption is that this is a job queue job that will create the
+		//	// mediafile upload jobs
+		//	} else {
+		//		$this->result = $this->processMetadata();
+		//	}
+		//} else {
+		//	$this->result = $this->processMetadata();
+		//}
+
+		if ( $this->_user_options['preview'] ) {
+			Config::$job_throttle = Config::$preview_throttle;
+			$this->result = $this->processMetadata();
+
+			$this->result = PreviewForm::getForm(
+				$this->_SpecialPage->getContext(),
+				$this->_user_options,
+				$this->result
+			);
+		} else {
+			$this->_user_options['save-as-batch-job'] = true;
+
 			if ( !empty( $this->_SpecialPage ) ) {
 				$this->result = $this->createMetadataBatchJob();
-			// assumption is that this is a job queue job that will create the
-			// mediafile upload jobs
 			} else {
 				$this->result = $this->processMetadata();
 			}
-		} else {
-			$this->result = $this->processMetadata();
 		}
 
 		return $this->result;

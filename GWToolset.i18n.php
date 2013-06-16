@@ -79,6 +79,8 @@ $messages['en'] = array(
 	'gwtoolset-back-to-form' => 'back to form',
 	'gwtoolset-no-form' => 'There is no form for this module',
 	'gwtoolset-required-field' => ' denotes required field',
+	'gwtoolset-revised' => '( revised )',
+	'gwtoolset-no-change' => '( no change )',
 
 	/**
 	 * js
@@ -122,14 +124,14 @@ $messages['en'] = array(
 	/**
 	 * metadata upload
 	 */
-	'gwtoolset-metadata-upload-successful' => '====Your metadata file upload was successful====' . PHP_EOL . 'The uploaded file can be found here : [$1 $2]',
+	'gwtoolset-metadata-upload-successful' => '==== Your metadata file upload was successful ====' . PHP_EOL . 'The uploaded file can be found here : [$1 $2]',
 	'gwtoolset-upload-on-behalf-of' => 'Uploaded using the GWToolset Extension.',
 
 	/**
-	 * metadata detect
+	 * metadata detect - step 1
 	 */
-	'gwtoolset-metadata-detect-step-1' => 'Step 1 : Metadata Detect',
-	'gwtoolset-metadata-detect-step-1-instructions' => 'The Metadata Upload process consists of 3 steps:' . PHP_EOL . '# Metadata Detection' . PHP_EOL . '# Metadata Mapping' . PHP_EOL . '# Metadata Uploading' . PHP_EOL . 'In this step you upload your metadata file for evaluation. The toolset will attempt to extract the metadata fields available in the metadata file, which you will then map to a MediaWiki Template in Step 2 : Metadata Mapping.',
+	'gwtoolset-step-1' => 'Step 1 : Metadata Detect',
+	'gwtoolset-step-1-instructions' => '== Step 1 : Metadata Detect ==' . PHP_EOL . 'The Metadata Upload process consists of 4 steps:' . PHP_EOL . '# Metadata Detection' . PHP_EOL . '# Metadata Mapping' . PHP_EOL . '# Batch Preview' . PHP_EOL . '# Batch Upload' . PHP_EOL . 'In this step, you either upload a new metadata file, or select a metadata file that has already been uploaded to the wiki for evaluation. The toolset will attempt to extract the metadata fields available in the metadata file, which you will then map to a MediaWiki Template in Step 2 : Metadata Mapping.',
 	'gwtoolset-record-element-name' => 'What is the xml element that contains each metadata record : ',
 	'gwtoolset-which-mediawiki-template' => 'Which MediaWiki Template : ',
 	'gwtoolset-which-metadata-mapping' => 'Which Metadata Mapping : ',
@@ -150,10 +152,10 @@ $messages['en'] = array(
 	'gwtoolset-ensure-well-formed-xml' => 'Make sure the XML File is well-formed with this [http://www.w3schools.com/xml/xml_validator.asp XML Validator]',
 
 	/**
-	 * metadata mapping
+	 * metadata mapping - step 2
 	 */
-	'gwtoolset-metadata-detect-step-2' => 'Step 2 : Metadata Mapping',
-	'gwtoolset-metadata-detect-step-2-instructions' => 'Below is a list of the fields in the MediaWiki Template, $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.' . PHP_EOL . '* Left column contains a list of all fields in the MediaWiki Template.' . PHP_EOL . '* Right column contains drop-downs with the metadata fields found in your metadata file.' . PHP_EOL . '====For each Mediawiki Template field :====' . PHP_EOL . '# select a metadata value from your uploaded metadata file that corresponds with the Mediwiki Template field' . PHP_EOL . '# you do not need to provide a match for every Mediawiki Template field.',
+	'gwtoolset-step-2' => 'Step 2 : Metadata Mapping',
+	'gwtoolset-step-2-instructions' => '== Step 2 : Metadata Mapping ==' . PHP_EOL . 'Below is a list of the fields in the MediaWiki $1, and drop-downs with the metadata fields found in your metadata file. In this step you need to map those fields with the MediaWiki Template fields.' . PHP_EOL . '* Left column contains a list of all fields in the MediaWiki Template.' . PHP_EOL . '* Right column contains drop-downs with the metadata fields found in your metadata file.' . PHP_EOL . '====For each Mediawiki Template field :====' . PHP_EOL . '# select a metadata value from your uploaded metadata file that corresponds with the Mediwiki Template field' . PHP_EOL . '# you do not need to provide a match for every Mediawiki Template field.',
 	'gwtoolset-metadata-mapping-error' => 'Metadata Mapping Error',
 	'gwtoolset-metadata-mapping-legend' => 'Map your metadata',
 	'gwtoolset-template-field' => 'template field',
@@ -167,8 +169,8 @@ $messages['en'] = array(
 	'gwtoolset-mapping-media-file-url-extension-bad' => 'Could not evaluate the media file url in order to determine the file extension [$1]',
 	'gwtoolset-mapping-media-file-url-bad' => 'Could not evaluate the media file url provided [$1]. The url delivers the content in a way that is not yet handled by this extension.',
 	'gwtoolset-mapping-media-file-media-file-no-content-type' => 'Could not evaluate the media file content type for the url provided [$1]',
-	'gwtoolset-retrieve-media' => 'retrieve media from url',
-	'gwtoolset-retrieve-media-explanation' => 'the media for each item will be retrieved from the url_to_the_media_file provided and uploaded to the wiki. if a page for the item does not yet exist, the media file will be uploaded even if this checkbox has not been checked.',
+	'gwtoolset-reupload-media' => 're-upload media from url',
+	'gwtoolset-reupload-media-explanation' => 'this check box allows you to re-upload media for an item that has already been uploaded to the wiki. if the item already exists, an additional media file will be added to the wiki. if the media file does not yet exist, it will be uploaded whether this checkbox is checked or not.',
 	'gwtoolset-add-as-a-job' => 'process as a background job',
 	'gwtoolset-add-as-a-job-description' => 'the metadata is processsed in the background; this is the recommended method. if you uncheck this option your request may not complete properly.',
 	'gwtoolset-category' => 'category',
@@ -183,6 +185,18 @@ $messages['en'] = array(
 	'gwtoolset-partner' => 'Partner',
 	'gwtoolset-partner-template' => 'partner template : ',
 	'gwtoolset-partner-explanation' => 'Partner templates are pulled into the source field of the mediawiki template when provided. You can find a list of current Partner Templates on the Category:Source templates page; see link below. Once you’ve found the Partner Template you wish to use place the url to it in this field. You can also create a new Partner Template if necessary.',
+	'gwtoolset-record-count' => 'total number of records found in this metadata file [$1]',
+	'gwtoolset-preview' => 'preview batch',
+	'gwtoolset-process-batch' => 'process the batch',
+	'gwtoolset-no-more-records' => "'''no more records to process'''",
+
+	/**
+	 * batch preview - step 3
+	 */
+	'gwtoolset-step-3' => 'Step 3 : Batch Preview',
+	'gwtoolset-step-3-instructions' => '== Step 3 : Batch Preview ==' . PHP_EOL . 'Below are the results of uploading the first $1 records from the metadata file you selected and mapping them to the mediawiki template you selected in Step 2 : Metadata Mapping.',
+	'gwtoolset-step-3-instructions-2' => 'Review these pages and if the results meet your expectations, and there are additional records waiting to be uploaded, continue the batch upload process by clicking on the “process the batch” button below.',
+	'gwtoolset-step-3-instructions-3' => 'If you’re not happy with the results, go back to Step 2 : Metadata Mapping and adjust the mapping as necessary.' . PHP_EOL . 'If you need to make adjustments to the metadata file itself, go ahead and do so and re-upload it by beginning the process again with Step 1 : Metadata Detect',
 
 	/**
 	 * mw api client
@@ -223,7 +237,7 @@ $messages['en'] = array(
 	/**
 	 * jobs
 	 */
-	'gwtoolset-batchjob-metadata-created' => 'Batch job added. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process. You can check the [$1] page to see when they have been uploaded.',
+	'gwtoolset-batchjob-metadata-created' => '== Step 4 : Batch Upload ==' . PHP_EOL . 'Batch job added. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process. You can check the [$1] page to see when they have been uploaded.',
 	'gwtoolset-batchjobs-item-created' => 'Batch jobs for ($1) item(s) have been created; these will process one at a time via a background job.',
 	'gwtoolset-batchjobs-item-created-some' => 'Unfortunately not all items were added as batch jobs. Batch jobs were created for ($1) item(s); with ($2) items having an issue. Please contact a developer if this is a problem.'
 );

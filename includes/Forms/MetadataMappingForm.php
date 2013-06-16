@@ -10,33 +10,36 @@ namespace GWToolset\Forms;
 use Exception,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
-	IContextSource;
+	IContextSource,
+	Php\Filter;
 
 class MetadataMappingForm {
 
 	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null, $metadata_select = null ) {
 		global $wgArticlePath;
-		return
-			'<h2>' . wfMessage( 'gwtoolset-metadata-detect-step-2' )->plain() . '</h2>' .
-			'<p>' . wfMessage( 'gwtoolset-metadata-detect-step-2-instructions' )->params( $user_options['mediawiki-template-name'] )->parse() . '</p>' .
+		$template_link = '[[Template:' . Filter::evaluate( $user_options['mediawiki-template-name'] ) . ']]';
 
-			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post" enctype="multipart/form-data">' .
+		return
+			wfMessage( 'gwtoolset-step-2-instructions' )->params( $template_link )->parse() .
+
+			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post">' .
 
 				'<fieldset>' .
 
 						'<legend>' . wfMessage( 'gwtoolset-metadata-mapping-legend' )->plain() . '</legend>' .
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
-						'<input type="hidden" name="metadata-file-url" value="' . $user_options['metadata-file-url'] . '"/>' .
-						'<input type="hidden" name="record-element-name" value="' . $user_options['record-element-name'] . '"/>' .
-						'<input type="hidden" name="mediawiki-template-name" id="gwtoolset-mediawiki-template-name" value="' . $user_options['mediawiki-template-name'] . '"/>' .
-						'<input type="hidden" name="metadata-mapping" id="gwtoolset-metadata-mapping" value="' . $user_options['metadata-mapping'] . '"/>' .
-						'<input type="hidden" name="metadata-mapping-url" value="' . $user_options['metadata-mapping-url'] . '"/>' .
+						'<input type="hidden" name="gwtoolset-preview" value="true"/>' .
+						'<input type="hidden" name="record-count" value="' . (int)$user_options['record-count'] . '"/>' .
+						'<input type="hidden" name="record-element-name" value="' . Filter::evaluate( $user_options['record-element-name'] ) . '"/>' .
+						'<input type="hidden" name="mediawiki-template-name" id="mediawiki-template-name" value="' . Filter::evaluate( $user_options['mediawiki-template-name'] ) . '"/>' .
+						'<input type="hidden" name="metadata-file-url" value="' . Filter::evaluate( $user_options['metadata-file-url'] ) . '"/>' .
+						'<input type="hidden" name="metadata-mapping-url" value="' . Filter::evaluate( $user_options['metadata-mapping-url'] ) . '"/>' .
+						'<input type="hidden" name="metadata-mapping-name" id="metadata-mapping-name" value="' . Filter::evaluate( $user_options['metadata-mapping-name'] ) . '"/>' .
 						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
-						'<input type="hidden" name="MAX_FILE_SIZE"  value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
 
 						'<h3>' .
-							wfMessage( 'gwtoolset-mediawiki-template' )->params( $user_options['mediawiki-template-name'] )->plain() .
+							wfMessage( 'gwtoolset-mediawiki-template' )->params( Filter::evaluate( $user_options['mediawiki-template-name'] ) )->plain() .
 							( !empty( $mapping_name['user-name'] ) ? ', ' . $mapping_name['user-name'] : null ) .
 							( !empty( $mapping_name['mapping-name'] ) ? ' : ' . $mapping_name['mapping-name'] : null ) .
 						'</h3>' .
@@ -61,9 +64,10 @@ class MetadataMappingForm {
 						'<p style="clear:both;padding-top:2em;"><span class="required">*</span>' . wfMessage( 'gwtoolset-required-field' )->plain() . '</p>' .
 						wfMessage( 'copyrightwarning2' )->parseAsBlock() .
 
-						'<p style="left; margin-top:1em;">' .
-							'<b>' . wfMessage( 'gwtoolset-metadata-file-url' )->plain() . '</b><br />' .
-							$user_options['metadata-file-url'] .
+						'<h3>' . wfMessage( 'gwtoolset-metadata-file-url' )->plain() . '</h3>' .
+						'<p>' .
+							Filter::evaluate( $user_options['metadata-file-url'] ) . '<br />' .
+							wfMessage( 'gwtoolset-record-count' )->params( (int)$user_options['record-count'] )->escaped() .
 						'</p>' .
 
 						'<h3 style="margin-top:1em;">' . wfMessage( 'categories' )->plain() . '</h3>' .
@@ -119,16 +123,16 @@ class MetadataMappingForm {
 						'</p>' .
 
 						'<p>' .
-							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage( 'gwtoolset-retrieve-media' )->plain() . '</label><br />' .
-							wfMessage( 'gwtoolset-retrieve-media-explanation' )->plain() .
+							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage( 'gwtoolset-reupload-media' )->plain() . '</label><br />' .
+							wfMessage( 'gwtoolset-reupload-media-explanation' )->plain() .
 						'</p>' .
 
-						'<p>' .
-							'<label><input type="checkbox" name="save-as-batch-job" value="true" checked/> ' . wfMessage( 'gwtoolset-add-as-a-job' )->plain() . '</label><br />' .
-							wfMessage( 'gwtoolset-add-as-a-job-description' )->plain() .
-						'</p>'.
+						//'<p>' .
+						//	'<label><input type="checkbox" name="save-as-batch-job" value="true" checked/> ' . wfMessage( 'gwtoolset-add-as-a-job' )->plain() . '</label><br />' .
+						//	wfMessage( 'gwtoolset-add-as-a-job-description' )->plain() .
+						//'</p>'.
 
-						'<input type="submit" name="submit" value="process file">' .
+						'<input type="submit" name="submit" value="' . wfMessage( 'gwtoolset-preview' ) . '">' .
 
 				'</fieldset>' .
 

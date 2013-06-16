@@ -52,7 +52,6 @@ class Mapping extends Model {
 
 	/**
 	 * assumes that the details for the metadata-mapping are in
-	 * $options['metadata-mapping'] - when retrieving from the db
 	 * $options['metadata-mapping-url'] - when retrieiving from a wiki page
 	 *
 	 * @param array $options
@@ -65,10 +64,6 @@ class Mapping extends Model {
 	protected function getMappingDetails( array &$options ) {
 		$result = array();
 
-		if ( isset( $options['metadata-mapping'] ) ) {
-			$result = json_decode( str_replace( "`", '"', $options['metadata-mapping'] ), true );
-		}
-
 		if ( isset( $options['metadata-mapping-url'] ) ) {
 			$result = WikiPages::getUsernameAndPageFromUrl( $options['metadata-mapping-url'] );
 		}
@@ -76,7 +71,7 @@ class Mapping extends Model {
 		if ( !empty( $result )
 			&& ( !isset( $result['user-name'] ) || !isset( $result['mapping-name'] ) )
 		) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-mapping-info-missing' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-mapping-info-missing' )->escaped() )->parse() );
 		}
 
 		return $result;
@@ -196,12 +191,6 @@ class Mapping extends Model {
 	}
 
 	/**
-	 * relies on hard coded keys in the $user_options to retrieve a metadata
-	 * mapping stored in the wiki db
-	 *
-	 * - $user_options['metadata-mapping']
-	 * - $user_options['mediawiki-template-name']
-	 *
 	 * the expected $mapping_details should evaluate to the following hard-coded keys
 	 *
 	 * - $mapping_details['user-name']

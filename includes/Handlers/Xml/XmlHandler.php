@@ -8,11 +8,7 @@
  */
 namespace GWToolset\Handlers\Xml;
 use Exception,
-	GWToolset\Models\MediawikiTemplate,
-	GWToolset\Handlers\Xml\XmlDetectHandler,
-	GWToolset\Handlers\Xml\XmlDetectHandler\findSampleDOMElement,
-	SpecialPage,
-	XmlReader;
+	XMLReader;
 
 abstract class XmlHandler {
 

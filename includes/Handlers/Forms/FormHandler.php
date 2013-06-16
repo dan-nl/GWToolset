@@ -15,12 +15,25 @@ abstract class FormHandler extends SpecialPageHandler {
 
 	protected $_user_options;
 
+	/**
+	 * make sure the expected option exists and has a value with strlen > 0
+	 */
 	protected function checkForRequiredFormFields( array $expected_options = array() ) {
 		$msg = null;
 
 		foreach( $expected_options as $option ) {
-			if ( !isset( $this->_user_options[ $option ] ) ) {
+			if ( !array_key_exists( $option, $this->_user_options ) ) {
 				$msg .= '<li>' . $option . '</li>';
+			}
+
+			if ( is_array( $this->_user_options[ $option ] ) ) {
+				if ( strlen( reset( $this->_user_options[ $option ] ) ) < 1 ) {
+					$msg .= '<li>' . $option . '</li>';
+				}
+			} else {
+				if ( strlen( $this->_user_options[ $option ] ) < 1 ) {
+					$msg .= '<li>' . $option . '</li>';
+				}
 			}
 		}
 

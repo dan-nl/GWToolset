@@ -25,8 +25,7 @@ class MetadataDetectForm {
 		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
 
 		return
-			'<h2>' . wfMessage( 'gwtoolset-metadata-detect-step-1' )->plain() . '</h2>' .
-			'<p>' . wfMessage( 'gwtoolset-metadata-detect-step-1-instructions' )->parse() . '</p>' .
+			wfMessage( 'gwtoolset-step-1-instructions' )->parse() .
 
 			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post" enctype="multipart/form-data">' .
 

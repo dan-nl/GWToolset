@@ -166,14 +166,27 @@ class Filter {
 		if ( isset( $options['source'] ) ) {
 			self::$source = $options['source'];
 		} else {
-			throw new FilterException( '$options provided as an array, but no $options[source] provided [' . print_r( $options, true ) . ']' );
+			$msg = '$options provided as an array, but no $options[source] provided [' . print_r( $options, true ) . ']';
+
+			if ( ini_get('display_errors') ) {
+				$msg .= '<pre style="overflow:auto;">' . print_r( debug_backtrace(), true ) . '</pre>';
+			}
+
+			throw new FilterException( $msg );
 		}
 
 		if ( is_array( self::$source ) ) {
 			if ( isset( $options['key-name'] ) ) {
 				self::$key_name = $options['key-name'];
 			} else {
-				throw new FilterException( '$options provided as an array, but no $options[key-name] provided [' . print_r( $options, true ) . ']' );
+				$msg = '$options[source] provided as an array, but no $options[key-name] provided.';
+				$msg .= '<pre style="overflow:auto;">' . print_r( $options, true ) . '</pre>';
+
+				if ( ini_get('display_errors') ) {
+					$msg .= '<pre style="overflow:auto;">' . print_r( debug_backtrace(), true ) . '</pre>';
+				}
+
+				throw new FilterException( $msg );
 			}
 		}
 

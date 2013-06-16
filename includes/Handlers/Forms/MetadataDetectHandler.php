@@ -74,8 +74,8 @@ class MetadataDetectHandler extends FormHandler {
 		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $user_options );
 		$this->_Mapping->retrieve( $user_options );
 
-		if ( !empty( $user_options['metadata-mapping'] ) && empty( $this->_Mapping->mapping_array ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->rawParams( Filter::evaluate( $user_options['metadata-mapping'] ) )->plain() );
+		if ( !empty( $user_options['metadata-mapping-url'] ) && empty( $this->_Mapping->mapping_array ) ) {
+			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->rawParams( Filter::evaluate( $user_options['metadata-mapping-url'] ) )->plain() );
 		}
 
 		foreach( $this->_MediawikiTemplate->mediawiki_template_array as $parameter => $value ) {
@@ -139,15 +139,16 @@ class MetadataDetectHandler extends FormHandler {
 		$result = array(
 			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
 			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
-			'metadata-mapping' => !empty( $_POST['metadata-mapping'] ) ? Filter::evaluate( $_POST['metadata-mapping'] ) : null,
-			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( $_POST['metadata-file-url'] ) : null,
-			'metadata-mapping-url' => !empty( $_POST['metadata-mapping-url'] ) ? Filter::evaluate( $_POST['metadata-mapping-url'] ) : null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? Filter::evaluate( urldecode( $_POST['metadata-file-url'] ) ) : null,
+			'metadata-mapping-url' => !empty( $_POST['metadata-mapping-url'] ) ? Filter::evaluate( urldecode( $_POST['metadata-mapping-url'] ) ) : null,
 			'record-count' => 0
 		);
 
+		// extract the metadata mapping name to be used when saving the metadata mapping via javascript
+		// there's no need to place this field anywhere else besides the MetadataMappingForm
 		if ( !empty( $result['metadata-mapping-url'] ) ) {
 			$mapping_details = WikiPages::getUsernameAndPageFromUrl( $result['metadata-mapping-url'] );
-			$result['metadata-mapping'] = str_replace( array( Config::$metadata_mapping_subdirectory, str_replace( ' ', '_', Config::$metadata_mapping_subdirectory ) ), '', $mapping_details[1] );
+			$result['metadata-mapping-name'] = str_replace( array( Config::$metadata_mapping_subdirectory, str_replace( ' ', '_', Config::$metadata_mapping_subdirectory ) ), '', $mapping_details[1] );
 		}
 
 		return $result;
@@ -202,7 +203,12 @@ class MetadataDetectHandler extends FormHandler {
 		WikiPages::$MWApiClient = $this->_MWApiClient;
 		$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
 
-		$this->_XmlDetectHandler = new XmlDetectHandler( array( 'SpecialPage' => $this->_SpecialPage ) );
+		$this->_XmlDetectHandler = new XmlDetectHandler(
+			array(
+				'SpecialPage' => $this->_SpecialPage
+			)
+		);
+
 		$this->_XmlDetectHandler->processXml( $this->_user_options, $wiki_file_path );
 
 		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );

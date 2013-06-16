@@ -23,14 +23,44 @@ class XmlMappingHandler extends XmlHandler {
 	protected $_Mapping;
 
 	/**
+	 * @var GWToolset\Models\Mapping
+	 */
+	protected $_MappingHandler;
+
+	/**
 	 * @var GWToolset\Models\MediawikiTemplate
 	 */
 	protected $_MediawikiTemplate;
 
-	public function __construct( Mapping $Mapping, MediawikiTemplate $MediawikiTemplate, $MappingHandler ) {
-		$this->_Mapping = $Mapping;
-		$this->_MediawikiTemplate = $MediawikiTemplate;
-		$this->_MappingHandler = $MappingHandler;
+	/**
+	 * @var SpecialPage
+	 */
+	protected $_SpecialPage;
+
+	public function __construct( array $options = array() ) {
+		$this->reset();
+
+		if ( isset( $options['Mapping'] ) ) {
+			$this->_Mapping = $options['Mapping'];
+		}
+
+		if ( isset( $options['MediawikiTemplate'] ) ) {
+			$this->_MediawikiTemplate = $options['MediawikiTemplate'];
+		}
+
+		if ( isset( $options['MappingHandler'] ) ) {
+			$this->_MappingHandler = $options['MappingHandler'];
+		}
+
+		if ( isset( $options['SpecialPage'] ) ) {
+			$this->_SpecialPage = $options['SpecialPage'];
+		}
+	}
+
+	public function reset() {
+		$this->_Mapping = null;
+		$this->_MediawikiTemplate = null;
+		$this->_SpecialPage = null;
 	}
 
 	/**
@@ -132,7 +162,7 @@ class XmlMappingHandler extends XmlHandler {
 							// isset( $elements_mapped[ $template_parameter ][ 'language ] ) doesn't work here
 							if ( is_array( $elements_mapped[ $template_parameter ] )
 								&& array_key_exists( 'language', $elements_mapped[ $template_parameter ] )
-							) {								
+							) {
 								if ( !isset( $elements_mapped[ $template_parameter ][0] ) ) {
 									$elements_mapped[ $template_parameter ][0] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 								} else {
@@ -190,15 +220,17 @@ class XmlMappingHandler extends XmlHandler {
 				if ( $xml_reader->name == $user_options['record-element-name'] ) {
 					$user_options['record-count'] += 1;
 
-					if ( empty( $this->_MappingHandler->_SpecialPage ) ) {
-						if ( $user_options['record-count'] < $user_options['record-begin'] ) {
-							break;
-						}
+					// don’t process the element if the record count is not >=
+					// the record nr we should start processing on
+					if ( $user_options['record-count'] < $user_options['record-begin'] ) {
+						break;
+					}
 
-						if ( $user_options['record-count'] > $user_options['record-begin'] + Config::$job_throttle ) {
-							$result['stop-reading'] = true;
-							break;
-						}
+					// stop processing if the record count is > the record nr we should
+					// start processing on plus the job throttle
+					if ( $user_options['record-count'] > $user_options['record-begin'] + Config::$job_throttle ) {
+						$result['stop-reading'] = true;
+						break;
 					}
 
 					$DOMElement = $xml_reader->expand();
@@ -228,7 +260,7 @@ class XmlMappingHandler extends XmlHandler {
 	 */
 	public function processXml( array &$user_options, $file_path_local = null ) {
 		$result =
-			'<h2>' . wfMessage('gwtoolset-results')->plain() . '</h2>' .
+			'<h3>' . wfMessage('gwtoolset-results')->escaped() . '</h3>' .
 			$this->readXml( $user_options, $file_path_local, 'processDOMElements' );
 
 		return $result;

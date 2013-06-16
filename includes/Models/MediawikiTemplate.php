@@ -67,7 +67,7 @@ class MediawikiTemplate extends Model {
 	 * the $_POST array anticipated to come from an html form.
 	 *
 	 * the array is expected to be in an array format for each mediawiki
-	 * parameter e.g. accession-number[], artist[]
+	 * parameter e.g. accession_number[], artist[]
 	 *
 	 * @return array
 	 *

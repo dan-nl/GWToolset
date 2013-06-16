@@ -46,6 +46,13 @@ class XmlDetectHandler extends XmlHandler {
 		}
 	}
 
+	public function reset() {
+		$this->_metadata_as_options = null;
+		$this->_metadata_example_dom_element = array();
+		$this->_metadata_example_dom_nodes = array();
+		$this->_SpecialPage = null;
+	}
+
 	/**
 	 * adds an option to $this->metadata_as_html_options based on the DOMNode given
 	 * only adds unique nodeNames
@@ -327,13 +334,6 @@ class XmlDetectHandler extends XmlHandler {
 
 				throw new Exception( $msg );
 		}
-	}
-
-	public function reset() {
-		$this->_metadata_as_options = null;
-		$this->_metadata_example_dom_element = array();
-		$this->_metadata_example_dom_nodes = array();
-		$this->_SpecialPage = null;
 	}
 
 }

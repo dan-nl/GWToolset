@@ -11,7 +11,7 @@ use Exception,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiPages,
-	GWToolset\Jobs\UploadMediafileJob,	
+	GWToolset\Jobs\UploadMediafileJob,
 	GWToolset\Jobs\UploadFromUrlJob,
 	JobQueueGroup,
 	Linker,
@@ -78,13 +78,47 @@ class UploadHandler {
 
 	public function __construct( array $options = array() ) {
 		$this->reset();
-		if ( isset( $options['File'] ) ) { $this->_File = $options['File']; }
-		if ( isset( $options['Mapping'] ) ) { $this->_Mapping = $options['Mapping']; }
-		if ( isset( $options['MediawikiTemplate'] ) ) { $this->_MediawikiTemplate = $options['MediawikiTemplate']; }
-		if ( isset( $options['MWApiClient'] ) ) { $this->_MWApiClient = $options['MWApiClient']; }
-		if ( isset( $options['SpecialPage'] ) ) { $this->_SpecialPage = $options['SpecialPage']; }
-		if ( isset( $options['UploadBase'] ) ) { $this->_UploadBase = $options['UploadBase']; }
-		if ( isset( $options['User'] ) ) { $this->_User = $options['User']; }
+
+		if ( isset( $options['File'] ) ) {
+			$this->_File = $options['File'];
+		}
+
+		if ( isset( $options['Mapping'] ) ) {
+			$this->_Mapping = $options['Mapping'];
+		}
+
+		if ( isset( $options['MediawikiTemplate'] ) ) {
+			$this->_MediawikiTemplate = $options['MediawikiTemplate'];
+		}
+
+		if ( isset( $options['MWApiClient'] ) ) {
+			$this->_MWApiClient = $options['MWApiClient'];
+		}
+
+		if ( isset( $options['SpecialPage'] ) ) {
+			$this->_SpecialPage = $options['SpecialPage'];
+		}
+
+		if ( isset( $options['UploadBase'] ) ) {
+			$this->_UploadBase = $options['UploadBase'];
+		}
+
+		if ( isset( $options['User'] ) ) {
+			$this->_User = $options['User'];
+		}
+	}
+
+	public function reset() {
+		$this->_File = null;
+		$this->_Mapping = null;
+		$this->_MediawikiTemplate = null;
+		$this->_MWApiClient = null;
+		$this->_SpecialPage = null;
+		$this->_UploadBase = null;
+
+		$this->jobs_added = 0;
+		$this->jobs_not_added = 0;
+		$this->user_options = array();
 	}
 
 	/**
@@ -123,7 +157,7 @@ class UploadHandler {
 
 		// final url resolved by curl
 		if ( empty( $curl_info['url'] ) ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-bad')->rawParams( Filter::evaluate( $url ) )->plain() );
+			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-bad')->rawParams( Filter::evaluate( $url ) )->escaped() );
 		}
 
 		$result['url'] = $curl_info['url'];
@@ -136,7 +170,7 @@ class UploadHandler {
 			$result['extension'] = $pathinfo['extension'];
 		} else {
 			if ( empty( $curl_info['content_type'] ) ) {
-				throw new Exception( wfMessage('gwtoolset-mapping-media-file-no-content-type')->rawParams( Filter::evaluate( $url ) )->plain() );
+				throw new Exception( wfMessage('gwtoolset-mapping-media-file-no-content-type')->rawParams( Filter::evaluate( $url ) )->escaped() );
 			}
 
 			foreach( Config::$accepted_media_types as $extension => $mime_types ) {
@@ -154,7 +188,7 @@ class UploadHandler {
 		}
 
 		if ( empty( $result['extension'] ) ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $url ) )->plain() );
+			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $url ) )->escaped() );
 		}
 
 		return $result;
@@ -164,7 +198,13 @@ class UploadHandler {
 		$result = null;
 
 		foreach( $this->_Mapping->target_dom_elements_mapped[ $field ] as $targeted_field ) {
-			$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $targeted_field ] . ' ';
+			$parameter_as_id = $this->_MediawikiTemplate->getParameterAsId( $targeted_field );
+
+			if ( array_key_exists( $targeted_field, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
+				$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $targeted_field ] . ' ';
+			} elseif( array_key_exists( $parameter_as_id, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
+				$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $parameter_as_id ] . ' ';
+			}
 		}
 
 		return $result;
@@ -267,20 +307,19 @@ class UploadHandler {
 			|| $result['edit']['result'] !== 'Success'
 			|| empty( $result['edit']['title'] )
 		) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->escaped() )->parse() );
 		}
 
 		if ( !$result_as_boolean ) {
 			$result =
 				'<li>' .
 					Linker::link(
-						Title::newFromText( 'File:' . $options['title'] ),
-						$options['title'] . ( isset( $result['edit']['oldrevid'] ) ? ' ( revised )' : ' ( no change )' )
+						Title::newFromText( 'File:' . Filter::evaluate( $options['title'] ) ),
+						Filter::evaluate( $options['title'] ) .
+						( isset( $result['edit']['oldrevid'] )
+							? wfMessage( 'gwtoolset-revised' )->escaped()
+							: wfMessage( 'gwtoolset-no-change' )->escaped() )
 					);
-					//'<a href="' . str_replace( '$1', $result['edit']['title'], $wgArticlePath ) . '">' .
-					//	$result['edit']['title'] .
-					//	( isset( $result['edit']['oldrevid'] ) ? ' ( revised )' : ' ( no change )' ) .
-					//'</a>' .
 				'</li>';
 		}
 
@@ -311,7 +350,7 @@ class UploadHandler {
 			|| empty( $result['upload']['imageinfo']['descriptionurl'] )
 			|| empty( $result['upload']['filename'] )
 		) {
-			$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->plain() )->parse();
+			$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->escaped() )->parse();
 
 			if ( ini_get('display_errors') ) {
 				$msg .= '<pre>' . print_r( $result, true ) . '</pre>';
@@ -327,9 +366,6 @@ class UploadHandler {
 						Title::newFromText( 'File:' . $options['title'] ),
 						$options['title']
 					);
-					//'<a href="' . $result['upload']['imageinfo']['descriptionurl'] . '">' .
-					//	$result['upload']['filename'] .
-					//'</a>' .
 				'</li>';
 		}
 
@@ -390,12 +426,9 @@ class UploadHandler {
 		if ( !$result_as_boolean ) {
 			return '<li>' .
 				Linker::link(
-					Title::newFromText( 'File:' . $options['title'] ),
-					$options['title']
+					Title::newFromText( 'File:' . Filter::evaluate( $options['title'] ) ),
+					Filter::evaluate( $options['title'] )
 				);
-				//'<a href="' . str_replace( '$1', $options['title'], $wgArticlePath ) . '">' .
-				//	$options['title'] .
-				//'</a>' .
 			'</li>';
 		}
 
@@ -407,20 +440,20 @@ class UploadHandler {
 	 */
 	protected function validatePageOptions( array &$options ) {
 		if ( empty( $options['title'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-title' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-title' )->escaped() )->parse() );
 		}
 
 		if ( !isset( $options['ignorewarnings'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-ignorewarnings' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-ignorewarnings' )->escaped() )->parse() );
 		}
 
 		// assumes that text must be something
 		if ( empty( $options['text'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-text' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-text' )->escaped() )->parse() );
 		}
 
 		if ( empty( $options['url_to_the_media_file'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-url-to-media' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-url-to-media' )->escaped() )->parse() );
 		}
 	}
 
@@ -438,7 +471,7 @@ class UploadHandler {
 
 		// assumes that pageid is a positive int
 		if ( empty( $options['pageid'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-pageid' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-pageid' )->escaped() )->parse() );
 		}
 
 		// upload another version of the media
@@ -541,15 +574,15 @@ class UploadHandler {
 	 */
 	protected function validateUserOptions( array &$user_options ) {
 		if ( !isset( $user_options['comment'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-comment' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-comment' )->escaped() )->parse() );
 		}
 
 		if ( !isset( $user_options['save-as-batch-job'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-save-as-batch' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-save-as-batch' )->escaped() )->parse() );
 		}
 
 		if ( !isset( $user_options['upload-media'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-media' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-media' )->escaped() )->parse() );
 		}
 	}
 
@@ -568,7 +601,7 @@ class UploadHandler {
 		$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
 		$options['ignorewarnings'] = true;
 		$options['watch'] = true;
-		$options['comment'] = wfMessage( 'gwtoolset-upload-on-behalf-of' )->plain() . PHP_EOL . trim( $this->user_options['comment'] );
+		$options['comment'] = wfMessage( 'gwtoolset-upload-on-behalf-of' )->escaped() . PHP_EOL . trim( $this->user_options['comment'] );
 		$options['text'] = $this->getText();
 
 		if ( $this->user_options['save-as-batch-job'] ) {
@@ -602,7 +635,7 @@ class UploadHandler {
 	protected function uploadMetadataFile() {
 		$result = true;
 
-		$comment = wfMessage( 'gwtoolset-upload-on-behalf-of' )->plain();
+		$comment = wfMessage( 'gwtoolset-upload-on-behalf-of' )->escaped();
 		$pagetext = '[[Category:' . Config::$metadata_file_category. ']]';
 		$status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
 		if ( !$status->isGood() ) { $result = $status->getWikiText(); }
@@ -673,19 +706,6 @@ class UploadHandler {
 		$this->_File->populate( $filename );
 		FileChecks::isUploadedFileValid( $this->_File );
 		$this->addAllowedExtensions();
-	}
-
-	public function reset() {
-		$this->_File = null;
-		$this->_Mapping = null;
-		$this->_MediawikiTemplate = null;
-		$this->_MWApiClient = null;
-		$this->_SpecialPage = null;
-		$this->_UploadBase = null;
-
-		$this->jobs_added = 0;
-		$this->jobs_not_added = 0;
-		$this->user_options = array();
 	}
 
 }
