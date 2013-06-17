@@ -4,6 +4,11 @@ GWToolset v0.0.1
 1. Licensing
 2. Requirements
 3. Configuration
+   a. DefaultSettings.php
+   b. LocalSettings.php
+   c. Assign Users
+   d. Image Folder Permissions
+4. Hidden Categories
 
 
 Licensing
@@ -13,7 +18,7 @@ Licensed under GNU GPL. See LICENSE.txt for more license information.
 
 Requirements
 ------------
-* MediaWiki >= 1.19
+* MediaWiki >= 1.21
 * PHP >= 5.3.3
 * [PHP cURL support]( http://www.php.net/manual/en/curl.setup.php )
 * [PHP finfo extension]( http://www.php.net/manual/en/fileinfo.setup.php )
@@ -23,7 +28,7 @@ Configuration
 -------------
 ### `DefaultSettings.php`
 The following values are usually in the wiki’s `DefaultSettings.php`; they need
-to both be set to true; if they are not, you can add the changes in the
+to both be set to true; if they are not, you can make the changes in the
 `LocalSettings.php` file.
 
 * `$wgEnableAPI = true`
@@ -40,14 +45,14 @@ _enable uploads and url uploading_
 
 _api end_
 * set the following variable to the api endpoint for your wiki
-*	`$wgGWToolsetApiEndpont = 'http://127.0.0.1/api.php';`
+* `$wgGWToolsetApiEndpont = 'http://127.0.0.1/api.php';`
 
 _api user_
 * make sure you create or already have an api user account in your wiki and set
-	the following global variables to that user name with its corresponding
-	password :
-*	`$wgGWToolsetApiUser = 'Gwtoolset';`
-*	`$wgGWToolsetApiUserPassword = 'api_users_password';`
+  the following global variables to that user name with its corresponding
+  password :
+* `$wgGWToolsetApiUser = 'Gwtoolset';`
+* `$wgGWToolsetApiUserPassword = 'api_users_password';`
 * make sure that api user is part of the gwtoolset group, see `Special:UserRights`
 
 _load the extension_
@@ -55,9 +60,24 @@ _load the extension_
 
 
 ### Assign Users
-Assign users to the gwtoolset group as appropriate with the Special:UserRights
-page
+Assign users to the gwtoolset group as appropriate. Yo ucan do this on the
+Special:UserRights page.
 
 
 ### Image folder permissions
 Make sure the wiki’s image folder can be written to by the web server.
+
+
+### Hidden Categories
+GWToolset adds the following categories to media file uploads. You may want to
+add these as hidden categories to your wiki. If this is the case, then add the
+behaviour switch __HIDDENCAT__ to the top of the category page for the following:
+
+// category automatically assigned to saved metadata mappings
+Category:GWToolset_Metadata_Mappings
+
+// category automatically added to items uploaded by GWToolset
+Category:GWToolset_Batch_Upload
+
+// category automatically assigned to metadata files uploaded by GWToolset
+Category:GWToolset_Metadata_Sets
