@@ -119,12 +119,16 @@ class MediawikiTemplate extends Model {
 	public function getTitle( array &$options ) {
 		$result = null;
 
+		if ( empty( $this->mediawiki_template_array['title'] ) ) {
+			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
+		}
+
 		if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
 		}
 
 		if ( empty( $options['evaluated_media_file_extension'] ) ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->plain() );
+			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
 		}
 
 		$result = $this->mediawiki_template_array['title'];
