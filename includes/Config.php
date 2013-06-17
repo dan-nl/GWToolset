@@ -159,7 +159,8 @@ class Config {
 	 * for media files
 	 */
 	public static $accepted_media_types = array(
-		'jpg' => array( 'image/jpeg' )
+		'jpg' => array( 'image/jpeg' ),
+		'pdf' => array( 'application/pdf' )
 	);
 
 	/**
