@@ -76,6 +76,67 @@ class Client implements ClientInterface {
 		$this->_Curl = new Curl( $curl_options );
 	}
 
+	public function reset() {
+		$this->_Curl = null;
+		$this->debug_html = null;
+		$this->endpoint = null;
+		$this->Login = null;
+		$this->useragent = null;
+
+		$this->valid_formats = array(
+			'dbg',
+			'dbgfm',
+			'dump',
+			'dumpfm',
+			'json',
+			'jsonfm',
+			'php',
+			'phpfm',
+			'rawfm',
+			'txt',
+			'txtfm',
+			'wddx',
+			'wddxfm',
+			'xml',
+			'xmlfm',
+			'yaml',
+			'yamlfm'
+		);
+
+		$this->valid_modules = array(
+			'block' => array( 'method' => 'get' ),
+			'compare' => array( 'method' => 'get' ),
+			'delete' => array( 'method' => 'get' ),
+			'edit' => array( 'method' => 'post' ),
+			'emailuser' => array( 'method' => 'get' ),
+			'expandtemplates' => array( 'method' => 'get' ),
+			'feedcontributions' => array( 'method' => 'get' ),
+			'feedwatchlist' => array( 'method' => 'get' ),
+			'filerevert' => array( 'method' => 'get' ),
+			'help' => array( 'method' => 'get' ),
+			'import' => array( 'method' => 'get' ),
+			'login' => array( 'method' => 'post' ),
+			'logout' => array( 'method' => 'get' ),
+			'move' => array( 'method' => 'post' ),
+			'opensearch' => array( 'method' => 'get' ),
+			'options' => array( 'method' => 'get' ),
+			'parse' => array( 'method' => 'get' ),
+			'patrol' => array( 'method' => 'get' ),
+			'paraminfo' => array( 'method' => 'get' ),
+			'protect' => array( 'method' => 'get' ),
+			'purge' => array( 'method' => 'get' ),
+			'query' => array( 'method' => 'get' ),
+			'rollback' => array( 'method' => 'get' ),
+			'rsd' => array( 'method' => 'get' ),
+			'tokens' => array( 'method' => 'get' ),
+			'unblock' => array( 'method' => 'get' ),
+			'undelete' => array( 'method' => 'get' ),
+			'upload' => array( 'method' => 'post' ),
+			'userrights' => array( 'method' => 'get' ),
+			'watch' => array( 'method' => 'get' )
+		);
+	}
+
 	private function buildQueryString( array $params = array() ) {
 		$query_string = null;
 
@@ -183,15 +244,15 @@ class Client implements ClientInterface {
 
 			return $result;
 		} else {
-			throw new Exception( wfMessage( 'mw-api-client-api-response-is-not-serializable' )->parse() . wfMessage( 'mw-api-client-troubleshooting-tips' )->plain() );
+			throw new Exception( wfMessage( 'mw-api-client-api-response-is-not-serializable' )->parse() . wfMessage( 'mw-api-client-troubleshooting-tips' )->escaped() );
 		}
 	}
-
 
 	/**
 	 * getEditToken
 	 *
-	 * @access private
+	 * @throws Exception
+	 * @return {string}
 	 */
 	public function getEditToken() {
 		$result = $this->apiCall( 'tokens', array( 'type' => 'edit' ) );
@@ -210,6 +271,31 @@ class Client implements ClientInterface {
 		}
 
 		return $result['tokens']['edittoken'];
+	}
+
+	/**
+	 * getMoveToken
+	 *
+	 * @throws Exception
+	 * @return {string}
+	 */
+	public function getMoveToken() {
+		$result = $this->apiCall( 'tokens', array( 'type' => 'move' ) );
+
+		if ( !isset( $result['tokens'] )
+			|| !isset( $result['tokens']['movetoken'] )
+			|| empty( $result['tokens']['movetoken'] )
+		) {
+			$msg = wfMessage( 'mw-api-client-no-move-token' )->escaped();
+
+			if ( isset( $result['warnings'] ) && isset( $result['warnings']['tokens'] ) && isset( $result['warnings']['tokens']['*'] ) ) {
+				$msg = $result['warnings']['tokens']['*'];
+			}
+
+			throw new Exception( $msg );
+		}
+
+		return $result['tokens']['movetoken'];
 	}
 
 	/**
@@ -260,24 +346,12 @@ class Client implements ClientInterface {
 		return $this->apiCall( 'query', $params );
 	}
 
-
 	/**
 	 * @link <https://www.mediawiki.org/wiki/API:Edit>
 	 */
 	public function edit( array $params = array() ) {
 		return $this->apiCall( 'edit', $params );
 	}
-
-
-	public function logout() {
-		// expects an empty array on return so if something else is returned there has been a problem
-		if ( $this->apiCall( 'logout' ) ) {
-			throw new Exception( wfMessage( 'mw-api-client-no-logout' )->plain() );
-		}
-
-		$this->Login = null;
-	}
-
 
 	/**
 	 * Log in and get the authentication tokens. In the event of a successful log-in,
@@ -356,65 +430,20 @@ class Client implements ClientInterface {
 		return true;
 	}
 
-	public function reset() {
-		$this->_Curl = null;
-		$this->debug_html = null;
-		$this->endpoint = null;
+	public function logout() {
+		// expects an empty array on return so if something else is returned there has been a problem
+		if ( $this->apiCall( 'logout' ) ) {
+			throw new Exception( wfMessage( 'mw-api-client-no-logout' )->plain() );
+		}
+
 		$this->Login = null;
-		$this->useragent = null;
+	}
 
-		$this->valid_formats = array(
-			'dbg',
-			'dbgfm',
-			'dump',
-			'dumpfm',
-			'json',
-			'jsonfm',
-			'php',
-			'phpfm',
-			'rawfm',
-			'txt',
-			'txtfm',
-			'wddx',
-			'wddxfm',
-			'xml',
-			'xmlfm',
-			'yaml',
-			'yamlfm'
-		);
-
-		$this->valid_modules = array(
-			'block' => array( 'method' => 'get' ),
-			'compare' => array( 'method' => 'get' ),
-			'delete' => array( 'method' => 'get' ),
-			'edit' => array( 'method' => 'post' ),
-			'emailuser' => array( 'method' => 'get' ),
-			'expandtemplates' => array( 'method' => 'get' ),
-			'feedcontributions' => array( 'method' => 'get' ),
-			'feedwatchlist' => array( 'method' => 'get' ),
-			'filerevert' => array( 'method' => 'get' ),
-			'help' => array( 'method' => 'get' ),
-			'import' => array( 'method' => 'get' ),
-			'login' => array( 'method' => 'post' ),
-			'logout' => array( 'method' => 'get' ),
-			'move' => array( 'method' => 'get' ),
-			'opensearch' => array( 'method' => 'get' ),
-			'options' => array( 'method' => 'get' ),
-			'parse' => array( 'method' => 'get' ),
-			'patrol' => array( 'method' => 'get' ),
-			'paraminfo' => array( 'method' => 'get' ),
-			'protect' => array( 'method' => 'get' ),
-			'purge' => array( 'method' => 'get' ),
-			'query' => array( 'method' => 'get' ),
-			'rollback' => array( 'method' => 'get' ),
-			'rsd' => array( 'method' => 'get' ),
-			'tokens' => array( 'method' => 'get' ),
-			'unblock' => array( 'method' => 'get' ),
-			'undelete' => array( 'method' => 'get' ),
-			'upload' => array( 'method' => 'post' ),
-			'userrights' => array( 'method' => 'get' ),
-			'watch' => array( 'method' => 'get' )
-		);
+	/**
+	 * @link <https://www.mediawiki.org/wiki/API:Move>
+	 */
+	public function move( array $params = array() ) {
+		return $this->apiCall( 'move', $params );
 	}
 
 }
