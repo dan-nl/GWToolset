@@ -119,10 +119,6 @@ class MediawikiTemplate extends Model {
 	public function getTitle( array &$options ) {
 		$result = null;
 
-		if ( empty( $this->mediawiki_template_array['title'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
-		}
-
 		if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
 		}
@@ -131,12 +127,18 @@ class MediawikiTemplate extends Model {
 			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
 		}
 
-		$result = $this->mediawiki_template_array['title'];
-
-		if ( !empty( $result ) ) {
-			$result .= Config::$title_separator;
+		// quick hack to handle Book template issue where it uses Title instead of title
+		// as an attribute @todo: create a more robust method for dealing with case issues
+		// in mediawiki template attributes
+		if ( !empty( $this->mediawiki_template_array['title'] ) ) {
+			$result = $this->mediawiki_template_array['title'];
+		} elseif ( !empty( $this->mediawiki_template_array['Title'] ) ) {
+			$result = $this->mediawiki_template_array['Title'];
+		} else {
+			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
 		}
 
+		$result .= Config::$title_separator;
 		$result = FileChecks::getValidTitle( $result . $this->mediawiki_template_array['title_identifier'] );
 		$result .= '.' . $options['evaluated_media_file_extension'];
 
