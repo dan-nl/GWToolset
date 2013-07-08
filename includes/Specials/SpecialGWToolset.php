@@ -57,14 +57,7 @@ class SpecialGWToolset extends SpecialPage {
 	}
 
 	public function getBackToFormLink() {
-		$result = Linker::link(
-			$this->getContext()->getTitle(),
-			wfMessage( 'gwtoolset-back-to-form' )->plain(),
-			array( 'onclick' => 'history.back();return false;' ),
-			array( 'gwtoolset-form' => $this->module_key )
-		);
-
-		return $result;
+		return '<span id="back-text"><noscript>'. wfMessage('gwtoolset-back-text')->escaped() . '</noscript>&nbsp;</span>';
 	}
 
 	/**
@@ -82,18 +75,18 @@ class SpecialGWToolset extends SpecialPage {
 					$html .= $this->Handler->getHtmlForm( $this->registered_modules[$this->module_key] );
 				} catch( Exception $e ) {
 					$html .=
-						'<h2>' . wfMessage( 'gwtoolset-technical-error' )->plain() . '</h2>' .
+						wfMessage( 'gwtoolset-technical-error' )->parse() .
 						'<p class="error">' . Filter::evaluate( $e->getMessage() ) . '</p>';
 				}
 			}
 		} else {
 			try {
 				if ( !( $this->Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
-					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->plain() )->parse();
+					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->escaped() )->parse();
 					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
 					} else {
-						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->plain();
+						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->escaped();
 					}
 
 					throw new Exception( $msg );
@@ -105,7 +98,7 @@ class SpecialGWToolset extends SpecialPage {
 					throw new PermissionsError( $e->getMessage() );
 				} else {
 					$html .=
-						'<h2>' . wfMessage( 'gwtoolset-file-interpretation-error' )->plain() . '</h2>' .
+						wfMessage( 'gwtoolset-file-interpretation-error' )->parse() .
 						'<p class="error">' . $e->getMessage() . '</p>';
 				}
 			}
@@ -113,7 +106,16 @@ class SpecialGWToolset extends SpecialPage {
 
 		$this->setHeaders();
 		$this->getOutput()->addModules( 'ext.GWToolset' );
-		$this->getOutput()->addHtml( Menu::getMenu() );
+		$this->getOutput()->addHtml(
+			wfMessage('gwtoolset-menu')->rawParams(
+				Linker::link(
+					Title::newFromText( 'Special:' . Config::$name ),
+					wfMessage('gwtoolset-menu-1')->escaped(),
+					array(),
+					array( 'gwtoolset-form' => 'metadata-detect' )
+				)
+			)->parse()
+		);
 		$this->getOutput()->addHtml( $html );
 	}
 
@@ -127,7 +129,7 @@ class SpecialGWToolset extends SpecialPage {
 
 		if ( $this->module_key !== null ) {
 			$handler = $this->registered_modules[ $this->module_key ]['handler'];
-			$this->Handler = new $handler( $this );
+			$this->Handler = new $handler( array( 'SpecialPage' => $this ) );
 		}
 	}
 
@@ -144,7 +146,7 @@ class SpecialGWToolset extends SpecialPage {
 				throw new PermissionsError( $e->getMessage() );
 			} else {
 				$this->getOutput()->addHTML(
-					'<h2>' . wfMessage( 'gwtoolset-wiki-checks-not-passed' )->plain() . '</h2>' .
+					wfMessage( 'gwtoolset-wiki-checks-not-passed' )->parse() .
 					$e->getMessage() . '<br />'
 				);
 			}

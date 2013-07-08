@@ -23,7 +23,7 @@ abstract class AjaxHandler extends SpecialPageHandler {
 		$result = null;
 
 		try {
-			WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
+			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
 			$result .= $this->processRequest();
 		} catch ( Exception $e ) {
 			$result .=  '{ "status" : "error", "message" : "' . $e->getMessage() . '" }';

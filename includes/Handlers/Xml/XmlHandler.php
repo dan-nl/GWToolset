@@ -7,7 +7,11 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
-use Exception,
+use Content,
+	DOMDocument,
+	DOMXPath,
+	Exception,
+	Php\Filter,
 	XMLReader;
 
 abstract class XmlHandler {
@@ -57,6 +61,8 @@ abstract class XmlHandler {
 		}
 	}
 
+	public abstract function processXml( array &$user_options, &$xml_source = null );
+
 	/**
 	 * opens the xml file as a stream and sends the stream to other methods in
 	 * via the $callback to process the file. allows for the reader to be stopped
@@ -88,23 +94,19 @@ abstract class XmlHandler {
 	 *
 	 * @return {string}
 	 */
-	protected function readXml( array &$user_options, $file_path_local = null, $callback = null ) {
+	protected function readXmlAsFile( array &$user_options, $file_path_local = null, $callback = null ) {
 		$result = null;
 		$read_result = array( 'msg' => null, 'stop-reading' => false );
 		$xml_reader = null;
 
-		if ( empty( $file_path_local ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-local-path' )->plain() )->parse() );
-		}
-
 		if ( empty( $callback ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-callback' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-callback' )->escaped() )->parse() );
 		}
 
 		$xml_reader = new XMLReader();
 
 		if ( !$xml_reader->open( $file_path_local ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-open-xml' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-open-xml' )->escaped() )->parse() );
 		}
 
 		while ( $xml_reader->read() ) {
@@ -117,12 +119,80 @@ abstract class XmlHandler {
 		}
 
 		if ( !$xml_reader->close() ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-close-xml' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-could-not-close-xml' )->escaped() )->parse() );
 		}
 
 		return $result;
 	}
 
-	public abstract function processXml( array &$user_options, $file_path_local = null );
+	/**
+	 * reads an xml string and sends the nodes to other methods via the $callback
+	 * to process the xml. allows for the reading to be stopped
+	 * if the $callback method returns true to the $stop_reading variable
+	 *
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @param {string} $xml_source
+	 * an xml string
+	 *
+	 * @param {string} $callback
+	 * the method that will be used to process the read xml file
+	 *
+	 * @todo: handle invalid xml
+	 * @todo: handle no record-element-name found, specified element does not exist
+	 * @todo: how to handle attributes and children nodes
+	 * @todo: how to store entire file while only reading first node and preparing for element to template matching
+	 * @todo: upload by url use internal upload process rather than the api
+	 * @todo: parse the actual Artwork template for attributes rather than rely on a hard-coded class
+	 * @todo: setup so that record x can be used for mapping rather than only the first record, which is the current default
+	 * @todo: figure out a batch job processing method
+	 * @todo: handle mal-formed xml (future)
+	 * @todo: handle an xml schema if present (future)
+	 * @todo: handle incomplete/partial uploads (future)
+	 *
+	 * @throws Exception
+	 *
+	 * @return {string}
+	 */
+	protected function readXmlAsString( array &$user_options, $xml_source = null, &$callback = null ) {
+		$result = null;
+		$read_result = array( 'msg' => null, 'stop-reading' => false );
+
+		if ( empty( $callback ) ) {
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-callback' )->escaped() )->parse() );
+		}
+
+		libxml_use_internal_errors( true );
+		libxml_clear_errors();
+
+		$DOMDoc = new DOMDocument();
+		$DOMDoc->loadXML( $xml_source );
+		$errors = libxml_get_errors();
+
+		if ( !empty( $errors ) ) {
+			$msg = wfMessage('gwtoolset-xml-error')->escaped() . '<pre style="overflow:auto;">' . print_r( $errors, true ) . '</pre>';
+			throw new Exception( $msg );
+		}
+
+		$DOMXPath = new DOMXPath( $DOMDoc );
+		$DOMNodeList = $DOMXPath->query( '//' . Filter::evaluate( $user_options['record-element-name'] ) );
+
+		if ( $DOMNodeList->length < 1 ) {
+			$msg = wfMessage('gwtoolset-no-xml-element-found')->parse() . PHP_EOL . $this->_SpecialPage->getBackToFormLink();
+			throw new Exception( $msg );
+		}
+
+		foreach( $DOMNodeList as $DOMNode ) {
+			$read_result = $this->$callback( $DOMNode, $user_options );
+			$result .= $read_result['msg'];
+
+			if ( $read_result['stop-reading'] ) {
+				break;
+			}
+		}
+
+		return $result;
+	}
 
 }

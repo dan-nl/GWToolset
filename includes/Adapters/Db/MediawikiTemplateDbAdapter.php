@@ -15,14 +15,28 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 		parent::__construct( $table_name );
 	}
 
+	/**
+	 * returns an indexed array of key values from the mediawiki template db table,
+	 * which represents the mediawiki templates handled by the extension
+	 *
+	 * @return {array}
+	 */
 	public function getKeys() {
-		return $this->dbr->select(
+		$result = array();
+
+		$query_result = $this->dbr->select(
 			'gwtoolset_mediawiki_templates',
 			array( 'key_name' => 'mediawiki_template_name' ),
 			null,
 			null,
 			array( 'ORDER BY' => 'mediawiki_template_name ASC' )
 		);
+
+		foreach( $query_result as $row ) {
+			$result[] = $row->key_name;
+		}
+
+		return $result;
 	}
 
 	public function create( array $options = array() ) {}

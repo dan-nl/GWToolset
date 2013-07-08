@@ -43,7 +43,13 @@ function getArraySecondLevelValues( array $array = array() ) {
 	return $values;
 }
 
+// array( 'debug-on' => ( ini_get('display_errors') && $this->_User->isAllowed( 'gwtoolset-debug' ) ) )
+// don't use this method right now, it's needs some re-work so that it uses
+// MWHttpRequest instead of Php\Curl
 function getMWApiClient( array $curl_options = array() ) {
+	echo'<pre>do not use this method until it has been re-factored to use MWHttpRequest instead of Php\Curl';
+	print_r( debug_backtrace() );
+	die();
 	global $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword;
 	$MWApiClient = new Client( $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $curl_options );
 	$MWApiClient->login( $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword );
@@ -76,7 +82,7 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 	// handle errors this way when error_reporting is set to >= E_ALL
 	if ( ini_get('display_errors') && error_reporting() >= E_ALL ) {
 		$errormsg =
-			'<pre>' .
+			'<pre style="overflow:auto;">' .
 				$errstr . "\n" .
 				print_r( debug_backtrace(), true ) .
 			'</pre>';
@@ -91,5 +97,9 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 		error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
 	}
 }
+
+// created to deal with an issue within
+// GWToolset/includes/Adapters/Api/MappingPhpAdapter.php->saveMapping()
+function swallowErrors() {}
 
 set_error_handler('\GWToolset\handleError');

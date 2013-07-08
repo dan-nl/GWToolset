@@ -9,24 +9,35 @@
 namespace GWToolset\Forms;
 use Exception,
 	GWToolset\Config,
+	GWToolset\Handlers\Forms\FormHandler,
 	GWToolset\Helpers\FileChecks,
 	IContextSource,
-	Php\Filter;
+	Linker,
+	Php\Filter,
+	Title;
 
 class MetadataMappingForm {
 
-	public static function getForm( IContextSource $Context, array &$user_options = array(), $metadata_selects = null, $metadata_as_table_rows = null, $metadata_select = null ) {
-		global $wgArticlePath;
+	public static function getForm( FormHandler $Handler, array &$user_options ) {
+
 		$template_link = '[[Template:' . Filter::evaluate( $user_options['mediawiki-template-name'] ) . ']]';
 
 		return
+			wfMessage( 'gwtoolset-step-2-heading' )->params( $template_link )->parse() .
+
+			wfMessage( 'gwtoolset-metadata-file' )->parse() .
+				'<p>' .
+					Linker::link( $user_options['Metadata-Title'], null, array( 'target' => '_blank' ) ) . '<br />' .
+					wfMessage( 'gwtoolset-record-count' )->params( (int)$user_options['record-count'] )->escaped() .
+				'</p>' .
+
 			wfMessage( 'gwtoolset-step-2-instructions' )->params( $template_link )->parse() .
 
-			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post">' .
+			'<form id="gwtoolset-form" action="' . $Handler->SpecialPage->getContext()->getTitle()->getFullURL() . '" method="post">' .
 
 				'<fieldset>' .
 
-						'<legend>' . wfMessage( 'gwtoolset-metadata-mapping-legend' )->plain() . '</legend>' .
+						'<legend>' . wfMessage( 'gwtoolset-metadata-mapping-legend' )->escaped() . '</legend>' .
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="gwtoolset-preview" value="true"/>' .
@@ -36,51 +47,41 @@ class MetadataMappingForm {
 						'<input type="hidden" name="metadata-file-url" value="' . Filter::evaluate( $user_options['metadata-file-url'] ) . '"/>' .
 						'<input type="hidden" name="metadata-mapping-url" value="' . Filter::evaluate( $user_options['metadata-mapping-url'] ) . '"/>' .
 						'<input type="hidden" name="metadata-mapping-name" id="metadata-mapping-name" value="' . Filter::evaluate( $user_options['metadata-mapping-name'] ) . '"/>' .
-						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
+						'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Handler->User->getEditToken() . '">' .
 
-						'<h3>' .
-							wfMessage( 'gwtoolset-mediawiki-template' )->params( Filter::evaluate( $user_options['mediawiki-template-name'] ) )->plain() .
-							( !empty( $mapping_name['user-name'] ) ? ', ' . $mapping_name['user-name'] : null ) .
-							( !empty( $mapping_name['mapping-name'] ) ? ' : ' . $mapping_name['mapping-name'] : null ) .
-						'</h3>' .
+						wfMessage( 'gwtoolset-mediawiki-template' )->params( Filter::evaluate( $user_options['mediawiki-template-name'] ) )->parse() .
 
 						'<table id="template-table" style="float:left;margin-right:2%;margin-bottom:1em;">' .
 							'<thead>' .
-								'<tr><th>' . wfMessage('gwtoolset-template-field')->plain() . '</th><th colspan="2">' . wfMessage('gwtoolset-maps-to')->plain() . '</th></tr>' .
+								'<tr><th>' . wfMessage('gwtoolset-template-field')->escaped() . '</th><th colspan="2">' . wfMessage('gwtoolset-maps-to')->escaped() . '</th></tr>' .
 							'</thead>' .
 							'<tbody>' .
-								$metadata_selects .
+								$Handler->getMetadataAsHtmlSelectsInTableRows( $user_options ) .
 							'</tbody>' .
 						'</table>' .
 						'<table style="float:left; display: inline; width: 60%; overflow: auto;">' .
 							'<thead>' .
-								'<tr><th colspan="2">' . wfMessage('gwtoolset-example-record')->plain() . '</th></tr>' .
+								'<tr><th colspan="2">' . wfMessage('gwtoolset-example-record')->escaped() . '</th></tr>' .
 							'</thead>' .
 							'<tbody style="vertical-align: top;">' .
-								$metadata_as_table_rows .
+								$Handler->XmlDetectHandler->getMetadataAsHtmlTableRows( $user_options ) .
 							'</tbody>' .
 						'</table>' .
 
-						'<p style="clear:both;padding-top:2em;"><span class="required">*</span>' . wfMessage( 'gwtoolset-required-field' )->plain() . '</p>' .
+						'<p style="clear:both;padding-top:2em;"><span class="required">*</span>' . wfMessage( 'gwtoolset-required-field' )->escaped() . '</p>' .
 						wfMessage( 'copyrightwarning2' )->parseAsBlock() .
 
-						'<h3>' . wfMessage( 'gwtoolset-metadata-file-url' )->plain() . '</h3>' .
-						'<p>' .
-							Filter::evaluate( $user_options['metadata-file-url'] ) . '<br />' .
-							wfMessage( 'gwtoolset-record-count' )->params( (int)$user_options['record-count'] )->escaped() .
-						'</p>' .
-
-						'<h3 style="margin-top:1em;">' . wfMessage( 'categories' )->plain() . '</h3>' .
+						'<h3 style="margin-top:1em;">' . wfMessage( 'categories' )->escaped() . '</h3>' .
 
 							'<p>' .
-								'<i><u>' . wfMessage( 'gwtoolset-global-categories' )->plain() . '</u></i><br />' .
-								wfMessage( 'gwtoolset-global-tooltip' )->plain() .
+								'<i><u>' . wfMessage( 'gwtoolset-global-categories' )->escaped() . '</u></i><br />' .
+								wfMessage( 'gwtoolset-global-tooltip' )->escaped() .
 							'</p>' .
 
 							'<table>' .
 								'<tbody>' .
 									'<tr>' .
-										'<td><label for="gwtoolset-category">' . wfMessage( 'gwtoolset-category' )->plain() . '</label></td>' .
+										'<td><label for="gwtoolset-category">' . wfMessage( 'gwtoolset-category' )->escaped() . '</label></td>' .
 										'<td class="metadata-add"></td>' .
 										'<td><input type="text" id="gwtoolset-category" name="category[]"/></td>' .
 									'</tr>' .
@@ -88,49 +89,44 @@ class MetadataMappingForm {
 							'</table>' .
 
 							'<p style="margin-top:1em;">' .
-								'<i><u>' . wfMessage( 'gwtoolset-specific-categories' )->plain() . '</u></i><br />' .
-								wfMessage( 'gwtoolset-specific-tooltip' )->plain() .
+								'<i><u>' . wfMessage( 'gwtoolset-specific-categories' )->escaped() . '</u></i><br />' .
+								wfMessage( 'gwtoolset-specific-tooltip' )->escaped() .
 							'</p>' .
 
 							'<table>' .
 								'<thead>' .
 									'<th>&nbsp;</th>' .
-									'<th>' . wfMessage( 'gwtoolset-phrasing' )->plain(). '</th>' .
-									'<th>' . wfMessage( 'gwtoolset-metadata-field' )->plain(). '</th>' .
+									'<th>' . wfMessage( 'gwtoolset-phrasing' )->escaped(). '</th>' .
+									'<th>' . wfMessage( 'gwtoolset-metadata-field' )->escaped(). '</th>' .
 								'</thead>' .
 								'<tbody>' .
 									'<tr>' .
 										'<td class="category-add"></td>' .
-										'<td><input type="text" name="category-phrase[]" placeholder="' . wfMessage('gwtoolset-painted-by')->plain() . '"/></td>' .
-										'<td><select name="category-metadata[]">' . $metadata_select . '</select></td>' .
+										'<td><input type="text" name="category-phrase[]" placeholder="' . wfMessage('gwtoolset-painted-by')->escaped() . '"/></td>' .
+										'<td><select name="category-metadata[]">' . $Handler->XmlDetectHandler->getMetadataAsOptions() . '</select></td>' .
 									'</tr>' .
 								'</tbody>' .
 							'</table>' .
 
-						'<h3 style="margin-top:1em;">' . wfMessage( 'gwtoolset-partner' )->plain() . '</h3>' .
+						'<h3 style="margin-top:1em;">' . wfMessage( 'gwtoolset-partner' )->escaped() . '</h3>' .
 						'<p>' .
-							wfMessage( 'gwtoolset-partner-explanation' )->plain() . '<br />' .
+							wfMessage( 'gwtoolset-partner-explanation' )->escaped() . '<br />' .
 							'<label>' .
-								wfMessage( 'gwtoolset-partner-template' )->plain() .
+								wfMessage( 'gwtoolset-partner-template' )->escaped() .
 								'<input type="text" name="partner-template-url" value="" placeholder="Template:Europeana" class="gwtoolset-url-input"/>' .
 							'</label><br />' .
-							'<a href="' . str_replace( '$1', 'Category:' . Config::$source_templates, $wgArticlePath ) . '" target="_blank">' . 'Category:' . Config::$source_templates . '</a>' .
+							Linker::link( Title::newFromText( 'Category:' . Config::$source_templates ), null, array( 'target' => '_blank' ) ) .
 						'</p>' .
 
-						'<h3 style="margin-top:1em;">' . wfMessage( 'summary' )->plain() . '</h3>' .
+						'<h3 style="margin-top:1em;">' . wfMessage( 'summary' )->escaped() . '</h3>' .
 						'<p>' .
 							'<input class="mw-summary" id="wpSummary" maxlength="255" spellcheck="true" title="Enter a short summary [ctrl-option-b]" accesskey="b" name="wpSummary">' .
 						'</p>' .
 
 						'<p>' .
-							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage( 'gwtoolset-reupload-media' )->plain() . '</label><br />' .
-							wfMessage( 'gwtoolset-reupload-media-explanation' )->plain() .
+							'<label><input type="checkbox" name="upload-media" value="true"/> ' . wfMessage( 'gwtoolset-reupload-media' )->escaped() . '</label><br />' .
+							wfMessage( 'gwtoolset-reupload-media-explanation' )->escaped() .
 						'</p>' .
-
-						//'<p>' .
-						//	'<label><input type="checkbox" name="save-as-batch-job" value="true" checked/> ' . wfMessage( 'gwtoolset-add-as-a-job' )->plain() . '</label><br />' .
-						//	wfMessage( 'gwtoolset-add-as-a-job-description' )->plain() .
-						//'</p>'.
 
 						'<input type="submit" name="submit" value="' . wfMessage( 'gwtoolset-preview' ) . '">' .
 

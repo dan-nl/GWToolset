@@ -35,7 +35,7 @@ class Hooks {
 				break;
 
 			default:
-				throw new MWException( wfMessage( 'gwtoolset-db-client-support' )->plain() );
+				throw new MWException( wfMessage( 'gwtoolset-db-client-support' )->escaped() );
 				break;
 		}
 

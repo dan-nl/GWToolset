@@ -42,6 +42,10 @@ abstract class DbAdapterAbstract implements DataAdapterInterface {
 		$this->setTableCreateSql();
 	}
 
+	/**
+	 * returns an indexed array of key values from a db table
+	 * @return {array}
+	 */
 	abstract public function getKeys();
 
 	public function createTable( DatabaseUpdater &$updater ) {

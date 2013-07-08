@@ -224,7 +224,7 @@ class Filter {
 		self::$required = true;
 		self::$valid = false;
 
-		self::$filter_sanitize = FILTER_SANITIZE_FULL_SPECIAL_CHARS;
+		self::$filter_sanitize = FILTER_SANITIZE_STRING;
 		self::$filter_sanitize_options = array();
 
 		self::$filter_validate = null;

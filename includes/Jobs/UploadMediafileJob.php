@@ -8,19 +8,11 @@
  */
 namespace GWToolset\Jobs;
 use Exception,
-	MWException,
-	Job,
 	GWToolset\Handlers\UploadHandler,
-	GWToolset\Helpers\WikiPages,
-	GWToolset\MediaWiki\Api\Client,
+	Job,
 	User;
 
 class UploadMediafileJob extends Job {
-
-	/**
-	 * @var GWToolset\MediaWiki\Api\Client
-	 */
-	protected $_MWApiClient;
 
 	/**
 	 * GWToolset\Handlers\UploadHandler
@@ -44,21 +36,14 @@ class UploadMediafileJob extends Job {
 	protected function processMetadata() {
 		$result = false;
 
-		$this->_MWApiClient = \GWToolset\getMWApiClient();
-
 		$this->_UploadHandler = new UploadHandler(
 			array(
-				'MWApiClient' => $this->_MWApiClient,
 				'User' => $this->_User
 			)
 		);
 
 		$this->_UploadHandler->user_options = $this->params['user_options'];
-
-		WikiPages::$MWApiClient = $this->_MWApiClient;
-		$this->filename_metadata = WikiPages::retrieveWikiFilePath( $this->params['user_options']['metadata-file-url'] );
-		$result = $this->_UploadHandler->savePageNow( $this->params, true );
-
+		$result = $this->_UploadHandler->saveMediafileAsContent( $this->params );
 		return $result;
 	}
 
@@ -98,7 +83,7 @@ class UploadMediafileJob extends Job {
 		}
 
 		if ( !$result ) {
-			error_log( "Could not save {$this->params['title']} to the wiki. Used the $this->filename_metadata as the metadata source." );
+			error_log( "Could not save [ {$this->params['title']} ] to the wiki." );
 		}
 
 		return $result;

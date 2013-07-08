@@ -97,7 +97,18 @@
 		},
 		$metadata_buttons : $('.metadata-add, .metadata-subtract'),
 		$category_buttons : $('.category-add, .category-subtract'),
+		$back_text : $('#back-text'),
 		$step2_link : $('#step2-link'),
+
+		addBackLink : function() {
+			var $back_link_option = $('<a/>',
+				{ href : '#',
+					title : mw.message('gwtoolset-back-link-option'),
+					text : mw.message('gwtoolset-back-link-option')
+				}
+			).on( 'click', function( evt ) { evt.preventDefault(); history.back(); } );
+			gwtoolset.$back_text.replaceWith( $back_link_option );
+		},
 
 		addStepLinks : function() {
 			var $step2_link = $('<a/>', { href : '#', title : mw.message('gwtoolset-step-2'), text : mw.message('gwtoolset-step-2') });
@@ -188,19 +199,19 @@
 		 * of using an alert
 		 */
 		handleAjaxError : function() {
-			alert( mw.message('gwtoolset-save-mapping-error').escaped() );
+			alert( mw.message('gwtoolset-developer-issue') );
 			console.log( arguments );
 		},
 
 		/**
 		 * of using an alert
 		 *
-		 * @param {object} data
+		 * @param {Status} data
 		 * @param {string} textStatus
 		 * @param {object} jqXHR
 		 */
 		handleAjaxSuccess : function ( data, textStatus, jqXHR ) {
-			if ( !data.status || data.status !== 'succeeded' || !textStatus || !jqXHR ) {
+			if ( !data.ok || data.ok !== true || !textStatus || !jqXHR ) {
 				alert( mw.message('gwtoolset-save-mapping-failed').escaped() );
 			} else {
 				alert( mw.message('gwtoolset-save-mapping-succeeded').escaped() );
@@ -238,13 +249,14 @@
 
 			$.ajax({
 				type : 'POST',
-				url : mw.config.get('wgArticlePath').replace("$1", "") + 'Special:GWToolset',
+				//url : mw.config.get('wgArticlePath').replace("$1", "") + 'Special:GWToolset',
+				url : mw.util.wikiGetlink('Special:GWToolset'),
 				data : {
 					'gwtoolset-form' : 'metadata-mapping-save',
 					'mapping-name-to-use' : mapping_name_to_use,
+					'metadata-mappings' : metadata_mappings,
 					'mediawiki-template-name' : mediawiki_template_name,
-					'wpEditToken' : wpEditToken,
-					'metadata-mappings' : metadata_mappings
+					'wpEditToken' : wpEditToken
 				},
 				error : function( jqXHR, textStatus, errorThrown ) { self.handleAjaxError( jqXHR, textStatus, errorThrown ); },
 				success : function( data, textStatus, jqXHR ) { self.handleAjaxSuccess( data, textStatus, jqXHR ); },
@@ -302,8 +314,9 @@
 		},
 
 		init : function() {
-			gwtoolset.addStepLinks();
 			gwtoolset.setConsole();
+			gwtoolset.addStepLinks();
+			gwtoolset.addBackLink();
 			gwtoolset.addFormListener();
 			gwtoolset.addSaveMappingButton();
 			gwtoolset.addMetadataButtons();

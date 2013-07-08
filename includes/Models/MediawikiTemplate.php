@@ -17,7 +17,7 @@ use Exception,
 	ReflectionProperty,
 	ResultWrapper;
 
-class MediawikiTemplate extends Model {
+class MediawikiTemplate implements ModelInterface {
 
 	/**
 	 * @var string
@@ -61,6 +61,10 @@ class MediawikiTemplate extends Model {
 		$this->_DataAdapater = $DataAdapter;
 	}
 
+	public function create( array $options = array() ) {}
+
+	public function delete( array &$options = array() ) {}
+
 	/**
 	 * create an array that represents the mapping of mediawiki template
 	 * attributes to metadata elements based on the given array; defaults to
@@ -73,7 +77,7 @@ class MediawikiTemplate extends Model {
 	 *
 	 * @todo: how are we using $array - it's ignored at the moment?
 	 */
-	public function getMappingFromArray( array $array = array() ) {
+	public function getMappingFromArray( array &$array = array() ) {
 		$result = array();
 		$parameter_as_id = null;
 		$metadata_element = null;
@@ -95,54 +99,25 @@ class MediawikiTemplate extends Model {
 		return $result;
 	}
 
+	/**
+	 * a decorator method that creates html drop-down options based on keys
+	 * returned from the data adapter. these keys are the names of the mediawiki
+	 * templates handled by the extension
+	 *
+	 * @return {string}
+	 */
+	public function getModelKeysAsOptions() {
+		$result = '<option></option>';
+
+		foreach( $this->_DataAdapater->getKeys() as $option ) {
+			$result .= sprintf( '<option>%s</option>', $option );
+		}
+
+		return $result;
+	}
 
 	public function getParameterAsId( $parameter ) {
 		return str_replace( ' ', '_', $parameter );
-	}
-
-	protected function getKeys() {
-		return $this->_DataAdapater->getKeys();
-	}
-
-	/**
-	 * creates a title for a media file based on
-	 *
-	 *   - title
-	 *   - title identifier
-	 *   - url to the media file’s extension
-	 *
-	 * @todo: what if url is not to a file but a re-direct to the file
-	 * @todo: eliminate any "safe-guarded characters", e.g. : seems to tell the api
-	 * that the file does not exist so it uploads it aknew each time instead of editing it
-	 * @todo investigate using Title::makeTitleSafe
-	 */
-	public function getTitle( array &$options ) {
-		$result = null;
-
-		if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
-		}
-
-		if ( empty( $options['evaluated_media_file_extension'] ) ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
-		}
-
-		// quick hack to handle Book template issue where it uses Title instead of title
-		// as an attribute @todo: create a more robust method for dealing with case issues
-		// in mediawiki template attributes
-		if ( !empty( $this->mediawiki_template_array['title'] ) ) {
-			$result = $this->mediawiki_template_array['title'];
-		} elseif ( !empty( $this->mediawiki_template_array['Title'] ) ) {
-			$result = $this->mediawiki_template_array['Title'];
-		} else {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
-		}
-
-		$result .= Config::$title_separator;
-		$result = FileChecks::getValidTitle( $result . $this->mediawiki_template_array['title_identifier'] );
-		$result .= '.' . $options['evaluated_media_file_extension'];
-
-		return $result;
 	}
 
 	/**
@@ -281,38 +256,73 @@ class MediawikiTemplate extends Model {
 		return $result;
 	}
 
-	public function populateFromArray( array &$metadata = array() ) {
-		foreach( $this->mediawiki_template_array as $parameter => $value ) {
-			$this->mediawiki_template_array[ $parameter ] = null;
-			$parameter_as_id = $this->getParameterAsId( $parameter );
+	/**
+	 * a decorator method that allows a user to select from the mediawiki templates
+	 * handled by the extension
+	 *
+	 * @param {string} $name form name that should be given to the select
+	 * @param {string} $id form id that should be given to the select
+	 * @return {string}
+	 */
+	public function getTemplatesAsSelect( $name = null, $id = null ) {
+		$result = null;
 
-			if ( isset( $metadata[ $parameter_as_id ] ) ) {
-				$this->mediawiki_template_array[ $parameter ] = $metadata[ $parameter_as_id ];
-			}
-		}
-	}
-
-	public function create( array $options = array() ) {}
-
-	public function retrieve( array $options = array() ) {
-		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
-
-		if ( empty( $result ) || $result->numRows() != 1 ) {
-			throw new Exception( wfMessage( 'gwtoolset-mediawiki-template-not-found' )->rawParams( $this->mediawiki_template_name )->plain() );
+		if ( !empty( $name ) ) {
+			$name = sprintf( ' name="%s"', Filter::evaluate( $name ) );
 		}
 
-		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
-		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
+		if ( !empty( $id ) ) {
+			$id = sprintf( ' id="%s"', Filter::evaluate( $id ) );
+		}
 
-		$this->mediawiki_template_array['title_identifier'] = null;
-		$this->mediawiki_template_array['url_to_the_media_file'] = null;
+		$result =
+			sprintf( '<select%s%s>', $name, $id ) .
+				$this->getModelKeysAsOptions() .
+			'</select>';
 
-		ksort( $this->mediawiki_template_array );
+		return $result;
 	}
 
-	public function update( array $options = array() ) {}
+	/**
+	 * creates a title for a media file based on
+	 *
+	 *   - title
+	 *   - title identifier
+	 *   - url to the media file’s extension
+	 *
+	 * @todo: what if url is not to a file but a re-direct to the file
+	 * @todo: eliminate any "safe-guarded characters", e.g. : seems to tell the api
+	 * that the file does not exist so it uploads it aknew each time instead of editing it
+	 * @todo investigate using Title::makeTitleSafe
+	 */
+	public function getTitle( array &$options ) {
+		$result = null;
 
-	public function delete( array $options = array() ) {}
+		if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
+			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
+		}
+
+		if ( empty( $options['evaluated_media_file_extension'] ) ) {
+			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
+		}
+
+		// quick hack to handle Book template issue where it uses Title instead of title
+		// as an attribute @todo: create a more robust method for dealing with case issues
+		// in mediawiki template attributes
+		if ( !empty( $this->mediawiki_template_array['title'] ) ) {
+			$result = $this->mediawiki_template_array['title'];
+		} elseif ( !empty( $this->mediawiki_template_array['Title'] ) ) {
+			$result = $this->mediawiki_template_array['Title'];
+		} else {
+			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
+		}
+
+		$result .= Config::$title_separator;
+		$result = $result . $this->mediawiki_template_array['title_identifier'];
+		$result .= '.' . $options['evaluated_media_file_extension'];
+
+		return $result;
+	}
 
 	/**
 	 * @param {array} $user_options
@@ -328,17 +338,46 @@ class MediawikiTemplate extends Model {
 		$template = null;
 
 		if ( !isset( $user_options[ $mediawiki_template_name ] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->escaped() )->parse() );
 		}
 
 		if ( in_array( $user_options[ $mediawiki_template_name ], Config::$allowed_templates ) ) {
 			$this->mediawiki_template_name = $user_options[ $mediawiki_template_name ];
 			$this->retrieve();
 		} else {
-			throw new Exception( wfMessage( 'gwtoolset-metadata-invalid-template' )->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-metadata-invalid-template' )->escaped() );
 		}
 
 		return $template;
 	}
+
+	public function populateFromArray( array &$metadata = array() ) {
+		foreach( $this->mediawiki_template_array as $parameter => $value ) {
+			$this->mediawiki_template_array[ $parameter ] = null;
+			$parameter_as_id = $this->getParameterAsId( $parameter );
+
+			if ( isset( $metadata[ $parameter_as_id ] ) ) {
+				$this->mediawiki_template_array[ $parameter ] = $metadata[ $parameter_as_id ];
+			}
+		}
+	}
+
+	public function retrieve( array &$options = array() ) {
+		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
+
+		if ( empty( $result ) || $result->numRows() != 1 ) {
+			throw new Exception( wfMessage( 'gwtoolset-mediawiki-template-not-found' )->rawParams( $this->mediawiki_template_name )->escaped() );
+		}
+
+		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
+		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
+
+		$this->mediawiki_template_array['title_identifier'] = null;
+		$this->mediawiki_template_array['url_to_the_media_file'] = null;
+
+		ksort( $this->mediawiki_template_array );
+	}
+
+	public function update( array &$options = array() ) {}
 
 }

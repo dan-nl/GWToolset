@@ -14,24 +14,26 @@ abstract class SpecialPageHandler {
 	/**
 	 * @var SpecialPage
 	 */
-	protected $_SpecialPage;
+	public $SpecialPage;
 
 	/**
 	 * @var User
 	 */
-	protected $_User;
+	public $User;
 
 	abstract public function execute();
 	abstract protected function processRequest();
 	abstract public function getHtmlForm();
 
-	public function __construct( SpecialPage $SpecialPage = null, User $User = null ) {
-		$this->_SpecialPage = $SpecialPage;
+	public function __construct( array $options = array() ) {
+		if ( isset( $options['SpecialPage'] ) ) {
+			$this->SpecialPage = $options['SpecialPage'];
+		}
 
-		if ( !empty( $User ) ) {
-			$this->_User = $User;
-		} else {
-			$this->_User = $this->_SpecialPage->getUser();
+		if ( isset( $options['User'] ) ) {
+			$this->User = $options['User'];
+		} elseif ( isset( $this->SpecialPage ) ) {
+			$this->User = $this->SpecialPage->getUser();
 		}
 	}
 

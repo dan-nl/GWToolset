@@ -52,7 +52,7 @@ class PreviewForm {
 			? '<input type="submit" name="submit" value="' . wfMessage( 'gwtoolset-process-batch' )->escaped() . '"/>' . '<br />'
 			: wfMessage( 'gwtoolset-no-more-records' )->parse() . '<br />';
 
-		$step1_link = Linker::link( Title::newFromText( 'Special:GWToolset' ),'Step 1 : Metadata Detect', array(), array( 'gwtoolset-form' => 'metadata-detect' ) ) . '<br />';
+		$step1_link = Linker::link( Title::newFromText( 'Special:GWToolset' ), 'Step 1 : Metadata Detect', array(), array( 'gwtoolset-form' => 'metadata-detect' ) ) . '<br />';
 		$step2_link = '<span id="step2-link">&nbsp;</span>';
 
 		return

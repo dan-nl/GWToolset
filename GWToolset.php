@@ -8,6 +8,7 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
+use GWToolset\Helpers\WikiChecks;
 
 /**
  * If a user tries to access this extension directly,alert the user that this is
@@ -48,7 +49,6 @@ $wgExtensionCredits['media'][] = array(
 /**
  * add user permissions
  */
-$wgGroupPermissions["gwtoolset"] = $wgGroupPermissions["user"];
 $wgGroupPermissions["gwtoolset"]["upload_by_url"] = true;
 $wgGroupPermissions['sysop']['gwtoolset-debug'] = true;
 
@@ -99,25 +99,7 @@ Config::$resources['localBasePath'] = $wgGWToolsetDir;
 $wgResourceModules['ext.GWToolset'] = Config::$resources;
 
 /**
- * check environment variables
+ * environment checks
  */
-// needed to allow for creation of thumbnails for large images
-if ( (int)ini_get('memory_limit') < 256) {
-	ini_set('memory_limit', '256M'); // 128M default
-}
-
-// needed to allow for creation of thumbnails for large images
-if ( $wgMaxImageArea < 64000000 ) {
-	$wgMaxImageArea = 64000000; // 12500000 default
-}
-
-//$wgMaxShellMemory = 102400; // 102400 default
-
-// UploadFromUrl & Api->upload timeout on large files that take a long time
-// to upload without this setting
-// e.g., http://academia.lndb.lv/xmlui/bitstream/handle/1/231/k_001_ktl1-1-27.jpg
-// @todo: what is this limit set to on production?
-// @todo: does ui need a notice to user about this limitation?
-if ( $wgHTTPTimeout < 1200 ) {
-	$wgHTTPTimeout = 1200; // 20 minutes, 25 seconds default
-}
+WikiChecks::increaseMemoryLimit();
+WikiChecks::increaseMaxImageArea();

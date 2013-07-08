@@ -7,7 +7,9 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
-use DOMElement,
+use Content,
+	DOMDocument,
+	DOMElement,
 	Exception,
 	GWToolset\Config,
 	GWToolset\Models\Mapping,
@@ -55,36 +57,6 @@ class XmlMappingHandler extends XmlHandler {
 		if ( isset( $options['SpecialPage'] ) ) {
 			$this->_SpecialPage = $options['SpecialPage'];
 		}
-	}
-
-	public function reset() {
-		$this->_Mapping = null;
-		$this->_MediawikiTemplate = null;
-		$this->_SpecialPage = null;
-	}
-
-	/**
-	 * @param DOMElement $DOMNodeElement
-	 * @param boolean $is_url
-	 *
-	 * @return string
-	 * a filtered DOMNodeElementValue
-	 */
-	protected function getFilteredNodeValue( DOMElement &$DOMNodeElement, $is_url = false ) {
-		$result = null;
-
-		if ( $is_url ) {
-			$result = Filter::evaluate(
-				array(
-					'source' => $DOMNodeElement->nodeValue,
-					'filter-sanitize' => FILTER_SANITIZE_URL
-				)
-			);
-		} else {
-			$result = Filter::evaluate( $DOMNodeElement->nodeValue );
-		}
-
-		return $result;
 	}
 
 	/**
@@ -182,12 +154,36 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 	/**
+	 * @param DOMElement $DOMNodeElement
+	 * @param boolean $is_url
+	 *
+	 * @return string
+	 * a filtered DOMNodeElementValue
+	 */
+	protected function getFilteredNodeValue( DOMElement &$DOMNodeElement, $is_url = false ) {
+		$result = null;
+
+		if ( $is_url ) {
+			$result = Filter::evaluate(
+				array(
+					'source' => $DOMNodeElement->nodeValue,
+					'filter-sanitize' => FILTER_SANITIZE_URL
+				)
+			);
+		} else {
+			$result = Filter::evaluate( $DOMNodeElement->nodeValue );
+		}
+
+		return $result;
+	}
+
+	/**
 	 * using an xml reader, for stream reading of the xml file, find dom elements
 	 * that match the metadata record element indicated by the user form,
 	 * $user_options['record-element-name']
 	 *
 	 * each matched metadata record, is sent to
-	 * $this->_MappingHandler->processMatchingElement() to be saved as a new
+	 * $this->_MappingHandler->processMatchingElement( $user_options ) to be saved as a new
 	 * wiki page or to update an existing wiki page for the record
 	 *
 	 * @param {XMLReader} $xml_reader
@@ -201,23 +197,36 @@ class XmlMappingHandler extends XmlHandler {
 	 * - $result['msg'] an html string with the <li> results from the api createPage(), updatePage() calls
 	 * - $result['stop-reading'] boolean stating whether or not to conitnue reading the XML document
 	 */
-	public function processDOMElements( XMLReader $xml_reader, array &$user_options ) {
+	protected function processDOMElements( $XMLElement, array &$user_options ) {
 		$result = array( 'msg' => null, 'stop-reading' => false );
-		$DOMElement = null;
+		$record = null;
+		$outer_xml = null;
 
-		if ( empty( $xml_reader ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlreader' )->plain() )->parse() );
+		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage('gwtoolset-no-xmlelement')->escaped() )->parse() );
 		}
 
 		if ( !isset( $user_options['record-element-name'] )
 			|| !isset( $user_options['record-count'] )
 		) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-dom-record-issue' )->plain() )->parse() );
+			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage('gwtoolset-dom-record-issue')->escaped() )->parse() );
 		}
 
-		switch ( $xml_reader->nodeType ) {
+		switch ( $XMLElement->nodeType ) {
 			case ( XMLReader::ELEMENT ):
-				if ( $xml_reader->name == $user_options['record-element-name'] ) {
+				if ( $XMLElement instanceof XMLReader ) {
+					if ( $XMLElement->name == $user_options['record-element-name'] ) {
+						$record = $XMLElement->expand();
+						$outer_xml = $xml_reader->readOuterXml();
+					}
+				} elseif ( $XMLElement instanceof DOMElement ) {
+					if ( $XMLElement->nodeName == $user_options['record-element-name'] ) {
+						$record = $XMLElement;
+						$outer_xml = $record->ownerDocument->saveXml( $record );
+					}
+				}
+
+				if ( !empty( $record ) ) {
 					$user_options['record-count'] += 1;
 
 					// don’t process the element if the record count is not >=
@@ -233,13 +242,10 @@ class XmlMappingHandler extends XmlHandler {
 						break;
 					}
 
-					$DOMElement = $xml_reader->expand();
-
-					if ( !empty( $DOMElement ) && $DOMElement instanceof DOMElement ) {
-						$result['msg'] = $this->_MappingHandler->processMatchingElement( $this->getDOMElementMapped( $DOMElement ), $xml_reader->readOuterXml() );
-						$result['msg'] = '<ul>' . $result['msg'] . '</ul>';
-					}
+					$result['msg'] = $this->_MappingHandler->processMatchingElement( $user_options, $this->getDOMElementMapped( $record ), $outer_xml );
+					$result['msg'] = '<ul>' . $result['msg'] . '</ul>';
 				}
+
 				break;
 		}
 
@@ -247,23 +253,40 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 	/**
-	 * acts as a control function for retrieving & processing metadata elements
+	 * a control method for retrieving dom elements from a metadata xml source.
+	 * the dom elements will be used for creating mediafile records
 	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @param {string} $file_path_local
-	 * a local wiki path to the xml metadata file. the assumption is that it
-	 * has been uploaded to the wiki earlier and is ready for use
+	 * @param {string|Content} $xml_source
+	 * a local wiki path to the xml metadata file or a local wiki Content source.
+	 * the assumption is that it has already been uploaded to the wiki earlier and
+	 * is ready for use
 	 *
-	 * @return {string}
+	 * @throws Exception
+	 * @return void
 	 */
-	public function processXml( array &$user_options, $file_path_local = null ) {
-		$result =
-			'<h3>' . wfMessage('gwtoolset-results')->escaped() . '</h3>' .
-			$this->readXml( $user_options, $file_path_local, 'processDOMElements' );
+	public function processXml( array &$user_options, &$xml_source = null ) {
+		$result = wfMessage('gwtoolset-results')->parse();
+		$callback = 'processDOMElements';
+
+		if ( !( $xml_source instanceof Content ) ) {
+			$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xml-source' )->escaped() )->parse();
+			throw new Exception( $msg );
+		}
+
+		$result .= $this->readXmlAsString( $user_options, $xml_source->getNativeData(), $callback );
+		//$this->readXmlAsFile( $user_options, $file_path_local, 'processDOMElements' );
 
 		return $result;
+	}
+
+	public function reset() {
+		$this->_Mapping = null;
+		$this->_MappingHandler = null;
+		$this->_MediawikiTemplate = null;
+		$this->_SpecialPage = null;
 	}
 
 	//	//if ( $DOMNode->hasAttributes() ) {

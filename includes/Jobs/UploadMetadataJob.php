@@ -9,55 +9,24 @@
 namespace GWToolset\Jobs;
 use Job,
 	GWToolset\Handlers\Forms\MetadataMappingHandler,
-	GWToolset\Handlers\UploadHandler,
-	GWToolset\Handlers\Xml\XmlMappingHandler,
-	GWToolset\Models\Mapping,
-	GWToolset\Models\MediawikiTemplate,
-	GWToolset\MediaWiki\Api\Client,
-	SpecialPage,
 	User;
 
+/**
+ * runs the MetadataMappingHandler with the original $_POST'ed form fields when
+ * the job was created. the $_POST contains one or more of the following :
+ *   - mediawiki template to use
+ *   - url to the metadata source in the wiki
+ *   - the metadata mapping to use
+ *   - categories to add to the media files
+ *   - partner template to use
+ *   - summary to use
+ */
 class UploadMetadataJob extends Job {
-
-	/**
-	 * @var GWToolset\Models\Mapping
-	 */
-	protected $_Mapping;
-
-	/**
-	 * @var GWToolset\Models\MediawikiTemplate
-	 */
-	protected $_MediawikiTemplate;
 
 	/**
 	 * @var GWToolset\Handlers\Forms\MetadataMappingHandler
 	 */
-	protected $__MetadataMappingHandler;
-
-	/**
-	 * @var GWToolset\MediaWiki\Api\Client
-	 */
-	protected $_MWApiClient;
-
-	/**
-	 * GWToolset\Handlers\UploadHandler
-	 */
-	protected $_UploadHandler;
-
-	/**
-	 * @var array
-	 */
-	protected $_user_options;
-
-	/**
-	 * @var GWToolset\Handlers\Xml\XmlMappingHandler
-	 */
-	protected $_XmlMappingHandler;
-
-	/**
-	 * @var User
-	 */
-	protected $_User;
+	protected $_MetadataMappingHandler;
 
 	public function __construct( $title, $params, $id = 0 ) {
 		parent::__construct( 'gwtoolsetUploadMetadataJob', $title, $params, $id );
@@ -79,10 +48,6 @@ class UploadMetadataJob extends Job {
 		return $result;
 	}
 
-	/**
-	 * die() seems to be the only way to stop the run from being eliminated from the job queue
-	 * return false seems to do nothing
-	 */
 	public function run() {
 		$result = false;
 
@@ -91,8 +56,9 @@ class UploadMetadataJob extends Job {
 		}
 
 		$_POST = $this->params['post'];
-		$this->_User = User::newFromName( $this->params['username'] );
-		$this->_MetadataMappingHandler = new MetadataMappingHandler( null, $this->_User );
+		$this->_MetadataMappingHandler = new MetadataMappingHandler(
+			array( 'User' => User::newFromName( $this->params['username'] ) )
+		);
 
 		try {
 			$result = $this->_MetadataMappingHandler->processRequest();

@@ -19,11 +19,12 @@ class Config {
 	public static $autoloader_classes = array(
 		'GWToolset\Adapters\DataAdapterInterface' => '/includes/Adapters/DataAdapterInterface.php',
 
-		'GWToolset\Adapters\Api\ApiAdapterAbstract' => '/includes/Adapters/Api/ApiAdapterAbstract.php',
-		'GWToolset\Adapters\Api\MappingApiAdapter' => '/includes/Adapters/Api/MappingApiAdapter.php',
-
 		'GWToolset\Adapters\Db\DbAdapterAbstract' => '/includes/Adapters/Db/DbAdapterAbstract.php',
 		'GWToolset\Adapters\Db\MediawikiTemplateDbAdapter' => '/includes/Adapters/Db/MediawikiTemplateDbAdapter.php',
+
+		'GWToolset\Adapters\Php\MappingPhpAdapter' => '/includes/Adapters/Php/MappingPhpAdapter.php',
+
+		'GWToolset\Exception' => '/includes/Exception.php',
 
 		'GWToolset\Forms\MetadataDetectForm' => '/includes/Forms/MetadataDetectForm.php',
 		'GWToolset\Forms\MetadataMappingForm' => '/includes/Forms/MetadataMappingForm.php',
@@ -52,19 +53,14 @@ class Config {
 		'GWToolset\Jobs\UploadMediafileJob' => '/includes/Jobs/UploadMediafileJob.php',
 		'GWToolset\Jobs\UploadMetadataJob' => '/includes/Jobs/UploadMetadataJob.php',
 
-		'GWToolset\MediaWiki\Api\Client' => '/includes/MediaWiki/Api/Client.php',
-		'GWToolset\MediaWiki\Api\ClientInterface' => '/includes/MediaWiki/Api/ClientInterface.php',
-		'GWToolset\MediaWiki\Api\Login' => '/includes/MediaWiki/Api/Login.php',
-
 		'GWToolset\Models\Mapping' => '/includes/Models/Mapping.php',
 		'GWToolset\Models\MediawikiTemplate' => '/includes/Models/MediawikiTemplate.php',
 		'GWToolset\Models\Menu' => '/includes/Models/Menu.php',
-		'GWToolset\Models\Model' => '/includes/Models/Model.php',
+		'GWToolset\Models\ModelAbstract' => '/includes/Models/ModelAbstract.php',
 		'GWToolset\Models\ModelInterface' => '/includes/Models/ModelInterface.php',
 
 		'GWToolset\SpecialGWToolset' => '/includes/Specials/SpecialGWToolset.php',
 
-		'Php\Curl' => '/includes/Php/Curl.php',
 		'Php\File' => '/includes/Php/File.php',
 		'Php\FileException' => '/includes/Php/FileException.php',
 		'Php\Filter' => '/includes/Php/Filter.php',
@@ -87,12 +83,14 @@ class Config {
 		'scripts' => 'resources/js/ext.gwtoolset.js',
 		'styles' => 'resources/css/ext.gwtoolset.css',
 		'messages' => array(
+			'gwtoolset-developer-issue',
 			'gwtoolset-loading',
 			'gwtoolset-save-mapping',
 			'gwtoolset-save-mapping-name',
 			'gwtoolset-save-mapping-failed',
 			'gwtoolset-save-mapping-succeeded',
-			'gwtoolset-step-2'
+			'gwtoolset-step-2',
+			'gwtoolset-back-link-option'
 		)
 	);
 
@@ -148,10 +146,10 @@ class Config {
 
 	/**
 	 * which extension/mimetype combinations should the extension accept
-	 * for metadata files
+	 * for mapping files
 	 */
-	public static $accepted_types = array(
-		'xml' => array( 'text/xml', 'application/xml' )
+	public static $accepted_mapping_types = array(
+		'json' => array( 'application/json' )
 	);
 
 	/**
@@ -161,6 +159,14 @@ class Config {
 	public static $accepted_media_types = array(
 		'jpg' => array( 'image/jpeg' ),
 		'pdf' => array( 'application/pdf' )
+	);
+
+	/**
+	 * which extension/mimetype combinations should the extension accept
+	 * for metadata files
+	 */
+	public static $accepted_metadata_types = array(
+		'xml' => array( 'text/xml', 'application/xml' )
 	);
 
 	/**
@@ -186,11 +192,20 @@ class Config {
 	public static $metadata_mapping_open_tag = '<mapping_json>';
 	public static $metadata_mapping_close_tag = '</mapping_json>';
 
+	// wiki namespace to store metadata mappings and data sets
+	public static $metadata_namespace = 'GWToolset:';
+
+	// wiki namespace to store metadata mappings and data sets
+	public static $mediafile_namespace = 'File:';
+
+	// sub directory used to place saved metadata mappings
+	public static $metadata_mapping_subdirectory = 'Metadata Mappings';
+
+	// sub directory used to place saved metadata sets
+	public static $metadata_sets_subdirectory = 'Metadata Sets';
+
 	// category automatically assigned to saved metadata mappings
 	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';
-
-	// sub directory used to place a saved metadata mapping within a user’s namespace
-	public static $metadata_mapping_subdirectory = 'Metadata Mappings/';
 
 	// category automatically added to items uploaded by GWToolset
 	public static $mediawiki_template_default_category = 'GWToolset Batch Upload';
@@ -201,8 +216,16 @@ class Config {
 	// Category:Source_templates is the category on commons for partner templates
 	public static $source_templates = 'Source templates';
 
-	public static $job_throttle = 10;
+	public static $job_throttle = 3;
 
 	public static $preview_throttle = 3;
 
+	// 20 minutes, 25 seconds default
+	public static $http_timeout = 1200;
+
+	// 12500000 default
+	public static $max_image_area = 64000000;
+
+	// 128M default
+	public static $memory_limit = '256M';
 }

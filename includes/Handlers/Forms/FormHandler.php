@@ -13,25 +13,30 @@ use Exception,
 
 abstract class FormHandler extends SpecialPageHandler {
 
-	protected $_user_options;
-
 	/**
-	 * make sure the expected option exists and has a value with strlen > 0
+	 * make sure the expected options :
+	 * 1. exist
+	 * 2. and have a value with strlen > 0
+	 *
+	 * @param {array} $user_options
+	 * @param {array} $expected_options
+	 * @return {void}
+	 * @throws Exception
 	 */
-	protected function checkForRequiredFormFields( array $expected_options = array() ) {
+	protected function checkForRequiredFormFields( array &$user_options, array $expected_options ) {
 		$msg = null;
 
 		foreach( $expected_options as $option ) {
-			if ( !array_key_exists( $option, $this->_user_options ) ) {
+			if ( !array_key_exists( $option, $user_options ) ) {
 				$msg .= '<li>' . $option . '</li>';
 			}
 
-			if ( is_array( $this->_user_options[ $option ] ) ) {
-				if ( strlen( reset( $this->_user_options[ $option ] ) ) < 1 ) {
+			if ( is_array( $user_options[ $option ] ) ) {
+				if ( strlen( reset( $user_options[ $option ] ) ) < 1 ) {
 					$msg .= '<li>' . $option . '</li>';
 				}
 			} else {
-				if ( strlen( $this->_user_options[ $option ] ) < 1 ) {
+				if ( strlen( $user_options[ $option ] ) < 1 ) {
 					$msg .= '<li>' . $option . '</li>';
 				}
 			}
@@ -39,16 +44,17 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		if ( $msg !== null ) {
 			$msg =
-				'<p class="error">' . wfMessage( 'gwtoolset-metadata-user-options-error' )->plain() . '</p>' .
+				'<p class="error">' . wfMessage( 'gwtoolset-metadata-user-options-error' )->escaped() . '</p>' .
 				'<ul>' . $msg . '</ul>' .
-				'<p>' . $this->_SpecialPage->getBackToFormLink() . '</p>';
+				'<p>' . $this->SpecialPage->getBackToFormLink() . '</p>';
+
 			throw new Exception( $msg );
 		}
 	}
 
 	protected function getFormClass( $module_name ) {
 		if ( $module_name === null ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-module' )->plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-module' )->escaped() )->parse() );
 		}
 
 		return $module_name['form'];
@@ -61,16 +67,16 @@ abstract class FormHandler extends SpecialPageHandler {
 		$form_class = $this->getFormClass( $module_name );
 
 		if ( !class_exists( $form_class ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-no-form' )->plain() );
+			throw new Exception( wfMessage( 'gwtoolset-no-form' )->escaped() );
 		}
 
-		return $form_class::getForm( $this->_SpecialPage->getContext() );
+		return $form_class::getForm( $this->SpecialPage );
 	}
 
 	public function execute() {
 		$result = null;
 
-		WikiChecks::doesEditTokenMatch( $this->_SpecialPage );
+		WikiChecks::doesEditTokenMatch( $this->SpecialPage );
 		$result .= $this->processRequest();
 
 		return $result;

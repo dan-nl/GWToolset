@@ -7,7 +7,7 @@
  * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
-use GWToolset\Adapters\Api\MappingApiAdapter,
+use GWToolset\Adapters\Php\MappingPhpAdapter,
 	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\PreviewForm,
@@ -18,10 +18,13 @@ use GWToolset\Adapters\Api\MappingApiAdapter,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	JobQueueGroup,
+	Linker,
 	Php\Filter,
+	Revision,
 	SpecialPage,
 	Title,
-	User;
+	User,
+	WikiPage;
 
 class MetadataMappingHandler extends FormHandler {
 
@@ -46,49 +49,24 @@ class MetadataMappingHandler extends FormHandler {
 	protected $_UploadHandler;
 
 	/**
-	 * @var array
-	 */
-	protected $_user_options;
-
-	/**
 	 * @var GWToolset\Handlers\Xml\XmlMappingHandler
 	 */
 	protected $_XmlMappingHandler;
 
 	/**
-	 * allow parent constructor to be overridden so that this class can be used
-	 * from a Job Queue job without a special page
-	 */
-	public function __construct( SpecialPage $SpecialPage = null, User $User = null ) {
-		if ( !empty( $SpecialPage ) ) {
-			parent::__construct( $SpecialPage, $User );
-		} elseif ( !empty( $User ) ) {
-			$this->_User = $User;
-		}
-	}
-
-	/**
 	 * @return void
 	 */
-	protected function processMetadata() {
+	protected function processMetadata( array &$user_options ) {
 		$result = null;
-		$wiki_file_path = null;
 		$this->_Mapping = null;
 		$this->_MediawikiTemplate = null;
 		$this->_UploadHandler = null;
 		$this->_XmlMappingHandler = null;
 
 		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
-		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $this->_user_options );
+		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $user_options );
 
-		$this->_MWApiClient = \GWToolset\getMWApiClient(
-			array( 'debug-on' => ( ini_get('display_errors') && $this->_User->isAllowed( 'gwtoolset-debug' ) ) )
-		);
-
-		WikiPages::$MWApiClient = $this->_MWApiClient;
-		$wiki_file_path = WikiPages::retrieveWikiFilePath( $this->_user_options['metadata-file-url'] );
-
-		$this->_Mapping = new Mapping( new MappingApiAdapter( $this->_MWApiClient ) );
+		$this->_Mapping = new Mapping( new MappingPhpAdapter() );
 		$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray( $_POST );
 		$this->_Mapping->setTargetElements();
 		$this->_Mapping->reverseMap();
@@ -97,10 +75,13 @@ class MetadataMappingHandler extends FormHandler {
 			array(
 				'Mapping' => $this->_Mapping,
 				'MediawikiTemplate' => $this->_MediawikiTemplate,
-				'MWApiClient' => $this->_MWApiClient,
-				'User' => $this->_User,
+				'User' => $this->User,
 			)
 		);
+
+		$Metadata_Title = WikiPages::getTitleFromUrl( $user_options['metadata-file-url'] );
+		$Metadata_Page = new WikiPage( $Metadata_Title );
+		$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
 
 		$this->_XmlMappingHandler = new XmlMappingHandler(
 			array(
@@ -109,41 +90,44 @@ class MetadataMappingHandler extends FormHandler {
 				'MappingHandler' => $this
 			)
 		);
-		$result = $this->_XmlMappingHandler->processXml( $this->_user_options, $wiki_file_path );
 
-		if ( empty( $this->_SpecialPage )
-				&& $this->_user_options['record-count'] > ( $this->_user_options['record-begin'] + Config::$job_throttle )
+		$result = $this->_XmlMappingHandler->processXml( $user_options, $Metadata_Content );
+
+		if ( empty( $this->SpecialPage )
+				&& $user_options['record-count'] > ( $user_options['record-begin'] + Config::$job_throttle )
 		) {
-			$_POST['record-begin'] = (int) $this->_user_options['record-count'];
-			$this->createMetadataBatchJob();
+			// when $this->SpecialPage is empty this method is being run by a wiki job
+			// if more metadata records exist in the metadata file, create another UploadMetadataJob
+			$_POST['record-begin'] = (int) $user_options['record-count'];
+			$this->createMetadataBatchJob( $user_options );
 		}
 
 		return $result;
+
 	}
 
-	protected function createMetadataBatchJob() {
-		global $wgArticlePath;
-		$job = null;
-		$job_result = false;
-		$view_uploads = null;
-		$result = null;
+	protected function createMetadataBatchJob( array &$user_options ) {
+		$result = false;
 
 		$job = new UploadMetadataJob(
-			Title::newFromText( 'User:' . $this->_User->getName() . '/GWToolset Batch Upload' ),
+			Title::newFromText( 'User:' . $this->User->getName() . '/' . Config::$name . ' Metadata Batch Job' ),
 			array(
-				'username' => $this->_User->getName(),
-				'user_options' => $this->_user_options,
+				'username' => $this->User->getName(),
+				'user_options' => $user_options,
 				'post' => $_POST
 			)
 		);
 
-		$job_result = JobQueueGroup::singleton()->push( $job );
+		$result = JobQueueGroup::singleton()->push( $job );
 
-		if ( $job_result ) {
-			$view_uploads = '<a href="' . str_replace( '$1', 'Special:NewFiles', $wgArticlePath ) . '" target="_blank">Special:NewFiles</a>';
-			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )->rawParams( $view_uploads )->parse();
+		if ( $result ) {
+			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )->rawParams(
+				Linker::link( Title::newFromText('Special:NewFiles'), null, array( 'target' => '_blank' ) )
+			)->parse();
 		} else {
-			$result =  wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-batchjob-creation-failure' )->plain() )->parse();
+			$result =  '<span class="error">' . wfMessage( 'gwtoolset-developer-issue' )->params(
+				wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped()
+			)->parse() . '</span>';
 		}
 
 		return $result;
@@ -169,32 +153,28 @@ class MetadataMappingHandler extends FormHandler {
 	 *
 	 * @todo run a try catch on the create/update page so that if there’s an api issue the script can continue
 	 */
-	public function processMatchingElement( $element_mapped_to_mediawiki_template, $metadata_raw ) {
+	public function processMatchingElement( array &$user_options, $element_mapped_to_mediawiki_template, $metadata_raw ) {
 		$result = null;
 
 		$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
 		$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
-		$result = $this->_UploadHandler->saveMediawikiTemplateAsPage( $this->_user_options );
+		$result = $this->_UploadHandler->saveMediaFile( $user_options );
 
-		if ( is_string( $result ) ) {
-			$this->result .= $result;
-		} elseif ( $result ) {
-			$this->result = wfMessage('gwtoolset-batchjobs-item-created')->params( $this->_UploadHandler->jobs_added )->plain();
-		} else {
-			$this->result = wfMessage('gwtoolset-batchjobs-item-created-some')->params( $this->_UploadHandler->job_count, $this->_UploadHandler->jobs_not_added )->plain();
+		if ( $user_options['preview'] && ( $result instanceof Title ) ) {
+			$result = '<li>' . Linker::link( $result, null, array( 'target' => '_blank' ) ) . '</li>';
 		}
 
 		return $result;
 	}
 
-	protected function getGlobalCategories() {
-		$this->_user_options['categories'] = Config::$mediawiki_template_default_category;
+	protected function getGlobalCategories( array &$user_options ) {
+		$user_options['categories'] = Config::$mediawiki_template_default_category;
 
 		if ( isset( $_POST['category'] ) ) {
 			foreach( $_POST['category'] as $category ) {
 				$category = Filter::evaluate( $category );
 				if ( !empty( $category ) ) {
-					$this->_user_options['categories'] .= Config::$category_separator . $category;
+					$user_options['categories'] .= Config::$category_separator . $category;
 				}
 			}
 		}
@@ -215,7 +195,6 @@ class MetadataMappingHandler extends FormHandler {
 			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
 			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? urldecode( Filter::evaluate( $_POST['metadata-file-url'] ) ) : null,
 			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ? urldecode( Filter::evaluate( $_POST['partner-template-url'] ) ) : null,
-			//'record-count' => !empty( $_POST['record-count'] ) ? (int) $_POST['record-count'] : 0,
 			'preview' => !empty( $_POST['gwtoolset-preview'] ) ? true : false,
 			'record-count' => 0,
 			'record-begin' => !empty( $_POST['record-begin'] ) ? (int) $_POST['record-begin'] : 0,
@@ -227,7 +206,7 @@ class MetadataMappingHandler extends FormHandler {
 		);
 
 		if ( !empty( $result['partner-template-url'] ) ) {
-			$result['partner-template-name'] = WikiPages::getTemplateNameFromUrl( $result['partner-template-url'] );
+			$result['partner-template-name'] = WikiPages::getTitleFromUrl( $result['partner-template-url'] );
 		}
 
 		return $result;
@@ -238,11 +217,12 @@ class MetadataMappingHandler extends FormHandler {
 	 * @return string
 	 */
 	public function processRequest() {
-		$this->result = null;
-		$this->_user_options = $this->getUserOptions();
-		$this->getGlobalCategories();
+		$result = null;
+		$user_options = $this->getUserOptions();
+		$this->getGlobalCategories( $user_options );
 
 		$this->checkForRequiredFormFields(
+			$user_options,
 			array(
 				'mediawiki-template-name',
 				'metadata-file-url',
@@ -253,40 +233,30 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		//if ( $this->_user_options['save-as-batch-job'] ) {
-		//	// assumption is that if SpecialPage is not empty then this is
-		//	// the creation of the initial job queue job
-		//	if ( !empty( $this->_SpecialPage ) ) {
-		//		$this->result = $this->createMetadataBatchJob();
-		//	// assumption is that this is a job queue job that will create the
-		//	// mediafile upload jobs
-		//	} else {
-		//		$this->result = $this->processMetadata();
-		//	}
-		//} else {
-		//	$this->result = $this->processMetadata();
-		//}
-
-		if ( $this->_user_options['preview'] ) {
+		if ( $user_options['preview'] ) {
 			Config::$job_throttle = Config::$preview_throttle;
-			$this->result = $this->processMetadata();
+			$result = $this->processMetadata( $user_options );
 
-			$this->result = PreviewForm::getForm(
-				$this->_SpecialPage->getContext(),
-				$this->_user_options,
-				$this->result
+			$result = PreviewForm::getForm(
+				$this->SpecialPage->getContext(),
+				$user_options,
+				$result
 			);
 		} else {
-			$this->_user_options['save-as-batch-job'] = true;
+			$user_options['save-as-batch-job'] = true;
 
-			if ( !empty( $this->_SpecialPage ) ) {
-				$this->result = $this->createMetadataBatchJob();
+			if ( !empty( $this->SpecialPage ) ) {
+				// this is the creation of the initial uploadMetadataJob
+				// subsequent uploadMetadataJobs are created in $this->processMetadata() if necessary
+				$result = wfMessage('gwtoolset-step-4-heading')->parse() . $this->createMetadataBatchJob( $user_options );
 			} else {
-				$this->result = $this->processMetadata();
+				// when $this->SpecialPage is empty this method is being run by a wiki job
+				// assumption is that this is an uploadMediafileJob
+				$result = $this->processMetadata( $user_options );
 			}
 		}
 
-		return $this->result;
+		return $result;
 	}
 
 }

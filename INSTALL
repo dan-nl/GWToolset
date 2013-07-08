@@ -43,17 +43,9 @@ _enable uploads and url uploading_
 * `$wgEnableUploads  = true;`
 * `$wgAllowCopyUploads = true;`
 
-_api end_
+_api endpoint_
 * set the following variable to the api endpoint for your wiki
 * `$wgGWToolsetApiEndpont = 'http://127.0.0.1/api.php';`
-
-_api user_
-* make sure you create or already have an api user account in your wiki and set
-  the following global variables to that user name with its corresponding
-  password :
-* `$wgGWToolsetApiUser = 'Gwtoolset';`
-* `$wgGWToolsetApiUserPassword = 'api_users_password';`
-* make sure that api user is part of the gwtoolset group, see `Special:UserRights`
 
 _load the extension_
 * `require_once( "$IP/extensions/GWToolset/GWToolset.php" );`
