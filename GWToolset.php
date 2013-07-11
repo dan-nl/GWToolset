@@ -5,7 +5,7 @@
  * @file
  * @ingroup Extensions
  * @version 0.0.1
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
 use GWToolset\Helpers\WikiChecks;
@@ -37,12 +37,12 @@ require_once $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPA
 /**
  * registering extension metadata with MediaWiki
  */
-$wgExtensionCredits['media'][] = array(
-	'path' => __FILE__,
-	'name' => Config::$name,
+$wgExtensionCredits[Config::$type][] = array(
 	'author' => Config::$author,
-	'url' => Config::$url,
 	'descriptionmsg' => Config::$descriptionmsg,
+	'name' => Config::$name,
+	'path' => __FILE__,
+	'url' => Config::$url,
 	'version' => Config::$version
 );
 

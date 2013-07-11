@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
 use Content,
@@ -194,8 +194,8 @@ class XmlMappingHandler extends XmlHandler {
 	 * @throws Exception
 	 *
 	 * @return {array}
-	 * - $result['msg'] an html string with the <li> results from the api createPage(), updatePage() calls
-	 * - $result['stop-reading'] boolean stating whether or not to conitnue reading the XML document
+	 * - $result['msg'] {string}
+	 * - $result['stop-reading'] {boolean}
 	 */
 	protected function processDOMElements( $XMLElement, array &$user_options ) {
 		$result = array( 'msg' => null, 'stop-reading' => false );

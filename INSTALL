@@ -27,12 +27,13 @@ Requirements
 Configuration
 -------------
 ### `DefaultSettings.php`
-The following values are usually in the wiki’s `DefaultSettings.php`; they need
-to both be set to true; if they are not, you can make the changes in the
-`LocalSettings.php` file.
+The following values are usually in the wiki’s `DefaultSettings.php`; if they
+are not set as indicated, you can make the changes in the `LocalSettings.php`
+file.
 
 * `$wgEnableAPI = true`
 * `$wgEnableWriteAPI = true`
+* `$wgMemoryLimit = "256M"`;
 
 
 ### `LocalSettings.php`
@@ -42,10 +43,6 @@ The following settings should be added or already present in the
 _enable uploads and url uploading_
 * `$wgEnableUploads  = true;`
 * `$wgAllowCopyUploads = true;`
-
-_api endpoint_
-* set the following variable to the api endpoint for your wiki
-* `$wgGWToolsetApiEndpont = 'http://127.0.0.1/api.php';`
 
 _load the extension_
 * `require_once( "$IP/extensions/GWToolset/GWToolset.php" );`

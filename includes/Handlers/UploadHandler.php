@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers;
 use ContentHandler,
@@ -139,7 +139,6 @@ class UploadHandler {
 
 		$result .= '<!-- Metadata Raw -->' . PHP_EOL;
 		$result .= '<!-- <metadata_raw>' . PHP_EOL . $this->_MediawikiTemplate->metadata_raw . PHP_EOL . '</metadata_raw> -->' . PHP_EOL;
-		//$result .= json_encode( simplexml_load_string( $xml_reader->readOuterXml() ) );
 
 		return $result;
 	}
@@ -184,69 +183,6 @@ class UploadHandler {
 					$result .= '[[Category:' . $phrase . $metadata . ']]';
 				}
 			}
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param array $options
-	 * @param boolean $result_as_boolean
-	 *
-	 * @throws Exception
-	 * @return boolean|string
-	 */
-	protected function createPage( array &$options, $result_as_boolean = false ) {
-		$result = true;
-
-		$this->validatePageOptions( $options );
-
-		// upload media no matter the user_option['upload-media'] value
-		// this is done because the page will be new and needs the media file
-		//$result = $this->uploadMediaFileViaApi( $options, $result_as_boolean );
-		$result = $this->uploadMediaFileViaUploadFromUrl( $options, $result_as_boolean );
-
-		return $result;
-	}
-
-	/**
-	 * @throws Exception
-	 * @return boolean|string
-	 */
-	protected function editMediaFileViaApi( array &$options, $result_as_boolean = false ) {
-		global $wgArticlePath;
-		$result = true;
-
-		// creating a new page, a comment is used
-		// updating a page, summary is used
-		$result = $this->_MWApiClient->edit(
-			array(
-				'pageid' => $options['pageid'],
-				'summary' => $options['comment'],
-				'text' => $options['text'],
-				'token' => $this->_MWApiClient->getEditToken(),
-				'watch' => $options['watch']
-			)
-		);
-
-		if ( empty( $result['edit']['result'] )
-			|| $result['edit']['result'] !== 'Success'
-			|| empty( $result['edit']['title'] )
-		) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->escaped() )->parse() );
-		}
-
-		if ( !$result_as_boolean ) {
-			$result =
-				'<li>' .
-					Linker::link(
-						Title::newFromText( Config::$mediafile_namespace . WikiPages::titleCheck( $options['title'] ) ),
-						Filter::evaluate( $options['title'] ) .
-						( isset( $result['edit']['oldrevid'] )
-							? wfMessage( 'gwtoolset-revised' )->escaped()
-							: wfMessage( 'gwtoolset-no-change' )->escaped() )
-					);
-				'</li>';
 		}
 
 		return $result;
@@ -353,14 +289,11 @@ class UploadHandler {
 		return $result;
 	}
 
-	public function getSavedFileName() {
-		return $this->_UploadBase->getTitle();
-	}
-
 	/**
+	 * concatenates several pieces of information in order to create the wiki
+	 * text for the mediafile page
 	 *
-	 * @return string
-	 * the text
+	 * @return {string}
 	 */
 	protected function getText() {
 		return
@@ -414,6 +347,9 @@ class UploadHandler {
 		return $result;
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function reset() {
 		$this->_File = null;
 		$this->_Mapping = null;
@@ -445,10 +381,10 @@ class UploadHandler {
 		$WebRequest->setVal( 'wpDestFile', $this->_File->pathinfo['filename'] . '-' . $this->_User->getName() );
 
 		$this->_UploadBase = UploadBase::createFromRequest( $WebRequest );
-		$status = $this->uploadMetadataFile();
+		$Status = $this->uploadMetadataFile();
 
-		if ( $status !== true ) {
-			$result = $this->_SpecialPage->getOutput()->parse( $status );
+		if ( !$Status->isGood() ) {
+			$this->_SpecialPage->getOutput()->parse( $Status->getWikiText() );
 		} else {
 			$result = $this->_UploadBase->getTitle();
 		}
@@ -510,7 +446,6 @@ class UploadHandler {
 		if ( $this->user_options['save-as-batch-job'] ) {
 			$Status = $this->saveMediafileViaJob( $options );
 		} else {
-			//$result = $this->saveMediaFileAsPage( $options, false );
 			$result = $this->saveMediafileAsContent( $options );
 		}
 
@@ -550,24 +485,9 @@ class UploadHandler {
 		return $Mediafile_Title;
 	}
 
-	public function saveMediaFileAsPage( array &$options, $result_as_boolean = false ) {
-		$result = null;
-
-		$options['pageid'] = WikiPages::getTitlePageId( Config::$mediafile_namespace . $options['title'] );
-
-		// page already exists
-		if ( $options['pageid'] > -1 ) {
-			$result = $this->updatePage( $options, $result_as_boolean );
-		// page does not yet exist
-		} else {
-			$result = $this->createPage( $options, $result_as_boolean );
-		}
-
-		return $result;
-	}
-
 	/**
-	 * @return bool result of the JobQueueGroup::singleton()->push()
+	 * @param {array} $options
+	 * @return {boolean}
 	 */
 	protected function saveMediafileViaJob( array &$options ) {
 		$result = false;
@@ -591,17 +511,6 @@ class UploadHandler {
 				'watch' => $options['watch']
 			)
 		);
-		//$job = new UploadFromUrlJob(
-		//	Title::newFromText( Config::$mediafile_namespace . $options['title'] ),
-		//	array(
-		//		'comment' => $options['comment'],
-		//		'ignorewarnings' => $options['ignorewarnings'],
-		//		'text' => $options['text'],
-		//		'url_to_the_media_file' => $options['url_to_the_media_file'],
-		//		'username' => $this->_User->getName(),
-		//		'watch' => $options['watch']
-		//	)
-		//);
 
 		$result = JobQueueGroup::singleton()->push( $job );
 
@@ -609,52 +518,6 @@ class UploadHandler {
 			$this->jobs_added += 1;
 		} else {
 			$this->jobs_not_added += 1;
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @throws Exception
-	 * @return boolean|string
-	 */
-	protected function uploadMediaFileViaApi( array &$options, $result_as_boolean = false ) {
-		$result = true;
-
-		$result = $this->_MWApiClient->upload(
-			array(
-				'filename' => $options['title'],
-				'comment' => $options['comment'],
-				'ignorewarnings' => $options['ignorewarnings'],
-				'text' => $options['text'],
-				'token' => $this->_MWApiClient->getEditToken(),
-				'url' => $options['url_to_the_media_file'],
-				'watch' => $options['watch']
-			)
-		);
-
-		if ( empty( $result['upload']['result'] )
-			|| $result['upload']['result'] !== 'Success'
-			|| empty( $result['upload']['imageinfo']['descriptionurl'] )
-			|| empty( $result['upload']['filename'] )
-		) {
-			$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-unexpected-api-format' )->escaped() )->parse();
-
-			if ( ini_get('display_errors') ) {
-				$msg .= '<pre>' . print_r( $result, true ) . '</pre>';
-			}
-
-			throw new Exception( $msg );
-		}
-
-		if ( !$result_as_boolean ) {
-			$result =
-				'<li>' .
-					Linker::link(
-						Title::newFromText( Config::$mediafile_namespace . WikiPages::titleCheck( $options['title'] ) ),
-						$options['title']
-					);
-				'</li>';
 		}
 
 		return $result;
@@ -697,49 +560,21 @@ class UploadHandler {
 	}
 
 	/**
-	 * upload the file
+	 * @return {null|Status}
 	 */
 	protected function uploadMetadataFile() {
-		$result = true;
+		$Status = null;
 
 		$comment = wfMessage( 'gwtoolset-create-metadata' )->params( Config::$name, $this->_User->getName() )->escaped();
 		$pagetext = '[[Category:' . Config::$metadata_file_category. ']]';
-		$status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
-		if ( !$status->isGood() ) { $result = $status->getWikiText(); }
+		$Status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
 
-		return $result;
+		return $Status;
 	}
 
 	/**
-	 * @param array $options
-	 * @param boolean $result_as_boolean
-	 *
-	 * @throws Exception
-	 * @return boolean|string
-	 */
-	protected function updatePage( array &$options, $result_as_boolean = false ) {
-		$result = true;
-
-		$this->validatePageOptions( $options );
-
-		// assumes that pageid is a positive int
-		if ( empty( $options['pageid'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-pageid' )->escaped() )->parse() );
-		}
-
-		// upload another version of the media
-		if ( $this->user_options['upload-media'] ) {
-			// $this->uploadMediaFileViaApi( $options, $result_as_boolean );
-			$this->uploadMediaFileViaUploadFromUrl( $options, $result_as_boolean );
-		}
-
-		$result = $this->editMediaFileViaApi( $options, $result_as_boolean );
-
-		return $result;
-	}
-
-	/**
-	 * @throws Exception
+	 * @param {array} $options
+	 * @throws {Exception}
 	 */
 	protected function validatePageOptions( array &$options ) {
 		if ( empty( $options['title'] ) ) {
@@ -761,7 +596,8 @@ class UploadHandler {
 	}
 
 	/**
-	 * @param array $options
+	 * @param {array} $options
+	 * @throws {Exception}
 	 */
 	protected function validateUserOptions( array &$user_options ) {
 		if ( !isset( $user_options['comment'] ) ) {

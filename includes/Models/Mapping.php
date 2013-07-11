@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Models;
 use Exception,
@@ -83,31 +83,31 @@ class Mapping implements ModelInterface {
 		if ( $json_error != JSON_ERROR_NONE ) {
 			switch ( json_last_error() ) {
 				case JSON_ERROR_NONE:
-					$error_msg = 'No errors.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-none' )->escaped();
 					break;
 
 				case JSON_ERROR_DEPTH:
-					$error_msg = 'Maximum stack depth exceeded.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-depth' )->escaped();
 					break;
 
 				case JSON_ERROR_STATE_MISMATCH:
-					$error_msg = 'Underflow or the modes mismatch.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-state-mismatch' )->escaped();
 					break;
 
 				case JSON_ERROR_CTRL_CHAR:
-					$error_msg = 'Unexpected control character found.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-ctrl-char' )->escaped();
 					break;
 
 				case JSON_ERROR_SYNTAX:
-					$error_msg = 'Syntax error, malformed JSON.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-syntax' )->escaped();
 					break;
 
 				case JSON_ERROR_UTF8:
-					$error_msg = 'Malformed UTF-8 characters, possibly incorrectly encoded.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-utf8' )->escaped();
 					break;
 
 				default:
-					$error_msg = 'Unknown error.';
+					$error_msg = wfMessage( 'gwtoolset-json-error-unknown' )->escaped();
 					break;
 			}
 

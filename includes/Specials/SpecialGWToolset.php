@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
 use Exception,
@@ -162,6 +162,8 @@ class SpecialGWToolset extends SpecialPage {
 	 * SpecialPage entry point
 	 */
 	public function execute( $par ) {
+		set_error_handler('\GWToolset\handleError');
+
 		if ( !$this->wikiChecks() ) {
 			return;
 		}

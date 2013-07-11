@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
 
@@ -14,6 +14,7 @@ class Config {
 	public static $author =  array( 'dan entous' );
 	public static $url = 'https://www.mediawiki.org/wiki/Extension:GWToolset';
 	public static $descriptionmsg = 'gwtoolset-desc';
+	public static $type = 'media';
 	public static $version = '0.0.1';
 
 	public static $autoloader_classes = array(

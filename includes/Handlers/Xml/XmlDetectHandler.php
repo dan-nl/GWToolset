@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Xml;
 use Content,
@@ -93,8 +93,8 @@ class XmlDetectHandler extends XmlHandler {
 	 * an array of user options that was submitted in the html form
 	 *
 	 * @return {array}
-	 * - $result['msg'] an html string with the <li> results from the api createPage(), updatePage() calls
-	 * - $result['stop-reading'] boolean stating whether or not to conitnue reading the XML document
+	 * - $result['msg'] {null|string}
+	 * - $result['stop-reading'] {boolean}
 	 */
 	protected function findExampleDOMElement( $XMLElement, array &$user_options ) {
 		$result = array( 'msg' => null, 'stop-reading' => false );

@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Handlers\Forms;
 use GWToolset\Adapters\Php\MappingPhpAdapter,
@@ -134,24 +134,11 @@ class MetadataMappingHandler extends FormHandler {
 	}
 
 	/**
-	 * using the api save the matched record as a new wiki page or update an
-	 * existing wiki page
-	 *
-	 * @todo a. create filename - need to figure a better way to do it, possibly
-	 * put it in the MediawikiTemplate instead of the UploadHandler
-	 *
-	 * @todo: have the api replace/update the template when page already exists
-	 * @todo b. tell api to follow the redirect to get the file
+	 * save a metadata record as a new/updated wiki page
 	 *
 	 * @param DOMElement $matching_element
 	 * @param array $user_options
-	 *
 	 * @return {string}
-	 * an html string with the <li> element results from the api createPage(),
-	 * updatePage() calls plus $this->_MWApiClient->debug_html if gwtoolset-debuging
-	 * is on and the user is a gwtoolset-debug user
-	 *
-	 * @todo run a try catch on the create/update page so that if there’s an api issue the script can continue
 	 */
 	public function processMatchingElement( array &$user_options, $element_mapped_to_mediawiki_template, $metadata_raw ) {
 		$result = null;

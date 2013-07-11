@@ -4,7 +4,7 @@
  *
  * @file
  * @ingroup Extensions
- * @license GNU General Public Licence 3.0 http://www.gnu.org/licenses/gpl.html
+ * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset;
 use ErrorException,
@@ -101,5 +101,3 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 // created to deal with an issue within
 // GWToolset/includes/Adapters/Api/MappingPhpAdapter.php->saveMapping()
 function swallowErrors() {}
-
-set_error_handler('\GWToolset\handleError');
