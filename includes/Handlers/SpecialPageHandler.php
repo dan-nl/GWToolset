@@ -12,19 +12,19 @@ use SpecialPage;
 abstract class SpecialPageHandler {
 
 	/**
-	 * @var SpecialPage
+	 * @var {SpecialPage}
 	 */
 	public $SpecialPage;
 
 	/**
-	 * @var User
+	 * @var {User}
 	 */
 	public $User;
 
-	abstract public function execute();
-	abstract protected function processRequest();
-	abstract public function getHtmlForm();
-
+	/**
+	 * @param {array} $options
+	 * @return {void}
+	 */
 	public function __construct( array $options = array() ) {
 		if ( isset( $options['SpecialPage'] ) ) {
 			$this->SpecialPage = $options['SpecialPage'];
@@ -36,5 +36,29 @@ abstract class SpecialPageHandler {
 			$this->User = $this->SpecialPage->getUser();
 		}
 	}
+
+	/**
+	 * entry point
+	 * a control method that acts as an entry point for the
+	 * SpecialPageHandler and handles execution of the class methods
+	 *
+	 * @return {void|string}
+	 */
+	abstract public function execute();
+
+	/**
+	 * a control method that processes a SpecialPage request
+	 * and returns a response, typically an html form
+	 *
+	 * @return {string}
+	 */
+	abstract protected function processRequest();
+
+	/**
+	 * gets an html form
+	 *
+	 * @return {string}
+	 */
+	abstract public function getHtmlForm();
 
 }

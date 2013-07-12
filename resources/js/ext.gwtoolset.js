@@ -249,7 +249,6 @@
 
 			$.ajax({
 				type : 'POST',
-				//url : mw.config.get('wgArticlePath').replace("$1", "") + 'Special:GWToolset',
 				url : mw.util.wikiGetlink('Special:GWToolset'),
 				data : {
 					'gwtoolset-form' : 'metadata-mapping-save',

@@ -27,58 +27,55 @@ use ContentHandler,
 
 class UploadHandler {
 
-	public $add_as_batch_job = false;
-
 	/**
-	 * @var Php\File
+	 * @var {File}
 	 */
 	protected $_File;
 
 	/**
-	 * @var GWToolset\Models\Mapping
+	 * @var {Mapping}
 	 */
 	protected $_Mapping;
 
 	/**
-	 * @var GWToolset\Models\MediawikiTemplate
+	 * @var {MediawikiTemplate}
 	 */
 	protected $_MediawikiTemplate;
 
 	/**
-	 * @var GWToolset\MediaWiki\Api\Client
-	 */
-	protected $_MWApiClient;
-
-	/**
-	 * @var SpecialPage
+	 * @var {SpecialPage}
 	 */
 	protected $_SpecialPage;
 
 	/**
-	 * @var UploadBase
+	 * @var {UploadBase}
 	 */
 	protected $_UploadBase;
 
 	/**
-	 * @var User
+	 * @var {User}
 	 */
 	protected $_User;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 */
 	public $user_options;
 
 	/**
-	 * @var int
+	 * @var {int}
 	 */
 	public $jobs_added;
 
 	/**
-	 * @var int
+	 * @var {int}
 	 */
 	public $jobs_not_added;
 
+	/**
+	 * @param {array} $options
+	 * @return {void}
+	 */
 	public function __construct( array $options = array() ) {
 		$this->reset();
 
@@ -92,10 +89,6 @@ class UploadHandler {
 
 		if ( isset( $options['MediawikiTemplate'] ) ) {
 			$this->_MediawikiTemplate = $options['MediawikiTemplate'];
-		}
-
-		if ( isset( $options['MWApiClient'] ) ) {
-			$this->_MWApiClient = $options['MWApiClient'];
 		}
 
 		if ( isset( $options['SpecialPage'] ) ) {
@@ -116,6 +109,7 @@ class UploadHandler {
 	 * UploadBase will accept them
 	 *
 	 * @param {array} $accepted_types
+	 * @return {void}
 	 */
 	protected function addAllowedExtensions( array $accepted_types = array() ) {
 		global $wgFileExtensions;
@@ -131,6 +125,13 @@ class UploadHandler {
 		}
 	}
 
+	/**
+	 * creates wiki text that makes up the original metadata used
+	 * and the original mapping used to create the wiki page
+	 *
+	 * @return {string}
+	 * the string is not filtered
+	 */
 	protected function addMetadata() {
 		$result = null;
 
@@ -143,6 +144,14 @@ class UploadHandler {
 		return $result;
 	}
 
+	/**
+	 * creates wiki text category entries.
+	 * these categories represent global categories
+	 * that are applied to all of the media files being uploaded.
+	 *
+	 * @return {null|string}
+	 * the resulting wiki text is filtered
+	 */
 	protected function addGlobalCategories() {
 		$result = null;
 
@@ -158,6 +167,15 @@ class UploadHandler {
 		return $result;
 	}
 
+	/**
+	 * creates wiki text category entries.
+	 * these categories represent specific categories for this
+	 * specific media file rather than global categories
+	 * that are applied to all of the media files being uploaded.
+	 *
+	 * @return {null|string}
+	 * the resulting wiki text is filtered
+	 */
 	protected function addItemSpecificCategories() {
 		$category_count = 0;
 		$phrase = null;
@@ -172,15 +190,15 @@ class UploadHandler {
 				$metadata = null;
 
 				if ( !empty( $this->user_options['category-phrase'][$i] ) ) {
-					$phrase = Filter::evaluate( $this->user_options['category-phrase'][$i] ) . ' ';
+					$phrase = $this->user_options['category-phrase'][$i] . ' ';
 				}
 
 				if ( !empty( $this->user_options['category-metadata'][$i] ) ) {
-					$metadata = Filter::evaluate( $this->getMappedField( $this->user_options['category-metadata'][$i] ) );
+					$metadata = $this->getMappedField( $this->user_options['category-metadata'][$i] );
 				}
 
 				if ( !empty( $metadata ) ) {
-					$result .= '[[Category:' . $phrase . $metadata . ']]';
+					$result .= '[[Category:' . Filter::evaluate( $phrase ) . Filter::evaluate( $metadata ) . ']]';
 				}
 			}
 		}
@@ -212,13 +230,16 @@ class UploadHandler {
 	 *   $url = 'http://images.memorix.nl/gam/thumb/150x150/115165d2-1267-7db5-4abb-54d273c47a81.jpg';
 	 *
 	 * @param {string} $url
-	 * @throws Exception
+	 *
+	 * @throws {Exception}
+	 *
 	 * @return {array}
+	 * the values in the array are not filtered
 	 *   $result['content-type']
 	 *   $result['extension']
 	 *   $result['url']
 	 */
-	protected function evaluateMediafileUrl( &$url ) {
+	protected function evaluateMediafileUrl( $url ) {
 
 		$result = array( 'extension' => null, 'url' => null );
 		$pathinfo = array();
@@ -273,6 +294,12 @@ class UploadHandler {
 		return $result;
 	}
 
+	/**
+	 * @param {string} $field
+	 *
+	 * @return {string}
+	 * the string is not filtered
+	 */
 	protected function getMappedField( $field ) {
 		$result = null;
 
@@ -290,10 +317,12 @@ class UploadHandler {
 	}
 
 	/**
+	 * creates the wiki text for the media file page.
 	 * concatenates several pieces of information in order to create the wiki
-	 * text for the mediafile page
+	 * text for the mediafile wiki text
 	 *
 	 * @return {string}
+	 * except for the metadata, the resulting wiki text is filtered
 	 */
 	protected function getText() {
 		return
@@ -354,7 +383,6 @@ class UploadHandler {
 		$this->_File = null;
 		$this->_Mapping = null;
 		$this->_MediawikiTemplate = null;
-		$this->_MWApiClient = null;
 		$this->_SpecialPage = null;
 		$this->_UploadBase = null;
 
@@ -364,36 +392,10 @@ class UploadHandler {
 	}
 
 	/**
-	 * attempts to save the uploaded metadata file to the wiki as a file
-	 * using UploadBase
-	 * @return {null|string|Title}
-	 */
-	public function saveMetadataFile() {
-		$result = null;
-
-		// UploadBase requires that $_FILES array contains the uploaded file in the key wpUploadFile
-		$_FILES['wpUploadFile'] = $this->_File->original_file_array;
-
-		// UploadBase requires that the WebRequest is passed as variable
-		$WebRequest = $this->_SpecialPage->getRequest();
-
-		// UploadBase uses the $_POST['wpDestFile'] value as a proposed filename
-		$WebRequest->setVal( 'wpDestFile', $this->_File->pathinfo['filename'] . '-' . $this->_User->getName() );
-
-		$this->_UploadBase = UploadBase::createFromRequest( $WebRequest );
-		$Status = $this->uploadMetadataFile();
-
-		if ( !$Status->isGood() ) {
-			$this->_SpecialPage->getOutput()->parse( $Status->getWikiText() );
-		} else {
-			$result = $this->_UploadBase->getTitle();
-		}
-
-		return $result;
-	}
-
-	/**
 	 * attempts to save the uploaded metadata file to the wiki as content
+	 *
+	 * @todo does ContentHandler filter the $text?
+	 * @todo does WikiPage filter $summary?
 	 * @return {null|Title}
 	 */
 	public function saveMetadataFileAsContent() {
@@ -423,6 +425,8 @@ class UploadHandler {
 	 * controls the workflow for saving media files
 	 *
 	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
 	 * @return {null|Title}
 	 */
 	public function saveMediaFile( array &$user_options ) {
@@ -453,8 +457,10 @@ class UploadHandler {
 	}
 
 	/**
+	 * @todo does ContentHandler filter $options['text']?
+	 * @todo does WikiPage filter $options['comment']?
 	 * @param {array} $options
-	 * @throws Exception
+	 * @throws {Exception}
 	 * @return {Title}
 	 */
 	public function saveMediafileAsContent( array &$options ) {
@@ -466,7 +472,7 @@ class UploadHandler {
 		if ( !$Mediafile_Title->isKnown() ) {
 			$Status = $this->uploadMediaFileViaUploadFromUrl( $options );
 		} else {
-			if ( $this->user_options['upload-media'] ) {
+			if ( $this->user_options['upload-media'] === true ) {
 				// this will re-upload the mediafile, but will not change the page contents
 				$Status = $this->uploadMediaFileViaUploadFromUrl( $options );
 			}
@@ -524,6 +530,10 @@ class UploadHandler {
 	}
 
 	/**
+	 * @todo does UploadFromUrl filter $options['url_to_the_media_file']
+	 * @todo does UploadFromUrl filter $options['comment']
+	 * @todo does UploadFromUrl filter $options['text']
+	 *
 	 * @param {array} $options
 	 * @return {Status}
 	 */
@@ -575,6 +585,7 @@ class UploadHandler {
 	/**
 	 * @param {array} $options
 	 * @throws {Exception}
+	 * @return {void}
 	 */
 	protected function validatePageOptions( array &$options ) {
 		if ( empty( $options['title'] ) ) {
@@ -598,6 +609,7 @@ class UploadHandler {
 	/**
 	 * @param {array} $options
 	 * @throws {Exception}
+	 * @return {void}
 	 */
 	protected function validateUserOptions( array &$user_options ) {
 		if ( !isset( $user_options['comment'] ) ) {

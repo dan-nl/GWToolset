@@ -13,17 +13,17 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 class MetadataMappingSaveHandler extends AjaxHandler {
 
 	/**
-	 * @var GWToolset\Models\Mapping
+	 * @var {Mapping}
 	 */
 	protected $_Mapping;
 
 	/**
-	 * @var GWToolset\Models\MediawikiTemplate
+	 * a control method that processes a SpecialPage request
+	 * and returns a response, typically an html form
+	 *
+	 * @return {Status}
 	 */
-	protected $_MediawikiTemplate;
-
 	protected function processRequest() {
-		$result = json_encode( array( 'status' => 'failed' ) );
 		$mapping_result = false;
 
 		$this->_Mapping = new Mapping( new MappingPhpAdapter() );
@@ -40,8 +40,7 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 			)
 		);
 
-		$result = json_encode( $mapping_result );
-		return $result;
+		return $mapping_result;
 	}
 
 }

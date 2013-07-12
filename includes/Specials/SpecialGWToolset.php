@@ -8,6 +8,7 @@
  */
 namespace GWToolset;
 use Exception,
+	GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Models\Menu,
 	GWToolset\Helpers\WikiChecks,
 	Linker,
@@ -20,19 +21,30 @@ use Exception,
 class SpecialGWToolset extends SpecialPage {
 
 	/**
-	 * @var string
+	 * @var {string}
 	 */
 	public $module_key;
 
 	/**
-	 * @var GWToolset\HandlerInterface
+	 * @var {SpecialPageHandler}
 	 */
-	protected $Handler;
+	protected $_Handler;
 
-	protected $registered_modules = array(
-		'metadata-detect' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataDetectHandler', 'form' => '\GWToolset\Forms\MetadataDetectForm' ),
-		'metadata-mapping' => array( 'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler', 'form' => '\GWToolset\Forms\MetadataMappingForm' ),
-		'metadata-mapping-save' => array( 'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler' )
+	/**
+	 * @var {array}
+	 */
+	protected $_registered_modules = array(
+		'metadata-detect' => array(
+			'handler' => '\GWToolset\Handlers\Forms\MetadataDetectHandler',
+			'form' => '\GWToolset\Forms\MetadataDetectForm'
+		),
+		'metadata-mapping' => array(
+			'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler',
+			'form' => '\GWToolset\Forms\MetadataMappingForm'
+		),
+		'metadata-mapping-save' => array(
+			'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler'
+		)
 	);
 
 	/**
@@ -56,13 +68,21 @@ class SpecialGWToolset extends SpecialPage {
 		parent::__construct( Config::$special_page_name, Config::$restriction, Config::$listed );
 	}
 
+	/**
+	 * @return {string}
+	 */
 	public function getBackToFormLink() {
 		return '<span id="back-text"><noscript>'. wfMessage('gwtoolset-back-text')->escaped() . '</noscript>&nbsp;</span>';
 	}
 
 	/**
-	 * @throws PermissionsError | Exception
-	 * @return void
+	 * a control method that processes a SpecialPage request
+	 * and returns a response, typically an html form
+	 *
+	 * @throws {PermissionsError|Exception}
+	 *
+	 * @return {void}
+	 * SpecialPage>Output is used to take care of the response
 	 */
 	protected function processRequest() {
 		$html = null;
@@ -72,7 +92,7 @@ class SpecialGWToolset extends SpecialPage {
 				$html .=  wfMessage( 'gwtoolset-intro' )->parseAsBlock();
 			} else {
 				try {
-					$html .= $this->Handler->getHtmlForm( $this->registered_modules[$this->module_key] );
+					$html .= $this->_Handler->getHtmlForm( $this->_registered_modules[$this->module_key] );
 				} catch( Exception $e ) {
 					$html .=
 						wfMessage( 'gwtoolset-technical-error' )->parse() .
@@ -81,7 +101,7 @@ class SpecialGWToolset extends SpecialPage {
 			}
 		} else {
 			try {
-				if ( !( $this->Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
+				if ( !( $this->_Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
 					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->escaped() )->parse();
 					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
@@ -92,7 +112,7 @@ class SpecialGWToolset extends SpecialPage {
 					throw new Exception( $msg );
 				}
 
-				$html .= $this->Handler->execute();
+				$html .= $this->_Handler->execute();
 			} catch ( Exception $e ) {
 				if ( $e->getCode() == 1000 ) {
 					throw new PermissionsError( $e->getMessage() );
@@ -119,22 +139,25 @@ class SpecialGWToolset extends SpecialPage {
 		$this->getOutput()->addHtml( $html );
 	}
 
+	/**
+	 * @return {void}
+	 */
 	protected function setModuleAndHandler() {
 		$this->module_key = null;
 		$gwtoolset_form = $this->getRequest()->getVal( 'gwtoolset-form' );
 
-		if ( key_exists( $gwtoolset_form, $this->registered_modules ) ) {
+		if ( key_exists( $gwtoolset_form, $this->_registered_modules ) ) {
 			$this->module_key = $gwtoolset_form;
 		}
 
 		if ( $this->module_key !== null ) {
-			$handler = $this->registered_modules[ $this->module_key ]['handler'];
-			$this->Handler = new $handler( array( 'SpecialPage' => $this ) );
+			$handler = $this->_registered_modules[$this->module_key]['handler'];
+			$this->_Handler = new $handler( array( 'SpecialPage' => $this ) );
 		}
 	}
 
 	/**
-	 * @return boolean
+	 * @return {bool}
 	 */
 	protected function wikiChecks() {
 		try {
@@ -159,7 +182,11 @@ class SpecialGWToolset extends SpecialPage {
 
 
 	/**
-	 * SpecialPage entry point
+	 * entry point
+	 * a control method that acts as an entry point for the
+	 * SpecialPage and handles execution of the class methods
+	 *
+	 * @return {void}
 	 */
 	public function execute( $par ) {
 		set_error_handler('\GWToolset\handleError');

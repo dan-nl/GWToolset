@@ -15,17 +15,10 @@ use ErrorException,
 	RecursiveIteratorIterator;
 
 /**
- * @param array|object $var
- * @return string
- */
-function debugArray( $var ) {
-	return '<pre>' . print_r( $var, true ) . '</pre>';
-}
-
-
-/**
- * @param array $array
- * @return array
+ * @param {array} $array
+ *
+ * @return {array}
+ * the array keys and values are not filtered
  */
 function getArraySecondLevelValues( array $array = array() ) {
 	if ( empty( $array ) ) {
@@ -43,21 +36,12 @@ function getArraySecondLevelValues( array $array = array() ) {
 	return $values;
 }
 
-// array( 'debug-on' => ( ini_get('display_errors') && $this->_User->isAllowed( 'gwtoolset-debug' ) ) )
-// don't use this method right now, it's needs some re-work so that it uses
-// MWHttpRequest instead of Php\Curl
-function getMWApiClient( array $curl_options = array() ) {
-	echo'<pre>do not use this method until it has been re-factored to use MWHttpRequest instead of Php\Curl';
-	print_r( debug_backtrace() );
-	die();
-	global $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword;
-	$MWApiClient = new Client( $wgGWToolsetApiEndpoint, $wgGWToolsetApiUser, $curl_options );
-	$MWApiClient->login( $wgGWToolsetApiUser, $wgGWToolsetApiUserPassword );
-	$MWApiClient->debug_html .= '<b>API Client - Logged in</b><br />' . '<pre>' . print_r( $MWApiClient->Login, true ) . '</pre>';
-	return $MWApiClient;
-}
-
-// @see http://www.shawnstratton.info/in_array-not-recursive/
+/**
+ * @see http://www.shawnstratton.info/in_array-not-recursive/
+ * @param {mixed} $needle
+ * @param {array} $haystack
+ * @param {bool} $strict
+ */
 function in_array_r( $needle, $haystack, $strict = false ) {
 	$array = new RecursiveIteratorIterator( new RecursiveArrayIterator( $haystack ) );
 
@@ -76,10 +60,18 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 	return false;
 }
 
+/**
+ * wfSuppressWarnings() lowers the error_reporting threshold because the
+ * script that follows it is “allowed” to produce warnings,	thus, only
+ * handle errors this way when error_reporting is set to >= E_ALL
+ *
+ * @param {int} $errno
+ * @param {string} $errstr
+ * @param {string} $errfile
+ * @param {int} $errline
+ * @param {array} $errcontext
+ */
 function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
-	// wfSuppressWarnings() lowers the error_reporting threshold because the
-	// script that follows it is “allowed” to produce warnings,	thus, only
-	// handle errors this way when error_reporting is set to >= E_ALL
 	if ( ini_get('display_errors') && error_reporting() >= E_ALL ) {
 		$errormsg =
 			'<pre style="overflow:auto;">' .

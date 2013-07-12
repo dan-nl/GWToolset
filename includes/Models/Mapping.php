@@ -18,7 +18,7 @@ use Exception,
 class Mapping implements ModelInterface {
 
 	/**
-	 * @var array
+	 * @var {array}
 	 */
 	public $mapping_array;
 
@@ -33,7 +33,7 @@ class Mapping implements ModelInterface {
 	public $mediawiki_template_name;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * an array to be used for quick look-up of target dom elements to be
 	 * used in the metadata for mapping to the mediawiki template; avoids
 	 * the necessity of recursive look-up in the mapping array
@@ -41,17 +41,21 @@ class Mapping implements ModelInterface {
 	public $target_dom_elements;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * holds an array of metadata dom elements mapped to their corresponding
 	 * mediawiki template parameters
 	 */
 	public $target_dom_elements_mapped;
 
 	/**
-	 * @var GWToolset\Adapters\DataAdapterInterface
+	 * @var {DataAdapterInterface}
 	 */
 	protected $_DataAdapater;
 
+	/**
+	 * @param {DataAdapterInterface} $DataAdapter
+	 * @return {void}
+	 */
 	public function __construct( DataAdapterInterface $DataAdapter ) {
 		$this->reset();
 		$this->_DataAdapater = $DataAdapter;
@@ -59,6 +63,7 @@ class Mapping implements ModelInterface {
 
 	/**
 	 * @params {array} $options
+	 * @return {Status}
 	 */
 	public function create( array $options = array() ) {
 		return $this->_DataAdapater->create( $options );
@@ -70,7 +75,9 @@ class Mapping implements ModelInterface {
 	 * @todo: sanitize the mapping_array created
 	 *
 	 * @param {array} $options
+	 *
 	 * @return {array}
+	 * the keys and values within the array are not filtered
 	 */
 	public function getJsonAsArray( array &$options = array() ) {
 		$error_msg = null;
@@ -122,10 +129,14 @@ class Mapping implements ModelInterface {
 	}
 
 	/**
-	 * relies on a hardcoded path concept to the metadata mapping url
+	 * relies on a hardcoded path to the metadata mapping url
 	 *
 	 * @param {array} $options
+	 *
+	 * @throws {Exception}
+	 *
 	 * @return {string}
+	 * the string is not filtered
 	 */
 	protected function getMappingName( array $options ) {
 		$result = null;
@@ -147,7 +158,7 @@ class Mapping implements ModelInterface {
 				$msg =
 					wfMessage( 'gwtoolset-metadata-mapping-invalid-url' )->rawParams(
 						Filter::evaluate( $options['metadata-mapping-url'] ),
-						Config::$metadata_namespace . Config::$metadata_mapping_subdirectory . '/user-name/file-name.json'
+						Filter::evaluate( Config::$metadata_namespace ) . Filter::evaluate( Config::$metadata_mapping_subdirectory ) . '/user-name/file-name.json'
 					)->escaped();
 
 				throw new Exception( $msg );
@@ -182,7 +193,6 @@ class Mapping implements ModelInterface {
 
 	/**
 	 * @param {array} $options
-	 * @throws Exception
 	 * @return {void}
 	 */
 	protected function populate( array &$options ) {
@@ -190,13 +200,24 @@ class Mapping implements ModelInterface {
 			return;
 		}
 
-		$this->mediawiki_template_name = isset( $options['mediawiki-template-name'] ) ? $options['mediawiki-template-name'] : null;
-		$this->mapping_json = isset( $options['metadata-mapping-json'] ) ? $options['metadata-mapping-json'] : null;
+		$this->mediawiki_template_name =
+			isset( $options['mediawiki-template-name'] )
+			? $options['mediawiki-template-name']
+			: null;
+
+		$this->mapping_json =
+			isset( $options['metadata-mapping-json'] )
+			? $options['metadata-mapping-json']
+			: null;
+
 		$this->mapping_array = $this->getJsonAsArray( $options );
 		$this->setTargetElements();
 		$this->reverseMap();
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function reset() {
 		$this->mapping_array = array();
 		$this->mapping_json = null;
@@ -210,7 +231,7 @@ class Mapping implements ModelInterface {
 	 * @param {array} $options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws Exception
+	 * @throws {Exception}
 	 * @return {void}
 	 */
 	public function retrieve( array &$options = array() ) {
@@ -223,6 +244,9 @@ class Mapping implements ModelInterface {
 		}
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function reverseMap() {
 		foreach( $this->target_dom_elements as $element ) {
 			foreach( $this->mapping_array as $mediawiki_parameter => $target_dom_elements ) {
@@ -233,6 +257,9 @@ class Mapping implements ModelInterface {
 		}
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function setTargetElements() {
 		foreach( $this->mapping_array as $key => $value ) {
 			foreach( $value as $item ) {

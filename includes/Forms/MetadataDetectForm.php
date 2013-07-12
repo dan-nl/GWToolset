@@ -12,14 +12,19 @@ use GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Models\MediawikiTemplate,
 	Linker,
+	Php\Filter,
 	SpecialPage,
 	Title;
 
 class MetadataDetectForm {
 
 	/**
-	 * @todo: mediawiki templates need to come from a config setting or
-	 * dynamic algorithm that indiactes which mw templates are accepted
+	 * returns an html form for step 1 : Metadata Detect
+	 *
+	 * @param {SpecialPage} $SpecialPage
+	 *
+	 * @return {string}
+	 * an html form
 	 */
 	public static function getForm( SpecialPage $SpecialPage ) {
 		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
@@ -35,32 +40,34 @@ class MetadataDetectForm {
 
 					'<input type="hidden" name="gwtoolset-form" value="metadata-detect"/>' .
 					'<input type="hidden" name="wpEditToken" value="' . $SpecialPage->getUser()->getEditToken() . '">' .
-					'<input type="hidden" name="MAX_FILE_SIZE" value="' . FileChecks::gwToolsetMaxUploadSize() . '">' .
+					'<input type="hidden" name="MAX_FILE_SIZE" value="' . FileChecks::getMaxUploadSize() . '">' .
 
 					'<ol>' .
 
 						'<li>' .
-							'<p><label>' .
+							'<label>' .
 								wfMessage( 'gwtoolset-record-element-name' )->escaped() .
 								'<input type="text" name="record-element-name" value="" placeholder="record"/>' .
-							'</label> <span class="required">*</span></p>' .
+							'</label>' .
+							' <span class="required">*</span>' .
 						'</li>' .
 
 						'<li>' .
-							'<p><label>' .
-								wfMessage( 'gwtoolset-which-mediawiki-template' )->escaped() .
+								'<label>' .
+									wfMessage( 'gwtoolset-which-mediawiki-template' )->escaped() .
 									$MediawikiTemplate->getTemplatesAsSelect( 'mediawiki-template-name' ) .
-							'</label> <span class="required">*</span></p>' .
+								'</label>' .
+								' <span class="required">*</span>' .
 						'</li>' .
 
 						'<li>' .
 								'<label>' .
 									wfMessage( 'gwtoolset-which-metadata-mapping' )->escaped() .
-									'<input type="text" name="metadata-mapping-url" value="" placeholder="' . Config::$metadata_namespace . Config::$metadata_mapping_subdirectory . '/User-name/mapping-name.json" class="gwtoolset-url-input"/>' .
+									'<input type="text" name="metadata-mapping-url" value="" placeholder="' . Filter::evaluate( Config::$metadata_namespace ) . Filter::evaluate( Config::$metadata_mapping_subdirectory ) . '/User-name/mapping-name.json" class="gwtoolset-url-input"/>' .
 								'</label><br />' .
 								Linker::link(
 									Title::newFromText( 'Special:PrefixIndex/' . Config::$metadata_namespace . Config::$metadata_mapping_subdirectory ),
-									Config::$metadata_namespace . Config::$metadata_mapping_subdirectory,
+									Filter::evaluate( Config::$metadata_namespace ) . Filter::evaluate( Config::$metadata_mapping_subdirectory ),
 									array( 'target' => '_blank' )
 								) .
 						'</li>' .
@@ -77,7 +84,7 @@ class MetadataDetectForm {
 									'</label><br />' .
 									Linker::link(
 										Title::newFromText( 'Special:PrefixIndex/' . Config::$metadata_namespace . Config::$metadata_sets_subdirectory ),
-										Config::$metadata_namespace . Config::$metadata_sets_subdirectory,
+										Filter::evaluate( Config::$metadata_namespace ) . Filter::evaluate( Config::$metadata_sets_subdirectory ),
 										array( 'target' => '_blank' )
 									) .
 								'</li>' .
@@ -90,7 +97,7 @@ class MetadataDetectForm {
 
 									'<i>' .
 										wfMessage( 'gwtoolset-accepted-file-types' )->escaped() . ' ' . FileChecks::getAcceptedExtensionsAsList( Config::$accepted_metadata_types ) . '<br />' .
-										wfMessage( 'upload-maxfilesize' )->params( number_format( FileChecks::gwToolsetMaxUploadSize() / 1024 ) )->escaped() . ' kilobytes' .
+										wfMessage( 'upload-maxfilesize' )->params( number_format( FileChecks::getMaxUploadSize() / 1024 ) )->escaped() . ' kilobytes' .
 									'</i>' .
 								'</li>' .
 							'</ul>' .

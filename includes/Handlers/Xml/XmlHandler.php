@@ -93,6 +93,7 @@ abstract class XmlHandler {
 	 * @throws Exception
 	 *
 	 * @return {string}
+	 * @deprecated should not be used at the moment, possible future use
 	 */
 	protected function readXmlAsFile( array &$user_options, $file_path_local = null, $callback = null ) {
 		$result = null;
@@ -126,9 +127,11 @@ abstract class XmlHandler {
 	}
 
 	/**
-	 * reads an xml string and sends the nodes to other methods via the $callback
-	 * to process the xml. allows for the reading to be stopped
-	 * if the $callback method returns true to the $stop_reading variable
+	 * reads an xml string and sends the nodes to other methods
+	 * via the $callback to process the them.
+	 *
+	 * allows for the reading to be stopped if the $callback
+	 * method returns $read_result['stop-reading'] = true
 	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
@@ -153,14 +156,19 @@ abstract class XmlHandler {
 	 *
 	 * @throws Exception
 	 *
-	 * @return {string}
+	 * @return {array}
+	 * an array of mediafile Title(s)
 	 */
 	protected function readXmlAsString( array &$user_options, $xml_source = null, &$callback = null ) {
-		$result = null;
-		$read_result = array( 'msg' => null, 'stop-reading' => false );
+		$mediafile_titles = array();
+		$read_result = array( 'Title' => null, 'stop-reading' => false );
 
 		if ( empty( $callback ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-callback' )->escaped() )->parse() );
+			throw new Exception(
+				wfMessage( 'gwtoolset-developer-issue' )->params(
+					wfMessage( 'gwtoolset-no-callback' )->escaped()
+				)->parse()
+			);
 		}
 
 		libxml_use_internal_errors( true );
@@ -171,28 +179,37 @@ abstract class XmlHandler {
 		$errors = libxml_get_errors();
 
 		if ( !empty( $errors ) ) {
-			$msg = wfMessage('gwtoolset-xml-error')->escaped() . '<pre style="overflow:auto;">' . print_r( $errors, true ) . '</pre>';
-			throw new Exception( $msg );
+			throw new Exception(
+				wfMessage('gwtoolset-xml-error')->escaped() .
+				'<pre style="overflow:auto;">' .
+					print_r( $errors, true ) .
+				'</pre>'
+			);
 		}
 
 		$DOMXPath = new DOMXPath( $DOMDoc );
 		$DOMNodeList = $DOMXPath->query( '//' . Filter::evaluate( $user_options['record-element-name'] ) );
 
 		if ( $DOMNodeList->length < 1 ) {
-			$msg = wfMessage('gwtoolset-no-xml-element-found')->parse() . PHP_EOL . $this->_SpecialPage->getBackToFormLink();
-			throw new Exception( $msg );
+			throw new Exception(
+				wfMessage('gwtoolset-no-xml-element-found')->parse() . PHP_EOL .
+				$this->_SpecialPage->getBackToFormLink()
+			);
 		}
 
 		foreach( $DOMNodeList as $DOMNode ) {
 			$read_result = $this->$callback( $DOMNode, $user_options );
-			$result .= $read_result['msg'];
+
+			if ( !empty( $read_result['Title'] ) ) {
+				$mediafile_titles[] = $read_result['Title'];
+			}
 
 			if ( $read_result['stop-reading'] ) {
 				break;
 			}
 		}
 
-		return $result;
+		return $mediafile_titles;
 	}
 
 }

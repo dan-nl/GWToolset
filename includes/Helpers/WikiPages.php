@@ -53,8 +53,11 @@ class WikiPages {
 	 * contain namespaces or paths
 	 *
 	 * @param {string} $title
+	 *
 	 * @param {string} $replacement
+	 *
 	 * @return {string}
+	 * the string is not filtered
 	 *
 	 * @see https://commons.wikimedia.org/wiki/Commons:File_naming
 	 * @see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)

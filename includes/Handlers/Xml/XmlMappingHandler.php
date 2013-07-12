@@ -12,6 +12,7 @@ use Content,
 	DOMElement,
 	Exception,
 	GWToolset\Config,
+	GWToolset\Handlers\Forms\MetadataMappingHandler,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	Php\Filter,
@@ -20,25 +21,29 @@ use Content,
 class XmlMappingHandler extends XmlHandler {
 
 	/**
-	 * @var GWToolset\Models\Mapping
+	 * @var {Mapping}
 	 */
 	protected $_Mapping;
 
 	/**
-	 * @var GWToolset\Models\Mapping
+	 * @var {MetadataMappingHandler}
 	 */
 	protected $_MappingHandler;
 
 	/**
-	 * @var GWToolset\Models\MediawikiTemplate
+	 * @var {MediawikiTemplate}
 	 */
 	protected $_MediawikiTemplate;
 
 	/**
-	 * @var SpecialPage
+	 * @var {SpecialPage}
 	 */
 	protected $_SpecialPage;
 
+	/**
+	 * @param {array} $options
+	 * @return {void}
+	 */
 	public function __construct( array $options = array() ) {
 		$this->reset();
 
@@ -60,9 +65,10 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 	/**
-	 * takes in a metadata dom element that represents a targeted record within the
-	 * metadata that will be saved/updated in the wiki as a wiki page and maps
-	 * it to the mediawiki template using $this->_Mapping provided to the class
+	 * takes in a metadata dom element that represents a targeted
+	 * record within the metadata that will be saved/updated in the
+	 * wiki as a wiki page and maps it to the mediawiki template
+	 * using $this->_Mapping provided to the class
 	 *
 	 * allows for a one -> many relationship
 	 * one mediawiki template parameter -> many dom elements
@@ -73,9 +79,12 @@ class XmlMappingHandler extends XmlHandler {
 	 * uses getElementsByTagName to avoid getElementsByTagNameNS as logic for
 	 * getting the NS is not always straightforward
 	 *
-	 * @param DOMELement $DOMElement
+	 * @todo possibly filter keys and values
 	 *
-	 * @return array
+	 * @param {DOMELement} $DOMElement
+	 *
+	 * @return {array}
+	 * the keys and values in the array have not been filtered
 	 * an array that maps mediawiki template parameters to the metadata record
 	 * values provided by the DOMElement
 	 */
@@ -129,9 +138,14 @@ class XmlMappingHandler extends XmlHandler {
 						// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
 						} elseif ( 'url_to_the_media_file' != $template_parameter )  {
 
-							// if a template_parameter has some elements with a lang attribute and some not, the non
-							// lang attribute versions need their own array element
-							// isset( $elements_mapped[ $template_parameter ][ 'language ] ) doesn't work here
+							/**
+							 * if a template_parameter has some elements with a lang attribute
+							 * and some not, the non lang attribute versions need their own
+							 * array element
+							 *
+							 * isset( $elements_mapped[ $template_parameter ][ 'language ] )
+							 * doesn't work here
+							 */
 							if ( is_array( $elements_mapped[ $template_parameter ] )
 								&& array_key_exists( 'language', $elements_mapped[ $template_parameter ] )
 							) {
@@ -154,11 +168,11 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 	/**
-	 * @param DOMElement $DOMNodeElement
-	 * @param boolean $is_url
+	 * @param {DOMElement} $DOMNodeElement
+	 * @param {bool} $is_url
 	 *
-	 * @return string
-	 * a filtered DOMNodeElementValue
+	 * @return {string}
+	 * the string has been filtered
 	 */
 	protected function getFilteredNodeValue( DOMElement &$DOMNodeElement, $is_url = false ) {
 		$result = null;
@@ -178,32 +192,37 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 	/**
-	 * using an xml reader, for stream reading of the xml file, find dom elements
-	 * that match the metadata record element indicated by the user form,
+	 * find dom elements in the $XMLElement provided that match the
+	 * metadata record element indicated by original $_POST,
 	 * $user_options['record-element-name']
 	 *
 	 * each matched metadata record, is sent to
-	 * $this->_MappingHandler->processMatchingElement( $user_options ) to be saved as a new
-	 * wiki page or to update an existing wiki page for the record
+	 * $this->_MappingHandler->processMatchingElement()
+	 * to be saved as a new mediafile in the wiki or to update
+	 * an existing mediafile in the wiki
 	 *
-	 * @param {XMLReader} $xml_reader
+	 * @param {XMLReader|DOMElement} $xml_source
 	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws Exception
+	 * @throws {Exception}
 	 *
 	 * @return {array}
-	 * - $result['msg'] {string}
+	 * - $result['Title'] {Title}
 	 * - $result['stop-reading'] {boolean}
 	 */
 	protected function processDOMElements( $XMLElement, array &$user_options ) {
-		$result = array( 'msg' => null, 'stop-reading' => false );
+		$result = array( 'Title' => null, 'stop-reading' => false );
 		$record = null;
 		$outer_xml = null;
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage('gwtoolset-no-xmlelement')->escaped() )->parse() );
+			throw new Exception(
+				wfMessage('gwtoolset-developer-issue')->params(
+					wfMessage('gwtoolset-no-xmlelement')->escaped()
+				)->parse()
+			);
 		}
 
 		if ( !isset( $user_options['record-element-name'] )
@@ -242,8 +261,7 @@ class XmlMappingHandler extends XmlHandler {
 						break;
 					}
 
-					$result['msg'] = $this->_MappingHandler->processMatchingElement( $user_options, $this->getDOMElementMapped( $record ), $outer_xml );
-					$result['msg'] = '<ul>' . $result['msg'] . '</ul>';
+					$result['Title'] = $this->_MappingHandler->processMatchingElement( $user_options, $this->getDOMElementMapped( $record ), $outer_xml );
 				}
 
 				break;
@@ -253,35 +271,40 @@ class XmlMappingHandler extends XmlHandler {
 	}
 
 	/**
-	 * a control method for retrieving dom elements from a metadata xml source.
-	 * the dom elements will be used for creating mediafile records
+	 * a control method for retrieving dom elements from an xml metadata
+	 * source. the dom elements will be used for creating mediafile
+	 * Titles in the wiki.
 	 *
 	 * @param {array} $user_options
-	 * an array of user options that was submitted in the html form
+	 * an array of user options that was submitted in the original $_POST
 	 *
 	 * @param {string|Content} $xml_source
 	 * a local wiki path to the xml metadata file or a local wiki Content source.
 	 * the assumption is that it has already been uploaded to the wiki earlier and
 	 * is ready for use
 	 *
-	 * @throws Exception
-	 * @return void
+	 * @throws {Exception}
+	 * @return {array}
+	 * an array of mediafile Title(s)
 	 */
 	public function processXml( array &$user_options, &$xml_source = null ) {
-		$result = wfMessage('gwtoolset-results')->parse();
+		$mediafile_titles = null;
 		$callback = 'processDOMElements';
 
 		if ( !( $xml_source instanceof Content ) ) {
-			$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xml-source' )->escaped() )->parse();
-			throw new Exception( $msg );
+			throw new Exception(
+				wfMessage( 'gwtoolset-developer-issue' )->params(
+					wfMessage( 'gwtoolset-no-xml-source' )->escaped()
+				)->parse()
+			);
 		}
 
-		$result .= $this->readXmlAsString( $user_options, $xml_source->getNativeData(), $callback );
-		//$this->readXmlAsFile( $user_options, $file_path_local, 'processDOMElements' );
-
-		return $result;
+		return $this->readXmlAsString( $user_options, $xml_source->getNativeData(), $callback );
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function reset() {
 		$this->_Mapping = null;
 		$this->_MappingHandler = null;

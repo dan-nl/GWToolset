@@ -13,28 +13,31 @@ use DatabaseUpdater,
 abstract class DbAdapterAbstract implements DataAdapterInterface {
 
 	/**
-	 * @var DatabaseBase
+	 * @var {DatabaseBase}
 	 */
 	protected $dbr;
 
 	/**
-	 * @var DatabaseBase
+	 * @var {DatabaseBase}
 	 */
 	protected $dbw;
 
 	/**
-	 * @var string table associated with this object
+	 * @var {string}
+	 * table associated with this object
 	 */
 	protected $table_name;
 
 	/**
-	 * @var string path to the table create sql file
+	 * @var {string}
+	 * path to the table create sql file
 	 */
 	protected $table_create_sql;
 
 	/**
 	 * @param string $table_name
 	 * @param string $table_create_sql filename containing the create table sql statements
+	 * @return {void}
 	 */
 	public function __construct( $table_name ) {
 		$this->reset();
@@ -48,13 +51,20 @@ abstract class DbAdapterAbstract implements DataAdapterInterface {
 	 */
 	abstract public function getKeys();
 
-	public function createTable( DatabaseUpdater &$updater ) {
+	/**
+	 * @param {DatabaseAdapter} $updater
+	 * @return {void}
+	 */
+	public function createTable( DatabaseUpdater $updater ) {
 		$updater->addExtensionTable(
 			$this->table_name,
 			$this->table_create_sql
 		);
 	}
 
+	/**
+	 * @return {void}
+	 */
 	protected function setTableCreateSql() {
 		global $wgGWToolsetDir;
 
@@ -64,6 +74,9 @@ abstract class DbAdapterAbstract implements DataAdapterInterface {
 			'table-create-' . str_replace( '_', '-', $this->table_name ) . '.sql';
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function reset() {
 		$this->dbr = \wfGetDB( DB_SLAVE );
 		$this->dbw = \wfGetDB( DB_MASTER );

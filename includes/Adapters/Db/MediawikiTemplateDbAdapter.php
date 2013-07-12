@@ -7,10 +7,15 @@
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Adapters\Db;
-use Php\Filter;
+use Php\Filter,
+	ResultWrapper;
 
 class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 
+	/**
+	 * @param {string} $table_name
+	 * @return {void}
+	 */
 	public function __construct( $table_name = 'gwtoolset_mediawiki_templates' ) {
 		parent::__construct( $table_name );
 	}
@@ -41,6 +46,10 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 
 	public function create( array $options = array() ) {}
 
+	/**
+	 * @param {array} $options
+	 * @return {ResultWrapper}
+	 */
 	public function retrieve( array $options = array() ) {
 		return $this->dbr->select(
 			Filter::evaluate( $this->table_name ),

@@ -61,8 +61,10 @@ class MappingPhpAdapter implements DataAdapterInterface {
 	public function delete( array $options = array() ) {}
 
 	/**
+	 * @todo is the content returned by the WikiPage filtered?
 	 * @param {array} $options
-	 * @return {string} the content of the wikipage referred to by the wiki title
+	 * @return {string}
+	 * the content of the wikipage referred to by the wiki title
 	 */
 	public function retrieve( array $options = array() ) {
 		$result = null;
@@ -83,6 +85,8 @@ class MappingPhpAdapter implements DataAdapterInterface {
 	/**
 	 * attempts to save the mapping to the wiki as content
 	 *
+	 * @todo does ContentHandler filter $options['text']
+	 * @todo does ContentHandler filter $options['summary']
 	 * @todo figure out issue with the db ErrorException
 	 *    Transaction idle or pre-commit callbacks still pending.
 	 *    triggered by $db->__destruct because there is a mTrxIdleCallbacks waiting

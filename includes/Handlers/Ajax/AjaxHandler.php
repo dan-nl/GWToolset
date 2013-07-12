@@ -9,28 +9,38 @@
 namespace GWToolset\Handlers\Ajax;
 use Exception,
 	GWToolset\Handlers\SpecialPageHandler,
-	GWToolset\Helpers\WikiChecks;
+	GWToolset\Helpers\WikiChecks,
+	Status;
 
 abstract class AjaxHandler extends SpecialPageHandler {
 
-	public function getHtmlForm( $module_name = null ) {
-		header('Content-Type: application/json; charset=utf-8');
-		echo '{}';
-		exit();
-	}
+	/**
+	 * gets an html form.
+	 * not needed in this class
+	 *
+	 * @return {void}
+	 */
+	public function getHtmlForm() {}
 
+	/**
+	 * entry point
+	 * a control method that acts as an entry point for the
+	 * SpecialPageHandler and handles execution of the class methods
+	 *
+	 * @return {void}
+	 */
 	public function execute() {
-		$result = null;
+		$result = '{}';
 
 		try {
 			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
-			$result .= $this->processRequest();
+			$result = $this->processRequest();
 		} catch ( Exception $e ) {
-			$result .=  '{ "status" : "error", "message" : "' . $e->getMessage() . '" }';
+			$result = Status::newFatal( $e->getMessage() );
 		}
 
 		header('Content-Type: application/json; charset=utf-8');
-		echo $result;
+		echo json_encode( $result );
 		exit();
 	}
 

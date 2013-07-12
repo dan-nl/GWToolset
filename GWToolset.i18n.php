@@ -4,7 +4,6 @@
  *
  * @file
  * @ingroup Extensions
- * @version 0.0.1
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 /**
@@ -104,13 +103,13 @@ $messages['en'] = array(
 	/**
 	 * json
 	 */
-	'gwtoolset-json-error-none' => 'No errors.',
-	'gwtoolset-json-error-depth' => 'Maximum stack depth exceeded.',
-	'gwtoolset-json-error-state-mismatch' => 'Underflow or the modes mismatch.',
 	'gwtoolset-json-error-ctrl-char' => 'Unexpected control character found.',
+	'gwtoolset-json-error-depth' => 'Maximum stack depth exceeded.',
+	'gwtoolset-json-error-none' => 'No errors.',
+	'gwtoolset-json-error-state-mismatch' => 'Underflow or the modes mismatch.',
 	'gwtoolset-json-error-syntax' => 'Syntax error, malformed JSON.',
-	'gwtoolset-json-error-utf8' => 'Malformed UTF-8 characters, possibly incorrectly encoded.',
 	'gwtoolset-json-error-unknown' => 'Unknown error.',
+	'gwtoolset-json-error-utf8' => 'Malformed UTF-8 characters, possibly incorrectly encoded.',
 
 	/**
 	 * step 1 - metadata detect
@@ -166,11 +165,11 @@ $messages['en'] = array(
 	'gwtoolset-step-2' => 'Step 2 : Metadata Mapping',
 	'gwtoolset-step-2-heading' => '== Step 2 : Metadata Mapping ==',
 	'gwtoolset-step-2-instructions' => '==== Mapping the metadata fields ====' . PHP_EOL . 'Below is/are :' . PHP_EOL . '* a list of the fields in the MediaWiki $1' . PHP_EOL . '* drop-down fields that represent the metadata fields found in the metadata file' . PHP_EOL . '* a sample record from the metadata file' . PHP_EOL . "'''In this step you need to map the metadata fields with the MediaWiki template fields.'''" . PHP_EOL . '# select a metadata field under the ‘maps to’ column that corresponds with MediaWiki template field under the ‘template field’ column.' . PHP_EOL . '# you do not need to provide a match for every Mediawiki template field.',
-	'gwtoolset-template-field' => 'template field',
 	'gwtoolset-reupload-media' => 're-upload media from url',
 	'gwtoolset-reupload-media-explanation' => 'this check box allows you to re-upload media for an item that has already been uploaded to the wiki. if the item already exists, an additional media file will be added to the wiki. if the media file does not yet exist, it will be uploaded whether this checkbox is checked or not.',
 	'gwtoolset-specific-categories' => 'Item Specific Categories',
 	'gwtoolset-specific-tooltip' => 'Using the following fields you can apply a phrase (optional) plus a metadata field as the category entry for each individual uploaded item. For example, if the metadata file contains an element for the artist of each record, you could add that as a category entry for each record that would change to the value specific to each record. You could also add a phrase such as “<i>Painted by</i>” and then the artist metadata field, which would yield “<i>Painted by &lt;artist name></i>” as the category for each record.',
+	'gwtoolset-template-field' => 'template field',
 
 	/**
 	 * step 3 - batch preview
@@ -219,7 +218,12 @@ $messages['qqq'] = array(
 	/**
 	 * developer issues
 	 */
+	'gwtoolset-could-not-close-xml' => 'hint to the developer that appears when could not close the XMLReader',
+	'gwtoolset-could-not-open-xml' => 'hint to the developer that appears when could not open the XML File for reading',
 	'gwtoolset-developer-issue' => "a user-friendly message that lets the user know that something went wrong that a developer will need to fix. the single parameter takes a message that explains a bit more to the developer what the issue may be.",
+	'gwtoolset-dom-record-issue' => 'hint to the developer that appears when record-element-name, or record-count not provided',
+	'gwtoolset-ignorewarnings' => 'hint to the developer that appears when ignorewarnings not set',
+	'gwtoolset-no-accepted-types' => 'hint to the developer that appears when No accepted types are provided',
 	'gwtoolset-no-callback' => 'hint to the developer that appears when no callback is given',
 	'gwtoolset-no-comment' => "hint to the developer that appears when user_options['comment'] is not set",
 	'gwtoolset-no-file-url' => 'hint to the developer that appears when no file_url is provided to parse',
@@ -238,46 +242,41 @@ $messages['qqq'] = array(
 	'gwtoolset-no-user' => 'hint to the developer that appears when no user object is provided',
 	'gwtoolset-no-xmlelement' => 'hint to the developer that appears when no XMLReader or DOMElement is provided',
 	'gwtoolset-no-xml-source' => 'hint to the developer that appears when no local xml source was given',
-	'gwtoolset-ignorewarnings' => 'hint to the developer that appears when ignorewarnings not set',
-	'gwtoolset-dom-record-issue' => 'hint to the developer that appears when record-element-name, or record-count not provided',
-	'gwtoolset-could-not-open-xml' => 'hint to the developer that appears when could not open the XML File for reading',
-	'gwtoolset-could-not-close-xml' => 'hint to the developer that appears when could not close the XMLReader',
-	'gwtoolset-no-accepted-types' => 'hint to the developer that appears when No accepted types are provided',
 
 	/**
 	 * file checks
 	 */
+	'gwtoolset-disk-write-failure' => 'user error message that appears when the uploaded file Failed to write file to disk.',
+	'gwtoolset-file-is-empty' => 'user error message that appears when The uploaded file is empty.',
 	'gwtoolset-improper-upload' => 'user error message that appears when a File was not uploaded properly.',
-	'gwtoolset-unaccepted-extension' => 'user error message that appears when The uploaded file does not contain an accepted file extension.',
-	'gwtoolset-unaccepted-extension-specific' => "user error message that appears when The uploaded file has an unaccepted file extension. the parameter is the extension found.",
+	'gwtoolset-mime-type-mismatch' => 'user error message that appears when The uploaded file’s extension and mime-type do not match. parameter 1 is the extension and parameter 2 is the mime-type detected',
+	'gwtoolset-missing-temp-folder' => 'user error message that appears when the wiki cannot find a temporary folder for file uploads.',
+	'gwtoolset-no-file' => 'user error message that appears when No file was received.',
 	'gwtoolset-over-max-ini' => 'user error message that appears when The uploaded file exceeds the upload_max_filesize directive in php.ini.',
 	'gwtoolset-over-max-file-size' => 'user error message that appears when The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
 	'gwtoolset-partial-upload' => 'user error message that appears when The uploaded file was only partially uploaded.',
-	'gwtoolset-no-file' => 'user error message that appears when No file was received.',
-	'gwtoolset-missing-temp-folder' => 'user error message that appears when the wiki cannot find a temporary folder for file uploads.',
-	'gwtoolset-disk-write-failure' => 'user error message that appears when the uploaded file Failed to write file to disk.',
 	'gwtoolset-php-extension-error' => 'user error message that appears when A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.',
+	'gwtoolset-unaccepted-extension' => 'user error message that appears when The uploaded file does not contain an accepted file extension.',
+	'gwtoolset-unaccepted-extension-specific' => "user error message that appears when The uploaded file has an unaccepted file extension. the parameter is the extension found.",
 	'gwtoolset-unaccepted-mime-type' => 'user error message that appears when the mime type of the file is not accepted. the parameter is the interpreted mime type.',
 	'gwtoolset-unaccepted-mime-type-for-xml' => 'user error message that appears when the mime type of the file is not accepted. the parameter is the interpreted mime type. in this case the xml file may not have an xml declaration at the top of the file',
-	'gwtoolset-file-is-empty' => 'user error message that appears when The uploaded file is empty.',
-	'gwtoolset-mime-type-mismatch' => 'user error message that appears when The uploaded file’s extension and mime-type do not match. parameter 1 is the extension and parameter 2 is the mime-type detected',
 
 	/**
 	 * general form
 	 */
+	'gwtoolset-back-link-option' => 'message to the user to ⬅ go back to the form',
+	'gwtoolset-back-text' => 'message to the user to Press the browser back button to go back to the form',
+	'gwtoolset-file-interpretation-error' => 'heading that appears when There was a problem interpreting the metadata file',
 	'gwtoolset-metadata-user-options-error' => 'initial paragraph that notifies the user that there are form fields missing. the specific form fields that are missing are mentioned separately',
 	'gwtoolset-metadata-invalid-template' => 'appears when No valid WikiMedia Template found',
 	'gwtoolset-mediawiki-template' => 'heading used on the mapping page. the parameter is filled in with the wiki template name that will be used for mapping the metadata to the wiki template',
-	'gwtoolset-technical-error' => 'heading for error messages of a technical nature',
-	'gwtoolset-no-form' => 'appears when There is no form for this module',
-	'gwtoolset-required-field' => ' denotes required field',
-	'gwtoolset-revised' => 'appears when a wiki page has been revised',
-	'gwtoolset-no-change' => 'appears when there has been no change to a wiki page',
-	'gwtoolset-back-text' => 'message to the user to Press the browser back button to go back to the form',
-	'gwtoolset-back-link-option' => 'message to the user to ⬅ go back to the form',
-	'gwtoolset-file-interpretation-error' => 'heading that appears when There was a problem interpreting the metadata file',
 	'gwtoolset-menu' => 'the extension menu list',
 	'gwtoolset-menu-1' => 'the first menu item for the extension menu list',
+	'gwtoolset-no-change' => 'appears when there has been no change to a wiki page',
+	'gwtoolset-no-form' => 'appears when There is no form for this module',
+	'gwtoolset-technical-error' => 'heading for error messages of a technical nature',
+	'gwtoolset-required-field' => ' denotes required field',
+	'gwtoolset-revised' => 'appears when a wiki page has been revised',
 
 	/**
 	 * js
@@ -291,73 +290,73 @@ $messages['qqq'] = array(
 	/**
 	 * json
 	 */
-	'gwtoolset-json-error-none' => 'user error message when No errors.',
-	'gwtoolset-json-error-depth' => 'user error message when Maximum stack depth exceeded.',
-	'gwtoolset-json-error-state-mismatch' => 'user error message when Underflow or the modes mismatch.',
 	'gwtoolset-json-error-ctrl-char' => 'user error message when Unexpected control character found.',
+	'gwtoolset-json-error-depth' => 'user error message when Maximum stack depth exceeded.',
+	'gwtoolset-json-error-none' => 'user error message when No errors.',
+	'gwtoolset-json-error-state-mismatch' => 'user error message when Underflow or the modes mismatch.',
 	'gwtoolset-json-error-syntax' => 'user error message when Syntax error, malformed JSON.',
-	'gwtoolset-json-error-utf8' => 'user error message when Malformed UTF-8 characters, possibly incorrectly encoded.',
 	'gwtoolset-json-error-unknown' => 'user error message when Unknown error.',
+	'gwtoolset-json-error-utf8' => 'user error message when Malformed UTF-8 characters, possibly incorrectly encoded.',
 
 	/**
 	 * step 1 - metadata detect
 	 */
-	'gwtoolset-step-1-instructions' => 'instructions for step 1',
-	'gwtoolset-upload-legend' => 'legend for the step 1 html form',
 	'gwtoolset-accepted-file-types' => 'label for the html form',
-	'gwtoolset-record-element-name' => 'label for the html form',
-	'gwtoolset-which-mediawiki-template' => 'label for the html form',
-	'gwtoolset-which-metadata-mapping' => 'label for the html form',
+	'gwtoolset-create-metadata' => 'summary message used when the extension creates/updates a metadata content page. parameter 1 is the extension name. parameter 2 is the user name',
+	'gwtoolset-ensure-well-formed-xml' => 'additional instructions that will help the user Make sure the XML File is well-formed',
+	'gwtoolset-file-url-invalid' => 'user error message when The file url was invalid',
 	'gwtoolset-metadata-file-source' => 'label for the html form',
 	'gwtoolset-metadata-file-source-info' => 'additional instructions for the html form',
 	'gwtoolset-metadata-file-url' => 'label for the html form',
 	'gwtoolset-metadata-file-upload' => 'label for the html form',
 	'gwtoolset-mediawiki-template-not-found' => 'user error message when No mediawiki template found. parameter is the template name that was not found',
-	'gwtoolset-file-url-invalid' => 'user error message when The file url was invalid',
-	'gwtoolset-no-xml-element-found' => 'user error message when No XML element found for mapping',
+	'gwtoolset-metadata-file-url-not-present' => 'user error message when No metadata file was uploaded nor was a local wiki url for the metadata file provided.',
 	'gwtoolset-metadata-mapping-bad' => 'user error when There’s a problem with the metadata mapping json format. the parameter is the technical error message given by php for the specific json error',
 	'gwtoolset-metadata-mapping-invalid-url' => 'user error message when The metadata mapping url supplied, does not match the expect mapping url path. parameter 1 is the url provided. parameter 2 is the expected url path',
 	'gwtoolset-metadata-mapping-not-found' => 'user error message when No metadata mapping was found in the page. the parameter is the url to the page',
-	'gwtoolset-ensure-well-formed-xml' => 'additional instructions that will help the user Make sure the XML File is well-formed',
-	'gwtoolset-create-metadata' => 'summary message used when the extension creates/updates a metadata content page. parameter 1 is the extension name. parameter 2 is the user name',
-	'gwtoolset-metadata-file-url-not-present' => 'user error message when No metadata file was uploaded nor was a local wiki url for the metadata file provided.',
+	'gwtoolset-no-xml-element-found' => 'user error message when No XML element found for mapping',
+	'gwtoolset-record-element-name' => 'label for the html form',
+	'gwtoolset-step-1-instructions' => 'instructions for step 1',
+	'gwtoolset-upload-legend' => 'legend for the step 1 html form',
+	'gwtoolset-which-mediawiki-template' => 'label for the html form',
+	'gwtoolset-which-metadata-mapping' => 'label for the html form',
 	'gwtoolset-xml-error' => 'user error message when the extension cannot properly load the xml provided.',
 
 	/**
 	 * step 2 - metadata mapping
 	 */
+	'gwtoolset-categories' => 'instructions for the html form',
+	'gwtoolset-category' => 'label for the html form',
+	'gwtoolset-create-mapping' => 'summary message used when the extension creates/updates a metadata mapping content page. parameter 1 is the extension name. parameter 2 is the user name',
+	'gwtoolset-example-record' => 'label for the html form',
+	'gwtoolset-global-categories' => 'heading for a section in the html form',
+	'gwtoolset-global-tooltip' => 'instructions for the html form',
+	'gwtoolset-mapping-media-file-url-bad' => 'user error message when the extension Could not evaluate the media file url. provided parameter 1 is the url provided.',
+	'gwtoolset-mapping-media-file-url-extension-bad' => 'user error message when the extension Could not evaluate the media file url in order to determine the file extension. parameter 1 is the url to the fiel or the file name given.',
+	'gwtoolset-mapping-no-title' => 'user error message when The metadata mapping contains no title',
+	'gwtoolset-mapping-no-title-identifier' => 'user error message when The metadata mapping contains no title identifier',
+	'gwtoolset-maps-to' => 'label for the html form',
+	'gwtoolset-metadata-field' => 'label for the html form',
+	'gwtoolset-metadata-file' => 'heading for displaying some information about the metadata file',
+	'gwtoolset-metadata-mapping-legend' => 'legend for the step 2 html form',
+	'gwtoolset-no-more-records' => 'user message that appears when there are no more records to process',
+	'gwtoolset-painted-by' => 'label for the html form',
+	'gwtoolset-partner' => 'heading for a section in the html form',
+	'gwtoolset-partner-explanation' => 'instructions for the html form',
+	'gwtoolset-partner-template' => 'label for the html form',
+	'gwtoolset-phrasing' => 'label for the html form',
+	'gwtoolset-preview' => 'text for html form button',
+	'gwtoolset-process-batch' => 'text for html form button',
+	'gwtoolset-record-count' => 'user message that indicates the total number of records found in the metadata file. parameter 1 is the total number of records found.',
+	'gwtoolset-results' => 'heading when results are given',
+	'gwtoolset-reupload-media' => 'label for the html form',
+	'gwtoolset-reupload-media-explanation' => 'html form instructions',
+	'gwtoolset-specific-categories' => 'heading for a section in the html form',
+	'gwtoolset-specific-tooltip' => 'instructions for the html form',
 	'gwtoolset-step-2' => 'heading used by javascript',
 	'gwtoolset-step-2-heading' => 'heading used by the html form',
 	'gwtoolset-step-2-instructions' => 'instructions for step 2',
-	'gwtoolset-metadata-file' => 'heading for displaying some information about the metadata file',
-	'gwtoolset-metadata-mapping-legend' => 'legend for the step 2 html form',
 	'gwtoolset-template-field' => 'label for the html form',
-	'gwtoolset-maps-to' => 'label for the html form',
-	'gwtoolset-results' => 'heading when results are given',
-	'gwtoolset-example-record' => 'label for the html form',
-	'gwtoolset-painted-by' => 'label for the html form',
-	'gwtoolset-mapping-no-title' => 'user error message when The metadata mapping contains no title',
-	'gwtoolset-mapping-no-title-identifier' => 'user error message when The metadata mapping contains no title identifier',
-	'gwtoolset-mapping-media-file-url-extension-bad' => 'user error message when the extension Could not evaluate the media file url in order to determine the file extension. parameter 1 is the url to the fiel or the file name given.',
-	'gwtoolset-mapping-media-file-url-bad' => 'user error message when the extension Could not evaluate the media file url. provided parameter 1 is the url provided.',
-	'gwtoolset-reupload-media' => 'label for the html form',
-	'gwtoolset-reupload-media-explanation' => 'html form instructions',
-	'gwtoolset-category' => 'label for the html form',
-	'gwtoolset-categories' => 'instructions for the html form',
-	'gwtoolset-global-categories' => 'heading for a section in the html form',
-	'gwtoolset-global-tooltip' => 'instructions for the html form',
-	'gwtoolset-specific-categories' => 'heading for a section in the html form',
-	'gwtoolset-specific-tooltip' => 'instructions for the html form',
-	'gwtoolset-phrasing' => 'label for the html form',
-	'gwtoolset-metadata-field' => 'label for the html form',
-	'gwtoolset-partner' => 'heading for a section in the html form',
-	'gwtoolset-partner-template' => 'label for the html form',
-	'gwtoolset-partner-explanation' => 'instructions for the html form',
-	'gwtoolset-record-count' => 'user message that indicates the total number of records found in the metadata file. parameter 1 is the total number of records found.',
-	'gwtoolset-preview' => 'text for html form button',
-	'gwtoolset-process-batch' => 'text for html form button',
-	'gwtoolset-no-more-records' => 'user message that appears when there are no more records to process',
-	'gwtoolset-create-mapping' => 'summary message used when the extension creates/updates a metadata mapping content page. parameter 1 is the extension name. parameter 2 is the user name',
 
 	/**
 	 * step 3 - batch preview
@@ -369,19 +368,19 @@ $messages['qqq'] = array(
 	/**
 	 * step 4 - batch jobs
 	 */
-	'gwtoolset-step-4-heading' => 'heading for step 4',
 	'gwtoolset-batchjob-metadata-created' => 'user message when Metadata batch job was created. parameter 1 is a link to a page, Special:NewFiles, the user can use to see if their media files have been uploaded.',
 	'gwtoolset-batchjob-metadata-creation-failure' => 'user error message that appears when the extension could not create a batchjob for the metadata file',
 	'gwtoolset-create-mediafile' => 'summary message used when the extension creates/updates a media file content page. parameter 1 is the extension name. parameter 2 is the user name',
+	'gwtoolset-step-4-heading' => 'heading for step 4',
 
 	/**
 	 * wiki checks
 	 */
-	'gwtoolset-wiki-checks-not-passed' => 'heading used when a wiki requirement is not met',
-	'gwtoolset-verify-php-version' => 'appears when the requirement is not met.',
-	'gwtoolset-verify-curl' => 'appears when the requirement is not met.',
-	'gwtoolset-verify-xmlreader' => 'appears when the requirement is not met.',
-	'gwtoolset-verify-finfo' => 'appears when the requirement is not met.',
 	'gwtoolset-verify-api-enabled' => 'appears when the requirement is not met.',
-	'gwtoolset-verify-api-writeable' => 'appears when the requirement is not met.'
+	'gwtoolset-verify-api-writeable' => 'appears when the requirement is not met.',
+	'gwtoolset-verify-curl' => 'appears when the requirement is not met.',
+	'gwtoolset-verify-finfo' => 'appears when the requirement is not met.',
+	'gwtoolset-verify-php-version' => 'appears when the requirement is not met.',
+	'gwtoolset-verify-xmlreader' => 'appears when the requirement is not met.',
+	'gwtoolset-wiki-checks-not-passed' => 'heading used when a wiki requirement is not met'
 );

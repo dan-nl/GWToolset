@@ -13,9 +13,6 @@ use DatabaseUpdater,
 	GWToolset\Models\MediawikiTemplate,
 	MWException;
 
-/**
- * placeholder class not yet used
- */
 class Hooks {
 
 	/**
@@ -23,9 +20,9 @@ class Hooks {
 	 * @see https://www.mediawiki.org/wiki/Manual:Hooks/LoadExtensionSchemaUpdates
 	 * based on core/includes/installer/MysqlUpdater.php::doUserGroupsUpdate
 	 *
-	 * @param DatabaseUpdater $updater
-	 * @throws MWException
-	 * @return bool
+	 * @param {DatabaseUpdater} $updater
+	 * @throws {MWException}
+	 * @return {bool}
 	 */
 	public static function onLoadExtensionSchemaUpdates( DatabaseUpdater $updater ) {
 		switch ( $updater->getDB()->getType() ) {

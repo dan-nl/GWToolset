@@ -12,8 +12,11 @@ use Job,
 	User;
 
 /**
- * runs the MetadataMappingHandler with the original $_POST'ed form fields when
- * the job was created. the $_POST contains one or more of the following :
+ * runs the MetadataMappingHandler with the originally $_POST’ed
+ * form fields when the job was created. the $_POST contains
+ * one or more of the following, which are used to create
+ * uploadMediafileJobs via the MetadataMappingHandler:
+ *
  *   - mediawiki template to use
  *   - url to the metadata source in the wiki
  *   - the metadata mapping to use
@@ -24,14 +27,23 @@ use Job,
 class UploadMetadataJob extends Job {
 
 	/**
-	 * @var GWToolset\Handlers\Forms\MetadataMappingHandler
+	 * @var {MetadataMappingHandler}
 	 */
 	protected $_MetadataMappingHandler;
 
+	/**
+	 * @param {Title} $title
+	 * @param {bool|array} $params
+	 * @param {int} $id
+	 * @return {void}
+	 */
 	public function __construct( $title, $params, $id = 0 ) {
 		parent::__construct( 'gwtoolsetUploadMetadataJob', $title, $params, $id );
 	}
 
+	/**
+	 * @return {bool}
+	 */
 	protected function validateParams() {
 		$result = true;
 
@@ -48,6 +60,11 @@ class UploadMetadataJob extends Job {
 		return $result;
 	}
 
+	/**
+	 * entry point
+	 * @todo: should $result always be true?
+	 * @return {bool|array}
+	 */
 	public function run() {
 		$result = false;
 

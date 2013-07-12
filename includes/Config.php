@@ -122,13 +122,13 @@ class Config {
 	public static $listed = true;
 
 	/**
-	 * set to null or 0 to use the wiki’s value
-	 * value must be a positive integer
+	 * @var {int}
+	 * when set to 0, the wiki’s $wgMaxUploadSize is used
 	 */
-	public static $max_file_upload = null;
+	public static $max_file_upload = 0;
 
 	/**
-	 * the user group the user musr be a member of in order to be able to use this extension
+	 * the user group the user must be a member of in order to be able to use this extension
 	 * @see GWToolset\Helpers\WikiChecks\checkUserWikiGroups
 	 */
 	public static $user_group = 'gwtoolset';

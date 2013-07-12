@@ -12,15 +12,17 @@ use Content,
 	Exception,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
+	Php\Filter,
 	XMLReader;
 
 /**
- * @todo pull out the decorator methods and place them in the appropriate form handler
+ * @todo possibley pull out the decorator methods and place them
+ * in the appropriate form handler
  */
 class XmlDetectHandler extends XmlHandler {
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * an array collection of nodeName => nodeValues[] that are taken from the
 	 * first matched dom element and will be used during the metadata mapping step
 	 * of the upload process
@@ -28,13 +30,13 @@ class XmlDetectHandler extends XmlHandler {
 	protected $_metadata_example_dom_element;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * an array collection of nodeName => nodeValue matches
 	 */
 	protected $_metadata_example_dom_nodes;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * an html string representing the XML metadata as options that can be placed
 	 * in an html select element. none of the options has selected=selected
 	 */
@@ -92,12 +94,9 @@ class XmlDetectHandler extends XmlHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @return {array}
-	 * - $result['msg'] {null|string}
-	 * - $result['stop-reading'] {boolean}
+	 * @return {void}
 	 */
 	protected function findExampleDOMElement( $XMLElement, array &$user_options ) {
-		$result = array( 'msg' => null, 'stop-reading' => false );
 		$record = null;
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
@@ -134,8 +133,6 @@ class XmlDetectHandler extends XmlHandler {
 
 				break;
 		}
-
-		return $result;
 	}
 
 	/**
@@ -163,10 +160,12 @@ class XmlDetectHandler extends XmlHandler {
 	}
 
 	/**
-	 * a decorator method that creates table row entries based on the example
-	 * DOMElement, $this->_metadata_example_dom_element
+	 * a decorator method that creates table rows based on the example
+	 * DOMElement, $this->_metadata_example_dom_element. the table rows
+	 * are extracted metadata elements and their values
 	 *
 	 * @return {string}
+	 * the values within the table rows have been filtered.
 	 */
 	public function getMetadataAsHtmlTableRows() {
 		$result = null;
@@ -175,8 +174,8 @@ class XmlDetectHandler extends XmlHandler {
 			foreach( $nodeValues as $nodeValue ) {
 				$result .=
 					'<tr>' .
-						'<td>' . $nodeName . '</td>' .
-						'<td>' . $nodeValue . '</td>' .
+						'<td>' . Filter::evaluate( $nodeName ) . '</td>' .
+						'<td>' . Filter::evaluate( $nodeValue ) . '</td>' .
 					'</tr>';
 			}
 		}
@@ -185,12 +184,15 @@ class XmlDetectHandler extends XmlHandler {
 	}
 
 	/**
-	 * a decorator method that creates a set of options for an html drop-down based
-	 * on the $this->_metadata_example_dom_nodes. the method will mark an option as
-	 * selected if ithe marked element is passed into the method
+	 * a decorator method that creates a set of <option>s for
+	 * an html <select> based on the $this->_metadata_example_dom_nodes.
+	 * the method will mark an option as selected if the marked element
+	 * is passed into the method
 	 *
 	 * @param {string} $selected_option
+	 *
 	 * @return {string}
+	 * the <option> values are filtered.
 	 */
 	public function getMetadataAsOptions( $selected_option = null ) {
 		$result = '<option></option>';
@@ -202,24 +204,28 @@ class XmlDetectHandler extends XmlHandler {
 				$result .= ' selected="selected"';
 			}
 
-			$result .= '>' . $nodeName . '</option>';
+			$result .= '>' . Filter::evaluate( $nodeName ) . '</option>';
 		}
 
 		return $result;
 	}
 
 	/**
-	 * a decorator method that creates table rows with html drop-downs used for
-	 * mapping xml metadata to mediawiki template parameters
+	 * a decorator method that creates table rows with <select>s used for
+	 * mapping metadata elements to mediawiki template parameters
 	 *
 	 * if a mapping between a mediawiki template and a metadata element is provided
-	 * the method will return the options with a selected option that matches the
+	 * the method will return the <option>s with a selected option that matches the
 	 * mapping given
 	 *
-	 * @param {string} $parameter a mediawiki template parameter
+	 * @param {string} $parameter
+	 * a mediawiki template parameter, e.g. in Template:Artwork, artist
+	 *
 	 * @param {MediawikiTemplate} $MediawikiTemplate
 	 * @param {Mapping} $Mapping
+	 *
 	 * @return {string}
+	 * the values within the table row have been filtered
 	 */
 	public function getMetadataAsTableCells( $parameter, MediawikiTemplate $MediawikiTemplate, Mapping $Mapping ) {
 		$result = null;
@@ -258,7 +264,7 @@ class XmlDetectHandler extends XmlHandler {
 			$this->_metadata_as_options = '<option></option>';
 
 			foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
-				$this->_metadata_as_options .= '<option>' . $nodeName . '</option>';
+				$this->_metadata_as_options .= '<option>' . Filter::evaluate( $nodeName ) . '</option>';
 			}
 		}
 
@@ -270,32 +276,32 @@ class XmlDetectHandler extends XmlHandler {
 			if ( isset( $selected_options[0] ) ) {
 				$result .= sprintf(
 					$no_metadata_button_row,
-					$parameter_as_id,
-					$parameter,
+					Filter::evaluate( $parameter_as_id ),
+					Filter::evaluate( $parameter ),
 					$required,
-					$parameter,
-					$parameter_as_id,
+					Filter::evaluate( $parameter ),
+					Filter::evaluate( $parameter_as_id ),
 					$this->getMetadataAsOptions( $selected_options[0] )
 				);
 			} else {
 				$result .= sprintf(
 					$no_metadata_button_row,
-					$parameter_as_id,
-					$parameter,
+					Filter::evaluate( $parameter_as_id ),
+					Filter::evaluate( $parameter ),
 					$required,
-					$parameter,
-					$parameter_as_id,
+					Filter::evaluate( $parameter ),
+					Filter::evaluate( $parameter_as_id ),
 					$this->getMetadataAsOptions()
 				);
 			}
 		} elseif ( count( $selected_options ) == 1 ) {
 			$result .= sprintf(
 				$first_row,
-				$parameter_as_id,
-				$parameter,
+				Filter::evaluate( $parameter_as_id ),
+				Filter::evaluate( $parameter ),
 				$required,
-				$parameter,
-				$parameter_as_id,
+				Filter::evaluate( $parameter ),
+				Filter::evaluate( $parameter_as_id ),
 				$this->getMetadataAsOptions( $selected_options[0] )
 			);
 		} elseif ( count( $selected_options ) > 1 ) {
@@ -304,18 +310,18 @@ class XmlDetectHandler extends XmlHandler {
 					if ( !$first_row_placed ) {
 						$result .= sprintf(
 							$first_row,
-							$parameter_as_id,
-							$parameter,
+							Filter::evaluate( $parameter_as_id ),
+							Filter::evaluate( $parameter ),
 							$required,
-							$parameter,
-							$parameter_as_id,
+							Filter::evaluate( $parameter ),
+							Filter::evaluate( $parameter_as_id ),
 							$this->getMetadataAsOptions( $option )
 						);
 						$first_row_placed = true;
 					} else {
 						$result .= sprintf(
 							$following_row,
-							$parameter,
+							Filter::evaluate( $parameter ),
 							$this->getMetadataAsOptions( $option )
 						);
 					}
@@ -324,14 +330,15 @@ class XmlDetectHandler extends XmlHandler {
 		} else {
 			$result .= sprintf(
 				$first_row,
-				$parameter_as_id,
-				$parameter,
+				Filter::evaluate( $parameter_as_id ),
+				Filter::evaluate( $parameter ),
 				$required,
-				$parameter,
-				$parameter_as_id,
+				Filter::evaluate( $parameter ),
+				Filter::evaluate( $parameter_as_id ),
 				$this->_metadata_as_options
 			);
 		}
+
 		return $result;
 	}
 
@@ -349,8 +356,8 @@ class XmlDetectHandler extends XmlHandler {
 	 * the assumption is that it has already been uploaded to the wiki earlier and
 	 * is ready for use
 	 *
-	 * @throws Exception
-	 * @return void
+	 * @throws {Exception}
+	 * @return {void}
 	 */
 	public function processXml( array &$user_options, &$xml_source = null ) {
 		$callback = 'findExampleDOMElement';
@@ -376,6 +383,9 @@ class XmlDetectHandler extends XmlHandler {
 		ksort( $this->_metadata_example_dom_element );
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function reset() {
 		$this->_metadata_as_options = null;
 		$this->_metadata_example_dom_element = array();

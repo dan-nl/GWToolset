@@ -18,6 +18,17 @@ use Exception,
 
 class MetadataMappingForm {
 
+	/**
+	 * returns an html form for step 2 : Metadata Mapping
+	 *
+	 * @param {FormHandler} $Handler
+	 *
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @return {string}
+	 * an html form
+	 */
 	public static function getForm( FormHandler $Handler, array &$user_options ) {
 
 		$template_link = '[[Template:' . Filter::evaluate( $user_options['mediawiki-template-name'] ) . ']]';
@@ -28,7 +39,7 @@ class MetadataMappingForm {
 			wfMessage( 'gwtoolset-metadata-file' )->parse() .
 				'<p>' .
 					Linker::link( $user_options['Metadata-Title'], null, array( 'target' => '_blank' ) ) . '<br />' .
-					wfMessage( 'gwtoolset-record-count' )->params( (int)$user_options['record-count'] )->escaped() .
+					wfMessage( 'gwtoolset-record-count' )->params( (int) $user_options['record-count'] )->escaped() .
 				'</p>' .
 
 			wfMessage( 'gwtoolset-step-2-instructions' )->params( $template_link )->parse() .
@@ -41,7 +52,7 @@ class MetadataMappingForm {
 
 						'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
 						'<input type="hidden" name="gwtoolset-preview" value="true"/>' .
-						'<input type="hidden" name="record-count" value="' . (int)$user_options['record-count'] . '"/>' .
+						'<input type="hidden" name="record-count" value="' . (int) $user_options['record-count'] . '"/>' .
 						'<input type="hidden" name="record-element-name" value="' . Filter::evaluate( $user_options['record-element-name'] ) . '"/>' .
 						'<input type="hidden" name="mediawiki-template-name" id="mediawiki-template-name" value="' . Filter::evaluate( $user_options['mediawiki-template-name'] ) . '"/>' .
 						'<input type="hidden" name="metadata-file-url" value="' . Filter::evaluate( $user_options['metadata-file-url'] ) . '"/>' .

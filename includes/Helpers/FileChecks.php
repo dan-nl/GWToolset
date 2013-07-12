@@ -11,7 +11,8 @@ use GWToolset\Config,
 	GWToolset\Exception,
 	Php\File,
 	Php\Filter,
-	OutputPage;
+	OutputPage,
+	UploadBase;
 
 /**
  * @todo: examine other checks in baseupload - detectVirus
@@ -25,8 +26,8 @@ class FileChecks {
 	public static $current_extension;
 
 	/**
-	 * @param \Php\File $File
-	 * @return boolean
+	 * @param {File} $File
+	 * @return {bool}
 	 */
 	public static function fileWasUploaded( File $File ) {
 		if ( !$File->is_uploaded_file ) {
@@ -37,37 +38,42 @@ class FileChecks {
 	}
 
 	/**
-	 * @param array $accepted_types
+	 * @param {array} $accepted_types
 	 * expected format 'extension' => array('mime/type','mime2/type2')
 	 *
-	 * @return array
+	 * @return {array}
 	 */
 	public static function getAcceptedExtensions( array &$accepted_types = array() ) {
 		return array_keys( $accepted_types );
 	}
 
 	/**
-	 * @param array $accepted_types
-	 * expected format 'extension' => array('mime/type','mime2/type2')
+	 * returns the accepted file extensions this wiki extension accepts.
 	 *
-	 * @return string
+	 * @param {array} $accepted_types
+	 * expected format 'file-extension' => array('mime/type','mime2/type2')
+	 *
+	 * @return {string}
+	 * the string is filtered
 	 * a comma delimited list of accepted extensions
 	 */
 	public static function getAcceptedExtensionsAsList ( array &$accepted_types = array() ) {
 		$result = null;
 
 		if ( !empty( $accepted_types ) ) {
-			$result = implode( ', ', self::getAcceptedExtensions( $accepted_types ) );
+			$result = Filter::evaluate(
+				implode( ', ', self::getAcceptedExtensions( $accepted_types ) )
+			);
 		}
 
 		return $result;
 	}
 
 	/**
-	 * @param array $accepted_types
+	 * @param {array} $accepted_types
 	 * expected format 'extension' => array('mime/type','mime2/type2')
 	 *
-	 * @return array
+	 * @return {array}
 	 */
 	public static function getAcceptedMimeTypes( array &$accepted_types = array() ) {
 		return array_unique( \GWToolset\getArraySecondLevelValues( $accepted_types ) );
@@ -75,56 +81,55 @@ class FileChecks {
 
 
 	/**
-	 * returns an input file’s accept attribute with the supplied $accepted_types
+	 * returns the accept attribute for <input type="file" accept="">
+	 * populated with mime types the extension accepts.
 	 *
-	 * @param array $accepted_types
-	 * expected format 'extension' => array('mime/type','mime2/type2')
+	 * @param {array} $accepted_types
+	 * expected format 'file-extension' => array('mime/type','mime2/type2')
 	 *
-	 * @return string
+	 * @return {string}
+	 * the string is filtered
 	 * a comma delimited list of accepted mime types
 	 */
 	public static function getFileAcceptAttribute( array &$accepted_types = array() ) {
 		$result = null;
 
 		if ( !empty( $accepted_types ) && Config::$use_file_accept_attribute ) {
-			$result = 'accept="' . implode( ', ', self::getAcceptedMimeTypes( $accepted_types ) ) . '"';
+			$result = 'accept="' .
+				Filter::evaluate(
+					implode( ', ', self::getAcceptedMimeTypes( $accepted_types ) )
+				) .
+			'"';
 		}
 
 		return $result;
 	}
 
 	/**
-	 * sets the max file upload size to the gwtoolset configured value
-	 * if set or to the wiki’s setting
+	 * gets the max file upload size. the value is based on
+	 * the lesser of two values : the gwtoolset value, if set,
+	 * and the wiki’s setting in $wgMaxUploadSize
 	 *
-	 * @param null|string $forType
-	 * @return int
+	 * @param {null|string} $forType
+	 * @return {int}
 	 */
-	public static function gwToolsetMaxUploadSize( $forType = null ) {
-		global $wgMaxUploadSize;
-
-		if ( !empty( Config::$max_file_upload ) ) {
-			return intval( Config::$max_file_upload );
+	public static function getMaxUploadSize( $forType = null ) {
+		if ( !empty( Config::$max_file_upload )
+			&& intval( Config::$max_file_upload ) < UploadBase::getMaxUploadSize( $forType )
+		) {
+			return (int) Config::$max_file_upload;
 		}
 
-		if ( is_array( $wgMaxUploadSize ) ) {
-			if ( $forType !== null && isset( $wgMaxUploadSize[$forType] ) ) {
-				return $wgMaxUploadSize[$forType];
-			} else {
-				return $wgMaxUploadSize['*'];
-			}
-		} else {
-			return intval( $wgMaxUploadSize );
-		}
+		return (int) UploadBase::getMaxUploadSize( $forType );
 	}
 
 	/**
 	 * Validates the file extension based on the accepted extensions provided
 	 *
-	 * @param string|\Php\File $File
-	 * @param array $accepted_extensions
-	 * @throws Exception
-	 * @return boolean
+	 * @param {string|File} $File
+	 * @param {array} $accepted_extensions
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function isAcceptedFileExtension( &$File, array $accepted_extensions = array() ) {
 		$msg = null;
@@ -159,10 +164,10 @@ class FileChecks {
 	}
 
 	/**
-	 * @param \Php\File $File
-	 * @param array $accepted_mime_types
-	 * @throws Exception
-	 * @return boolean
+	 * @param {File} $File
+	 * @param {array} $accepted_mime_types
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function isAcceptedMimeType( File &$File, array $accepted_mime_types = array() ) {
 		if ( !in_array( $File->mime_type, $accepted_mime_types ) ) {
@@ -177,9 +182,9 @@ class FileChecks {
 	}
 
 	/**
-	 * @param PHP\File $File
-	 * @throws Exception
-	 * @return boolean
+	 * @param {File} $File
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function isFileEmpty( File &$File ) {
 		if ( $File->size === 0 ) {
@@ -197,10 +202,10 @@ class FileChecks {
 	 *  - bad extension
 	 *  - js posing as xml
 	 *
-	 * @param {Php\File} $File
+	 * @param {File} $File
 	 * @param {array} $accepted_types
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function isUploadedFileValid( File $File, array $accepted_types = array() ) {
 		if ( empty( $accepted_types ) ) {
@@ -218,9 +223,9 @@ class FileChecks {
 	}
 
 	/**
-	 * @param \Php\File $File
-	 * @throws Exception
-	 * @return boolean
+	 * @param {File} $File
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function mimeTypeAndExtensionMatch( File $File, array $accepted_types = array() ) {
 		$msg = null;
@@ -245,9 +250,9 @@ class FileChecks {
 	}
 
 	/**
-	 * @param Php\File $File
-	 * @throws Exception
-	 * @return boolean
+	 * @param {File} $File
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function noFileErrors( File &$File ) {
 		$msg = null;

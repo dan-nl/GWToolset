@@ -20,36 +20,36 @@ use Exception,
 class MediawikiTemplate implements ModelInterface {
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * a raw representation of the original metadata
 	 */
 	public $metadata_raw;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * the mediawiki template name
 	 */
 	public $mediawiki_template_name;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * a json representation of the mediawiki template parameters
 	 */
 	public $mediawiki_template_json;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * the $mediawiki_template_json converted to a php array
 	 */
 	public $mediawiki_template_array = array();
 
 	/**
-	 * @var GWToolset\Adapters\DataAdapterInterface
+	 * @var {DataAdapterInterface}
 	 */
 	protected $_DataAdapater;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 */
 	protected $_sub_templates = array(
 		'language' => '{{%s|%s}}',
@@ -57,6 +57,10 @@ class MediawikiTemplate implements ModelInterface {
 		'creator' => '{{Creator:%s}}'
 	);
 
+	/**
+	 * @param {DataAdapterInterface} $DataAdapter
+	 * @return {void}
+	 */
 	public function __construct( DataAdapterInterface $DataAdapter ) {
 		$this->_DataAdapater = $DataAdapter;
 	}
@@ -66,16 +70,16 @@ class MediawikiTemplate implements ModelInterface {
 	public function delete( array &$options = array() ) {}
 
 	/**
-	 * create an array that represents the mapping of mediawiki template
-	 * attributes to metadata elements based on the given array; defaults to
-	 * the $_POST array anticipated to come from an html form.
+	 * create an array that represents the mapping of mediawiki
+	 * template attributes to metadata elements based on the
+	 * given array; defaults to the $_POST array.
 	 *
-	 * the array is expected to be in an array format for each mediawiki
-	 * parameter e.g. accession_number[], artist[]
+	 * the array is expected to be in an array format for
+	 * each mediawiki parameter e.g. accession_number[],
+	 * artist[]
 	 *
-	 * @return array
-	 *
-	 * @todo: how are we using $array - it's ignored at the moment?
+	 * @return {array}
+	 * the keys and values in the array are filtered
 	 */
 	public function getMappingFromArray( array &$array = array() ) {
 		$result = array();
@@ -87,7 +91,7 @@ class MediawikiTemplate implements ModelInterface {
 		}
 
 		foreach( $this->mediawiki_template_array as $parameter => $value ) {
-			$parameter_as_id = $this->getParameterAsId( $parameter );
+			$parameter_as_id = Filter::evaluate( $this->getParameterAsId( $parameter ) );
 
 			if ( isset( $array[ $parameter_as_id ] ) ) {
 				foreach( $array[ $parameter_as_id ] as $metadata_element ) {
@@ -100,33 +104,48 @@ class MediawikiTemplate implements ModelInterface {
 	}
 
 	/**
-	 * a decorator method that creates html drop-down options based on keys
-	 * returned from the data adapter. these keys are the names of the mediawiki
-	 * templates handled by the extension
+	 * a decorator method that creates html <option>s based on keys
+	 * returned from a data adapter. these keys are the names of
+	 * the mediawiki templates handled by the extension.
 	 *
 	 * @return {string}
+	 * the keys within the <option>s are filtered
 	 */
 	public function getModelKeysAsOptions() {
 		$result = '<option></option>';
 
 		foreach( $this->_DataAdapater->getKeys() as $option ) {
-			$result .= sprintf( '<option>%s</option>', $option );
+			$result .= sprintf( '<option>%s</option>', Filter::evaluate( $option ) );
 		}
 
 		return $result;
 	}
 
+	/**
+	 * normalizes the parameter if it contains a space
+	 *
+	 * @param {string} $parameter
+	 *
+	 * @return {string}
+	 * the string is not filtered
+	 */
 	public function getParameterAsId( $parameter ) {
 		return str_replace( ' ', '_', $parameter );
 	}
 
 	/**
-	 * @param array $user_options
+	 * creates wiki text for a given mediawiki template.
+	 * creates the mediawiki template section of the template.
+	 * this does not include categories, raw metadata, or raw
+	 * mapping information, which are added via other methods.
 	 *
-	 * @todo: make sure it only picks-up original template fields and not the ones
-	 * we've inserted, e.g. description_lang
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @return {string}
+	 * the resulting wiki text is filtered
 	 */
-	public function getTemplate( array $user_options ) {
+	public function getTemplate( array &$user_options ) {
 		$result = '<!-- Mediawiki Template -->' . PHP_EOL;
 		$sections = null;
 		$template = '{{' . $this->mediawiki_template_name . PHP_EOL . '%s}}';
@@ -136,12 +155,15 @@ class MediawikiTemplate implements ModelInterface {
 				continue;
 			}
 
-			$sections .= ' | ' . $parameter . ' = ';
+			$sections .= ' | ' . Filter::evaluate( $parameter ) . ' = ';
 
-			// sometimes the metadata element has several "shared" metadata elements with
-			// the same element name. at the moment the application will add elements that
-			// use lang= attribute to an associative array element 'language' indicating
-			// that the mediawiki template should use the language subtemplate
+			/**
+			 * sometimes the metadata element has several "shared" metadata
+			 * elements with the same element name. at the moment the
+			 * application will add elements that use lang= attribute to an
+			 * associative array element 'language' indicating that the mediawiki
+			 * template should use the language subtemplate
+			 */
 			if ( is_array( $content ) ) {
 				foreach ( $content as $sub_template_name => $sub_template_content ) {
 					// currently only language is handled as a sub-template
@@ -154,9 +176,11 @@ class MediawikiTemplate implements ModelInterface {
 							) . PHP_EOL;
 						}
 
-					// sometimes the "shared" metadata element will indicate lang, sometimes not
-					// this section handles those "shared" metadata elements that do not
-					// specify a lang attribute
+					/**
+					 * sometimes the "shared" metadata element will indicate lang,
+					 * sometimes not this section handles those "shared" metadata
+					 * elements that do not specify a lang attribute
+					 */
 					} else {
 						$sections .= Filter::evaluate( $sub_template_content ) . PHP_EOL;
 					}
@@ -242,7 +266,7 @@ class MediawikiTemplate implements ModelInterface {
 					$sections .= Filter::evaluate( $permission ) . PHP_EOL;
 				} elseif ( 'source' == $parameter ) {
 					if ( !empty( $user_options['partner-template-name'] ) ) {
-						$sections .= Filter::evaluate( $content ) . '{{' . $user_options['partner-template-name'] . '}}' . PHP_EOL;
+						$sections .= Filter::evaluate( $content ) . '{{' . Filter::evaluate( $user_options['partner-template-name'] ) . '}}' . PHP_EOL;
 					} else {
 						$sections .= Filter::evaluate( $content ) . PHP_EOL;
 					}
@@ -257,12 +281,24 @@ class MediawikiTemplate implements ModelInterface {
 	}
 
 	/**
-	 * a decorator method that allows a user to select from the mediawiki templates
-	 * handled by the extension
+	 * a decorator method that returns an html <select> the
+	 * user can use to select a mediawiki template to use
+	 * when mapping their metadata with a mediawiki template
 	 *
-	 * @param {string} $name form name that should be given to the select
-	 * @param {string} $id form id that should be given to the select
+	 * the options in the select are populated from a hard-coded
+	 * list of mediawiki templates handled by the extension that
+	 * come from a data adapter.
+	 *
+	 * @param {string} $name
+	 * an html form name that should be given to the select.
+	 * the param is filtered.
+	 *
+	 * @param {string} $id
+	 * an html form id that should be given to the select.
+	 * the param is filtered.
+	 *
 	 * @return {string}
+	 * the select values within the <option>s are filtered
 	 */
 	public function getTemplatesAsSelect( $name = null, $id = null ) {
 		$result = null;
@@ -284,16 +320,19 @@ class MediawikiTemplate implements ModelInterface {
 	}
 
 	/**
-	 * creates a title for a media file based on
+	 * creates a title string that will be used to create a
+	 * wiki title for a media file. the title string is based on :
 	 *
 	 *   - title
 	 *   - title identifier
 	 *   - url to the media file’s extension
 	 *
-	 * @todo: what if url is not to a file but a re-direct to the file
-	 * @todo: eliminate any "safe-guarded characters", e.g. : seems to tell the api
-	 * that the file does not exist so it uploads it aknew each time instead of editing it
-	 * @todo investigate using Title::makeTitleSafe
+	 * @param {array} $options
+	 *
+	 * @return {string}
+	 * the string is not filtered.
+	 * the result assumes that it will be used in Title creation
+	 * and relies on the Title class to filter it
 	 */
 	public function getTitle( array &$options ) {
 		$result = null;
@@ -306,9 +345,13 @@ class MediawikiTemplate implements ModelInterface {
 			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
 		}
 
-		// quick hack to handle Book template issue where it uses Title instead of title
-		// as an attribute @todo: create a more robust method for dealing with case issues
-		// in mediawiki template attributes
+		/**
+		 * @todo: get rid of this hack. create a more robust method for
+		 * dealing with string case issues in mediawiki template attributes
+		 *
+		 * quick hack to handle Book template issue where it uses Title
+		 * instead of title as an attribute
+		 */
 		if ( !empty( $this->mediawiki_template_array['title'] ) ) {
 			$result = $this->mediawiki_template_array['title'];
 		} elseif ( !empty( $this->mediawiki_template_array['Title'] ) ) {
@@ -325,18 +368,20 @@ class MediawikiTemplate implements ModelInterface {
 	}
 
 	/**
+	 * a control method that retrieves a mediawiki template model using
+	 * the data adapter provided at class instantiation and populates
+	 * this model class with the result
+	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
 	 * @param {string} $mediawiki_template_name
 	 * the key within $user_options that holds the name of the mediawiki template
 	 *
-	 * @throws Exception
-	 * @return string
+	 * @throws {Exception}
+	 * @return {void}
 	 */
-	public function getValidMediaWikiTemplate( array &$user_options, $mediawiki_template_name = 'mediawiki-template-name' ) {
-		$template = null;
-
+	public function getMediaWikiTemplate( array &$user_options, $mediawiki_template_name = 'mediawiki-template-name' ) {
 		if ( !isset( $user_options[ $mediawiki_template_name ] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->escaped() )->parse() );
 		}
@@ -347,10 +392,11 @@ class MediawikiTemplate implements ModelInterface {
 		} else {
 			throw new Exception( wfMessage( 'gwtoolset-metadata-invalid-template' )->escaped() );
 		}
-
-		return $template;
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public function populateFromArray( array &$metadata = array() ) {
 		foreach( $this->mediawiki_template_array as $parameter => $value ) {
 			$this->mediawiki_template_array[ $parameter ] = null;
@@ -362,6 +408,14 @@ class MediawikiTemplate implements ModelInterface {
 		}
 	}
 
+	/**
+	 * a control method that retrieves the hard-coded mediawiki
+	 * template format fro the data adapter, which is used to populate
+	 * this mediawiki template model
+	 *
+	 * @param {array} $options
+	 * @return {void}
+	 */
 	public function retrieve( array &$options = array() ) {
 		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
 

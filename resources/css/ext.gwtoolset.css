@@ -2,6 +2,10 @@
 	position: relative;
 }
 
+#gwtoolset-form li {
+	margin-bottom: .5em;
+}
+
 #gwtoolset-loader {
 	position: absolute;
 	height: 100%;

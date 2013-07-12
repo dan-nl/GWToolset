@@ -13,22 +13,36 @@ use Exception,
 	UploadFromUrl,
 	User;
 
+/**
+ * a proof of concept based on /core/includes/job/jobs/UploadFromUrlJob.php
+ */
 class UploadFromUrlJob extends Job {
 
 	/**
-	 * @var UploadFromUrl
+	 * @var {UploadFromUrl}
 	 */
 	public $Upload;
 
 	/**
-	 * @var User
+	 * @var {User}
 	 */
 	protected $_User;
 
+	/**
+	 * @param {Title} $title
+	 * @param {bool|array} $params
+	 * @param {int} $id
+	 * @return {void}
+	 */
 	public function __construct( $title, $params, $id = 0 ) {
 		parent::__construct( 'gwtoolsetUploadFromUrlJob', $title, $params, $id );
 	}
 
+	/**
+	 * entry point
+	 * @todo: should $result always be true?
+	 * @return {bool}
+	 */
 	public function run() {
 		// Initialize this object and the upload object
 		$this->Upload = new UploadFromUrl();

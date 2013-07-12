@@ -2,11 +2,9 @@
 -- @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
 
 CREATE TABLE IF NOT EXISTS /*_*/gwtoolset_mediawiki_templates (
-
 	`mediawiki_template_name` varchar(255) NOT NULL,
 	`mediawiki_template_json` blob NOT NULL,
 	PRIMARY KEY (`mediawiki_template_name`)
-
 ) /*$wgDBTableOptions*/;
 
 -- https://commons.wikimedia.org/wiki/Template:Artwork

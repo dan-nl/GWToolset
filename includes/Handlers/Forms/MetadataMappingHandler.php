@@ -29,83 +29,32 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 class MetadataMappingHandler extends FormHandler {
 
 	/**
-	 * @var GWToolset\Models\Mapping
+	 * @var {Mapping}
 	 */
 	protected $_Mapping;
 
 	/**
-	 * @var GWToolset\Models\MediawikiTemplate
+	 * @var {MediawikiTemplate}
 	 */
 	protected $_MediawikiTemplate;
 
 	/**
-	 * @var GWToolset\MediaWiki\Api\Client
-	 */
-	protected $_MWApiClient;
-
-	/**
-	 * @var GWToolset\Handlers\UploadHandler
+	 * @var {UploadHandler}
 	 */
 	protected $_UploadHandler;
 
 	/**
-	 * @var GWToolset\Handlers\Xml\XmlMappingHandler
+	 * @var {XmlMappingHandler}
 	 */
 	protected $_XmlMappingHandler;
 
 	/**
-	 * @return void
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @return {string}
+	 * the html string has been escaped and parsed by wfMessage
 	 */
-	protected function processMetadata( array &$user_options ) {
-		$result = null;
-		$this->_Mapping = null;
-		$this->_MediawikiTemplate = null;
-		$this->_UploadHandler = null;
-		$this->_XmlMappingHandler = null;
-
-		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
-		$this->_MediawikiTemplate->getValidMediaWikiTemplate( $user_options );
-
-		$this->_Mapping = new Mapping( new MappingPhpAdapter() );
-		$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray( $_POST );
-		$this->_Mapping->setTargetElements();
-		$this->_Mapping->reverseMap();
-
-		$this->_UploadHandler = new UploadHandler(
-			array(
-				'Mapping' => $this->_Mapping,
-				'MediawikiTemplate' => $this->_MediawikiTemplate,
-				'User' => $this->User,
-			)
-		);
-
-		$Metadata_Title = WikiPages::getTitleFromUrl( $user_options['metadata-file-url'] );
-		$Metadata_Page = new WikiPage( $Metadata_Title );
-		$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
-
-		$this->_XmlMappingHandler = new XmlMappingHandler(
-			array(
-				'Mapping' => $this->_Mapping,
-				'MediawikiTemplate' => $this->_MediawikiTemplate,
-				'MappingHandler' => $this
-			)
-		);
-
-		$result = $this->_XmlMappingHandler->processXml( $user_options, $Metadata_Content );
-
-		if ( empty( $this->SpecialPage )
-				&& $user_options['record-count'] > ( $user_options['record-begin'] + Config::$job_throttle )
-		) {
-			// when $this->SpecialPage is empty this method is being run by a wiki job
-			// if more metadata records exist in the metadata file, create another UploadMetadataJob
-			$_POST['record-begin'] = (int) $user_options['record-count'];
-			$this->createMetadataBatchJob( $user_options );
-		}
-
-		return $result;
-
-	}
-
 	protected function createMetadataBatchJob( array &$user_options ) {
 		$result = false;
 
@@ -134,32 +83,21 @@ class MetadataMappingHandler extends FormHandler {
 	}
 
 	/**
-	 * save a metadata record as a new/updated wiki page
+	 * sets the $user_options['categories'] index as appropriate.
+	 * this value is used by UploadHandler to add global categories
+	 * to a medifile wiki page; global meaning that these categories
+	 * are added to all mediafiles that are being uploaded
 	 *
-	 * @param DOMElement $matching_element
-	 * @param array $user_options
-	 * @return {string}
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @return {void}
 	 */
-	public function processMatchingElement( array &$user_options, $element_mapped_to_mediawiki_template, $metadata_raw ) {
-		$result = null;
-
-		$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
-		$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
-		$result = $this->_UploadHandler->saveMediaFile( $user_options );
-
-		if ( $user_options['preview'] && ( $result instanceof Title ) ) {
-			$result = '<li>' . Linker::link( $result, null, array( 'target' => '_blank' ) ) . '</li>';
-		}
-
-		return $result;
-	}
-
 	protected function getGlobalCategories( array &$user_options ) {
 		$user_options['categories'] = Config::$mediawiki_template_default_category;
 
 		if ( isset( $_POST['category'] ) ) {
 			foreach( $_POST['category'] as $category ) {
-				$category = Filter::evaluate( $category );
 				if ( !empty( $category ) ) {
 					$user_options['categories'] .= Config::$category_separator . $category;
 				}
@@ -168,28 +106,84 @@ class MetadataMappingHandler extends FormHandler {
 	}
 
 	/**
-	 * grabs various user options set in an html form, filters them and sets
-	 * default values where appropriate
+	 * gets various user options from $_POST and sets default values
+	 * if no user value is supplied
 	 *
-	 * @return array
+	 * @return {array}
+	 * the values within the array have not been filtered
 	 */
 	protected function getUserOptions() {
 		$result = array(
 			'categories' => null,
-			'category-phrase' => !empty( $_POST['category-phrase'] ) ? $_POST['category-phrase'] : array(),
-			'category-metadata' => !empty( $_POST['category-metadata'] ) ? $_POST['category-metadata'] : array(),
-			'comment' => !empty( $_POST['wpSummary'] ) ? Filter::evaluate( $_POST['wpSummary'] ) : '',
-			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ? Filter::evaluate( $_POST['mediawiki-template-name'] ) : null,
-			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ? urldecode( Filter::evaluate( $_POST['metadata-file-url'] ) ) : null,
-			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ? urldecode( Filter::evaluate( $_POST['partner-template-url'] ) ) : null,
-			'preview' => !empty( $_POST['gwtoolset-preview'] ) ? true : false,
+
+			'category-phrase' =>
+				!empty( $_POST['category-phrase'] )
+				? $_POST['category-phrase']
+				: array(),
+
+			'category-metadata' =>
+				!empty( $_POST['category-metadata'] )
+				? $_POST['category-metadata']
+				: array(),
+
+			'comment' =>
+				!empty( $_POST['wpSummary'] )
+				? $_POST['wpSummary']
+				: '',
+
+			'mediawiki-template-name' =>
+				!empty( $_POST['mediawiki-template-name'] )
+				? $_POST['mediawiki-template-name']
+				: null,
+
+			'metadata-file-url' =>
+				!empty( $_POST['metadata-file-url'] )
+				? urldecode( $_POST['metadata-file-url'] )
+				: null,
+
+			'partner-template-url' =>
+				!empty( $_POST['partner-template-url'] )
+				? urldecode( $_POST['partner-template-url'] )
+				: null,
+
+			'preview' =>
+				!empty( $_POST['gwtoolset-preview'] )
+				? true
+				: false,
+
 			'record-count' => 0,
-			'record-begin' => !empty( $_POST['record-begin'] ) ? (int) $_POST['record-begin'] : 0,
-			'record-element-name' => !empty( $_POST['record-element-name'] ) ? Filter::evaluate( $_POST['record-element-name'] ) : 'record',
-			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ? (bool)Filter::evaluate( $_POST['save-as-batch-job'] ) : false,
-			'title_identifier' => !empty( $_POST['title_identifier'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) : null,
-			'upload-media' => !empty( $_POST['upload-media'] ) ? (bool)Filter::evaluate( $_POST['upload-media'] ) : false,
-			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) : null
+
+			'record-begin' =>
+				!empty( $_POST['record-begin'] )
+				? (int) $_POST['record-begin']
+				: 0,
+
+			'record-element-name' =>
+				!empty( $_POST['record-element-name'] )
+				? $_POST['record-element-name']
+				: 'record',
+
+			'save-as-batch-job' =>
+				!empty( $_POST['save-as-batch-job'] )
+				? (bool) $_POST['save-as-batch-job']
+				: false,
+
+			// Filter::evaluate is used here to extract the 'title_identifier' array
+			'title_identifier' =>
+				!empty( $_POST['title_identifier'] )
+				? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) )
+				: null,
+
+			'upload-media' =>
+				!empty( $_POST['upload-media'] )
+				? (bool) $_POST['upload-media']
+				: false,
+
+			// Filter::evaluate is used here to extract the 'url_to_the_media_file' array
+			'url_to_the_media_file' =>
+				!empty( $_POST['url_to_the_media_file'] )
+				? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) )
+				: null
 		);
 
 		if ( !empty( $result['partner-template-url'] ) ) {
@@ -200,11 +194,97 @@ class MetadataMappingHandler extends FormHandler {
 	}
 
 	/**
-	 * entry point
-	 * @return string
+	 * save a metadata record as a new/updated wiki page
+	 *
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @param {array} $element_mapped_to_mediawiki_template
+	 * @param {string} $metadata_raw
+	 * @return {null|Title}
+	 */
+	public function processMatchingElement( array &$user_options, $element_mapped_to_mediawiki_template, $metadata_raw ) {
+		$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
+		$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
+		return $this->_UploadHandler->saveMediaFile( $user_options );
+	}
+
+	/**
+	 * a control method that steps through the methods necessary
+	 * for processing the metadata and mapping in order to create
+	 * mediafile wiki pages
+	 *
+	 * @param {array} $user_options
+	 * an array of user options that was submitted in the html form
+	 *
+	 * @return {array}
+	 * an array of mediafile Title(s)
+	 */
+	protected function processMetadata( array &$user_options ) {
+		$mediafile_titles = array();
+		$this->_Mapping = null;
+		$this->_MediawikiTemplate = null;
+		$this->_UploadHandler = null;
+		$this->_XmlMappingHandler = null;
+
+		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
+		$this->_MediawikiTemplate->getMediaWikiTemplate( $user_options );
+
+		$this->_Mapping = new Mapping( new MappingPhpAdapter() );
+		$this->_Mapping->mapping_array = $this->_MediawikiTemplate->getMappingFromArray( $_POST );
+		$this->_Mapping->setTargetElements();
+		$this->_Mapping->reverseMap();
+
+		$this->_UploadHandler = new UploadHandler(
+			array(
+				'Mapping' => $this->_Mapping,
+				'MediawikiTemplate' => $this->_MediawikiTemplate,
+				'User' => $this->User,
+			)
+		);
+
+		$Metadata_Title = WikiPages::getTitleFromUrl( $user_options['metadata-file-url'] );
+		$Metadata_Page = new WikiPage( $Metadata_Title );
+		$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
+
+		$this->_XmlMappingHandler = new XmlMappingHandler(
+			array(
+				'Mapping' => $this->_Mapping,
+				'MediawikiTemplate' => $this->_MediawikiTemplate,
+				'MappingHandler' => $this
+			)
+		);
+
+		$mediafile_titles = $this->_XmlMappingHandler->processXml( $user_options, $Metadata_Content );
+
+		/**
+		 * when $this->SpecialPage is empty this method is being run by a wiki job
+		 * if more metadata records exist in the metadata file, create another
+		 * UploadMetadataJob
+		 */
+		if ( empty( $this->SpecialPage )
+				&& (int) $user_options['record-count'] >
+				( (int) $user_options['record-begin'] + (int) Config::$job_throttle )
+		) {
+			$_POST['record-begin'] = (int) $user_options['record-count'];
+			$this->createMetadataBatchJob( $user_options );
+		}
+
+		return $mediafile_titles;
+	}
+
+	/**
+	 * a control method that processes a SpecialPage request
+	 * and returns a response, typically an html form
+	 *
+	 * @return {string|array}
+	 * - an html form, which is filtered in the getForm method
+	 * - an html response, which has been escaped and parsed by wfMessage
+	 * - an array of mediafile Title(s)
 	 */
 	public function processRequest() {
 		$result = null;
+		$mediafile_titles = array();
 		$user_options = $this->getUserOptions();
 		$this->getGlobalCategories( $user_options );
 
@@ -220,25 +300,33 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		if ( $user_options['preview'] ) {
+		if ( $user_options['preview'] === true ) {
 			Config::$job_throttle = Config::$preview_throttle;
-			$result = $this->processMetadata( $user_options );
+			$mediafile_titles = $this->processMetadata( $user_options );
 
 			$result = PreviewForm::getForm(
 				$this->SpecialPage->getContext(),
 				$user_options,
-				$result
+				$mediafile_titles
 			);
 		} else {
 			$user_options['save-as-batch-job'] = true;
 
+			/**
+			 * when $this->SpecialPage is not empty, this method is being run
+			 * by a user as a SpecialPage, thus this is the creation of the
+			 * initial uploadMetadataJob. subsequent uploadMetadataJobs are
+			 * created in $this->processMetadata() when necessary.
+			 */
 			if ( !empty( $this->SpecialPage ) ) {
-				// this is the creation of the initial uploadMetadataJob
-				// subsequent uploadMetadataJobs are created in $this->processMetadata() if necessary
-				$result = wfMessage('gwtoolset-step-4-heading')->parse() . $this->createMetadataBatchJob( $user_options );
+				$result = wfMessage('gwtoolset-step-4-heading')->parse() .
+					$this->createMetadataBatchJob( $user_options );
+
+			/**
+			 * when $this->SpecialPage is empty, this method is being run
+			 * by a wiki job; typically, uploadMediafileJob.
+			 */
 			} else {
-				// when $this->SpecialPage is empty this method is being run by a wiki job
-				// assumption is that this is an uploadMediafileJob
 				$result = $this->processMetadata( $user_options );
 			}
 		}

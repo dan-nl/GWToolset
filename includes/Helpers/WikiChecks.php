@@ -53,9 +53,9 @@ class WikiChecks {
 	 * constructor
 	 *
 	 * @see SpecialPage::checkPermissions()
-	 * @param SpecialPage $SpecialPage
-	 * @throws Exception
-	 * @return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function canUserViewPage( SpecialPage $SpecialPage ) {
 		try {
@@ -70,9 +70,9 @@ class WikiChecks {
 	/**
 	 * Make sure the user is a member of a group that can access this extension
 	 *
-	 * @param SpecialPage $SpecialPage
-	 * @throws Exception
-	 * @return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function checkUserWikiGroups( SpecialPage $SpecialPage ) {
 		if ( !in_array( Config::$user_group, $SpecialPage->getUser()->getEffectiveGroups() ) ) {
@@ -87,9 +87,9 @@ class WikiChecks {
 	 * SpecialPage $restriction must be a string, thus it does not check a
 	 * group of permissions.
 	 *
-	 * @param SpecialPage $SpecialPage
-	 * @throws Exception
-	 * @return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function checkUserWikiPermissions( SpecialPage $SpecialPage ) {
 		foreach ( Config::$user_permissions as $permission ) {
@@ -104,9 +104,9 @@ class WikiChecks {
 	/**
 	 * For a submitted form, is the edit token present and valid
 	 *
-	 * @param SpecialPage $SpecialPage
-	 * @throws PermissionsError
-	 * @return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @throws {PermissionsError}
+	 * @return {bool}
 	 */
 	public static function doesEditTokenMatch( SpecialPage $SpecialPage ) {
 		if ( !$SpecialPage->getUser()->matchEditToken( $SpecialPage->getRequest()->getVal( 'wpEditToken' ) ) ) {
@@ -124,6 +124,8 @@ class WikiChecks {
 	 * e.g., http://academia.lndb.lv/xmlui/bitstream/handle/1/231/k_001_ktl1-1-27.jpg
 	 * @todo: what is this limit set to on production?
 	 * @todo: does ui need a notice to user about this limitation?
+	 *
+	 * @retun {void}
 	 */
 	public static function increaseHTTPTimeout( $timeout = 0 ) {
 		global $wgHTTPTimeout;
@@ -140,6 +142,8 @@ class WikiChecks {
 
 	/**
 	 * the following settings need to be checked in order to handle large images
+	 *
+	 * @return {void}
 	 */
 	public static function increaseMaxImageArea( $area = 0 ) {
 		global $wgMaxImageArea;
@@ -156,6 +160,8 @@ class WikiChecks {
 
 	/**
 	 * the following settings need to be checked in order to handle large images
+	 *
+	 * @return {void}
 	 */
 	public static function increaseMemoryLimit( $limit = null ) {
 		global $wgMemoryLimit;
@@ -171,9 +177,9 @@ class WikiChecks {
 	}
 
 	/**
-	 * @param SpecialPage $SpecialPage
-	 * @throw UserBlockedError
-	 * #return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @throw {UserBlockedError}
+	 * #return {bool}
 	 */
 	public static function isUserBlocked( SpecialPage $SpecialPage ) {
 		if ( $SpecialPage->getUser()->isBlocked() ) {
@@ -185,8 +191,8 @@ class WikiChecks {
 
 	/**
 	 * @see SpecialPage::checkReadOnly()
-	 * @param SpecialPage $SpecialPage
-	 * @return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @return {bool}
 	 */
 	public static function isWikiWriteable( SpecialPage $SpecialPage ) {
 		$SpecialPage->checkReadOnly();
@@ -197,8 +203,8 @@ class WikiChecks {
 	 * Run through a series of checks to make sure the wiki environment is properly
 	 * setup for this extension and that the user has permission to use it
 	 *
-	 * @param SpecialPage $SpecialPage
-	 * @return boolean
+	 * @param {SpecialPage} $SpecialPage
+	 * @return {bool}
 	 */
 	public static function pageIsReadyForThisUser( SpecialPage $SpecialPage ) {
 		if ( !self::verifyPHPVersion() ) {
@@ -252,6 +258,9 @@ class WikiChecks {
 		return true;
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public static function restoreHTTPTimeout() {
 		global $wgHTTPTimeout;
 
@@ -262,6 +271,9 @@ class WikiChecks {
 		}
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public static function restoreMaxImageArea() {
 		global $wgMaxImageArea;
 
@@ -272,6 +284,9 @@ class WikiChecks {
 		}
 	}
 
+	/**
+	 * @return {void}
+	 */
 	public static function restoreMemoryLimit() {
 		if ( !empty( self::$memory_limit )
 			&& (int) ini_get( 'memory_limit' ) != (int) self::$memory_limit
@@ -281,8 +296,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws ErrorPageError
-	 * @return boolean
+	 * @throws {ErrorPageError}
+	 * @return {bool}
 	 */
 	public static function uploadsEnabled() {
 		global $wgEnableUploads;
@@ -295,8 +310,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function verifyAPIEnabled() {
 		global $wgEnableAPI;
@@ -310,8 +325,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function verifyAPIWritable() {
 		global $wgEnableWriteAPI;
@@ -325,8 +340,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function verifyCurlExists() {
 		if ( !function_exists('curl_init') ) {
@@ -338,8 +353,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function verifyFinfoExists() {
 		if ( !class_exists('finfo') ) {
@@ -351,8 +366,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function verifyPHPVersion() {
 		if ( !defined( 'PHP_VERSION' )
@@ -366,8 +381,8 @@ class WikiChecks {
 	}
 
 	/**
-	 * @throws Exception
-	 * @return boolean
+	 * @throws {Exception}
+	 * @return {bool}
 	 */
 	public static function verifyXMLReaderExists() {
 		if ( !class_exists('XMLReader') ) {

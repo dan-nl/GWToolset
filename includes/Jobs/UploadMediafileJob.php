@@ -15,24 +15,33 @@ use Exception,
 class UploadMediafileJob extends Job {
 
 	/**
-	 * GWToolset\Handlers\UploadHandler
+	 * {UploadHandler}
 	 */
 	protected $_UploadHandler;
 
 	/**
-	 * @var User
+	 * @var {User}
 	 */
 	protected $_User;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 */
 	public $filename_metadata;
 
+	/**
+	 * @param {Title} $title
+	 * @param {bool|array} $params
+	 * @param {int} $id
+	 * @return {void}
+	 */
 	public function __construct( $title, $params, $id = 0 ) {
 		parent::__construct( 'gwtoolsetUploadMediafileJob', $title, $params, $id );
 	}
 
+	/**
+	 * @return {bool|Title}
+	 */
 	protected function processMetadata() {
 		$result = false;
 
@@ -47,6 +56,9 @@ class UploadMediafileJob extends Job {
 		return $result;
 	}
 
+	/**
+	 * @return {bool}
+	 */
 	protected function validateParams() {
 		$result = true;
 
@@ -64,8 +76,9 @@ class UploadMediafileJob extends Job {
 	}
 
 	/**
-	 * die() seems to be the only way to stop the run from being eliminated from the job queue
-	 * return false seems to do nothing
+	 * entry point
+	 * @todo: should $result always be true?
+	 * @return {bool|Title}
 	 */
 	public function run() {
 		$result = false;
