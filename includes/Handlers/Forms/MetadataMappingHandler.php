@@ -70,13 +70,17 @@ class MetadataMappingHandler extends FormHandler {
 		$result = JobQueueGroup::singleton()->push( $job );
 
 		if ( $result ) {
-			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )->rawParams(
-				Linker::link( Title::newFromText('Special:NewFiles'), null, array( 'target' => '_blank' ) )
-			)->parse();
+			$newFilesLink = Linker::link(
+				Title::newFromText( 'Special:NewFiles' ),
+				null,
+				array( 'target' => '_blank' )
+			);
+			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )
+				->rawParams( $newFilesLink )->parse();
 		} else {
-			$result =  '<span class="error">' . wfMessage( 'gwtoolset-developer-issue' )->params(
-				wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped()
-			)->parse() . '</span>';
+			$result = '<span class="error">' . wfMessage( 'gwtoolset-developer-issue' )
+				->params( wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped() )
+				->parse() . '</span>';
 		}
 
 		return $result;
@@ -97,7 +101,7 @@ class MetadataMappingHandler extends FormHandler {
 		$user_options['categories'] = Config::$mediawiki_template_default_category;
 
 		if ( isset( $_POST['category'] ) ) {
-			foreach( $_POST['category'] as $category ) {
+			foreach ( $_POST['category'] as $category ) {
 				if ( !empty( $category ) ) {
 					$user_options['categories'] .= Config::$category_separator . $category;
 				}
@@ -116,74 +120,61 @@ class MetadataMappingHandler extends FormHandler {
 		$result = array(
 			'categories' => null,
 
-			'category-phrase' =>
-				!empty( $_POST['category-phrase'] )
-				? $_POST['category-phrase']
-				: array(),
+			'category-phrase' => !empty( $_POST['category-phrase'] ) ?
+				$_POST['category-phrase'] :
+				array(),
 
-			'category-metadata' =>
-				!empty( $_POST['category-metadata'] )
-				? $_POST['category-metadata']
-				: array(),
+			'category-metadata' => !empty( $_POST['category-metadata'] ) ?
+				$_POST['category-metadata'] :
+				array(),
 
-			'comment' =>
-				!empty( $_POST['wpSummary'] )
-				? $_POST['wpSummary']
-				: '',
+			'comment' => !empty( $_POST['wpSummary'] ) ?
+				$_POST['wpSummary'] :
+				'',
 
-			'mediawiki-template-name' =>
-				!empty( $_POST['mediawiki-template-name'] )
-				? $_POST['mediawiki-template-name']
-				: null,
+			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ?
+				$_POST['mediawiki-template-name'] :
+				null,
 
-			'metadata-file-url' =>
-				!empty( $_POST['metadata-file-url'] )
-				? urldecode( $_POST['metadata-file-url'] )
-				: null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ?
+				urldecode( $_POST['metadata-file-url'] ) :
+				null,
 
-			'partner-template-url' =>
-				!empty( $_POST['partner-template-url'] )
-				? urldecode( $_POST['partner-template-url'] )
-				: null,
+			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ?
+				urldecode( $_POST['partner-template-url'] ) :
+				null,
 
-			'preview' =>
-				!empty( $_POST['gwtoolset-preview'] )
-				? true
-				: false,
+			'preview' => !empty( $_POST['gwtoolset-preview'] ) ?
+				true :
+				false,
 
 			'record-count' => 0,
 
-			'record-begin' =>
-				!empty( $_POST['record-begin'] )
-				? (int) $_POST['record-begin']
-				: 0,
+			'record-begin' => !empty( $_POST['record-begin'] ) ?
+				(int)$_POST['record-begin'] :
+				0,
 
-			'record-element-name' =>
-				!empty( $_POST['record-element-name'] )
-				? $_POST['record-element-name']
-				: 'record',
+			'record-element-name' => !empty( $_POST['record-element-name'] ) ?
+				$_POST['record-element-name'] :
+				'record',
 
-			'save-as-batch-job' =>
-				!empty( $_POST['save-as-batch-job'] )
-				? (bool) $_POST['save-as-batch-job']
-				: false,
+			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ?
+				(bool)$_POST['save-as-batch-job'] :
+				false,
 
 			// Filter::evaluate is used here to extract the 'title_identifier' array
-			'title_identifier' =>
-				!empty( $_POST['title_identifier'] )
-				? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) )
-				: null,
+			'title_identifier' => !empty( $_POST['title_identifier'] ) ?
+				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) :
+				null,
 
-			'upload-media' =>
-				!empty( $_POST['upload-media'] )
-				? (bool) $_POST['upload-media']
-				: false,
+			'upload-media' => !empty( $_POST['upload-media'] ) ?
+				(bool)$_POST['upload-media'] :
+				false,
 
 			// Filter::evaluate is used here to extract the 'url_to_the_media_file' array
-			'url_to_the_media_file' =>
-				!empty( $_POST['url_to_the_media_file'] )
-				? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) )
-				: null
+			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ?
+				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) :
+				null
 		);
 
 		if ( !empty( $result['partner-template-url'] ) ) {
@@ -206,6 +197,7 @@ class MetadataMappingHandler extends FormHandler {
 	public function processMatchingElement( array &$user_options, $element_mapped_to_mediawiki_template, $metadata_raw ) {
 		$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
 		$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
+
 		return $this->_UploadHandler->saveMediaFile( $user_options );
 	}
 
@@ -262,11 +254,12 @@ class MetadataMappingHandler extends FormHandler {
 		 * if more metadata records exist in the metadata file, create another
 		 * UploadMetadataJob
 		 */
-		if ( empty( $this->SpecialPage )
-				&& (int) $user_options['record-count'] >
-				( (int) $user_options['record-begin'] + (int) Config::$job_throttle )
+		if ( empty( $this->SpecialPage ) &&
+			(int)$user_options['record-count'] > (
+				(int)$user_options['record-begin'] + (int)Config::$job_throttle
+			)
 		) {
-			$_POST['record-begin'] = (int) $user_options['record-count'];
+			$_POST['record-begin'] = (int)$user_options['record-count'];
 			$this->createMetadataBatchJob( $user_options );
 		}
 
@@ -319,13 +312,12 @@ class MetadataMappingHandler extends FormHandler {
 			 * created in $this->processMetadata() when necessary.
 			 */
 			if ( !empty( $this->SpecialPage ) ) {
-				$result = wfMessage('gwtoolset-step-4-heading')->parse() .
+				$result = wfMessage( 'gwtoolset-step-4-heading' )->parse() .
 					$this->createMetadataBatchJob( $user_options );
-
-			/**
-			 * when $this->SpecialPage is empty, this method is being run
-			 * by a wiki job; typically, uploadMediafileJob.
-			 */
+				/**
+				 * when $this->SpecialPage is empty, this method is being run
+				 * by a wiki job; typically, uploadMediafileJob.
+				 */
 			} else {
 				$result = $this->processMetadata( $user_options );
 			}
@@ -333,5 +325,4 @@ class MetadataMappingHandler extends FormHandler {
 
 		return $result;
 	}
-
 }

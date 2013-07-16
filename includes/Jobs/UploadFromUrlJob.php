@@ -58,6 +58,7 @@ class UploadFromUrlJob extends Job {
 		$status = $this->Upload->fetchFile();
 		if ( !$status->isOk() ) {
 			error_log( $status->getWikiText() );
+
 			return true; //@todo: should this return true? when returning false, job stays in queue as orphan
 		}
 
@@ -66,6 +67,7 @@ class UploadFromUrlJob extends Job {
 		if ( $result['status'] != UploadBase::OK ) {
 			$status = $this->Upload->convertVerifyErrorToStatus( $result );
 			error_log( $status->getWikiText() );
+
 			return true; //@todo: should this return true? when returning false, job stays in queue as orphan
 		}
 
@@ -84,5 +86,4 @@ class UploadFromUrlJob extends Job {
 
 		return true;
 	}
-
 }

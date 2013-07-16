@@ -60,5 +60,4 @@ abstract class SpecialPageHandler {
 	 * @return {string}
 	 */
 	abstract public function getHtmlForm();
-
 }

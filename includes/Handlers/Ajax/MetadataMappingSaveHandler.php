@@ -32,7 +32,7 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 		// create takes care of new and existing pages
 		$mapping_result = $this->_Mapping->create(
 			array(
-				'created' => date('Y-m-d H:i:s'),
+				'created' => date( 'Y-m-d H:i:s' ),
 				'mapping-json' => json_encode( $this->_Mapping->mapping_array ),
 				'mapping-name' => $this->SpecialPage->getRequest()->getVal( 'mapping-name-to-use' ),
 				'mediawiki-template-name' => $this->SpecialPage->getRequest()->getVal( 'mediawiki-template-name' ),
@@ -42,5 +42,4 @@ class MetadataMappingSaveHandler extends AjaxHandler {
 
 		return $mapping_result;
 	}
-
 }

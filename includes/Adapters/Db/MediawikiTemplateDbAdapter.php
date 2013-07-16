@@ -37,14 +37,15 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 			array( 'ORDER BY' => 'mediawiki_template_name ASC' )
 		);
 
-		foreach( $query_result as $row ) {
+		foreach ( $query_result as $row ) {
 			$result[] = $row->key_name;
 		}
 
 		return $result;
 	}
 
-	public function create( array $options = array() ) {}
+	public function create( array $options = array() ) {
+	}
 
 	/**
 	 * @param {array} $options
@@ -58,8 +59,9 @@ class MediawikiTemplateDbAdapter extends DbAdapterAbstract {
 		);
 	}
 
-	public function update( array $options = array() ) {}
+	public function update( array $options = array() ) {
+	}
 
-	public function delete( array $options = array() ) {}
-
+	public function delete( array $options = array() ) {
+	}
 }

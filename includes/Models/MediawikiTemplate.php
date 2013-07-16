@@ -65,9 +65,11 @@ class MediawikiTemplate implements ModelInterface {
 		$this->_DataAdapater = $DataAdapter;
 	}
 
-	public function create( array $options = array() ) {}
+	public function create( array $options = array() ) {
+	}
 
-	public function delete( array &$options = array() ) {}
+	public function delete( array &$options = array() ) {
+	}
 
 	/**
 	 * create an array that represents the mapping of mediawiki
@@ -90,12 +92,12 @@ class MediawikiTemplate implements ModelInterface {
 			$array = $_POST;
 		}
 
-		foreach( $this->mediawiki_template_array as $parameter => $value ) {
+		foreach ( $this->mediawiki_template_array as $parameter => $value ) {
 			$parameter_as_id = Filter::evaluate( $this->getParameterAsId( $parameter ) );
 
-			if ( isset( $array[ $parameter_as_id ] ) ) {
-				foreach( $array[ $parameter_as_id ] as $metadata_element ) {
-					$result[ $parameter_as_id ][] = Filter::evaluate( $metadata_element );
+			if ( isset( $array[$parameter_as_id] ) ) {
+				foreach ( $array[$parameter_as_id] as $metadata_element ) {
+					$result[$parameter_as_id][] = Filter::evaluate( $metadata_element );
 				}
 			}
 		}
@@ -114,7 +116,7 @@ class MediawikiTemplate implements ModelInterface {
 	public function getModelKeysAsOptions() {
 		$result = '<option></option>';
 
-		foreach( $this->_DataAdapater->getKeys() as $option ) {
+		foreach ( $this->_DataAdapater->getKeys() as $option ) {
 			$result .= sprintf( '<option>%s</option>', Filter::evaluate( $option ) );
 		}
 
@@ -150,7 +152,7 @@ class MediawikiTemplate implements ModelInterface {
 		$sections = null;
 		$template = '{{' . $this->mediawiki_template_name . PHP_EOL . '%s}}';
 
-		foreach( $this->mediawiki_template_array as $parameter => $content ) {
+		foreach ( $this->mediawiki_template_array as $parameter => $content ) {
 			if ( empty( $content ) ) {
 				continue;
 			}
@@ -168,19 +170,18 @@ class MediawikiTemplate implements ModelInterface {
 				foreach ( $content as $sub_template_name => $sub_template_content ) {
 					// currently only language is handled as a sub-template
 					if ( 'language' === $sub_template_name ) {
-						foreach( $sub_template_content as $language => $language_content ) {
+						foreach ( $sub_template_content as $language => $language_content ) {
 							$sections .= sprintf(
-								$this->_sub_templates['language'],
-								Filter::evaluate( $language ),
-								Filter::evaluate( $language_content )
-							) . PHP_EOL;
+									$this->_sub_templates['language'],
+									Filter::evaluate( $language ),
+									Filter::evaluate( $language_content )
+								) . PHP_EOL;
 						}
-
-					/**
-					 * sometimes the "shared" metadata element will indicate lang,
-					 * sometimes not this section handles those "shared" metadata
-					 * elements that do not specify a lang attribute
-					 */
+						/**
+						 * sometimes the "shared" metadata element will indicate lang,
+						 * sometimes not this section handles those "shared" metadata
+						 * elements that do not specify a lang attribute
+						 */
 					} else {
 						$sections .= Filter::evaluate( $sub_template_content ) . PHP_EOL;
 					}
@@ -190,15 +191,15 @@ class MediawikiTemplate implements ModelInterface {
 
 				if ( 'institution' == $parameter ) {
 					$sections .= sprintf(
-						$this->_sub_templates['institution'],
-						Filter::evaluate( $content )
-					) . PHP_EOL;
+							$this->_sub_templates['institution'],
+							Filter::evaluate( $content )
+						) . PHP_EOL;
 				} elseif ( 'artist' == $parameter ) {
 					// assumes that there could be more than one creator and uses the
 					// configured metadata separator to determine that
 					$creators = explode( Config::$metadata_separator, $content );
 
-					foreach( $creators as $creator ) {
+					foreach ( $creators as $creator ) {
 						// assumes that a creator entry could be last name, first
 						// no other assumptions are made other than this one
 						$creator = explode( ',', $creator, 2 );
@@ -210,9 +211,9 @@ class MediawikiTemplate implements ModelInterface {
 						}
 
 						$sections .= sprintf(
-							$this->_sub_templates['creator'],
-							Filter::evaluate( $creator )
-						) . PHP_EOL;
+								$this->_sub_templates['creator'],
+								Filter::evaluate( $creator )
+							) . PHP_EOL;
 					}
 				} elseif ( 'permission' == $parameter ) {
 					// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
@@ -220,10 +221,10 @@ class MediawikiTemplate implements ModelInterface {
 
 					if ( strstr( $permission, 'creativecommons.org/' ) ) {
 						$patterns = array(
-								'/(http|https):\/\/(www\.|)creativecommons.org\/publicdomain\/mark\/1.0\//',
-								'/(http|https):\/\/(www\.|)creativecommons.org\/publicdomain\/zero\/1.0\//',
-								'/(http|https):\/\/(www\.|)creativecommons.org\/licenses\//',
-								'/deed\.*/'
+							'/(http|https):\/\/(www\.|)creativecommons.org\/publicdomain\/mark\/1.0\//',
+							'/(http|https):\/\/(www\.|)creativecommons.org\/publicdomain\/zero\/1.0\//',
+							'/(http|https):\/\/(www\.|)creativecommons.org\/licenses\//',
+							'/deed\.*/'
 						);
 
 						$replacements = array(
@@ -240,7 +241,7 @@ class MediawikiTemplate implements ModelInterface {
 							$i = 0;
 							$string = '{{Cc-';
 
-							foreach( $permission as $piece ) {
+							foreach ( $permission as $piece ) {
 								if ( !empty( $piece ) ) {
 									$string .= $piece . '-';
 								}
@@ -277,6 +278,7 @@ class MediawikiTemplate implements ModelInterface {
 		}
 
 		$result .= sprintf( $template, $sections );
+
 		return $result;
 	}
 
@@ -313,7 +315,7 @@ class MediawikiTemplate implements ModelInterface {
 
 		$result =
 			sprintf( '<select%s%s>', $name, $id ) .
-				$this->getModelKeysAsOptions() .
+			$this->getModelKeysAsOptions() .
 			'</select>';
 
 		return $result;
@@ -342,7 +344,7 @@ class MediawikiTemplate implements ModelInterface {
 		}
 
 		if ( empty( $options['evaluated_media_file_extension'] ) ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
+			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
 		}
 
 		/**
@@ -382,12 +384,12 @@ class MediawikiTemplate implements ModelInterface {
 	 * @return {void}
 	 */
 	public function getMediaWikiTemplate( array &$user_options, $mediawiki_template_name = 'mediawiki-template-name' ) {
-		if ( !isset( $user_options[ $mediawiki_template_name ] ) ) {
+		if ( !isset( $user_options[$mediawiki_template_name] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->escaped() )->parse() );
 		}
 
-		if ( in_array( $user_options[ $mediawiki_template_name ], Config::$allowed_templates ) ) {
-			$this->mediawiki_template_name = $user_options[ $mediawiki_template_name ];
+		if ( in_array( $user_options[$mediawiki_template_name], Config::$allowed_templates ) ) {
+			$this->mediawiki_template_name = $user_options[$mediawiki_template_name];
 			$this->retrieve();
 		} else {
 			throw new Exception( wfMessage( 'gwtoolset-metadata-invalid-template' )->escaped() );
@@ -398,12 +400,12 @@ class MediawikiTemplate implements ModelInterface {
 	 * @return {void}
 	 */
 	public function populateFromArray( array &$metadata = array() ) {
-		foreach( $this->mediawiki_template_array as $parameter => $value ) {
-			$this->mediawiki_template_array[ $parameter ] = null;
+		foreach ( $this->mediawiki_template_array as $parameter => $value ) {
+			$this->mediawiki_template_array[$parameter] = null;
 			$parameter_as_id = $this->getParameterAsId( $parameter );
 
-			if ( isset( $metadata[ $parameter_as_id ] ) ) {
-				$this->mediawiki_template_array[ $parameter ] = $metadata[ $parameter_as_id ];
+			if ( isset( $metadata[$parameter_as_id] ) ) {
+				$this->mediawiki_template_array[$parameter] = $metadata[$parameter_as_id];
 			}
 		}
 	}
@@ -432,6 +434,6 @@ class MediawikiTemplate implements ModelInterface {
 		ksort( $this->mediawiki_template_array );
 	}
 
-	public function update( array &$options = array() ) {}
-
+	public function update( array &$options = array() ) {
+	}
 }

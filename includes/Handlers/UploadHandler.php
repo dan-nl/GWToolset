@@ -118,7 +118,7 @@ class UploadHandler {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )->parse() );
 		}
 
-		foreach( array_keys( Config::$accepted_metadata_types ) as $accepted_extension ) {
+		foreach ( array_keys( Config::$accepted_metadata_types ) as $accepted_extension ) {
 			if ( !in_array( $accepted_extension, $wgFileExtensions ) ) {
 				$wgFileExtensions[] = Filter::evaluate( $accepted_extension );
 			}
@@ -159,7 +159,7 @@ class UploadHandler {
 			$result .= '<!-- Categories -->' . PHP_EOL;
 			$categories = explode( Config::$category_separator, $this->user_options['categories'] );
 
-			foreach( $categories as $category ) {
+			foreach ( $categories as $category ) {
 				$result .= '[[Category:' . Filter::evaluate( $category ) . ']]';
 			}
 		}
@@ -256,25 +256,25 @@ class UploadHandler {
 		$Status = $Http->execute();
 
 		if ( !$Status->ok ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-bad')->rawParams( Filter::evaluate( $url ) )->escaped() );
+			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-bad' )->rawParams( Filter::evaluate( $url ) )->escaped() );
 		}
 
 		$result['url'] = $Http->getFinalUrl();
-		$result['content-type'] = $Http->getResponseHeader('content-type');
+		$result['content-type'] = $Http->getResponseHeader( 'content-type' );
 		$pathinfo = pathinfo( $result['url'] );
 
 		if ( !empty( $pathinfo['extension'] )
 			&& in_array( $pathinfo['extension'], Config::$accepted_media_types )
-			&& in_array( $result['content-type'], Config::$accepted_media_types[ $pathinfo['extension'] ] )
+			&& in_array( $result['content-type'], Config::$accepted_media_types[$pathinfo['extension']] )
 		) {
 			$result['extension'] = $pathinfo['extension'];
 		} else {
 			if ( empty( $result['content-type'] ) ) {
-				throw new Exception( wfMessage('gwtoolset-mapping-media-file-no-content-type')->rawParams( Filter::evaluate( $url ) )->escaped() );
+				throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-no-content-type' )->rawParams( Filter::evaluate( $url ) )->escaped() );
 			}
 
-			foreach( Config::$accepted_media_types as $extension => $mime_types ) {
-				foreach( $mime_types as $mime_type ) {
+			foreach ( Config::$accepted_media_types as $extension => $mime_types ) {
+				foreach ( $mime_types as $mime_type ) {
 					if ( $result['content-type'] == $mime_type ) {
 						$result['extension'] = $extension;
 						break;
@@ -288,7 +288,7 @@ class UploadHandler {
 		}
 
 		if ( empty( $result['extension'] ) ) {
-			throw new Exception( wfMessage('gwtoolset-mapping-media-file-url-extension-bad')->rawParams( Filter::evaluate( $url ) )->escaped() );
+			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )->rawParams( Filter::evaluate( $url ) )->escaped() );
 		}
 
 		return $result;
@@ -303,13 +303,13 @@ class UploadHandler {
 	protected function getMappedField( $field ) {
 		$result = null;
 
-		foreach( $this->_Mapping->target_dom_elements_mapped[ $field ] as $targeted_field ) {
+		foreach ( $this->_Mapping->target_dom_elements_mapped[$field] as $targeted_field ) {
 			$parameter_as_id = $this->_MediawikiTemplate->getParameterAsId( $targeted_field );
 
 			if ( array_key_exists( $targeted_field, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
-				$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $targeted_field ] . ' ';
-			} elseif( array_key_exists( $parameter_as_id, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
-				$result .= $this->_MediawikiTemplate->mediawiki_template_array[ $parameter_as_id ] . ' ';
+				$result .= $this->_MediawikiTemplate->mediawiki_template_array[$targeted_field] . ' ';
+			} elseif ( array_key_exists( $parameter_as_id, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
+				$result .= $this->_MediawikiTemplate->mediawiki_template_array[$parameter_as_id] . ' ';
 			}
 		}
 
@@ -358,12 +358,12 @@ class UploadHandler {
 	public function getTitleFromUploadedFile( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
 		$result = null;
 
-		if ( !empty( $user_options[ $metadata_file_url ] ) ) {
+		if ( !empty( $user_options[$metadata_file_url] ) ) {
 			$result = WikiPages::getTitleFromUrl(
-				$user_options[ $metadata_file_url ],
+				$user_options[$metadata_file_url],
 				FileChecks::getAcceptedExtensions( Config::$accepted_metadata_types )
 			);
-		} elseif ( !empty( $_FILES[ $metadata_file_upload ]['name'] ) ) {
+		} elseif ( !empty( $_FILES[$metadata_file_upload]['name'] ) ) {
 			$this->_File->populate( $metadata_file_upload );
 			FileChecks::isUploadedFileValid( $this->_File, Config::$accepted_metadata_types );
 			$this->addAllowedExtensions( Config::$accepted_metadata_types );
@@ -418,6 +418,7 @@ class UploadHandler {
 		$Metadata_Page->doEditContent( $Metadata_Content, $summary, 0, false, $this->_User );
 
 		$result = $Metadata_Title;
+
 		return $result;
 	}
 
@@ -576,7 +577,7 @@ class UploadHandler {
 		$Status = null;
 
 		$comment = wfMessage( 'gwtoolset-create-metadata' )->params( Config::$name, $this->_User->getName() )->escaped();
-		$pagetext = '[[Category:' . Config::$metadata_file_category. ']]';
+		$pagetext = '[[Category:' . Config::$metadata_file_category . ']]';
 		$Status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
 
 		return $Status;
@@ -624,5 +625,4 @@ class UploadHandler {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-media' )->escaped() )->parse() );
 		}
 	}
-
 }

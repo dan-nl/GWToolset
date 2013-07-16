@@ -69,7 +69,8 @@ class Mapping implements ModelInterface {
 		return $this->_DataAdapater->create( $options );
 	}
 
-	public function delete( array &$options = array() ) {}
+	public function delete( array &$options = array() ) {
+	}
 
 	/**
 	 * @todo: sanitize the mapping_array created
@@ -141,7 +142,7 @@ class Mapping implements ModelInterface {
 	protected function getMappingName( array $options ) {
 		$result = null;
 
-		if ( !empty( $options['Metadata-Mapping-Title']) ) {
+		if ( !empty( $options['Metadata-Mapping-Title'] ) ) {
 			$result = str_replace(
 				array(
 					Config::$metadata_namespace,
@@ -177,14 +178,14 @@ class Mapping implements ModelInterface {
 	protected function getMappingTitle( array &$options ) {
 		$Title = null;
 
-		if ( !empty($options['metadata-mapping-url']) ) {
+		if ( !empty( $options['metadata-mapping-url'] ) ) {
 			$Title = WikiPages::getTitleFromUrl(
 				$options['metadata-mapping-url'],
 				FileChecks::getAcceptedExtensions( Config::$accepted_mapping_types )
 			);
 
 			if ( !$Title->isKnown() ) {
-				throw new Exception( wfMessage('gwtoolset-metadata-mapping-not-found')->params( $options['metadata-mapping-url'] )->escaped() );
+				throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->params( $options['metadata-mapping-url'] )->escaped() );
 			}
 		}
 
@@ -202,13 +203,13 @@ class Mapping implements ModelInterface {
 
 		$this->mediawiki_template_name =
 			isset( $options['mediawiki-template-name'] )
-			? $options['mediawiki-template-name']
-			: null;
+				? $options['mediawiki-template-name']
+				: null;
 
 		$this->mapping_json =
 			isset( $options['metadata-mapping-json'] )
-			? $options['metadata-mapping-json']
-			: null;
+				? $options['metadata-mapping-json']
+				: null;
 
 		$this->mapping_array = $this->getJsonAsArray( $options );
 		$this->setTargetElements();
@@ -248,10 +249,10 @@ class Mapping implements ModelInterface {
 	 * @return {void}
 	 */
 	public function reverseMap() {
-		foreach( $this->target_dom_elements as $element ) {
-			foreach( $this->mapping_array as $mediawiki_parameter => $target_dom_elements ) {
+		foreach ( $this->target_dom_elements as $element ) {
+			foreach ( $this->mapping_array as $mediawiki_parameter => $target_dom_elements ) {
 				if ( in_array( $element, $target_dom_elements ) ) {
-					$this->target_dom_elements_mapped[ $element ][] = $mediawiki_parameter;
+					$this->target_dom_elements_mapped[$element][] = $mediawiki_parameter;
 				}
 			}
 		}
@@ -261,8 +262,8 @@ class Mapping implements ModelInterface {
 	 * @return {void}
 	 */
 	public function setTargetElements() {
-		foreach( $this->mapping_array as $key => $value ) {
-			foreach( $value as $item ) {
+		foreach ( $this->mapping_array as $key => $value ) {
+			foreach ( $value as $item ) {
 				if ( !in_array( $item, $this->target_dom_elements ) && !empty( $item ) ) {
 					$this->target_dom_elements[] = $item;
 				}
@@ -270,6 +271,6 @@ class Mapping implements ModelInterface {
 		}
 	}
 
-	public function update( array &$options = array() ) {}
-
+	public function update( array &$options = array() ) {
+	}
 }

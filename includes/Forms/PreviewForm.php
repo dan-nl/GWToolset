@@ -33,7 +33,7 @@ class PreviewForm {
 	 * an html form that is filtered
 	 */
 	public static function getForm( IContextSource $Context, array &$user_options, array &$mediafile_titles ) {
-		$process_button = (int) $user_options['record-count'] > (int ) Config::$preview_throttle
+		$process_button = (int)$user_options['record-count'] > (int )Config::$preview_throttle
 			? '<input type="submit" name="submit" value="' . wfMessage( 'gwtoolset-process-batch' )->escaped() . '"/>' . '<br />'
 			: wfMessage( 'gwtoolset-no-more-records' )->parse() . '<br />';
 
@@ -41,20 +41,20 @@ class PreviewForm {
 		$step2_link = '<span id="step2-link">&nbsp;</span>';
 
 		return
-			wfMessage( 'gwtoolset-step-3-instructions' )->params( (int) Config::$preview_throttle )->parse() .
-			wfMessage('gwtoolset-results')->parse() .
+			wfMessage( 'gwtoolset-step-3-instructions' )->params( (int)Config::$preview_throttle )->parse() .
+			wfMessage( 'gwtoolset-results' )->parse() .
 			self::getTitlesAsList( $mediafile_titles ) .
 
 			'<form id="gwtoolset-form" action="' . $Context->getTitle()->getFullURL() . '" method="post">' .
 
-				'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
-				'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
-				'<input type="hidden" name="record-begin" value="' . (int) $user_options['record-count'] . '"/>' .
-				self::getPostAsHiddenFields() .
+			'<input type="hidden" name="gwtoolset-form" value="metadata-mapping"/>' .
+			'<input type="hidden" name="wpEditToken" id="wpEditToken" value="' . $Context->getUser()->getEditToken() . '">' .
+			'<input type="hidden" name="record-begin" value="' . (int)$user_options['record-count'] . '"/>' .
+			self::getPostAsHiddenFields() .
 
-				'<p>' . wfMessage( 'gwtoolset-step-3-instructions-2' )->parse() . '</p>' .
-				'<p>' . $process_button . '</p>' .
-				wfMessage( 'gwtoolset-step-3-instructions-3' )->parse() .
+			'<p>' . wfMessage( 'gwtoolset-step-3-instructions-2' )->parse() . '</p>' .
+			'<p>' . $process_button . '</p>' .
+			wfMessage( 'gwtoolset-step-3-instructions-3' )->parse() .
 
 			'</form>' .
 
@@ -75,20 +75,20 @@ class PreviewForm {
 	public static function getPostAsHiddenFields() {
 		$result = null;
 
-		foreach( $_POST as $key => $value ) {
+		foreach ( $_POST as $key => $value ) {
 			if ( 'submit' == $key
-					|| 'wpEditToken' == $key
-					|| 'gwtoolset-form' == $key
-					|| 'gwtoolset-preview' == $key
+				|| 'wpEditToken' == $key
+				|| 'gwtoolset-form' == $key
+				|| 'gwtoolset-preview' == $key
 			) {
 				continue;
 			}
 
 			if ( !is_array( $value ) ) {
-				$result .= '<input type="hidden" name="' . Filter::evaluate( $key ). '" value="' . Filter::evaluate( $value ) . '"/>';
+				$result .= '<input type="hidden" name="' . Filter::evaluate( $key ) . '" value="' . Filter::evaluate( $value ) . '"/>';
 			} else {
-				foreach( $value as $sub_value ) {
-					$result .= '<input type="hidden" name="' . Filter::evaluate( $key ). '[]" value="' . Filter::evaluate( $sub_value ) . '"/>';
+				foreach ( $value as $sub_value ) {
+					$result .= '<input type="hidden" name="' . Filter::evaluate( $key ) . '[]" value="' . Filter::evaluate( $sub_value ) . '"/>';
 				}
 			}
 		}
@@ -108,7 +108,7 @@ class PreviewForm {
 	public static function getTitlesAsList( array &$mediafile_titles ) {
 		$result = '<ul>';
 
-		foreach( $mediafile_titles as $Title ) {
+		foreach ( $mediafile_titles as $Title ) {
 			if ( $Title instanceof Title ) {
 				$result .= '<li>' .
 					Linker::link( $Title, null, array( 'target' => '_blank' ) );
@@ -117,7 +117,7 @@ class PreviewForm {
 		}
 
 		$result .= '</ul>';
+
 		return $result;
 	}
-
 }

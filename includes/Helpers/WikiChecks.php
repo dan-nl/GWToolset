@@ -60,7 +60,7 @@ class WikiChecks {
 	public static function canUserViewPage( SpecialPage $SpecialPage ) {
 		try {
 			$SpecialPage->checkPermissions();
-		} catch( PermissionsError $e ) {
+		} catch ( PermissionsError $e ) {
 			throw new Exception( $e->getMessage(), 1000 );
 		}
 
@@ -152,9 +152,9 @@ class WikiChecks {
 			$area = Config::$max_image_area;
 		}
 
-		if ( (int) $wgMaxImageArea < (int) $area ) {
-			self::$wgMaxImageArea = (int) $wgMaxImageArea;
-			$wgMaxImageArea = (int) $area;
+		if ( (int)$wgMaxImageArea < (int)$area ) {
+			self::$wgMaxImageArea = (int)$wgMaxImageArea;
+			$wgMaxImageArea = (int)$area;
 		}
 	}
 
@@ -170,8 +170,8 @@ class WikiChecks {
 			$limit = Config::$memory_limit;
 		}
 
-		if ( (int) ini_get( 'memory_limit' ) < (int) $limit ) {
-			self::$memory_limit = ini_get('memory_limit');
+		if ( (int)ini_get( 'memory_limit' ) < (int)$limit ) {
+			self::$memory_limit = ini_get( 'memory_limit' );
 			ini_set( 'memory_limit', $limit );
 		}
 	}
@@ -196,6 +196,7 @@ class WikiChecks {
 	 */
 	public static function isWikiWriteable( SpecialPage $SpecialPage ) {
 		$SpecialPage->checkReadOnly();
+
 		return true;
 	}
 
@@ -289,7 +290,7 @@ class WikiChecks {
 	 */
 	public static function restoreMemoryLimit() {
 		if ( !empty( self::$memory_limit )
-			&& (int) ini_get( 'memory_limit' ) != (int) self::$memory_limit
+			&& (int)ini_get( 'memory_limit' ) != (int)self::$memory_limit
 		) {
 			ini_set( 'memory_limit', self::$memory_limit ); // 128M default
 		}
@@ -344,7 +345,7 @@ class WikiChecks {
 	 * @return {bool}
 	 */
 	public static function verifyCurlExists() {
-		if ( !function_exists('curl_init') ) {
+		if ( !function_exists( 'curl_init' ) ) {
 			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-curl' )->parse() . '</span>';
 			throw new Exception( $msg );
 		}
@@ -357,7 +358,7 @@ class WikiChecks {
 	 * @return {bool}
 	 */
 	public static function verifyFinfoExists() {
-		if ( !class_exists('finfo') ) {
+		if ( !class_exists( 'finfo' ) ) {
 			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-finfo' )->parse() . '</span>';
 			throw new Exception( $msg );
 		}
@@ -385,12 +386,11 @@ class WikiChecks {
 	 * @return {bool}
 	 */
 	public static function verifyXMLReaderExists() {
-		if ( !class_exists('XMLReader') ) {
+		if ( !class_exists( 'XMLReader' ) ) {
 			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-xmlreader' )->parse() . '</span>';
 			throw new Exception( $msg );
 		}
 
 		return true;
 	}
-
 }

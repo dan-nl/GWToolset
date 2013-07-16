@@ -9,4 +9,5 @@
 namespace Php;
 use Exception;
 
-class FilterException extends Exception {}
+class FilterException extends Exception {
+}

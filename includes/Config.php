@@ -11,7 +11,7 @@ namespace GWToolset;
 class Config {
 
 	public static $name = 'GWToolset';
-	public static $author =  array( 'dan entous' );
+	public static $author = array( 'dan entous' );
 	public static $url = 'https://www.mediawiki.org/wiki/Extension:GWToolset';
 	public static $descriptionmsg = 'gwtoolset-desc';
 	public static $type = 'media';

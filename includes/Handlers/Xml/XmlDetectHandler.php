@@ -67,12 +67,12 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return {void}
 	 */
 	protected function createExampleDOMElement( DOMElement $DOMElement ) {
-		foreach( $DOMElement->childNodes as $DOMNode ) {
+		foreach ( $DOMElement->childNodes as $DOMNode ) {
 			if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
-				if ( isset( $this->_metadata_example_dom_element[ $DOMNode->nodeName ] ) ) {
-					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][] = $DOMNode->nodeValue;
+				if ( isset( $this->_metadata_example_dom_element[$DOMNode->nodeName] ) ) {
+					$this->_metadata_example_dom_element[$DOMNode->nodeName][] = $DOMNode->nodeValue;
 				} else {
-					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][0] = $DOMNode->nodeValue;
+					$this->_metadata_example_dom_element[$DOMNode->nodeName][0] = $DOMNode->nodeValue;
 				}
 			}
 		}
@@ -100,13 +100,13 @@ class XmlDetectHandler extends XmlHandler {
 		$record = null;
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage('gwtoolset-no-xmlelement')->escaped() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlelement' )->escaped() )->parse() );
 		}
 
 		if ( !isset( $user_options['record-element-name'] )
 			|| !isset( $user_options['record-count'] )
 		) {
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage('gwtoolset-dom-record-issue')->escaped() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-dom-record-issue' )->escaped() )->parse() );
 		}
 
 		switch ( $XMLElement->nodeType ) {
@@ -147,13 +147,13 @@ class XmlDetectHandler extends XmlHandler {
 	 * @return {void}
 	 */
 	protected function findExampleDOMNodes( DOMElement $DOMElement ) {
-		foreach( $DOMElement->childNodes as $DOMNode ) {
+		foreach ( $DOMElement->childNodes as $DOMNode ) {
 			if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
 				if ( !array_key_exists( $DOMNode->nodeName, $this->_metadata_example_dom_nodes ) ) {
-					$this->_metadata_example_dom_nodes[ $DOMNode->nodeName ] = $DOMNode->nodeValue;
+					$this->_metadata_example_dom_nodes[$DOMNode->nodeName] = $DOMNode->nodeValue;
 				}
 				if ( !array_key_exists( $DOMNode->nodeName, $this->_metadata_example_dom_element ) ) {
-					$this->_metadata_example_dom_element[ $DOMNode->nodeName ][] = $DOMNode->nodeValue;
+					$this->_metadata_example_dom_element[$DOMNode->nodeName][] = $DOMNode->nodeValue;
 				}
 			}
 		}
@@ -170,12 +170,12 @@ class XmlDetectHandler extends XmlHandler {
 	public function getMetadataAsHtmlTableRows() {
 		$result = null;
 
-		foreach( $this->_metadata_example_dom_element as $nodeName => $nodeValues ) {
-			foreach( $nodeValues as $nodeValue ) {
+		foreach ( $this->_metadata_example_dom_element as $nodeName => $nodeValues ) {
+			foreach ( $nodeValues as $nodeValue ) {
 				$result .=
 					'<tr>' .
-						'<td>' . Filter::evaluate( $nodeName ) . '</td>' .
-						'<td>' . Filter::evaluate( $nodeValue ) . '</td>' .
+					'<td>' . Filter::evaluate( $nodeName ) . '</td>' .
+					'<td>' . Filter::evaluate( $nodeValue ) . '</td>' .
 					'</tr>';
 			}
 		}
@@ -233,31 +233,31 @@ class XmlDetectHandler extends XmlHandler {
 		$parameter_as_id = $MediawikiTemplate->getParameterAsId( $parameter );
 		$first_row_placed = false;
 		$required = null;
-		$required_fields = array('title_identifier', 'url_to_the_media_file');
+		$required_fields = array( 'title_identifier', 'url_to_the_media_file' );
 
 		$no_metadata_button_row =
 			'<tr>' .
-				'<td><label for="%s">%s%s :</label></td>' .
-				'<td>&nbsp;</td>' .
-				'<td><select name="%s[]" id="%s">%s</select></td>' .
+			'<td><label for="%s">%s%s :</label></td>' .
+			'<td>&nbsp;</td>' .
+			'<td><select name="%s[]" id="%s">%s</select></td>' .
 			'</tr>';
 
 		$first_row =
 			'<tr>' .
-				'<td><label for="%s">%s%s :</label></td>' .
-				'<td class="metadata-add"></td>' .
-				'<td><select name="%s[]" id="%s">%s</select></td>' .
+			'<td><label for="%s">%s%s :</label></td>' .
+			'<td class="metadata-add"></td>' .
+			'<td><select name="%s[]" id="%s">%s</select></td>' .
 			'</tr>';
 
 		$following_row =
 			'<tr>' .
-				'<td>&nbsp;</td>' .
-				'<td class="metadata-subtract"></td>' .
-				'<td><select name="%s[]">%s</select></td>' .
+			'<td>&nbsp;</td>' .
+			'<td class="metadata-subtract"></td>' .
+			'<td><select name="%s[]">%s</select></td>' .
 			'</tr>';
 
-		if ( isset( $Mapping->mapping_array[ $parameter ] ) ) {
-			$selected_options = $Mapping->mapping_array[ $parameter ];
+		if ( isset( $Mapping->mapping_array[$parameter] ) ) {
+			$selected_options = $Mapping->mapping_array[$parameter];
 		}
 
 		if ( empty( $this->_metadata_as_options ) ) {
@@ -305,7 +305,7 @@ class XmlDetectHandler extends XmlHandler {
 				$this->getMetadataAsOptions( $selected_options[0] )
 			);
 		} elseif ( count( $selected_options ) > 1 ) {
-			foreach( $selected_options as $option ) {
+			foreach ( $selected_options as $option ) {
 				if ( key_exists( $option, $this->_metadata_example_dom_nodes ) ) {
 					if ( !$first_row_placed ) {
 						$result .= sprintf(
@@ -372,7 +372,7 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		if ( empty( $msg ) && empty( $this->_metadata_example_dom_element ) ) {
-			$msg = wfMessage('gwtoolset-no-xml-element-found')->parse() . PHP_EOL . $this->_SpecialPage->getBackToFormLink();
+			$msg = wfMessage( 'gwtoolset-no-xml-element-found' )->parse() . PHP_EOL . $this->_SpecialPage->getBackToFormLink();
 		}
 
 		if ( !empty( $msg ) ) {
@@ -392,5 +392,4 @@ class XmlDetectHandler extends XmlHandler {
 		$this->_metadata_example_dom_nodes = array();
 		$this->_SpecialPage = null;
 	}
-
 }

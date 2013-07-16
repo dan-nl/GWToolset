@@ -57,7 +57,7 @@ class FileChecks {
 	 * the string is filtered
 	 * a comma delimited list of accepted extensions
 	 */
-	public static function getAcceptedExtensionsAsList ( array &$accepted_types = array() ) {
+	public static function getAcceptedExtensionsAsList( array &$accepted_types = array() ) {
 		$result = null;
 
 		if ( !empty( $accepted_types ) ) {
@@ -79,7 +79,6 @@ class FileChecks {
 		return array_unique( \GWToolset\getArraySecondLevelValues( $accepted_types ) );
 	}
 
-
 	/**
 	 * returns the accept attribute for <input type="file" accept="">
 	 * populated with mime types the extension accepts.
@@ -99,7 +98,7 @@ class FileChecks {
 				Filter::evaluate(
 					implode( ', ', self::getAcceptedMimeTypes( $accepted_types ) )
 				) .
-			'"';
+				'"';
 		}
 
 		return $result;
@@ -117,10 +116,10 @@ class FileChecks {
 		if ( !empty( Config::$max_file_upload )
 			&& intval( Config::$max_file_upload ) < UploadBase::getMaxUploadSize( $forType )
 		) {
-			return (int) Config::$max_file_upload;
+			return (int)Config::$max_file_upload;
 		}
 
-		return (int) UploadBase::getMaxUploadSize( $forType );
+		return (int)UploadBase::getMaxUploadSize( $forType );
 	}
 
 	/**
@@ -160,6 +159,7 @@ class FileChecks {
 		}
 
 		self::$current_extension = $extension;
+
 		return true;
 	}
 
@@ -234,7 +234,7 @@ class FileChecks {
 			$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->escaped();
 		}
 
-		if ( !in_array( $File->mime_type, $accepted_types[ $File->pathinfo['extension'] ] ) ) {
+		if ( !in_array( $File->mime_type, $accepted_types[$File->pathinfo['extension']] ) ) {
 			$msg = wfMessage(
 				'gwtoolset-mime-type-mismatch',
 				Filter::evaluate( $File->pathinfo['extension'] ),
@@ -296,5 +296,4 @@ class FileChecks {
 
 		return true;
 	}
-
 }

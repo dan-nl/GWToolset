@@ -11,5 +11,4 @@ class Exception extends \Exception {
 			$this->message .= '<pre style="overflow:auto;">' . print_r( $this, true ) . '</pre>';
 		}
 	}
-
 }

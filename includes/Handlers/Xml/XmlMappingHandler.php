@@ -93,17 +93,17 @@ class XmlMappingHandler extends XmlHandler {
 		$is_url = false;
 		$DOMNodeList = $DOMElement->getElementsByTagName( '*' );
 
-		foreach( $DOMNodeList as $DOMNodeElement ) {
+		foreach ( $DOMNodeList as $DOMNodeElement ) {
 			if ( !key_exists( $DOMNodeElement->tagName, $this->_Mapping->target_dom_elements_mapped ) ) {
 				continue;
 			}
 
 			// an array of mediawiki parameters that should be populatated by this DOMNodeElement’s value
-			$template_parameters = $this->_Mapping->target_dom_elements_mapped[ $DOMNodeElement->tagName ];
+			$template_parameters = $this->_Mapping->target_dom_elements_mapped[$DOMNodeElement->tagName];
 			$lang = null;
 
 			if ( $DOMNodeElement->hasAttributes() ) {
-				foreach( $DOMNodeElement->attributes as $DOMAttribute ) {
+				foreach ( $DOMNodeElement->attributes as $DOMAttribute ) {
 					if ( 'lang' == $DOMAttribute->name ) {
 						$lang = Filter::evaluate( $DOMAttribute->value );
 						break;
@@ -111,7 +111,7 @@ class XmlMappingHandler extends XmlHandler {
 				}
 			}
 
-			foreach( $template_parameters as $template_parameter ) {
+			foreach ( $template_parameters as $template_parameter ) {
 				if ( strpos( $template_parameter, 'url' ) !== false ) {
 					$is_url = true;
 				} else {
@@ -119,24 +119,23 @@ class XmlMappingHandler extends XmlHandler {
 				}
 
 				if ( !empty( $lang ) ) {
-					if ( !isset( $elements_mapped[ $template_parameter ]['language'] ) ) {
-						$elements_mapped[ $template_parameter ]['language'] = array();
+					if ( !isset( $elements_mapped[$template_parameter]['language'] ) ) {
+						$elements_mapped[$template_parameter]['language'] = array();
 					}
 
-					if ( !isset( $elements_mapped[ $template_parameter ]['language'][ $lang ] ) ) {
-						$elements_mapped[ $template_parameter ]['language'][ $lang ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+					if ( !isset( $elements_mapped[$template_parameter]['language'][$lang] ) ) {
+						$elements_mapped[$template_parameter]['language'][$lang] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 					} else {
-						$elements_mapped[ $template_parameter ]['language'][ $lang ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+						$elements_mapped[$template_parameter]['language'][$lang] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 					}
 				} else {
-					if ( !isset( $elements_mapped[ $template_parameter ] ) ) {
-						$elements_mapped[ $template_parameter ] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+					if ( !isset( $elements_mapped[$template_parameter] ) ) {
+						$elements_mapped[$template_parameter] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 					} else {
 						if ( 'title_identifier' == $template_parameter ) {
-							$elements_mapped[ $template_parameter ] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
-
-						// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
-						} elseif ( 'url_to_the_media_file' != $template_parameter )  {
+							$elements_mapped[$template_parameter] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+							// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
+						} elseif ( 'url_to_the_media_file' != $template_parameter ) {
 
 							/**
 							 * if a template_parameter has some elements with a lang attribute
@@ -146,17 +145,17 @@ class XmlMappingHandler extends XmlHandler {
 							 * isset( $elements_mapped[ $template_parameter ][ 'language ] )
 							 * doesn't work here
 							 */
-							if ( is_array( $elements_mapped[ $template_parameter ] )
-								&& array_key_exists( 'language', $elements_mapped[ $template_parameter ] )
+							if ( is_array( $elements_mapped[$template_parameter] )
+								&& array_key_exists( 'language', $elements_mapped[$template_parameter] )
 							) {
-								if ( !isset( $elements_mapped[ $template_parameter ][0] ) ) {
-									$elements_mapped[ $template_parameter ][0] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+								if ( !isset( $elements_mapped[$template_parameter][0] ) ) {
+									$elements_mapped[$template_parameter][0] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 								} else {
 									// .= produces PHP Fatal error:  Cannot use assign-op operators with overloaded objects nor string offsets
-									$elements_mapped[ $template_parameter ][0] = $elements_mapped[ $template_parameter ][0] . Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+									$elements_mapped[$template_parameter][0] = $elements_mapped[$template_parameter][0] . Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 								}
 							} else {
-								$elements_mapped[ $template_parameter ] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
+								$elements_mapped[$template_parameter] .= Config::$metadata_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 							}
 						}
 					}
@@ -219,8 +218,8 @@ class XmlMappingHandler extends XmlHandler {
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
 			throw new Exception(
-				wfMessage('gwtoolset-developer-issue')->params(
-					wfMessage('gwtoolset-no-xmlelement')->escaped()
+				wfMessage( 'gwtoolset-developer-issue' )->params(
+					wfMessage( 'gwtoolset-no-xmlelement' )->escaped()
 				)->parse()
 			);
 		}
@@ -228,7 +227,7 @@ class XmlMappingHandler extends XmlHandler {
 		if ( !isset( $user_options['record-element-name'] )
 			|| !isset( $user_options['record-count'] )
 		) {
-			throw new Exception( wfMessage('gwtoolset-developer-issue')->params( wfMessage('gwtoolset-dom-record-issue')->escaped() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-dom-record-issue' )->escaped() )->parse() );
 		}
 
 		switch ( $XMLElement->nodeType ) {
@@ -311,7 +310,6 @@ class XmlMappingHandler extends XmlHandler {
 		$this->_MediawikiTemplate = null;
 		$this->_SpecialPage = null;
 	}
-
 	//	//if ( $DOMNode->hasAttributes() ) {
 	//	//
 	//	//	foreach( $DOMNode->attributes as $DOMAttr ) {

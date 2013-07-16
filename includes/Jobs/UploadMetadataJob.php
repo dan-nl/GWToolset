@@ -79,11 +79,10 @@ class UploadMetadataJob extends Job {
 
 		try {
 			$result = $this->_MetadataMappingHandler->processRequest();
-		} catch( Exception $e ) {
+		} catch ( Exception $e ) {
 			error_log( $e->getMessage() );
 		}
 
 		return $result;
 	}
-
 }

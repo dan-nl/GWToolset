@@ -72,7 +72,7 @@ class SpecialGWToolset extends SpecialPage {
 	 * @return {string}
 	 */
 	public function getBackToFormLink() {
-		return '<span id="back-text"><noscript>'. wfMessage('gwtoolset-back-text')->escaped() . '</noscript>&nbsp;</span>';
+		return '<span id="back-text"><noscript>' . wfMessage( 'gwtoolset-back-text' )->escaped() . '</noscript>&nbsp;</span>';
 	}
 
 	/**
@@ -89,11 +89,11 @@ class SpecialGWToolset extends SpecialPage {
 
 		if ( !$this->getRequest()->wasPosted() ) {
 			if ( $this->module_key === null ) {
-				$html .=  wfMessage( 'gwtoolset-intro' )->parseAsBlock();
+				$html .= wfMessage( 'gwtoolset-intro' )->parseAsBlock();
 			} else {
 				try {
 					$html .= $this->_Handler->getHtmlForm( $this->_registered_modules[$this->module_key] );
-				} catch( Exception $e ) {
+				} catch ( Exception $e ) {
 					$html .=
 						wfMessage( 'gwtoolset-technical-error' )->parse() .
 						'<p class="error">' . Filter::evaluate( $e->getMessage() ) . '</p>';
@@ -103,7 +103,7 @@ class SpecialGWToolset extends SpecialPage {
 			try {
 				if ( !( $this->_Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
 					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->escaped() )->parse();
-					if ( ini_get('display_errors') && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
+					if ( ini_get( 'display_errors' ) && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
 						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
 					} else {
 						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->escaped();
@@ -127,10 +127,10 @@ class SpecialGWToolset extends SpecialPage {
 		$this->setHeaders();
 		$this->getOutput()->addModules( 'ext.GWToolset' );
 		$this->getOutput()->addHtml(
-			wfMessage('gwtoolset-menu')->rawParams(
+			wfMessage( 'gwtoolset-menu' )->rawParams(
 				Linker::link(
 					Title::newFromText( 'Special:' . Config::$name ),
-					wfMessage('gwtoolset-menu-1')->escaped(),
+					wfMessage( 'gwtoolset-menu-1' )->escaped(),
 					array(),
 					array( 'gwtoolset-form' => 'metadata-detect' )
 				)
@@ -180,7 +180,6 @@ class SpecialGWToolset extends SpecialPage {
 		return true;
 	}
 
-
 	/**
 	 * entry point
 	 * a control method that acts as an entry point for the
@@ -189,7 +188,7 @@ class SpecialGWToolset extends SpecialPage {
 	 * @return {void}
 	 */
 	public function execute( $par ) {
-		set_error_handler('\GWToolset\handleError');
+		set_error_handler( '\GWToolset\handleError' );
 
 		if ( !$this->wikiChecks() ) {
 			return;
@@ -198,5 +197,4 @@ class SpecialGWToolset extends SpecialPage {
 		$this->setModuleAndHandler();
 		$this->processRequest();
 	}
-
 }

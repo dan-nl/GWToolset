@@ -34,7 +34,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		}
 
 		if ( empty( $options['mapping-name'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-mapping' )-plain() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-mapping' )->plain() )->parse() );
 		}
 
 		if ( empty( $options['user'] ) ) {
@@ -58,7 +58,8 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		return $result;
 	}
 
-	public function delete( array $options = array() ) {}
+	public function delete( array $options = array() ) {
+	}
 
 	/**
 	 * @todo is the content returned by the WikiPage filtered?
@@ -71,7 +72,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 
 		if ( $options['Metadata-Mapping-Title'] instanceof Title ) {
 			if ( !$options['Metadata-Mapping-Title']->isKnown() ) {
-				throw new Exception( wfMessage('gwtoolset-metadata-mapping-not-found')->params( $options['metadata-mapping-url'] )->escaped() );
+				throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->params( $options['metadata-mapping-url'] )->escaped() );
 			}
 
 			$Mapping_Page = new WikiPage( $options['Metadata-Mapping-Title'] );
@@ -91,7 +92,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 	 *    Transaction idle or pre-commit callbacks still pending.
 	 *    triggered by $db->__destruct because there is a mTrxIdleCallbacks waiting
 	 *    not sure why though
-	 *    @see https://bugzilla.wikimedia.org/show_bug.cgi?id=47375
+	 * @see https://bugzilla.wikimedia.org/show_bug.cgi?id=47375
 	 *
 	 * @param {array} $options
 	 * @return {Status}
@@ -102,12 +103,12 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		$Mapping_Content = ContentHandler::makeContent( $options['text'], $options['title'] );
 		$Mapping_Page = new WikiPage( $options['title'] );
 
-		set_error_handler('\GWToolset\swallowErrors');
+		set_error_handler( '\GWToolset\swallowErrors' );
 		$result = $Mapping_Page->doEditContent( $Mapping_Content, $options['summary'], 0, false, $options['user'] );
 
 		return $result;
 	}
 
-	public function update( array $options = array() ) {}
-
+	public function update( array $options = array() ) {
+	}
 }

@@ -82,5 +82,4 @@ abstract class DbAdapterAbstract implements DataAdapterInterface {
 		$this->dbw = \wfGetDB( DB_MASTER );
 		$this->table_name = null;
 	}
-
 }

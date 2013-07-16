@@ -74,7 +74,7 @@ class MetadataDetectHandler extends FormHandler {
 	public function getMetadataAsHtmlSelectsInTableRows( array &$user_options ) {
 		$result = null;
 
-		foreach( $this->_MediawikiTemplate->mediawiki_template_array as $parameter => $value ) {
+		foreach ( $this->_MediawikiTemplate->mediawiki_template_array as $parameter => $value ) {
 			$result .= $this->XmlDetectHandler->getMetadataAsTableCells( $parameter, $this->_MediawikiTemplate, $this->_Mapping );
 		}
 
@@ -91,24 +91,24 @@ class MetadataDetectHandler extends FormHandler {
 	protected function getUserOptions() {
 		return array(
 			'mediawiki-template-name' =>
-				!empty( $_POST['mediawiki-template-name'] )
+			!empty( $_POST['mediawiki-template-name'] )
 				? $_POST['mediawiki-template-name']
 				: null,
 
 			'metadata-file-url' =>
-				!empty( $_POST['metadata-file-url'] )
+			!empty( $_POST['metadata-file-url'] )
 				? urldecode( $_POST['metadata-file-url'] )
 				: null,
 
 			'metadata-mapping-url' =>
-				!empty( $_POST['metadata-mapping-url'] )
+			!empty( $_POST['metadata-mapping-url'] )
 				? urldecode( $_POST['metadata-mapping-url'] )
 				: null,
 
 			'record-count' => 0,
 
 			'record-element-name' =>
-				!empty( $_POST['record-element-name'] )
+			!empty( $_POST['record-element-name'] )
 				? $_POST['record-element-name']
 				: 'record',
 		);
@@ -180,5 +180,4 @@ class MetadataDetectHandler extends FormHandler {
 
 		return $result;
 	}
-
 }

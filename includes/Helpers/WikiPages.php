@@ -45,6 +45,7 @@ class WikiPages {
 		);
 
 		$result = Title::newFromText( $result );
+
 		return $result;
 	}
 
@@ -67,5 +68,4 @@ class WikiPages {
 		//return str_replace( array( '#','<','>','[',']','|','{','}',':','¬','`','!','"','£','$','^','&','*','(',')','+','=','~','?','/',',',Config::$metadata_separator,';',"'",'@' ), $replacement, $title );
 		return str_replace( array( ':', '/' ), $replacement, $title );
 	}
-
 }

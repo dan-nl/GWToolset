@@ -20,7 +20,8 @@ abstract class AjaxHandler extends SpecialPageHandler {
 	 *
 	 * @return {void}
 	 */
-	public function getHtmlForm() {}
+	public function getHtmlForm() {
+	}
 
 	/**
 	 * entry point
@@ -39,9 +40,8 @@ abstract class AjaxHandler extends SpecialPageHandler {
 			$result = Status::newFatal( $e->getMessage() );
 		}
 
-		header('Content-Type: application/json; charset=utf-8');
+		header( 'Content-Type: application/json; charset=utf-8' );
 		echo json_encode( $result );
 		exit();
 	}
-
 }

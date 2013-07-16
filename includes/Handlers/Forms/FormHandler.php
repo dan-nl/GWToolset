@@ -32,17 +32,17 @@ abstract class FormHandler extends SpecialPageHandler {
 	protected function checkForRequiredFormFields( array &$user_options, array $expected_options ) {
 		$msg = null;
 
-		foreach( $expected_options as $option ) {
+		foreach ( $expected_options as $option ) {
 			if ( !array_key_exists( $option, $user_options ) ) {
 				$msg .= '<li>' . Filter::evaluate( $option ) . '</li>';
 			}
 
-			if ( is_array( $user_options[ $option ] ) ) {
-				if ( strlen( reset( $user_options[ $option ] ) ) < 1 ) {
+			if ( is_array( $user_options[$option] ) ) {
+				if ( strlen( reset( $user_options[$option] ) ) < 1 ) {
 					$msg .= '<li>' . Filter::evaluate( $option ) . '</li>';
 				}
 			} else {
-				if ( strlen( $user_options[ $option ] ) < 1 ) {
+				if ( strlen( $user_options[$option] ) < 1 ) {
 					$msg .= '<li>' . Filter::evaluate( $option ) . '</li>';
 				}
 			}
@@ -118,5 +118,4 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		return $result;
 	}
-
 }

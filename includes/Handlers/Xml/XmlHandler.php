@@ -24,19 +24,19 @@ abstract class XmlHandler {
 	 */
 	protected function displayCurrentNodeProperties( XMLReader $reader ) {
 		echo 'attributeCount : ' . $reader->attributeCount . '<br />';
-		echo 'baseURI : ' .$reader->baseURI . '<br />';
-		echo 'depth : ' .$reader->depth . '<br />';
-		echo 'hasAttributes : ' .$reader->hasAttributes . '<br />';
-		echo 'hasValue : ' .$reader->hasValue . '<br />';
-		echo 'isDefault : ' .$reader->isDefault . '<br />';
-		echo 'isEmptyElemet : ' .$reader->isEmptyElement . '<br />';
-		echo 'localName : ' .$reader->localName . '<br />';
-		echo 'name : ' .$reader->name . '<br />';
-		echo 'namespaceURI : ' .$reader->namespaceURI . '<br />';
-		echo 'nodeType : ' .$reader->nodeType . '<br />';
-		echo 'prefix : ' .$reader->prefix . '<br />';
-		echo 'value : ' .$reader->value . '<br />';
-		echo 'xmlLang : ' .$reader->xmlLang . '<br />';
+		echo 'baseURI : ' . $reader->baseURI . '<br />';
+		echo 'depth : ' . $reader->depth . '<br />';
+		echo 'hasAttributes : ' . $reader->hasAttributes . '<br />';
+		echo 'hasValue : ' . $reader->hasValue . '<br />';
+		echo 'isDefault : ' . $reader->isDefault . '<br />';
+		echo 'isEmptyElemet : ' . $reader->isEmptyElement . '<br />';
+		echo 'localName : ' . $reader->localName . '<br />';
+		echo 'name : ' . $reader->name . '<br />';
+		echo 'namespaceURI : ' . $reader->namespaceURI . '<br />';
+		echo 'nodeType : ' . $reader->nodeType . '<br />';
+		echo 'prefix : ' . $reader->prefix . '<br />';
+		echo 'value : ' . $reader->value . '<br />';
+		echo 'xmlLang : ' . $reader->xmlLang . '<br />';
 		echo '<br />';
 	}
 
@@ -44,19 +44,19 @@ abstract class XmlHandler {
 	 * a debug method
 	 */
 	protected function getNodesInfo( $node ) {
-		if ($node->hasChildNodes() ) {
+		if ( $node->hasChildNodes() ) {
 			$subNodes = $node->childNodes;
 
-			foreach ($subNodes as $subNode) {
+			foreach ( $subNodes as $subNode ) {
 				if ( ( $subNode->nodeType != 3 ) ||
 					( ( $subNode->nodeType == 3 ) &&
-					( strlen( trim( $subNode->wholeText ) ) >= 1 ) )
+						( strlen( trim( $subNode->wholeText ) ) >= 1 ) )
 				) {
-					echo "Node name: ".$subNode->nodeName."<br />";
-					echo "Node value: ".$subNode->nodeValue."<br />";
+					echo "Node name: " . $subNode->nodeName . "<br />";
+					echo "Node value: " . $subNode->nodeValue . "<br />";
 					echo '<br />';
 				}
-				$this->getNodesInfo($subNode);
+				$this->getNodesInfo( $subNode );
 			}
 		}
 	}
@@ -180,9 +180,9 @@ abstract class XmlHandler {
 
 		if ( !empty( $errors ) ) {
 			throw new Exception(
-				wfMessage('gwtoolset-xml-error')->escaped() .
+				wfMessage( 'gwtoolset-xml-error' )->escaped() .
 				'<pre style="overflow:auto;">' .
-					print_r( $errors, true ) .
+				print_r( $errors, true ) .
 				'</pre>'
 			);
 		}
@@ -192,12 +192,12 @@ abstract class XmlHandler {
 
 		if ( $DOMNodeList->length < 1 ) {
 			throw new Exception(
-				wfMessage('gwtoolset-no-xml-element-found')->parse() . PHP_EOL .
+				wfMessage( 'gwtoolset-no-xml-element-found' )->parse() . PHP_EOL .
 				$this->_SpecialPage->getBackToFormLink()
 			);
 		}
 
-		foreach( $DOMNodeList as $DOMNode ) {
+		foreach ( $DOMNodeList as $DOMNode ) {
 			$read_result = $this->$callback( $DOMNode, $user_options );
 
 			if ( !empty( $read_result['Title'] ) ) {
@@ -211,5 +211,4 @@ abstract class XmlHandler {
 
 		return $mediafile_titles;
 	}
-
 }

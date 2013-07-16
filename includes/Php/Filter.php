@@ -58,7 +58,7 @@ class Filter {
 		}
 
 		if ( self::$value_raw_is_array ) {
-			foreach( self::$value_result_array as $key => $value ) {
+			foreach ( self::$value_result_array as $key => $value ) {
 				$result = filter_var( $value, self::$filter_validate, self::$filter_validate_options );
 				if ( $result === false ) {
 					return false;
@@ -82,7 +82,7 @@ class Filter {
 		}
 
 		if ( self::$value_raw_is_array ) {
-			foreach( self::$value_result_array as $key => $value ) {
+			foreach ( self::$value_result_array as $key => $value ) {
 				$result = filter_var( $value, self::$filter_sanitize, self::$filter_sanitize_options );
 				if ( $result === false ) {
 					return false;
@@ -110,13 +110,13 @@ class Filter {
 				return false;
 			}
 
-			foreach( self::$value_result_array as $key => $value ) {
-				if ( $value === null || strlen( $value ) < 1  ) {
+			foreach ( self::$value_result_array as $key => $value ) {
+				if ( $value === null || strlen( $value ) < 1 ) {
 					return false;
 				}
 			}
 		} else {
-			if ( self::$value_result === null || strlen( self::$value_result ) < 1  ) {
+			if ( self::$value_result === null || strlen( self::$value_result ) < 1 ) {
 				return false;
 			}
 		}
@@ -126,8 +126,8 @@ class Filter {
 
 	protected static function trim() {
 		if ( self::$value_raw_is_array ) {
-			foreach( self::$value_raw as $key => $value ) {
-				self::$value_result_array[ $key ] = trim( $value );
+			foreach ( self::$value_raw as $key => $value ) {
+				self::$value_result_array[$key] = trim( $value );
 			}
 		} else {
 			self::$value_result = trim( self::$value_raw );
@@ -152,7 +152,6 @@ class Filter {
 		self::$valid = true;
 	}
 
-
 	/**
 	 * @param array|string $options
 	 * @return void
@@ -160,6 +159,7 @@ class Filter {
 	protected static function populate( &$options = null ) {
 		if ( !is_array( $options ) ) {
 			self::$value_raw = $options;
+
 			return;
 		}
 
@@ -168,7 +168,7 @@ class Filter {
 		} else {
 			$msg = '$options provided as an array, but no $options[source] provided [' . print_r( $options, true ) . ']';
 
-			if ( ini_get('display_errors') ) {
+			if ( ini_get( 'display_errors' ) ) {
 				$msg .= '<pre style="overflow:auto;">' . print_r( debug_backtrace(), true ) . '</pre>';
 			}
 
@@ -182,7 +182,7 @@ class Filter {
 				$msg = '$options[source] provided as an array, but no $options[key-name] provided.';
 				$msg .= '<pre style="overflow:auto;">' . print_r( $options, true ) . '</pre>';
 
-				if ( ini_get('display_errors') ) {
+				if ( ini_get( 'display_errors' ) ) {
 					$msg .= '<pre style="overflow:auto;">' . print_r( debug_backtrace(), true ) . '</pre>';
 				}
 
@@ -256,5 +256,4 @@ class Filter {
 			return null;
 		}
 	}
-
 }

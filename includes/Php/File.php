@@ -117,13 +117,12 @@ class File {
 	 * @link http://www.php.net/manual/en/fileinfo.constants.php
 	 */
 	protected function setMimeType() {
-		if ( !class_exists('finfo') ) {
+		if ( !class_exists( 'finfo' ) ) {
 			return;
 		}
 		$finfo = new finfo( FILEINFO_MIME_TYPE );
 		$this->mime_type = $finfo->file( $this->tmp_name );
 	}
-
 
 	protected function setPathInfo() {
 		$this->pathinfo = pathinfo( $this->name );
@@ -132,7 +131,6 @@ class File {
 	protected function isFileUploaded() {
 		$this->is_uploaded_file = is_uploaded_file( $this->tmp_name );
 	}
-
 
 	/**
 	 * @throws FileException
@@ -163,10 +161,10 @@ class File {
 			}
 
 			$result = true;
-		} while( false );
+		} while ( false );
 
 		if ( !$result ) {
-			throw new FileException(  'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' );
+			throw new FileException( 'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' );
 		}
 
 		return $result;
@@ -179,11 +177,11 @@ class File {
 	public function populate( $file_field_name ) {
 		$file_field_name = Filter::evaluate( $file_field_name );
 
-		if ( !isset( $_FILES[ $file_field_name ] ) ) {
+		if ( !isset( $_FILES[$file_field_name] ) ) {
 			throw new FileException( 'The expected form field [' . $file_field_name . '] does not exist. (Php\File)' );
 		}
 
-		$file = $_FILES[ $file_field_name ];
+		$file = $_FILES[$file_field_name];
 
 		if ( empty( $file ) ) {
 			throw new FileException( 'The file submitted contains no information; it is most likely an empty file. (Php\File)' );
@@ -219,7 +217,6 @@ class File {
 		$this->isFileUploaded();
 		$this->setPathinfo();
 		$this->setMimeType();
-
 	}
 
 	/**
@@ -234,7 +231,6 @@ class File {
 		$this->type = null;
 		$this->is_uploaded_file = false;
 		$this->pathinfo = array();
-		$this->mime_type= null;
+		$this->mime_type = null;
 	}
-
 }

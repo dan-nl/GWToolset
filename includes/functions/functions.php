@@ -27,7 +27,7 @@ function getArraySecondLevelValues( array $array = array() ) {
 
 	$values = array();
 
-	foreach( $array as $keys ) {
+	foreach ( $array as $keys ) {
 		foreach ( $keys as $key => $value ) {
 			$values[] = $value;
 		}
@@ -45,7 +45,7 @@ function getArraySecondLevelValues( array $array = array() ) {
 function in_array_r( $needle, $haystack, $strict = false ) {
 	$array = new RecursiveIteratorIterator( new RecursiveArrayIterator( $haystack ) );
 
-	foreach( $array as $element ) {
+	foreach ( $array as $element ) {
 		if ( $strict == true ) {
 			if ( $element === $needle ) {
 				return true;
@@ -62,7 +62,7 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 
 /**
  * wfSuppressWarnings() lowers the error_reporting threshold because the
- * script that follows it is “allowed” to produce warnings,	thus, only
+ * script that follows it is “allowed” to produce warnings,    thus, only
  * handle errors this way when error_reporting is set to >= E_ALL
  *
  * @param {int} $errno
@@ -72,11 +72,11 @@ function in_array_r( $needle, $haystack, $strict = false ) {
  * @param {array} $errcontext
  */
 function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
-	if ( ini_get('display_errors') && error_reporting() >= E_ALL ) {
+	if ( ini_get( 'display_errors' ) && error_reporting() >= E_ALL ) {
 		$errormsg =
 			'<pre style="overflow:auto;">' .
-				$errstr . "\n" .
-				print_r( debug_backtrace(), true ) .
+			$errstr . "\n" .
+			print_r( debug_backtrace(), true ) .
 			'</pre>';
 
 		if ( $errno > E_WARNING ) {
@@ -92,4 +92,5 @@ function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
 
 // created to deal with an issue within
 // GWToolset/includes/Adapters/Api/MappingPhpAdapter.php->saveMapping()
-function swallowErrors() {}
+function swallowErrors() {
+}

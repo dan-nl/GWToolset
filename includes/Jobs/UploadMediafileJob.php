@@ -53,6 +53,7 @@ class UploadMediafileJob extends Job {
 
 		$this->_UploadHandler->user_options = $this->params['user_options'];
 		$result = $this->_UploadHandler->saveMediafileAsContent( $this->params );
+
 		return $result;
 	}
 
@@ -91,7 +92,7 @@ class UploadMediafileJob extends Job {
 
 		try {
 			$result = $this->processMetadata();
-		} catch( Exception $e ) {
+		} catch ( Exception $e ) {
 			error_log( $e->getMessage() );
 		}
 
@@ -101,5 +102,4 @@ class UploadMediafileJob extends Job {
 
 		return $result;
 	}
-
 }

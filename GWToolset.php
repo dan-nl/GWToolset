@@ -87,7 +87,7 @@ foreach ( Config::$hooks as $hook => $method ) {
 /**
  * add jobs
  */
-foreach( Config::$jobs as $job => $method ) {
+foreach ( Config::$jobs as $job => $method ) {
 	$wgJobClasses[$job] = $method;
 }
 
