@@ -93,8 +93,8 @@
 		$template_table: $( '#template-table > tbody' ),
 		$save_mapping_button: $( '<tr><td colspan="3" style="text-align:right;"><span id="save-mapping" title="' + mw.message( 'gwtoolset-save-mapping' ).escaped() + '">' + mw.message( 'gwtoolset-save-mapping' ).escaped() + '</span></td></tr>' ),
 		$buttons: {
-			$add: $( '<img/>', { 'src': '/extensions/GWToolset/resources/images/b_snewtbl.png', 'class': 'gwtoolset-metadata-button' } ),
-			$subtract: $( '<img/>', { 'src': '/extensions/GWToolset/resources/images/b_drop.png', 'class': 'gwtoolset-metadata-button' } )
+			$add: $( '<img/>', { 'src': mw.config.get('wgScriptPath') + '/extensions/GWToolset/resources/images/b_snewtbl.png', 'class': 'gwtoolset-metadata-button' } ),
+			$subtract: $( '<img/>', { 'src': mw.config.get('wgScriptPath') + '/extensions/GWToolset/resources/images/b_drop.png', 'class': 'gwtoolset-metadata-button' } )
 		},
 		$metadata_buttons: $( '.metadata-add, .metadata-subtract' ),
 		$category_buttons: $( '.category-add, .category-subtract' ),
@@ -308,7 +308,7 @@
 
 		addAjaxLoader: function () {
 			this.$ajax_loader
-				.append( '<p><img src="/skins/common/images/ajax-loader.gif"/><br />' + mw.msg( 'gwtoolset-loading' ) + '</p>' );
+				.append( '<p><img src="' + mw.config.get('wgScriptPath') + '/skins/common/images/ajax-loader.gif"/><br />' + mw.msg( 'gwtoolset-loading' ) + '</p>' );
 			this.$form.prepend( this.$ajax_loader );
 		},
 
