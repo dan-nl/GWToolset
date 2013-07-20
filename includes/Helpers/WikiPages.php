@@ -25,7 +25,7 @@ class WikiPages {
 	 * @return {boolean|Title}
 	 */
 	public static function getTitleFromUrl( $url = null, $accepted_extensions = array() ) {
-		global $wgServer;
+		global $wgServer, $wgScriptPath, $wgArticlePath;
 		$result = false;
 
 		if ( empty( $url ) ) {
@@ -39,7 +39,7 @@ class WikiPages {
 		}
 
 		$result = str_replace(
-			array( $wgServer, 'index.php', '//' ),
+			array( $wgServer, $wgScriptPath, str_replace( '$1', '', $wgArticlePath ), '//' ),
 			'',
 			$url
 		);
