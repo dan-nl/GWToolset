@@ -39,7 +39,7 @@ class WikiPages {
 		}
 
 		$result = str_replace(
-			array( $wgServer, $wgScriptPath, str_replace( '$1', '', $wgArticlePath ), '//' ),
+			array( $wgServer, str_replace( '$1', '', $wgArticlePath ), $wgScriptPath, '//' ),
 			'',
 			$url
 		);
