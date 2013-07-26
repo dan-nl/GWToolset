@@ -12,6 +12,7 @@ use GWToolset\Config,
 	Php\File,
 	Php\Filter,
 	OutputPage,
+	Status,
 	UploadBase;
 
 /**
@@ -26,15 +27,28 @@ class FileChecks {
 	public static $current_extension;
 
 	/**
+	 * @throws {Exception}
+	 * @return {void}
+	 */
+	public static function checkContentLength() {
+		if ( isset( $_SERVER["CONTENT_LENGTH"] )
+			&& ( (int)$_SERVER["CONTENT_LENGTH"] > \GWToolset\getBytes( ini_get('post_max_size') )
+				|| (int)$_SERVER["CONTENT_LENGTH"] > \GWToolset\getBytes( ini_get('upload_max_filesize') ) )
+		) {
+			throw new Exception( wfMessage( 'gwtoolset-over-max-ini' )->escaped() );
+		}
+	}
+
+	/**
 	 * @param {File} $File
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function fileWasUploaded( File $File ) {
 		if ( !$File->is_uploaded_file ) {
-			throw new Exception( wfMessage( 'gwtoolset-improper-upload' )->escaped() );
+			return Status::newFatal( 'gwtoolset-improper-upload' );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
@@ -55,7 +69,7 @@ class FileChecks {
 	 *
 	 * @return {string}
 	 * the string is filtered
-	 * a comma delimited list of accepted extensions
+	 * a comma delimited list of accepted file extensions
 	 */
 	public static function getAcceptedExtensionsAsList( array &$accepted_types = array() ) {
 		$result = null;
@@ -81,24 +95,23 @@ class FileChecks {
 
 	/**
 	 * returns the accept attribute for <input type="file" accept="">
-	 * populated with mime types the extension accepts.
+	 * populated with file mime types the extension accepts.
 	 *
 	 * @param {array} $accepted_types
 	 * expected format 'file-extension' => array('mime/type','mime2/type2')
 	 *
 	 * @return {string}
 	 * the string is filtered
-	 * a comma delimited list of accepted mime types
+	 * a comma delimited list of accepted file mime types
 	 */
 	public static function getFileAcceptAttribute( array &$accepted_types = array() ) {
 		$result = null;
 
 		if ( !empty( $accepted_types ) && Config::$use_file_accept_attribute ) {
-			$result = 'accept="' .
+			$result =
 				Filter::evaluate(
 					implode( ', ', self::getAcceptedMimeTypes( $accepted_types ) )
-				) .
-				'"';
+				);
 		}
 
 		return $result;
@@ -113,10 +126,10 @@ class FileChecks {
 	 * @return {int}
 	 */
 	public static function getMaxUploadSize( $forType = null ) {
-		if ( !empty( Config::$max_file_upload )
-			&& intval( Config::$max_file_upload ) < UploadBase::getMaxUploadSize( $forType )
+		if ( !empty( Config::$max_upload_filesize )
+			&& (int)Config::$max_upload_filesize < UploadBase::getMaxUploadSize( $forType )
 		) {
-			return (int)Config::$max_file_upload;
+			return (int)Config::$max_upload_filesize;
 		}
 
 		return (int)UploadBase::getMaxUploadSize( $forType );
@@ -127,8 +140,7 @@ class FileChecks {
 	 *
 	 * @param {string|File} $File
 	 * @param {array} $accepted_extensions
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function isAcceptedFileExtension( &$File, array $accepted_extensions = array() ) {
 		$msg = null;
@@ -140,58 +152,56 @@ class FileChecks {
 			$pathinfo = pathinfo( $File );
 
 			if ( !isset( $pathinfo['extension'] ) ) {
-				$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->escaped();
+				$msg = 'gwtoolset-unaccepted-extension';
 			} else {
 				$extension = Filter::evaluate( strtolower( $pathinfo['extension'] ) );
 			}
 		}
 
 		if ( !isset( $extension ) || empty( $extension ) ) {
-			$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->escaped();
+			$msg = 'gwtoolset-unaccepted-extension';
 		}
 
 		if ( $msg === null && !in_array( $extension, $accepted_extensions ) ) {
-			$msg = wfMessage( 'gwtoolset-unaccepted-extension-specific', Filter::evaluate( $extension ) )->escaped();
+			$msg = 'gwtoolset-unaccepted-extension-specific';
 		}
 
 		if ( $msg !== null ) {
-			throw new Exception( $msg );
+			return Status::newFatal( $msg, Filter::evaluate( $extension ) );
 		}
 
 		self::$current_extension = $extension;
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
 	 * @param {File} $File
 	 * @param {array} $accepted_mime_types
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
-	public static function isAcceptedMimeType( File &$File, array $accepted_mime_types = array() ) {
+	public static function isAcceptedMimeType( File $File, array $accepted_mime_types = array() ) {
 		if ( !in_array( $File->mime_type, $accepted_mime_types ) ) {
-			if ( 'xml' == self::$current_extension ) {
-				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type-for-xml', Filter::evaluate( $File->mime_type ) )->parse() );
+			if ( self::$current_extension === 'xml' ) {
+				return Status::newFatal( 'gwtoolset-unaccepted-mime-type-for-xml', Filter::evaluate( $File->mime_type ) );
 			} else {
-				throw new Exception( wfMessage( 'gwtoolset-unaccepted-mime-type', Filter::evaluate( $File->mime_type ) )->escaped() );
+				return Status::newFatal( 'gwtoolset-unaccepted-mime-type', Filter::evaluate( $File->mime_type ) );
 			}
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
 	 * @param {File} $File
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
-	public static function isFileEmpty( File &$File ) {
+	public static function isFileEmpty( File $File ) {
 		if ( $File->size === 0 ) {
-			throw new Exception( wfMessage( 'gwtoolset-file-is-empty' )->escaped() );
+			return Status::newFatal( 'gwtoolset-file-is-empty' );
 		}
 
-		return false;
+		return Status::newGood();
 	}
 
 	/**
@@ -204,55 +214,69 @@ class FileChecks {
 	 *
 	 * @param {File} $File
 	 * @param {array} $accepted_types
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function isUploadedFileValid( File $File, array $accepted_types = array() ) {
 		if ( empty( $accepted_types ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )->parse() );
 		}
 
-		self::isFileEmpty( $File );
-		self::noFileErrors( $File );
-		self::fileWasUploaded( $File );
-		self::isAcceptedFileExtension( $File, self::getAcceptedExtensions( $accepted_types ) );
-		self::isAcceptedMimeType( $File, self::getAcceptedMimeTypes( $accepted_types ) );
-		self::mimeTypeAndExtensionMatch( $File, $accepted_types );
+		$Status = self::isFileEmpty( $File );
+		if ( !$Status->ok ) {
+			return $Status;
+		}
 
-		return true;
+		$Status = self::noFileErrors( $File );
+		if ( !$Status->ok ) {
+			return $Status;
+		}
+
+		$Status = self::fileWasUploaded( $File );
+		if ( !$Status->ok ) {
+			return $Status;
+		}
+
+		$Status = self::isAcceptedFileExtension( $File, self::getAcceptedExtensions( $accepted_types ) );
+		if ( !$Status->ok ) {
+			return $Status;
+		}
+
+		$Status = self::isAcceptedMimeType( $File, self::getAcceptedMimeTypes( $accepted_types ) );
+		if ( !$Status->ok ) {
+			return $Status;
+		}
+
+		$Status = self::mimeTypeAndExtensionMatch( $File, $accepted_types );
+		if ( !$Status->ok ) {
+			return $Status;
+		}
+
+		return $Status;
 	}
 
 	/**
 	 * @param {File} $File
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function mimeTypeAndExtensionMatch( File $File, array $accepted_types = array() ) {
-		$msg = null;
-
 		if ( !isset( $File->pathinfo['extension'] ) || empty( $File->pathinfo['extension'] ) ) {
-			$msg = wfMessage( 'gwtoolset-unaccepted-extension' )->escaped();
+			return Status::newFatal( 'gwtoolset-unaccepted-extension' );
 		}
 
 		if ( !in_array( $File->mime_type, $accepted_types[$File->pathinfo['extension']] ) ) {
-			$msg = wfMessage(
+			return Status::newFatal(
 				'gwtoolset-mime-type-mismatch',
 				Filter::evaluate( $File->pathinfo['extension'] ),
 				Filter::evaluate( $File->mime_type )
-			)->escaped();
+			);
 		}
 
-		if ( $msg !== null ) {
-			throw new Exception( $msg );
-		}
-
-		return true;
+		return Status::newGood();
 	}
 
 	/**
 	 * @param {File} $File
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function noFileErrors( File &$File ) {
 		$msg = null;
@@ -262,38 +286,38 @@ class FileChecks {
 				break;
 
 			case UPLOAD_ERR_INI_SIZE :
-				$msg = wfMessage( 'gwtoolset-over-max-ini' )->escaped();
+				$msg = 'gwtoolset-over-max-ini';
 				break;
 
 			case UPLOAD_ERR_FORM_SIZE :
-				$msg = wfMessage( 'gwtoolset-over-max-file-size' )->escaped();
+				$msg = 'gwtoolset-over-max-file-size';
 				break;
 
 			case UPLOAD_ERR_PARTIAL :
-				$msg = wfMessage( 'gwtoolset-partial-upload' )->escaped();
+				$msg = 'gwtoolset-partial-upload';
 				break;
 
 			case UPLOAD_ERR_NO_FILE :
-				$msg = wfMessage( 'gwtoolset-no-file' )->escaped();
+				$msg = 'gwtoolset-no-file';
 				break;
 
 			case UPLOAD_ERR_NO_TMP_DIR :
-				$msg = wfMessage( 'gwtoolset-missing-temp-folder' )->escaped();
+				$msg = 'gwtoolset-missing-temp-folder';
 				break;
 
 			case UPLOAD_ERR_CANT_WRITE :
-				$msg = wfMessage( 'gwtoolset-disk-write-failure' )->escaped();
+				$msg = 'gwtoolset-disk-write-failure';
 				break;
 
 			case UPLOAD_ERR_EXTENSION :
-				$msg = wfMessage( 'gwtoolset-php-extension-error' )->escaped();
+				$msg = 'gwtoolset-php-extension-error';
 				break;
 		}
 
 		if ( $msg !== null ) {
-			throw new Exception( $msg );
+			return Status::newFatal( $msg );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 }

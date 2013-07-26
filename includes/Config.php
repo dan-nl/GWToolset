@@ -81,8 +81,14 @@ class Config {
 	);
 
 	public static $resources = array(
-		'scripts' => 'resources/js/ext.gwtoolset.js',
-		'styles' => 'resources/css/ext.gwtoolset.css',
+		'scripts' => array(
+			'resources/js/jquery/ui/1.10.3/jquery-ui.js',
+			'resources/js/ext.gwtoolset.js'
+		),
+		'styles' => array(
+			'resources/css/jquery/ui/1.10.3/themes/smoothness/jquery-ui.css',
+			'resources/css/ext.gwtoolset.css'
+		),
 		'messages' => array(
 			'gwtoolset-developer-issue',
 			'gwtoolset-loading',
@@ -123,9 +129,11 @@ class Config {
 
 	/**
 	 * @var {int}
-	 * when set to 0, the wiki’s $wgMaxUploadSize is used
+	 * set in bytes
+	 * the maximum upload filesize this extension will accept. when set to 0,
+	 * the wiki’s $wgMaxUploadSize is used
 	 */
-	public static $max_file_upload = 0;
+	public static $max_upload_filesize = 0;
 
 	/**
 	 * the user group the user must be a member of in order to be able to use this extension

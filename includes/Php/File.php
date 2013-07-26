@@ -16,37 +16,37 @@ use finfo,
 class File {
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * The original uploaded file array
 	 */
 	public $original_file_array;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * The original name of the file on the client machine.
 	 */
 	public $name;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * The mime type of the file, if the browser provided this information. An example would be "image/gif". This mime type is however not checked on the PHP side and therefore don't take its value for granted.
 	 */
 	public $type;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * The size, in bytes, of the uploaded file.
 	 */
 	public $size;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * The temporary filename of the file in which the uploaded file was stored on the server.
 	 */
 	public $tmp_name;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 * The error code associated with this file upload. This element was added in PHP 4.2.0
 	 *
 	 * UPLOAD_ERR_OK
@@ -73,7 +73,7 @@ class File {
 	public $error;
 
 	/**
-	 * @var boolean
+	 * @var {bool}
 	 * Tells whether the file was uploaded via HTTP POST
 	 *
 	 * @link http://www.php.net/manual/en/function.is-uploaded-file.php
@@ -81,7 +81,7 @@ class File {
 	public $is_uploaded_file;
 
 	/**
-	 * @var array
+	 * @var {array}
 	 * information about a file path
 	 *
 	 * @link http://nl3.php.net/manual/en/function.pathinfo.php
@@ -89,13 +89,13 @@ class File {
 	public $pathinfo;
 
 	/**
-	 * @var string
+	 * @var {string}
 	 */
 	public $mime_type;
 
 	/**
-	 * @param array $file
-	 * @return null
+	 * @param {array} $file
+	 * @return {void}
 	 */
 	public function __construct( $file_field_name = null ) {
 		$this->reset();
@@ -111,7 +111,7 @@ class File {
 	 *
 	 * e.g. of output application/xml; charset=us-ascii
 	 *
-	 * @return void
+	 * @return {void}
 	 *
 	 * @link http://www.php.net/manual/en/function.finfo-file.php
 	 * @link http://www.php.net/manual/en/fileinfo.constants.php
@@ -128,51 +128,32 @@ class File {
 		$this->pathinfo = pathinfo( $this->name );
 	}
 
-	protected function isFileUploaded() {
+	protected function setIsFileUploaded() {
 		$this->is_uploaded_file = is_uploaded_file( $this->tmp_name );
 	}
 
 	/**
-	 * @throws FileException
-	 * @return boolean
+	 * @return {bool}
 	 */
 	protected function isFileInfoComplete() {
-		$result = false;
-
-		do {
-			if ( !isset( $this->error ) ) {
-				break;
-			}
-
-			if ( empty( $this->name ) ) {
-				break;
-			}
-
-			if ( !isset( $this->type ) ) {
-				break;
-			}
-
-			if ( !isset( $this->size ) ) {
-				break;
-			}
-
-			if ( empty( $this->tmp_name ) ) {
-				break;
-			}
-
-			$result = true;
-		} while ( false );
+		$result = !(
+			!isset( $this->error )
+			|| empty( $this->name )
+			|| !isset( $this->type )
+			|| !isset( $this->size )
+			|| empty( $this->tmp_name )
+		);
 
 		if ( !$result ) {
-			throw new FileException( 'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' );
+			return false;
 		}
 
-		return $result;
+		return true;
 	}
 
 	/**
-	 * @throws FileException
-	 * @return void
+	 * @throws {FileException}
+	 * @return {void}
 	 */
 	public function populate( $file_field_name ) {
 		$file_field_name = Filter::evaluate( $file_field_name );
@@ -213,14 +194,17 @@ class File {
 			$this->type = $file['type'];
 		}
 
-		$this->isFileInfoComplete();
-		$this->isFileUploaded();
+		if ( !$this->isFileInfoComplete() ) {
+			throw new FileException( 'The file submitted does not contain enough information to process the file; it may be empty or you did not select a file to submit. (Php\File)' );
+		}
+
+		$this->setIsFileUploaded();
 		$this->setPathinfo();
 		$this->setMimeType();
 	}
 
 	/**
-	 * @return void
+	 * @return {void}
 	 */
 	public function reset() {
 		$this->original_file_array = array();

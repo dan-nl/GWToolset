@@ -31,13 +31,10 @@ abstract class AjaxHandler extends SpecialPageHandler {
 	 * @return {void}
 	 */
 	public function execute() {
-		$result = '{}';
+		$result = WikiChecks::doesEditTokenMatch( $this->SpecialPage );
 
-		try {
-			WikiChecks::doesEditTokenMatch( $this->SpecialPage );
+		if ( $result->ok ) {
 			$result = $this->processRequest();
-		} catch ( Exception $e ) {
-			$result = Status::newFatal( $e->getMessage() );
 		}
 
 		header( 'Content-Type: application/json; charset=utf-8' );

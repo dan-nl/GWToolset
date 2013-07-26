@@ -275,7 +275,7 @@ class UploadHandler {
 
 			foreach ( Config::$accepted_media_types as $extension => $mime_types ) {
 				foreach ( $mime_types as $mime_type ) {
-					if ( $result['content-type'] == $mime_type ) {
+					if ( $result['content-type'] === $mime_type ) {
 						$result['extension'] = $extension;
 						break;
 					}
@@ -365,7 +365,12 @@ class UploadHandler {
 			);
 		} elseif ( !empty( $_FILES[$metadata_file_upload]['name'] ) ) {
 			$this->_File->populate( $metadata_file_upload );
-			FileChecks::isUploadedFileValid( $this->_File, Config::$accepted_metadata_types );
+			$Status = FileChecks::isUploadedFileValid( $this->_File, Config::$accepted_metadata_types );
+
+			if ( !$Status->ok ) {
+				throw new Exception( $Status->getMessage() );
+			}
+
 			$this->addAllowedExtensions( Config::$accepted_metadata_types );
 			$result = $this->saveMetadataFileAsContent();
 			$user_options['metadata-file-url'] = $result;
@@ -437,10 +442,10 @@ class UploadHandler {
 		$this->validateUserOptions( $user_options );
 		$this->user_options = $user_options;
 
-		$options['url_to_the_media_file'] = $this->_MediawikiTemplate->mediawiki_template_array['url_to_the_media_file'];
-		$evaluated_url = $this->evaluateMediafileUrl( $options['url_to_the_media_file'] );
-		$options['url_to_the_media_file'] = $evaluated_url['url'];
-		$options['evaluated_media_file_extension'] = $evaluated_url['extension'];
+		$options['url-to-the-media-file'] = $this->_MediawikiTemplate->mediawiki_template_array['url-to-the-media-file'];
+		$evaluated_url = $this->evaluateMediafileUrl( $options['url-to-the-media-file'] );
+		$options['url-to-the-media-file'] = $evaluated_url['url'];
+		$options['evaluated-media-file-extension'] = $evaluated_url['extension'];
 
 		$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
 		$options['ignorewarnings'] = true;
@@ -494,7 +499,7 @@ class UploadHandler {
 
 	/**
 	 * @param {array} $options
-	 * @return {boolean}
+	 * @return {bool}
 	 */
 	protected function saveMediafileViaJob( array &$options ) {
 		$result = false;
@@ -512,7 +517,7 @@ class UploadHandler {
 				'ignorewarnings' => $options['ignorewarnings'],
 				'text' => $options['text'],
 				'title' => $options['title'],
-				'url_to_the_media_file' => $options['url_to_the_media_file'],
+				'url-to-the-media-file' => $options['url-to-the-media-file'],
 				'username' => $this->_User->getName(),
 				'user_options' => $this->user_options,
 				'watch' => $options['watch']
@@ -531,7 +536,7 @@ class UploadHandler {
 	}
 
 	/**
-	 * @todo does UploadFromUrl filter $options['url_to_the_media_file']
+	 * @todo does UploadFromUrl filter $options['url-to-the-media-file']
 	 * @todo does UploadFromUrl filter $options['comment']
 	 * @todo does UploadFromUrl filter $options['text']
 	 *
@@ -543,7 +548,7 @@ class UploadHandler {
 		$Upload = new UploadFromUrl();
 		$Upload->initialize(
 			WikiPages::titleCheck( $options['title'] ),
-			$options['url_to_the_media_file'],
+			$options['url-to-the-media-file'],
 			false
 		);
 
@@ -555,7 +560,7 @@ class UploadHandler {
 
 		// Verify upload - returns a status value via an array
 		$status = $Upload->verifyUpload();
-		if ( $status['status'] != UploadBase::OK ) {
+		if ( $status['status'] !== UploadBase::OK ) {
 			return $Upload->convertVerifyErrorToStatus( $status );
 		}
 
@@ -602,7 +607,7 @@ class UploadHandler {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-text' )->escaped() )->parse() );
 		}
 
-		if ( empty( $options['url_to_the_media_file'] ) ) {
+		if ( empty( $options['url-to-the-media-file'] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-url-to-media' )->escaped() )->parse() );
 		}
 	}

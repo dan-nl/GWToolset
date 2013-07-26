@@ -10,7 +10,9 @@ namespace GWToolset;
 use Exception,
 	GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Models\Menu,
+	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiChecks,
+	Html,
 	Linker,
 	PermissionsError,
 	Php\Filter,
@@ -57,12 +59,12 @@ class SpecialGWToolset extends SpecialPage {
 	 *     If you override execute(), you can recover the default behaviour with userCanExecute()
 	 *     and displayRestrictionError()
 	 *
-	 * @param $name String: name of the special page, as seen in links and URLs
-	 * @param $restriction String: user right required, e.g. "block" or "delete"
-	 * @param $listed Bool: whether the page is listed in Special:Specialpages
-	 * @param $function Callback|Bool: function called by execute(). By default it is constructed from $name
-	 * @param $file String: file which is included by execute(). It is also constructed from $name by default
-	 * @param $includable Bool: whether the page can be included in normal pages
+	 * @param {string} $name name of the special page, as seen in links and URLs
+	 * @param {string} $restriction user right required, e.g. "block" or "delete"
+	 * @param {bool} $listed whether the page is listed in Special:Specialpages
+	 * @param {callback|bool} $function function called by execute(). By default it is constructed from $name
+	 * @param {string} $file file which is included by execute(). It is also constructed from $name by default
+	 * @param {bool} $includable whether the page can be included in normal pages
 	 */
 	public function __construct() {
 		parent::__construct( Config::$special_page_name, Config::$restriction, Config::$listed );
@@ -72,7 +74,15 @@ class SpecialGWToolset extends SpecialPage {
 	 * @return {string}
 	 */
 	public function getBackToFormLink() {
-		return '<span id="back-text"><noscript>' . wfMessage( 'gwtoolset-back-text' )->escaped() . '</noscript>&nbsp;</span>';
+		return Html::rawElement(
+			'span',
+			array( 'id' => 'back-text' ),
+			Html::rawElement(
+				'noscript',
+				array(),
+				wfMessage( 'gwtoolset-back-text' )->escaped() . ' '
+			)
+		);
 	}
 
 	/**
@@ -96,15 +106,18 @@ class SpecialGWToolset extends SpecialPage {
 				} catch ( Exception $e ) {
 					$html .=
 						wfMessage( 'gwtoolset-technical-error' )->parse() .
-						'<p class="error">' . Filter::evaluate( $e->getMessage() ) . '</p>';
+						Html::rawElement( 'p', array( 'class' => 'error' ), Filter::evaluate( $e->getMessage() ) );
 				}
 			}
 		} else {
 			try {
+				FileChecks::checkContentLength();
+
 				if ( !( $this->_Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
 					$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-handler' )->escaped() )->parse();
 					if ( ini_get( 'display_errors' ) && $this->getUser()->isAllowed( 'gwtoolset-debug' ) ) {
-						$msg .= '<br /><pre>' . print_r( error_get_last(), true ) . '</pre>';
+						$msg .= Html::rawElement( 'br' ) .
+							Html::rawElement( 'pre', array( 'style' => 'overflow:auto' ), print_r( error_get_last(), true ) );
 					} else {
 						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->escaped();
 					}
@@ -114,12 +127,12 @@ class SpecialGWToolset extends SpecialPage {
 
 				$html .= $this->_Handler->execute();
 			} catch ( Exception $e ) {
-				if ( $e->getCode() == 1000 ) {
+				if ( $e->getCode() === 1000 ) {
 					throw new PermissionsError( $e->getMessage() );
 				} else {
 					$html .=
 						wfMessage( 'gwtoolset-file-interpretation-error' )->parse() .
-						'<p class="error">' . $e->getMessage() . '</p>';
+						Html::rawElement( 'p', array( 'class' => 'error' ), $e->getMessage() );
 				}
 			}
 		}
@@ -160,20 +173,13 @@ class SpecialGWToolset extends SpecialPage {
 	 * @return {bool}
 	 */
 	protected function wikiChecks() {
-		try {
-			if ( !WikiChecks::pageIsReadyForThisUser( $this ) ) {
-				return false;
-			}
-		} catch ( Exception $e ) {
-			if ( $e->getCode() == 1000 ) {
-				throw new PermissionsError( $e->getMessage() );
-			} else {
-				$this->getOutput()->addHTML(
-					wfMessage( 'gwtoolset-wiki-checks-not-passed' )->parse() .
-					$e->getMessage() . '<br />'
-				);
-			}
+		$Status = WikiChecks::pageIsReadyForThisUser( $this );
 
+		if ( !$Status->ok ) {
+			$this->getOutput()->addHTML(
+				wfMessage( 'gwtoolset-wiki-checks-not-passed' )->parse() .
+				Html::rawElement( 'span', array( 'class' => 'error' ), $Status->getMessage() )
+			);
 			return false;
 		}
 
@@ -190,11 +196,9 @@ class SpecialGWToolset extends SpecialPage {
 	public function execute( $par ) {
 		set_error_handler( '\GWToolset\handleError' );
 
-		if ( !$this->wikiChecks() ) {
-			return;
+		if ( $this->wikiChecks() ) {
+			$this->setModuleAndHandler();
+			$this->processRequest();
 		}
-
-		$this->setModuleAndHandler();
-		$this->processRequest();
 	}
 }

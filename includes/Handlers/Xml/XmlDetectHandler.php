@@ -10,6 +10,7 @@ namespace GWToolset\Handlers\Xml;
 use Content,
 	DOMElement,
 	Exception,
+	Html,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	Php\Filter,
@@ -68,7 +69,7 @@ class XmlDetectHandler extends XmlHandler {
 	 */
 	protected function createExampleDOMElement( DOMElement $DOMElement ) {
 		foreach ( $DOMElement->childNodes as $DOMNode ) {
-			if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
+			if ( $DOMNode->nodeType === XML_ELEMENT_NODE ) {
 				if ( isset( $this->_metadata_example_dom_element[$DOMNode->nodeName] ) ) {
 					$this->_metadata_example_dom_element[$DOMNode->nodeName][] = $DOMNode->nodeValue;
 				} else {
@@ -112,11 +113,11 @@ class XmlDetectHandler extends XmlHandler {
 		switch ( $XMLElement->nodeType ) {
 			case ( XMLReader::ELEMENT ):
 				if ( $XMLElement instanceof XMLReader ) {
-					if ( $XMLElement->name == $user_options['record-element-name'] ) {
+					if ( $XMLElement->name === $user_options['record-element-name'] ) {
 						$record = $XMLElement->expand();
 					}
 				} elseif ( $XMLElement instanceof DOMElement ) {
-					if ( $XMLElement->nodeName == $user_options['record-element-name'] ) {
+					if ( $XMLElement->nodeName === $user_options['record-element-name'] ) {
 						$record = $XMLElement;
 					}
 				}
@@ -124,7 +125,7 @@ class XmlDetectHandler extends XmlHandler {
 				if ( !empty( $record ) ) {
 					$user_options['record-count'] += 1;
 
-					if ( $user_options['record-count'] == 1 ) {
+					if ( $user_options['record-count'] === 1 ) {
 						$this->createExampleDOMElement( $record );
 					}
 
@@ -148,7 +149,7 @@ class XmlDetectHandler extends XmlHandler {
 	 */
 	protected function findExampleDOMNodes( DOMElement $DOMElement ) {
 		foreach ( $DOMElement->childNodes as $DOMNode ) {
-			if ( $DOMNode->nodeType == XML_ELEMENT_NODE ) {
+			if ( $DOMNode->nodeType === XML_ELEMENT_NODE ) {
 				if ( !array_key_exists( $DOMNode->nodeName, $this->_metadata_example_dom_nodes ) ) {
 					$this->_metadata_example_dom_nodes[$DOMNode->nodeName] = $DOMNode->nodeValue;
 				}
@@ -157,6 +158,87 @@ class XmlDetectHandler extends XmlHandler {
 				}
 			}
 		}
+	}
+
+	/**
+	 * a decorator helper method for getMetadataAsTableCells
+	 *
+	 * @param {string} $parameter
+	 * @param {string} $parameter_as_id
+	 * @param {string} $required
+	 * @param {string} $selected_option
+	 *
+	 * @return {string}
+	 */
+	protected function getButtonRowNoMetadata( $parameter = null, $parameter_as_id = null, $required = null, $selected_option = null ) {
+		$template =
+			'<tr>' .
+			'<td><label for="%s">%s%s :</label></td>' .
+			'<td>&nbsp;</td>' .
+			'<td><select name="%s[]" id="%s">%s</select></td>' .
+			'</tr>';
+
+		return sprintf(
+			$template,
+			Filter::evaluate( $parameter_as_id ),
+			Filter::evaluate( $parameter ),
+			$required,
+			Filter::evaluate( $parameter ),
+			Filter::evaluate( $parameter_as_id ),
+			$this->getMetadataAsOptions( $selected_option )
+		);
+	}
+
+	/**
+	 * a decorator helper method for getMetadataAsTableCells
+	 *
+	 * @param {string} $parameter
+	 * @param {string} $parameter_as_id
+	 * @param {string} $required
+	 * @param {string} $selected_option
+	 *
+	 * @return {string}
+	 */
+	protected function getFirstRow( $parameter = null, $parameter_as_id = null, $required = null, $selected_option = null ) {
+		$template =
+			'<tr>' .
+			'<td><label for="%s">%s%s :</label></td>' .
+			'<td class="button-add"></td>' .
+			'<td><select name="%s[]" id="%s">%s</select></td>' .
+			'</tr>';
+
+		return sprintf(
+			$template,
+			Filter::evaluate( $parameter_as_id ),
+			Filter::evaluate( $parameter ),
+			$required,
+			Filter::evaluate( $parameter ),
+			Filter::evaluate( $parameter_as_id ),
+			$this->getMetadataAsOptions( $selected_option )
+		);
+	}
+
+	/**
+	 * a decorator helper method for getMetadataAsTableCells
+	 *
+	 * @param {string} $parameter
+	 * @param {string} $selected_option
+	 *
+	 * @return {string}
+	 */
+	protected function getFollowingRow( $parameter = null, $selected_option = null ) {
+		$template =
+			'<tr>' .
+			'<td>&nbsp;</td>' .
+			'<td class="button-subtract"></td>' .
+			'<td><select name="%s[]">%s</select></td>' .
+			'</tr>';
+
+		return sprintf(
+			$template,
+			Filter::evaluate( $parameter ),
+			$this->getMetadataAsOptions( $selected_option )
+		);
 	}
 
 	/**
@@ -172,11 +254,20 @@ class XmlDetectHandler extends XmlHandler {
 
 		foreach ( $this->_metadata_example_dom_element as $nodeName => $nodeValues ) {
 			foreach ( $nodeValues as $nodeValue ) {
-				$result .=
-					'<tr>' .
-					'<td>' . Filter::evaluate( $nodeName ) . '</td>' .
-					'<td>' . Filter::evaluate( $nodeValue ) . '</td>' .
-					'</tr>';
+				$result .= Html::rawElement(
+					'tr',
+					array(),
+					Html::rawElement(
+						'td',
+						array(),
+						Filter::evaluate( $nodeName )
+					) .
+					Html::rawElement(
+						'td',
+						array(),
+						Filter::evaluate( $nodeValue )
+					)
+				);
 			}
 		}
 
@@ -195,16 +286,20 @@ class XmlDetectHandler extends XmlHandler {
 	 * the <option> values are filtered.
 	 */
 	public function getMetadataAsOptions( $selected_option = null ) {
-		$result = '<option></option>';
+		$result = Html::rawElement( 'option', array( 'value' => '' ), ' ' );
+
+		if ( empty( $selected_option ) ) {
+			return $this->_metadata_as_options;
+		}
 
 		foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
-			$result .= '<option';
+			$attribs = array();
 
-			if ( !empty( $selected_option ) && $nodeName == $selected_option ) {
-				$result .= ' selected="selected"';
+			if ( !empty( $selected_option ) && $nodeName === $selected_option ) {
+				$attribs['selected'] = 'selected';
 			}
 
-			$result .= '>' . Filter::evaluate( $nodeName ) . '</option>';
+			$result .= Html::rawElement( 'option', $attribs, Filter::evaluate( $nodeName ) );
 		}
 
 		return $result;
@@ -233,110 +328,45 @@ class XmlDetectHandler extends XmlHandler {
 		$parameter_as_id = $MediawikiTemplate->getParameterAsId( $parameter );
 		$first_row_placed = false;
 		$required = null;
-		$required_fields = array( 'title_identifier', 'url_to_the_media_file' );
-
-		$no_metadata_button_row =
-			'<tr>' .
-			'<td><label for="%s">%s%s :</label></td>' .
-			'<td>&nbsp;</td>' .
-			'<td><select name="%s[]" id="%s">%s</select></td>' .
-			'</tr>';
-
-		$first_row =
-			'<tr>' .
-			'<td><label for="%s">%s%s :</label></td>' .
-			'<td class="metadata-add"></td>' .
-			'<td><select name="%s[]" id="%s">%s</select></td>' .
-			'</tr>';
-
-		$following_row =
-			'<tr>' .
-			'<td>&nbsp;</td>' .
-			'<td class="metadata-subtract"></td>' .
-			'<td><select name="%s[]">%s</select></td>' .
-			'</tr>';
+		$required_fields = array( 'title-identifier', 'url-to-the-media-file' );
 
 		if ( isset( $Mapping->mapping_array[$parameter] ) ) {
 			$selected_options = $Mapping->mapping_array[$parameter];
 		}
 
 		if ( empty( $this->_metadata_as_options ) ) {
-			$this->_metadata_as_options = '<option></option>';
+			$this->_metadata_as_options = Html::rawElement( 'option', array( 'value' => '' ), ' ' );
 
 			foreach ( $this->_metadata_example_dom_nodes as $nodeName => $nodeValue ) {
-				$this->_metadata_as_options .= '<option>' . Filter::evaluate( $nodeName ) . '</option>';
+				$this->_metadata_as_options .= Html::rawElement( 'option', array(), Filter::evaluate( $nodeName ) );
 			}
 		}
 
 		if ( in_array( $parameter_as_id, $required_fields ) ) {
-			$required = ' <span class="required">*</span>';
+			$required = Html::rawElement( 'span', array( 'class' => 'required' ), '*' );
 		}
 
-		if ( 'url_to_the_media_file' == $parameter_as_id ) {
+		if ( $parameter_as_id === 'url-to-the-media-file' ) {
 			if ( isset( $selected_options[0] ) ) {
-				$result .= sprintf(
-					$no_metadata_button_row,
-					Filter::evaluate( $parameter_as_id ),
-					Filter::evaluate( $parameter ),
-					$required,
-					Filter::evaluate( $parameter ),
-					Filter::evaluate( $parameter_as_id ),
-					$this->getMetadataAsOptions( $selected_options[0] )
-				);
+				$result .= $this->getButtonRowNoMetadata( $parameter, $parameter_as_id, $required, $selected_options[0] );
 			} else {
-				$result .= sprintf(
-					$no_metadata_button_row,
-					Filter::evaluate( $parameter_as_id ),
-					Filter::evaluate( $parameter ),
-					$required,
-					Filter::evaluate( $parameter ),
-					Filter::evaluate( $parameter_as_id ),
-					$this->getMetadataAsOptions()
-				);
+				$result .= $this->getButtonRowNoMetadata( $parameter, $parameter_as_id, $required );
 			}
-		} elseif ( count( $selected_options ) == 1 ) {
-			$result .= sprintf(
-				$first_row,
-				Filter::evaluate( $parameter_as_id ),
-				Filter::evaluate( $parameter ),
-				$required,
-				Filter::evaluate( $parameter ),
-				Filter::evaluate( $parameter_as_id ),
-				$this->getMetadataAsOptions( $selected_options[0] )
-			);
+		} elseif ( count( $selected_options ) === 1 ) {
+			$result .= $this->getFirstRow( $parameter, $parameter_as_id, $required, $selected_options[0] );
 		} elseif ( count( $selected_options ) > 1 ) {
 			foreach ( $selected_options as $option ) {
 				if ( key_exists( $option, $this->_metadata_example_dom_nodes ) ) {
 					if ( !$first_row_placed ) {
-						$result .= sprintf(
-							$first_row,
-							Filter::evaluate( $parameter_as_id ),
-							Filter::evaluate( $parameter ),
-							$required,
-							Filter::evaluate( $parameter ),
-							Filter::evaluate( $parameter_as_id ),
-							$this->getMetadataAsOptions( $option )
-						);
+						$result .= $this->getFirstRow( $parameter, $parameter_as_id, $required, $option );
 						$first_row_placed = true;
 					} else {
-						$result .= sprintf(
-							$following_row,
-							Filter::evaluate( $parameter ),
-							$this->getMetadataAsOptions( $option )
-						);
+						$result .= $this->getFollowingRow( $parameter, $option );
 					}
 				}
 			}
 		} else {
-			$result .= sprintf(
-				$first_row,
-				Filter::evaluate( $parameter_as_id ),
-				Filter::evaluate( $parameter ),
-				$required,
-				Filter::evaluate( $parameter ),
-				Filter::evaluate( $parameter_as_id ),
-				$this->_metadata_as_options
-			);
+			$result .= $this->getFirstRow( $parameter, $parameter_as_id, $required );
 		}
 
 		return $result;
@@ -361,21 +391,21 @@ class XmlDetectHandler extends XmlHandler {
 	 */
 	public function processXml( array &$user_options, &$xml_source = null ) {
 		$callback = 'findExampleDOMElement';
-		$msg = wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xml-source' )->escaped() )->parse();
 
 		if ( is_string( $xml_source ) && !empty( $xml_source ) ) {
-			$msg = null;
 			$this->readXmlAsFile( $user_options, $xml_source, $callback );
 		} elseif ( $xml_source instanceof Content ) {
-			$msg = null;
 			$this->readXmlAsString( $user_options, $xml_source->getNativeData(), $callback );
+		} else {
+			$msg = wfMessage( 'gwtoolset-developer-issue' )->params(
+				wfMessage( 'gwtoolset-no-xml-source' )->escaped()
+			)->parse();
+			throw new Exception( $msg );
 		}
 
-		if ( empty( $msg ) && empty( $this->_metadata_example_dom_element ) ) {
-			$msg = wfMessage( 'gwtoolset-no-xml-element-found' )->parse() . PHP_EOL . $this->_SpecialPage->getBackToFormLink();
-		}
-
-		if ( !empty( $msg ) ) {
+		if ( empty( $this->_metadata_example_dom_element ) ) {
+			$msg = wfMessage( 'gwtoolset-no-xml-element-found' )->parse() . PHP_EOL .
+				$this->_SpecialPage->getBackToFormLink();
 			throw new Exception( $msg );
 		}
 

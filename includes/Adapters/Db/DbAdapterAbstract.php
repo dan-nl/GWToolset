@@ -35,8 +35,8 @@ abstract class DbAdapterAbstract implements DataAdapterInterface {
 	protected $table_create_sql;
 
 	/**
-	 * @param string $table_name
-	 * @param string $table_create_sql filename containing the create table sql statements
+	 * @param {string} $table_name
+	 * @param {string} $table_create_sql filename containing the create table sql statements
 	 * @return {void}
 	 */
 	public function __construct( $table_name ) {

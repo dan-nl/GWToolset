@@ -7,11 +7,12 @@
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
 namespace GWToolset\Helpers;
-use ErrorPageError,
-	Exception,
+use Exception,
 	GWToolset\Config,
+	Html,
 	PermissionsError,
 	SpecialPage,
+	Status,
 	User,
 	UserBlockedError;
 
@@ -53,33 +54,57 @@ class WikiChecks {
 	 * constructor
 	 *
 	 * @see SpecialPage::checkPermissions()
+	 *
 	 * @param {SpecialPage} $SpecialPage
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function canUserViewPage( SpecialPage $SpecialPage ) {
 		try {
 			$SpecialPage->checkPermissions();
 		} catch ( PermissionsError $e ) {
-			throw new Exception( $e->getMessage(), 1000 );
+			return Status::newFatal( 'gwtoolset-permission-not-given' );
 		}
 
-		return true;
+		return Status::newGood();
+	}
+
+	/**
+	 * checks to see if the wiki’s $wgMaxUploadSize is greater than the PHP ini
+	 * settings for upload_max_filesize and post_max_size
+	 *
+	 * @return {Status}
+	 */
+	public static function checkMaxUploadAndIniSettings() {
+		$max_upload_size = FileChecks::getMaxUploadSize();
+		$upload_max_filesize = \GWToolset\getBytes( ini_get('upload_max_filesize') );
+		$post_max_size = \GWToolset\getBytes( ini_get('post_max_size') );
+
+		if ( $max_upload_size > $upload_max_filesize
+			|| $max_upload_size > $post_max_size
+		) {
+			return Status::newFatal(
+				'gwtoolset-maxuploadsize-exceeds-ini-settings',
+				$upload_max_filesize,
+				$post_max_size,
+				$max_upload_size
+			);
+		}
+
+		return Status::newGood();
 	}
 
 	/**
 	 * Make sure the user is a member of a group that can access this extension
 	 *
 	 * @param {SpecialPage} $SpecialPage
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function checkUserWikiGroups( SpecialPage $SpecialPage ) {
 		if ( !in_array( Config::$user_group, $SpecialPage->getUser()->getEffectiveGroups() ) ) {
-			throw new Exception( wfMessage( 'exception-nologin-text' )->escaped(), 1000 );
+			return Status::newFatal( 'gwtoolset-permission-not-given' );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
@@ -88,32 +113,30 @@ class WikiChecks {
 	 * group of permissions.
 	 *
 	 * @param {SpecialPage} $SpecialPage
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function checkUserWikiPermissions( SpecialPage $SpecialPage ) {
 		foreach ( Config::$user_permissions as $permission ) {
 			if ( !$SpecialPage->getUser()->isAllowed( $permission ) ) {
-				throw new Exception( $permission, 1000 );
+				return Status::newFatal( 'gwtoolset-permission-not-given', $permission );
 			}
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
 	 * For a submitted form, is the edit token present and valid
 	 *
 	 * @param {SpecialPage} $SpecialPage
-	 * @throws {PermissionsError}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function doesEditTokenMatch( SpecialPage $SpecialPage ) {
 		if ( !$SpecialPage->getUser()->matchEditToken( $SpecialPage->getRequest()->getVal( 'wpEditToken' ) ) ) {
-			throw new Exception( wfMessage( 'exception-nologin-text' )->escaped(), 1000 );
+			return Status::newFatal( 'gwtoolset-permission-not-given' );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
@@ -178,26 +201,26 @@ class WikiChecks {
 
 	/**
 	 * @param {SpecialPage} $SpecialPage
-	 * @throw {UserBlockedError}
-	 * #return {bool}
+	 * @return {Status}
 	 */
 	public static function isUserBlocked( SpecialPage $SpecialPage ) {
 		if ( $SpecialPage->getUser()->isBlocked() ) {
-			throw new UserBlockedError( $SpecialPage->getUser()->getBlock() );
+			return Status::newFatal( 'gwtoolset-user-blocked' );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
 	 * @see SpecialPage::checkReadOnly()
+	 *
 	 * @param {SpecialPage} $SpecialPage
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function isWikiWriteable( SpecialPage $SpecialPage ) {
 		$SpecialPage->checkReadOnly();
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
@@ -205,58 +228,76 @@ class WikiChecks {
 	 * setup for this extension and that the user has permission to use it
 	 *
 	 * @param {SpecialPage} $SpecialPage
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function pageIsReadyForThisUser( SpecialPage $SpecialPage ) {
-		if ( !self::verifyPHPVersion() ) {
-			return false;
+
+		$Status = self::verifyPHPVersion();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::verifyCurlExists() ) {
-			return false;
+		$Status = self::verifyCurlExists();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::verifyXMLReaderExists() ) {
-			return false;
+		$Status = self::verifyXMLReaderExists();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::verifyFinfoExists() ) {
-			return false;
+		$Status = self::verifyFinfoExists();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::verifyAPIEnabled() ) {
-			return false;
+		$Status = self::verifyAPIEnabled();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::verifyAPIWritable() ) {
-			return false;
+		$Status = self::verifyAPIWritable();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::uploadsEnabled() ) {
-			return false;
+		$Status = self::uploadsEnabled();
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::isWikiWriteable( $SpecialPage ) ) {
-			return false;
+		$Status = self::isWikiWriteable( $SpecialPage );
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::canUserViewPage( $SpecialPage ) ) {
-			return false;
+		$Status = self::canUserViewPage( $SpecialPage );
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::checkUserWikiGroups( $SpecialPage ) ) {
-			return false;
+		$Status = self::checkUserWikiGroups( $SpecialPage );
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::checkUserWikiPermissions( $SpecialPage ) ) {
-			return false;
+		$Status = self::checkUserWikiPermissions( $SpecialPage );
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		if ( !self::isUserBlocked( $SpecialPage ) ) {
-			return false;
+		$Status = self::isUserBlocked( $SpecialPage );
+		if ( !$Status->ok ) {
+			return $Status;
 		}
 
-		return true;
+		$Status = self::checkMaxUploadAndIniSettings();
+		if ( !$Status->ok ) {
+			return $Status;
+		}
+
+		return $Status;
 	}
 
 	/**
@@ -266,7 +307,7 @@ class WikiChecks {
 		global $wgHTTPTimeout;
 
 		if ( !empty( self::$wgHTTPTimeout )
-			&& $wgHTTPTimeout != self::$wgHTTPTimeout
+			&& $wgHTTPTimeout !== self::$wgHTTPTimeout
 		) {
 			$wgHTTPTimeout = self::$wgHTTPTimeout; // 20 minutes, 25 seconds default
 		}
@@ -279,7 +320,7 @@ class WikiChecks {
 		global $wgMaxImageArea;
 
 		if ( !empty( self::$wgMaxImageArea )
-			&& $wgMaxImageArea != self::$wgMaxImageArea
+			&& $wgMaxImageArea !== self::$wgMaxImageArea
 		) {
 			$wgMaxImageArea = self::$wgMaxImageArea; // 12500000 default
 		}
@@ -290,107 +331,94 @@ class WikiChecks {
 	 */
 	public static function restoreMemoryLimit() {
 		if ( !empty( self::$memory_limit )
-			&& (int)ini_get( 'memory_limit' ) != (int)self::$memory_limit
+			&& (int)ini_get( 'memory_limit' ) !== (int)self::$memory_limit
 		) {
 			ini_set( 'memory_limit', self::$memory_limit ); // 128M default
 		}
 	}
 
 	/**
-	 * @throws {ErrorPageError}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function uploadsEnabled() {
 		global $wgEnableUploads;
 
 		if ( !$wgEnableUploads || ( !wfIsHipHop() && !wfIniGetBool( 'file_uploads' ) ) ) {
-			throw new ErrorPageError( 'uploaddisabled', 'uploaddisabledtext' );
+			return Status::newFatal( 'gwtoolset-verify-uploads-enabled', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function verifyAPIEnabled() {
 		global $wgEnableAPI;
 
 		if ( !$wgEnableAPI ) {
-			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-api-enabled' )->parse() . '</span>';
-			throw new Exception( $msg );
+			return Status::newFatal( 'gwtoolset-verify-api-enabled', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function verifyAPIWritable() {
 		global $wgEnableWriteAPI;
 
 		if ( !$wgEnableWriteAPI ) {
-			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-api-writeable' )->parse() . '</span>';
-			throw new Exception( $msg );
+			return Status::newFatal( 'gwtoolset-verify-api-writeable', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function verifyCurlExists() {
 		if ( !function_exists( 'curl_init' ) ) {
-			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-curl' )->parse() . '</span>';
-			throw new Exception( $msg );
+			return Status::newFatal( 'gwtoolset-verify-curl', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function verifyFinfoExists() {
 		if ( !class_exists( 'finfo' ) ) {
-			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-finfo' )->parse() . '</span>';
-			throw new Exception( $msg );
+			return Status::newFatal( 'gwtoolset-verify-finfo', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function verifyPHPVersion() {
 		if ( !defined( 'PHP_VERSION' )
 			|| version_compare( PHP_VERSION, '5.3.3', '<' )
 		) {
-			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-php-version' )->parse() . '</span>';
-			throw new Exception( $msg );
+			return Status::newFatal( 'gwtoolset-verify-php-version', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 
 	/**
-	 * @throws {Exception}
-	 * @return {bool}
+	 * @return {Status}
 	 */
 	public static function verifyXMLReaderExists() {
 		if ( !class_exists( 'XMLReader' ) ) {
-			$msg = '<span class="error">' . wfMessage( 'gwtoolset-verify-xmlreader' )->parse() . '</span>';
-			throw new Exception( $msg );
+			return Status::newFatal( 'gwtoolset-verify-xmlreader', Config::$name );
 		}
 
-		return true;
+		return Status::newGood();
 	}
 }

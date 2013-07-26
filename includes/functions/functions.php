@@ -10,9 +10,19 @@ namespace GWToolset;
 use ErrorException,
 	Exception,
 	GWToolset\MediaWiki\Api\Client,
+	Html,
 	SpecialPage,
+	Status,
 	RecursiveArrayIterator,
 	RecursiveIteratorIterator;
+
+
+function checkStatus( Status $Status ) {
+	if ( !$Status->ok ) {
+		throw new Exception( $Status->getMessage() );
+	}
+	unset( $Status );
+}
 
 /**
  * @param {array} $array
@@ -20,11 +30,7 @@ use ErrorException,
  * @return {array}
  * the array keys and values are not filtered
  */
-function getArraySecondLevelValues( array $array = array() ) {
-	if ( empty( $array ) ) {
-		return;
-	}
-
+function getArraySecondLevelValues( array $array ) {
 	$values = array();
 
 	foreach ( $array as $keys ) {
@@ -34,6 +40,56 @@ function getArraySecondLevelValues( array $array = array() ) {
 	}
 
 	return $values;
+}
+
+/**
+ * takes a php ini value that contains a letter for Kilobytes, Megabytes, etc.
+ * and converts it to bytes
+ *
+ * @see http://www.php.net/manual/en/function.ini-get.php#96996
+ *
+ * @param {string} $val
+ * @return {int}
+ */
+function getBytes( $val ) {
+	switch ( substr ( $val, -1 ) ) {
+		case 'M': case 'm': return (int)$val * 1048576;
+		case 'K': case 'k': return (int)$val * 1024;
+		case 'G': case 'g': return (int)$val * 1073741824;
+		default:
+	}
+
+	return $val;
+}
+
+/**
+ * wfSuppressWarnings() lowers the error_reporting threshold because the
+ * script that follows it is “allowed” to produce warnings,    thus, only
+ * handle errors this way when error_reporting is set to >= E_ALL
+ *
+ * @param {int} $errno
+ * @param {string} $errstr
+ * @param {string} $errfile
+ * @param {int} $errline
+ * @param {array} $errcontext
+ */
+function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
+	if ( ini_get( 'display_errors' ) && error_reporting() >= E_ALL ) {
+		$errormsg = Html::rawElement(
+			'pre',
+			array( 'style' => 'overflow:auto;' ),
+			$errstr . "\n" . print_r( debug_backtrace(), true )
+		);
+
+		if ( $errno > E_WARNING ) {
+			error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
+			throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
+		} else {
+			echo $errormsg;
+		}
+	} elseif ( error_reporting() >= E_ALL ) {
+		error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
+	}
 }
 
 /**
@@ -58,36 +114,6 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 	}
 
 	return false;
-}
-
-/**
- * wfSuppressWarnings() lowers the error_reporting threshold because the
- * script that follows it is “allowed” to produce warnings,    thus, only
- * handle errors this way when error_reporting is set to >= E_ALL
- *
- * @param {int} $errno
- * @param {string} $errstr
- * @param {string} $errfile
- * @param {int} $errline
- * @param {array} $errcontext
- */
-function handleError( $errno, $errstr, $errfile, $errline, array $errcontext ) {
-	if ( ini_get( 'display_errors' ) && error_reporting() >= E_ALL ) {
-		$errormsg =
-			'<pre style="overflow:auto;">' .
-			$errstr . "\n" .
-			print_r( debug_backtrace(), true ) .
-			'</pre>';
-
-		if ( $errno > E_WARNING ) {
-			error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
-			throw new ErrorException( $errormsg, 0, $errno, $errfile, $errline );
-		} else {
-			echo $errormsg;
-		}
-	} elseif ( error_reporting() >= E_ALL ) {
-		error_log( $errstr . ' in ' . $errfile . ' on line nr ' . $errline );
-	}
 }
 
 // created to deal with an issue within

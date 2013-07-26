@@ -17,6 +17,7 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 	GWToolset\Helpers\WikiPages,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
+	Html,
 	JobQueueGroup,
 	Linker,
 	Php\Filter,
@@ -75,12 +76,16 @@ class MetadataMappingHandler extends FormHandler {
 				null,
 				array( 'target' => '_blank' )
 			);
-			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )
-				->rawParams( $newFilesLink )->parse();
+
+			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )->rawParams( $newFilesLink )->parse();
 		} else {
-			$result = '<span class="error">' . wfMessage( 'gwtoolset-developer-issue' )
-				->params( wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped() )
-				->parse() . '</span>';
+			$result = Html::rawElement(
+				'span',
+				array( 'class' => 'error' ),
+				wfMessage( 'gwtoolset-developer-issue' )->params(
+					wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped()
+				)->parse()
+			);
 		}
 
 		return $result;
@@ -162,18 +167,18 @@ class MetadataMappingHandler extends FormHandler {
 				(bool)$_POST['save-as-batch-job'] :
 				false,
 
-			// Filter::evaluate is used here to extract the 'title_identifier' array
-			'title_identifier' => !empty( $_POST['title_identifier'] ) ?
-				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title_identifier' ) ) :
+			// Filter::evaluate is used here to extract the 'title-identifier' array
+			'title-identifier' => !empty( $_POST['title-identifier'] ) ?
+				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title-identifier' ) ) :
 				null,
 
 			'upload-media' => !empty( $_POST['upload-media'] ) ?
 				(bool)$_POST['upload-media'] :
 				false,
 
-			// Filter::evaluate is used here to extract the 'url_to_the_media_file' array
-			'url_to_the_media_file' => !empty( $_POST['url_to_the_media_file'] ) ?
-				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url_to_the_media_file' ) ) :
+			// Filter::evaluate is used here to extract the 'url-to-the-media-file' array
+			'url-to-the-media-file' => !empty( $_POST['url-to-the-media-file'] ) ?
+				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url-to-the-media-file' ) ) :
 				null
 		);
 
@@ -288,8 +293,8 @@ class MetadataMappingHandler extends FormHandler {
 				'metadata-file-url',
 				'record-count',
 				'record-element-name',
-				'title_identifier',
-				'url_to_the_media_file'
+				'title-identifier',
+				'url-to-the-media-file'
 			)
 		);
 

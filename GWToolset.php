@@ -95,6 +95,7 @@ foreach ( Config::$jobs as $job => $method ) {
  * register resources with ResourceLoader
  */
 Config::$resources['localBasePath'] = $wgGWToolsetDir;
+Config::$resources['remoteExtPath'] = 'GWToolset';
 $wgResourceModules['ext.GWToolset'] = Config::$resources;
 
 /**

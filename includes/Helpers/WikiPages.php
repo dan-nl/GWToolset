@@ -32,9 +32,9 @@ class WikiPages {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-file-url' )->escaped() )->parse() );
 		}
 
-		if ( count( $accepted_extensions ) > 0 &&
-			!FileChecks::isAcceptedFileExtension( $url, $accepted_extensions )
-		) {
+		$Status = FileChecks::isAcceptedFileExtension( $url, $accepted_extensions );
+
+		if ( count( $accepted_extensions ) > 0 && !$Status->ok ) {
 			return $result;
 		}
 

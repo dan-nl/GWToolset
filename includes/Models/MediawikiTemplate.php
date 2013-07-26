@@ -8,6 +8,7 @@
  */
 namespace GWToolset\Models;
 use Exception,
+	Html,
 	GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
@@ -114,10 +115,10 @@ class MediawikiTemplate implements ModelInterface {
 	 * the keys within the <option>s are filtered
 	 */
 	public function getModelKeysAsOptions() {
-		$result = '<option></option>';
+		$result = Html::rawElement( 'option', array( 'value' => '' ), ' ' );
 
 		foreach ( $this->_DataAdapater->getKeys() as $option ) {
-			$result .= sprintf( '<option>%s</option>', Filter::evaluate( $option ) );
+			$result .= Html::rawElement( 'option', array(), Filter::evaluate( $option ) );
 		}
 
 		return $result;
@@ -169,7 +170,7 @@ class MediawikiTemplate implements ModelInterface {
 			if ( is_array( $content ) ) {
 				foreach ( $content as $sub_template_name => $sub_template_content ) {
 					// currently only language is handled as a sub-template
-					if ( 'language' === $sub_template_name ) {
+					if ( $sub_template_name === 'language' ) {
 						foreach ( $sub_template_content as $language => $language_content ) {
 							$sections .= sprintf(
 									$this->_sub_templates['language'],
@@ -189,12 +190,12 @@ class MediawikiTemplate implements ModelInterface {
 			} else {
 				$content = trim( $content );
 
-				if ( 'institution' == $parameter ) {
+				if ( $parameter === 'institution' ) {
 					$sections .= sprintf(
 							$this->_sub_templates['institution'],
 							Filter::evaluate( $content )
 						) . PHP_EOL;
-				} elseif ( 'artist' == $parameter ) {
+				} elseif ( $parameter === 'artist' ) {
 					// assumes that there could be more than one creator and uses the
 					// configured metadata separator to determine that
 					$creators = explode( Config::$metadata_separator, $content );
@@ -204,7 +205,7 @@ class MediawikiTemplate implements ModelInterface {
 						// no other assumptions are made other than this one
 						$creator = explode( ',', $creator, 2 );
 
-						if ( 2 == count( $creator ) ) {
+						if ( count( $creator ) === 2 ) {
 							$creator = trim( $creator[1] ) . ' ' . trim( $creator[0] );
 						} else {
 							$creator = trim( $creator[0] );
@@ -215,7 +216,7 @@ class MediawikiTemplate implements ModelInterface {
 								Filter::evaluate( $creator )
 							) . PHP_EOL;
 					}
-				} elseif ( 'permission' == $parameter ) {
+				} elseif ( $parameter === 'permission' ) {
 					// http://commons.wikimedia.org/wiki/Category:Creative_Commons_licenses
 					$permission = strtolower( $content );
 
@@ -265,7 +266,7 @@ class MediawikiTemplate implements ModelInterface {
 					}
 
 					$sections .= Filter::evaluate( $permission ) . PHP_EOL;
-				} elseif ( 'source' == $parameter ) {
+				} elseif ( $parameter === 'source' ) {
 					if ( !empty( $user_options['partner-template-name'] ) ) {
 						$sections .= Filter::evaluate( $content ) . '{{' . Filter::evaluate( $user_options['partner-template-name'] ) . '}}' . PHP_EOL;
 					} else {
@@ -304,19 +305,20 @@ class MediawikiTemplate implements ModelInterface {
 	 */
 	public function getTemplatesAsSelect( $name = null, $id = null ) {
 		$result = null;
+		$attribs = array();
 
 		if ( !empty( $name ) ) {
-			$name = sprintf( ' name="%s"', Filter::evaluate( $name ) );
+			$attribs['name'] = Filter::evaluate( $name );
 		}
 
 		if ( !empty( $id ) ) {
-			$id = sprintf( ' id="%s"', Filter::evaluate( $id ) );
+			$attribs['id'] = Filter::evaluate( $id );
 		}
 
 		$result =
-			sprintf( '<select%s%s>', $name, $id ) .
+			Html::openElement( 'select', $attribs ) .
 			$this->getModelKeysAsOptions() .
-			'</select>';
+			Html::closeElement( 'select' );
 
 		return $result;
 	}
@@ -339,12 +341,12 @@ class MediawikiTemplate implements ModelInterface {
 	public function getTitle( array &$options ) {
 		$result = null;
 
-		if ( empty( $this->mediawiki_template_array['title_identifier'] ) ) {
+		if ( empty( $this->mediawiki_template_array['title-identifier'] ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
 		}
 
-		if ( empty( $options['evaluated_media_file_extension'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )->rawParams( Filter::evaluate( $options['url_to_the_media_file'] ) )->escaped() );
+		if ( empty( $options['evaluated-media-file-extension'] ) ) {
+			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )->rawParams( Filter::evaluate( $options['url-to-the-media-file'] ) )->escaped() );
 		}
 
 		/**
@@ -363,8 +365,8 @@ class MediawikiTemplate implements ModelInterface {
 		}
 
 		$result .= Config::$title_separator;
-		$result = $result . $this->mediawiki_template_array['title_identifier'];
-		$result .= '.' . $options['evaluated_media_file_extension'];
+		$result = $result . $this->mediawiki_template_array['title-identifier'];
+		$result .= '.' . $options['evaluated-media-file-extension'];
 
 		return $result;
 	}
@@ -421,15 +423,15 @@ class MediawikiTemplate implements ModelInterface {
 	public function retrieve( array &$options = array() ) {
 		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
 
-		if ( empty( $result ) || $result->numRows() != 1 ) {
+		if ( empty( $result ) || $result->numRows() !== 1 ) {
 			throw new Exception( wfMessage( 'gwtoolset-mediawiki-template-not-found' )->rawParams( $this->mediawiki_template_name )->escaped() );
 		}
 
 		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
 		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
 
-		$this->mediawiki_template_array['title_identifier'] = null;
-		$this->mediawiki_template_array['url_to_the_media_file'] = null;
+		$this->mediawiki_template_array['title-identifier'] = null;
+		$this->mediawiki_template_array['url-to-the-media-file'] = null;
 
 		ksort( $this->mediawiki_template_array );
 	}

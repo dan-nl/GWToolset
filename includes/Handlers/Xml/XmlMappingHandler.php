@@ -104,7 +104,7 @@ class XmlMappingHandler extends XmlHandler {
 
 			if ( $DOMNodeElement->hasAttributes() ) {
 				foreach ( $DOMNodeElement->attributes as $DOMAttribute ) {
-					if ( 'lang' == $DOMAttribute->name ) {
+					if ( $DOMAttribute->name === 'lang' ) {
 						$lang = Filter::evaluate( $DOMAttribute->value );
 						break;
 					}
@@ -112,11 +112,7 @@ class XmlMappingHandler extends XmlHandler {
 			}
 
 			foreach ( $template_parameters as $template_parameter ) {
-				if ( strpos( $template_parameter, 'url' ) !== false ) {
-					$is_url = true;
-				} else {
-					$is_url = false;
-				}
+				$is_url = strpos( $template_parameter, 'url' ) !== false;
 
 				if ( !empty( $lang ) ) {
 					if ( !isset( $elements_mapped[$template_parameter]['language'] ) ) {
@@ -132,10 +128,10 @@ class XmlMappingHandler extends XmlHandler {
 					if ( !isset( $elements_mapped[$template_parameter] ) ) {
 						$elements_mapped[$template_parameter] = $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 					} else {
-						if ( 'title_identifier' == $template_parameter ) {
+						if ( $template_parameter === 'title-identifier' ) {
 							$elements_mapped[$template_parameter] .= Config::$title_separator . $this->getFilteredNodeValue( $DOMNodeElement, $is_url );
-							// url_to_the_media_file should only be evaluated once when $elements_mapped['url_to_the_media_file'] is not set
-						} elseif ( 'url_to_the_media_file' != $template_parameter ) {
+							// url-to-the-media-file should only be evaluated once when $elements_mapped['url-to-the-media-file'] is not set
+						} elseif ( $template_parameter !== 'url-to-the-media-file' ) {
 
 							/**
 							 * if a template_parameter has some elements with a lang attribute
@@ -233,12 +229,12 @@ class XmlMappingHandler extends XmlHandler {
 		switch ( $XMLElement->nodeType ) {
 			case ( XMLReader::ELEMENT ):
 				if ( $XMLElement instanceof XMLReader ) {
-					if ( $XMLElement->name == $user_options['record-element-name'] ) {
+					if ( $XMLElement->name === $user_options['record-element-name'] ) {
 						$record = $XMLElement->expand();
 						$outer_xml = $xml_reader->readOuterXml();
 					}
 				} elseif ( $XMLElement instanceof DOMElement ) {
-					if ( $XMLElement->nodeName == $user_options['record-element-name'] ) {
+					if ( $XMLElement->nodeName === $user_options['record-element-name'] ) {
 						$record = $XMLElement;
 						$outer_xml = $record->ownerDocument->saveXml( $record );
 					}
@@ -310,18 +306,4 @@ class XmlMappingHandler extends XmlHandler {
 		$this->_MediawikiTemplate = null;
 		$this->_SpecialPage = null;
 	}
-	//	//if ( $DOMNode->hasAttributes() ) {
-	//	//
-	//	//	foreach( $DOMNode->attributes as $DOMAttr ) {
-	//	//
-	//	//		$this->metadata_as_html_table_rows .=
-	//	//			'<tr>' .
-	//	//				'<td>' . $DOMNode->nodeName . '=>' . $DOMAttr->name . '</td>' .
-	//	//				'<td>' . $DOMAttr->value . '</td>' .
-	//	//			'</tr>';
-	//	//
-	//	//	}
-	//	//
-	//	//}
-
 }

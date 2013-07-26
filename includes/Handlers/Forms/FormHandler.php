@@ -10,6 +10,7 @@ namespace GWToolset\Handlers\Forms;
 use Exception,
 	GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Helpers\WikiChecks,
+	Html,
 	Php\Filter;
 
 abstract class FormHandler extends SpecialPageHandler {
@@ -50,9 +51,9 @@ abstract class FormHandler extends SpecialPageHandler {
 
 		if ( $msg !== null ) {
 			$msg =
-				'<p class="error">' . wfMessage( 'gwtoolset-metadata-user-options-error' )->escaped() . '</p>' .
-				'<ul>' . $msg . '</ul>' .
-				'<p>' . $this->SpecialPage->getBackToFormLink() . '</p>';
+				Html::rawElement( 'p', array( 'class' => 'error' ) , wfMessage( 'gwtoolset-metadata-user-options-error' )->escaped() ) .
+				Html::rawElement( 'ul', array(), $msg ) .
+				Html::rawElement( 'p', array(), $this->SpecialPage->getBackToFormLink() );
 
 			throw new Exception( $msg );
 		}
@@ -111,10 +112,15 @@ abstract class FormHandler extends SpecialPageHandler {
 	 * the string has not been filtered
 	 */
 	public function execute() {
-		$result = null;
+		$result = WikiChecks::doesEditTokenMatch( $this->SpecialPage );
 
-		WikiChecks::doesEditTokenMatch( $this->SpecialPage );
-		$result .= $this->processRequest();
+		if ( !$result->ok ) {
+			$result =
+				wfMessage( 'gwtoolset-wiki-checks-not-passed' )->parse() .
+				Html::rawElement( 'span', array( 'class' => 'error' ), $result->getMessage() );
+		} else {
+			$result = $this->processRequest();
+		}
 
 		return $result;
 	}

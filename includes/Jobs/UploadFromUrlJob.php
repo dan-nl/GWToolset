@@ -48,7 +48,7 @@ class UploadFromUrlJob extends Job {
 		$this->Upload = new UploadFromUrl();
 		$this->Upload->initialize(
 			$this->title->getText(),
-			$this->params['url_to_the_media_file'],
+			$this->params['url-to-the-media-file'],
 			false
 		);
 
@@ -64,7 +64,7 @@ class UploadFromUrlJob extends Job {
 
 		// Verify upload - returns a Status value
 		$result = $this->Upload->verifyUpload();
-		if ( $result['status'] != UploadBase::OK ) {
+		if ( $result['status'] !== UploadBase::OK ) {
 			$status = $this->Upload->convertVerifyErrorToStatus( $result );
 			error_log( $status->getWikiText() );
 

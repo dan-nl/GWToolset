@@ -11,6 +11,7 @@ use Content,
 	DOMDocument,
 	DOMXPath,
 	Exception,
+	Html,
 	Php\Filter,
 	XMLReader;
 
@@ -20,45 +21,57 @@ abstract class XmlHandler {
 
 	/**
 	 * a debug method for testing the reader
-	 * @param XMLReader $reader
+	 *
+	 * @param {XMLReader} $reader
+	 * @return {string}
 	 */
 	protected function displayCurrentNodeProperties( XMLReader $reader ) {
-		echo 'attributeCount : ' . $reader->attributeCount . '<br />';
-		echo 'baseURI : ' . $reader->baseURI . '<br />';
-		echo 'depth : ' . $reader->depth . '<br />';
-		echo 'hasAttributes : ' . $reader->hasAttributes . '<br />';
-		echo 'hasValue : ' . $reader->hasValue . '<br />';
-		echo 'isDefault : ' . $reader->isDefault . '<br />';
-		echo 'isEmptyElemet : ' . $reader->isEmptyElement . '<br />';
-		echo 'localName : ' . $reader->localName . '<br />';
-		echo 'name : ' . $reader->name . '<br />';
-		echo 'namespaceURI : ' . $reader->namespaceURI . '<br />';
-		echo 'nodeType : ' . $reader->nodeType . '<br />';
-		echo 'prefix : ' . $reader->prefix . '<br />';
-		echo 'value : ' . $reader->value . '<br />';
-		echo 'xmlLang : ' . $reader->xmlLang . '<br />';
-		echo '<br />';
+		return
+			'attributeCount : ' . $reader->attributeCount . Html::rawElement( 'br' ) .
+			'baseURI : ' . $reader->baseURI . Html::rawElement( 'br' ) .
+			'depth : ' . $reader->depth . Html::rawElement( 'br' ) .
+			'hasAttributes : ' . $reader->hasAttributes . Html::rawElement( 'br' ) .
+			'hasValue : ' . $reader->hasValue . Html::rawElement( 'br' ) .
+			'isDefault : ' . $reader->isDefault . Html::rawElement( 'br' ) .
+			'isEmptyElemet : ' . $reader->isEmptyElement . Html::rawElement( 'br' ) .
+			'localName : ' . $reader->localName . Html::rawElement( 'br' ) .
+			'name : ' . $reader->name . Html::rawElement( 'br' ) .
+			'namespaceURI : ' . $reader->namespaceURI . Html::rawElement( 'br' ) .
+			'nodeType : ' . $reader->nodeType . Html::rawElement( 'br' ) .
+			'prefix : ' . $reader->prefix . Html::rawElement( 'br' ) .
+			'value : ' . $reader->value . Html::rawElement( 'br' ) .
+			'xmlLang : ' . $reader->xmlLang . Html::rawElement( 'br' );
+			Html::rawElement( 'br' );
 	}
 
 	/**
 	 * a debug method
+	 *
+	 * @param {DOMNode} $DOMNode
+	 * @return {string}
 	 */
-	protected function getNodesInfo( $node ) {
-		if ( $node->hasChildNodes() ) {
-			$subNodes = $node->childNodes;
+	protected function getNodesInfo( $DOMNode ) {
+		$result = null;
+
+		if ( $DOMNode->hasChildNodes() ) {
+			$subNodes = $DOMNode->childNodes;
 
 			foreach ( $subNodes as $subNode ) {
-				if ( ( $subNode->nodeType != 3 ) ||
-					( ( $subNode->nodeType == 3 ) &&
+				if ( ( $subNode->nodeType !== 3 ) ||
+					( ( $subNode->nodeType === 3 ) &&
 						( strlen( trim( $subNode->wholeText ) ) >= 1 ) )
 				) {
-					echo "Node name: " . $subNode->nodeName . "<br />";
-					echo "Node value: " . $subNode->nodeValue . "<br />";
-					echo '<br />';
+					$result .=
+						'Node name: ' . $subNode->nodeName . Html::rawElement( 'br' ) .
+						'Node value: ' . $subNode->nodeValue . Html::rawElement( 'br' ) .
+						Html::rawElement( 'br' );
 				}
+
 				$this->getNodesInfo( $subNode );
 			}
 		}
+
+		return $result;
 	}
 
 	public abstract function processXml( array &$user_options, &$xml_source = null );
@@ -90,7 +103,7 @@ abstract class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 *
-	 * @throws Exception
+	 * @throws {Exception}
 	 *
 	 * @return {string}
 	 * @deprecated should not be used at the moment, possible future use
@@ -154,7 +167,7 @@ abstract class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 *
-	 * @throws Exception
+	 * @throws {Exception}
 	 *
 	 * @return {array}
 	 * an array of mediafile Title(s)
@@ -181,9 +194,7 @@ abstract class XmlHandler {
 		if ( !empty( $errors ) ) {
 			throw new Exception(
 				wfMessage( 'gwtoolset-xml-error' )->escaped() .
-				'<pre style="overflow:auto;">' .
-				print_r( $errors, true ) .
-				'</pre>'
+				Html::rawElement( 'pre', array( 'style' => 'overflow:auto;' ), print_r( $errors, true ) )
 			);
 		}
 

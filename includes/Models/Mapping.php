@@ -88,7 +88,7 @@ class Mapping implements ModelInterface {
 		$result = json_decode( $this->mapping_json, true );
 		$json_error = json_last_error();
 
-		if ( $json_error != JSON_ERROR_NONE ) {
+		if ( $json_error !== JSON_ERROR_NONE ) {
 			switch ( json_last_error() ) {
 				case JSON_ERROR_NONE:
 					$error_msg = wfMessage( 'gwtoolset-json-error-none' )->escaped();
