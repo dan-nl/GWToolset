@@ -15,12 +15,15 @@ use ContentHandler,
 	GWToolset\Forms\MetadataMappingForm,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlDetectHandler,
+	GWToolset\Helpers\FileChecks,
+	GWToolset\Helpers\Github,
 	GWToolset\Helpers\WikiPages,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	Php\File,
 	Php\Filter,
 	Revision,
+	Title,
 	WikiPage;
 
 class MetadataDetectHandler extends FormHandler {
@@ -90,25 +93,21 @@ class MetadataDetectHandler extends FormHandler {
 	 */
 	protected function getUserOptions() {
 		return array(
-			'mediawiki-template-name' =>
-			!empty( $_POST['mediawiki-template-name'] )
+			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] )
 				? $_POST['mediawiki-template-name']
 				: null,
 
-			'metadata-file-url' =>
-			!empty( $_POST['metadata-file-url'] )
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] )
 				? urldecode( $_POST['metadata-file-url'] )
 				: null,
 
-			'metadata-mapping-url' =>
-			!empty( $_POST['metadata-mapping-url'] )
+			'metadata-mapping-url' => !empty( $_POST['metadata-mapping-url'] )
 				? urldecode( $_POST['metadata-mapping-url'] )
 				: null,
 
 			'record-count' => 0,
 
-			'record-element-name' =>
-			!empty( $_POST['record-element-name'] )
+			'record-element-name' => !empty( $_POST['record-element-name'] )
 				? $_POST['record-element-name']
 				: 'record',
 		);
@@ -155,9 +154,18 @@ class MetadataDetectHandler extends FormHandler {
 			)
 		);
 
-		$user_options['Metadata-Title'] = $this->_UploadHandler->getTitleFromUploadedFile( $user_options );
-		$Metadata_Page = new WikiPage( $user_options['Metadata-Title'] );
-		$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
+		$user_options['Metadata-Title'] = $this->_UploadHandler->getTitleFromFileOrUrl( $user_options );
+
+		if ( $user_options['Metadata-Title'] instanceof Title ) {
+			$Metadata_Page = new WikiPage( $user_options['Metadata-Title'] );
+			$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
+		} else {
+			throw new Exception(
+				wfMessage( 'gwtoolset-metadata-file-url-not-present' )
+					->params( $user_options['metadata-file-url'])
+					->escaped()
+			);
+		}
 
 		$this->XmlDetectHandler = new XmlDetectHandler(
 			array(

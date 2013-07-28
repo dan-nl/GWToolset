@@ -22,20 +22,23 @@ class WikiPages {
 	 * @param {string} $url url to be interpreted
 	 * @param {array} $accepted_extensions
 	 *
-	 * @return {boolean|Title}
+	 * @throws {Exception}
+	 * @return {null|Title}
 	 */
 	public static function getTitleFromUrl( $url = null, $accepted_extensions = array() ) {
 		global $wgServer, $wgScriptPath, $wgArticlePath;
-		$result = false;
+		$result = null;
 
 		if ( empty( $url ) ) {
 			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-file-url' )->escaped() )->parse() );
 		}
 
-		$Status = FileChecks::isAcceptedFileExtension( $url, $accepted_extensions );
+		if ( count( $accepted_extensions ) > 0 ) {
+			$Status = FileChecks::isAcceptedFileExtension( $url, $accepted_extensions );
 
-		if ( count( $accepted_extensions ) > 0 && !$Status->ok ) {
-			return $result;
+			if ( !$Status->ok ) {
+				throw new Exception( $Status->getMessage() );
+			}
 		}
 
 		$result = str_replace(
@@ -45,6 +48,10 @@ class WikiPages {
 		);
 
 		$result = Title::newFromText( $result );
+
+		if ( $result instanceof Title && !$result->isKnown() ) {
+			$result = null;
+		}
 
 		return $result;
 	}

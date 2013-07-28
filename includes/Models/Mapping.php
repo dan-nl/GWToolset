@@ -173,23 +173,28 @@ class Mapping implements ModelInterface {
 
 	/**
 	 * @param {array} $options
+	 * @throws {Exception}
 	 * @return {null|Title}
 	 */
 	protected function getMappingTitle( array &$options ) {
-		$Title = null;
+		$result = null;
 
 		if ( !empty( $options['metadata-mapping-url'] ) ) {
-			$Title = WikiPages::getTitleFromUrl(
+			$result = WikiPages::getTitleFromUrl(
 				$options['metadata-mapping-url'],
 				FileChecks::getAcceptedExtensions( Config::$accepted_mapping_types )
 			);
 
-			if ( !$Title->isKnown() ) {
-				throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-not-found' )->params( $options['metadata-mapping-url'] )->escaped() );
+			if ( empty( $result ) ) {
+				throw new Exception(
+					wfMessage( 'gwtoolset-metadata-mapping-not-found' )
+						->params( $options['metadata-mapping-url'] )
+						->escaped()
+				);
 			}
 		}
 
-		return $Title;
+		return $result;
 	}
 
 	/**

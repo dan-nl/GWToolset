@@ -333,8 +333,9 @@ class UploadHandler {
 	}
 
 	/**
-	 * retrieves the metadata file url, to the local wiki, or the uploaded file
-	 * given in the $_POST'ed form
+	 * retrieves the metadata file via :
+	 * - a url to the local wiki
+	 * - or the uploaded file given in the $_POST'ed form
 	 *
 	 * if the form contains both a url and uploaded file, the script will prefer
 	 * the url and ignore the uploaded file
@@ -353,9 +354,10 @@ class UploadHandler {
 	 * the key within the $user_options that holds the key-name expected in
 	 * $_FILES[] when the metadata file has been uploaded via an html form
 	 *
+	 * @throws {Exception}
 	 * @return {null|Title}
 	 */
-	public function getTitleFromUploadedFile( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
+	public function getTitleFromFileOrUrl( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
 		$result = null;
 
 		if ( !empty( $user_options[$metadata_file_url] ) ) {
@@ -374,8 +376,6 @@ class UploadHandler {
 			$this->addAllowedExtensions( Config::$accepted_metadata_types );
 			$result = $this->saveMetadataFileAsContent();
 			$user_options['metadata-file-url'] = $result;
-		} else {
-			throw new Exception( wfMessage( 'gwtoolset-metadata-file-url-not-present' )->escaped() );
 		}
 
 		return $result;

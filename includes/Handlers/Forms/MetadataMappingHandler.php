@@ -125,61 +125,61 @@ class MetadataMappingHandler extends FormHandler {
 		$result = array(
 			'categories' => null,
 
-			'category-phrase' => !empty( $_POST['category-phrase'] ) ?
-				$_POST['category-phrase'] :
-				array(),
+			'category-phrase' => !empty( $_POST['category-phrase'] )
+				? $_POST['category-phrase']
+				: array(),
 
-			'category-metadata' => !empty( $_POST['category-metadata'] ) ?
-				$_POST['category-metadata'] :
-				array(),
+			'category-metadata' => !empty( $_POST['category-metadata'] )
+				? $_POST['category-metadata']
+				: array(),
 
-			'comment' => !empty( $_POST['wpSummary'] ) ?
-				$_POST['wpSummary'] :
-				'',
+			'comment' => !empty( $_POST['wpSummary'] )
+				? $_POST['wpSummary']
+				: '',
 
-			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] ) ?
-				$_POST['mediawiki-template-name'] :
-				null,
+			'mediawiki-template-name' => !empty( $_POST['mediawiki-template-name'] )
+				? $_POST['mediawiki-template-name']
+				: null,
 
-			'metadata-file-url' => !empty( $_POST['metadata-file-url'] ) ?
-				urldecode( $_POST['metadata-file-url'] ) :
-				null,
+			'metadata-file-url' => !empty( $_POST['metadata-file-url'] )
+				? urldecode( $_POST['metadata-file-url'] )
+				: null,
 
-			'partner-template-url' => !empty( $_POST['partner-template-url'] ) ?
-				urldecode( $_POST['partner-template-url'] ) :
-				null,
+			'partner-template-url' => !empty( $_POST['partner-template-url'] )
+				? urldecode( $_POST['partner-template-url'] )
+				: null,
 
-			'preview' => !empty( $_POST['gwtoolset-preview'] ) ?
-				true :
-				false,
+			'preview' => !empty( $_POST['gwtoolset-preview'] )
+				? true
+				: false,
 
 			'record-count' => 0,
 
-			'record-begin' => !empty( $_POST['record-begin'] ) ?
-				(int)$_POST['record-begin'] :
-				0,
+			'record-begin' => !empty( $_POST['record-begin'] )
+				? (int)$_POST['record-begin']
+				: 0,
 
-			'record-element-name' => !empty( $_POST['record-element-name'] ) ?
-				$_POST['record-element-name'] :
-				'record',
+			'record-element-name' => !empty( $_POST['record-element-name'] )
+				? $_POST['record-element-name']
+				: 'record',
 
-			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] ) ?
-				(bool)$_POST['save-as-batch-job'] :
-				false,
+			'save-as-batch-job' => !empty( $_POST['save-as-batch-job'] )
+				? (bool)$_POST['save-as-batch-job']
+				: false,
 
 			// Filter::evaluate is used here to extract the 'title-identifier' array
-			'title-identifier' => !empty( $_POST['title-identifier'] ) ?
-				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title-identifier' ) ) :
-				null,
+			'title-identifier' => !empty( $_POST['title-identifier'] )
+				? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'title-identifier' ) )
+				: null,
 
-			'upload-media' => !empty( $_POST['upload-media'] ) ?
-				(bool)$_POST['upload-media'] :
-				false,
+			'upload-media' => !empty( $_POST['upload-media'] )
+				? (bool)$_POST['upload-media']
+				: false,
 
 			// Filter::evaluate is used here to extract the 'url-to-the-media-file' array
-			'url-to-the-media-file' => !empty( $_POST['url-to-the-media-file'] ) ?
-				Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url-to-the-media-file' ) ) :
-				null
+			'url-to-the-media-file' => !empty( $_POST['url-to-the-media-file'] )
+				? Filter::evaluate( array( 'source' => $_POST, 'key-name' => 'url-to-the-media-file' ) )
+				: null
 		);
 
 		if ( !empty( $result['partner-template-url'] ) ) {
@@ -214,6 +214,7 @@ class MetadataMappingHandler extends FormHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
+	 * @throws {Exception}
 	 * @return {array}
 	 * an array of mediafile Title(s)
 	 */
@@ -241,8 +242,17 @@ class MetadataMappingHandler extends FormHandler {
 		);
 
 		$Metadata_Title = WikiPages::getTitleFromUrl( $user_options['metadata-file-url'] );
-		$Metadata_Page = new WikiPage( $Metadata_Title );
-		$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
+
+		if ( $Metadata_Title instanceof Title ) {
+			$Metadata_Page = new WikiPage( $Metadata_Title );
+			$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
+		} else {
+			throw new Exception(
+				wfMessage( 'gwtoolset-metadata-file-url-not-present' )
+					->params( $user_options['metadata-file-url'])
+					->escaped()
+			);
+		}
 
 		$this->_XmlMappingHandler = new XmlMappingHandler(
 			array(
