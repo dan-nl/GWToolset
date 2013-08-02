@@ -122,6 +122,7 @@ class MetadataDetectHandler extends FormHandler {
 	 * - retrieves a metadata mapping if a url to it in the wiki is given
 	 * - adds this information to the metadata mapping form and presents it to the user
 	 *
+	 * @throws {Exception}
 	 * @return {string}
 	 * the html form string has not been filtered in this method,
 	 * but within the getForm method
