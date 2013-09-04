@@ -93,11 +93,14 @@ $messages['en'] = array(
 	/**
 	 * js
 	 */
+	'gwtoolset-cancel' => 'Cancel',
 	'gwtoolset-loading' => 'Please be patient, this may take awhile.',
+	'gwtoolset-save' => 'Save',
 	'gwtoolset-save-mapping' => 'save mapping',
 	'gwtoolset-save-mapping-failed' => 'We apologize, there was a problem processing your request; please try again later.',
 	'gwtoolset-save-mapping-succeeded' => 'Your mapping has been successfully saved.',
 	'gwtoolset-save-mapping-name' => 'How would you like to name this mapping?',
+
 
 	/**
 	 * json
@@ -278,7 +281,9 @@ $messages['qqq'] = array(
 	'gwtoolset-required-field' => ' denotes required field',
 	'gwtoolset-revised' => 'appears when a wiki page has been revised',
 	'gwtoolset-submit' => 'submit button text for metadata forms',
+	'gwtoolset-cancel' => 'label for js cancel button',
 	'gwtoolset-loading' => 'JavaScript loading message for when the user needs to wait for the application',
+	'gwtoolset-save' => 'label for js save button',
 	'gwtoolset-save-mapping' => 'text used for a button on the mapping form page',
 	'gwtoolset-save-mapping-failed' => 'message to the user that appears when their mapping could not be saved.',
 	'gwtoolset-save-mapping-succeeded' => 'message to the user that appears when their mapping was successfully saved.',
