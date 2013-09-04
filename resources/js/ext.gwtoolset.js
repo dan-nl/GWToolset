@@ -1,5 +1,3 @@
-/*global jQuery, mw, dialog */
-/*jslint browser: true, continue: true, white: true, devel: true, regexp: true, todo: true */
 (function ( $ ) {
 	'use strict';
 
@@ -85,7 +83,7 @@
 
 				lastPart = parts[ parts.length - 1 ];
 
-				if ( lastPart === "[]" ) {
+				if ( lastPart === '[]' ) {
 					current.push( value );
 				} else {
 					current[lastPart] = value;
