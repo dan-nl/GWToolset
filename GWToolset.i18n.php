@@ -101,7 +101,6 @@ $messages['en'] = array(
 	'gwtoolset-save-mapping-succeeded' => 'Your mapping has been successfully saved.',
 	'gwtoolset-save-mapping-name' => 'How would you like to name this mapping?',
 
-
 	/**
 	 * json
 	 */
