@@ -8,7 +8,7 @@
  */
 namespace GWToolset\Handlers\Forms;
 use GWToolset\Adapters\Php\MappingPhpAdapter,
-	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
+	GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\PreviewForm,
 	GWToolset\Jobs\UploadMetadataJob,
@@ -225,7 +225,7 @@ class MetadataMappingHandler extends FormHandler {
 		$this->_UploadHandler = null;
 		$this->_XmlMappingHandler = null;
 
-		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
+		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplatePhpAdapter() );
 		$this->_MediawikiTemplate->getMediaWikiTemplate( $user_options );
 
 		$this->_Mapping = new Mapping( new MappingPhpAdapter() );

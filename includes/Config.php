@@ -20,10 +20,8 @@ class Config {
 	public static $autoloader_classes = array(
 		'GWToolset\Adapters\DataAdapterInterface' => '/includes/Adapters/DataAdapterInterface.php',
 
-		'GWToolset\Adapters\Db\DbAdapterAbstract' => '/includes/Adapters/Db/DbAdapterAbstract.php',
-		'GWToolset\Adapters\Db\MediawikiTemplateDbAdapter' => '/includes/Adapters/Db/MediawikiTemplateDbAdapter.php',
-
 		'GWToolset\Adapters\Php\MappingPhpAdapter' => '/includes/Adapters/Php/MappingPhpAdapter.php',
+		'GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter' => '/includes/Adapters/Php/MediawikiTemplatePhpAdapter.php',
 
 		'GWToolset\Exception' => '/includes/Exception.php',
 
@@ -47,8 +45,6 @@ class Config {
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
 		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\WikiPages' => '/includes/Helpers/WikiPages.php',
-
-		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
 
 		'GWToolset\Jobs\UploadFromUrlJob' => '/includes/Jobs/UploadFromUrlJob.php',
 		'GWToolset\Jobs\UploadMediafileJob' => '/includes/Jobs/UploadMediafileJob.php',
@@ -189,6 +185,14 @@ class Config {
 		'Specimen'
 	);
 
+	public static $mediawiki_templates = array(
+		'Artwork' => '{"artist":"","title":"","description":"","date":"","medium":"","dimensions":"","institution":"","location":"","references":"","object history":"","exhibition history":"","credit line":"","inscriptions":"","notes":"","accession number":"","source":"","permission":"","other_versions":""}',
+		'Book' => '{"Author":"","Translator":"","Editor":"","Illustrator":"","Title":"","Subtitle":"","Series title":"","Volume":"","Edition":"","Publisher":"","Printer":"","Date":"","City":"","Language":"","Description":"","Source":"","Permission":"","Image":"","Image page":"","Pageoverview":"","Wikisource":"","Homecat":"","Other_versions":"","ISBN":"","LCCN":"","OCLC":""}',
+		'Musical work' => '{"composer":"","lyrics_writer":"","performer":"","title":"","description":"","composition_date":"","performance_date":"","notes":"","record_ID":"","image":"","references":"","source":"","permission":"","other_versions":""}',
+		'Photograph' => '{"photographer":"","title":"","description":"","depicted people":"","depicted place":"","date":"","medium":"","dimensions":"","institution":"","department":"","references":"","object history":"","exhibition history":"","credit line":"","inscriptions":"","notes":"","accession number":"","source":"","permission":"","other_versions":""}',
+		'Specimen' => '{"taxon":"","authority":"","institution":"","accession number":"","sex":"","discovery place":"","cultivar":"","author":"","source":"","date":"","description":"","period":"","depicted place":"","camera coord":"","dimensions":"","institution":"","location":"","object history":"","exhibition history":"","credit line":"","notes":"","references":"","permission":"","other versions":"","photographer":"","source":""}'
+	);
+
 	public static $category_separator = '|';
 	public static $metadata_separator = '; ';
 	public static $title_separator = '-';
@@ -232,8 +236,8 @@ class Config {
 	// 20 minutes, 25 seconds default
 	public static $http_timeout = 1200;
 
-	// 12500000 default
-	public static $max_image_area = 64000000;
+	// 1.25e7 or 12,500,000 default
+	public static $max_image_area = 6.4e7;
 
 	// 128M default
 	public static $memory_limit = '256M';

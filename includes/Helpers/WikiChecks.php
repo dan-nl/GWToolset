@@ -11,6 +11,7 @@ use Exception,
 	GWToolset\Config,
 	Html,
 	PermissionsError,
+	Php\Filter,
 	SpecialPage,
 	Status,
 	User,
@@ -23,16 +24,6 @@ use Exception,
  * - user access to the wiki
  */
 class WikiChecks {
-
-	/**
-	 * @var {int}
-	 */
-	public static $wgMaxImageArea;
-
-	/**
-	 * @var {string}
-	 */
-	public static $memory_limit;
 
 	/**
 	 * @var {int}
@@ -166,36 +157,53 @@ class WikiChecks {
 	/**
 	 * the following settings need to be checked in order to handle large images
 	 *
+	 * @param {int} $max_image_area
 	 * @return {void}
 	 */
-	public static function increaseMaxImageArea( $area = 0 ) {
-		global $wgMaxImageArea;
+	public static function increaseMaxImageArea( $max_image_area = 0 ) {
+		global $wgMaxImageArea, $wgUseImageMagick;
 
-		if ( empty( $area ) ) {
-			$area = Config::$max_image_area;
+		if ( empty( $max_image_area ) ) {
+			$max_image_area = Config::$max_image_area;
 		}
 
-		if ( (int)$wgMaxImageArea < (int)$area ) {
-			self::$wgMaxImageArea = (int)$wgMaxImageArea;
-			$wgMaxImageArea = (int)$area;
+		if ( (int)$wgMaxImageArea < (int)$max_image_area && !$wgUseImageMagick ) {
+			$msg =
+				'$wgMaxImageArea is set to ' . (int)$wgMaxImageArea . '. ' .
+				'the recommended setting is ' . (int)$max_image_area . ' ' .
+				'when ImageMagick is not being used. ' .
+				'You may need to set $wgMaxImageArea to the recommended setting in ' .
+				'LocalSettings.php.';
+
+			trigger_error( $msg, E_USER_NOTICE );
 		}
 	}
 
 	/**
 	 * the following settings need to be checked in order to handle large images
 	 *
+	 * @param {string} $memory_limit
 	 * @return {void}
 	 */
-	public static function increaseMemoryLimit( $limit = null ) {
-		global $wgMemoryLimit;
+	public static function increaseMemoryLimit( $memory_limit = null ) {
+		global $wgMemoryLimit, $wgUseImageMagick;
 
-		if ( empty( $limit ) ) {
-			$limit = Config::$memory_limit;
+		if ( empty( $memory_limit ) ) {
+			$memory_limit = Config::$memory_limit;
 		}
 
-		if ( (int)ini_get( 'memory_limit' ) < (int)$limit ) {
-			self::$memory_limit = ini_get( 'memory_limit' );
-			ini_set( 'memory_limit', $limit );
+		$memory_limit_in_bytes = \GWToolset\getBytes( $memory_limit );
+		$php_memory_limit_in_bytes = \GWToolset\getBytes( ini_get( 'memory_limit' ) );
+
+		if ( (int)$php_memory_limit_in_bytes < (int)$memory_limit_in_bytes && !$wgUseImageMagick ) {
+			$msg =
+				'php\'s memory_limit is set to ' . ini_get( 'memory_limit' ) . '. ' .
+				'the recommended setting is ' . Filter::evaluate( $memory_limit ) . ' ' .
+				'when ImageMagick is not being used. ' .
+				'You can set php\'s memory_limit to the recommended setting in httpd.conf, ' .
+				'httpd-vhosts.conf, php.ini, or .htaccess.';
+
+			trigger_error( $msg, E_USER_NOTICE );
 		}
 	}
 
@@ -310,30 +318,6 @@ class WikiChecks {
 			&& $wgHTTPTimeout !== self::$wgHTTPTimeout
 		) {
 			$wgHTTPTimeout = self::$wgHTTPTimeout; // 20 minutes, 25 seconds default
-		}
-	}
-
-	/**
-	 * @return {void}
-	 */
-	public static function restoreMaxImageArea() {
-		global $wgMaxImageArea;
-
-		if ( !empty( self::$wgMaxImageArea )
-			&& $wgMaxImageArea !== self::$wgMaxImageArea
-		) {
-			$wgMaxImageArea = self::$wgMaxImageArea; // 12500000 default
-		}
-	}
-
-	/**
-	 * @return {void}
-	 */
-	public static function restoreMemoryLimit() {
-		if ( !empty( self::$memory_limit )
-			&& (int)ini_get( 'memory_limit' ) !== (int)self::$memory_limit
-		) {
-			ini_set( 'memory_limit', self::$memory_limit ); // 128M default
 		}
 	}
 

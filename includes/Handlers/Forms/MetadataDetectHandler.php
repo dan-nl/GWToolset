@@ -10,7 +10,7 @@ namespace GWToolset\Handlers\Forms;
 use ContentHandler,
 	Exception,
 	GWToolset\Adapters\Php\MappingPhpAdapter,
-	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
+	GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\MetadataMappingForm,
 	GWToolset\Handlers\UploadHandler,
@@ -176,7 +176,7 @@ class MetadataDetectHandler extends FormHandler {
 
 		$this->XmlDetectHandler->processXml( $user_options, $Metadata_Content );
 
-		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
+		$this->_MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplatePhpAdapter() );
 		$this->_MediawikiTemplate->getMediaWikiTemplate( $user_options );
 
 		$this->_Mapping = new Mapping( new MappingPhpAdapter() );

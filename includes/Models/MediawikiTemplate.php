@@ -423,11 +423,15 @@ class MediawikiTemplate implements ModelInterface {
 	public function retrieve( array &$options = array() ) {
 		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
 
-		if ( empty( $result ) || $result->numRows() !== 1 ) {
-			throw new Exception( wfMessage( 'gwtoolset-mediawiki-template-not-found' )->rawParams( $this->mediawiki_template_name )->escaped() );
+		if ( empty( $result ) ) {
+			throw new Exception(
+				wfMessage( 'gwtoolset-mediawiki-template-not-found' )
+					->rawParams( Filter::evaluate( $this->mediawiki_template_name ) )
+						->escaped()
+				);
 		}
 
-		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
+		$this->mediawiki_template_json = $result['mediawiki_template_json'];
 		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
 
 		$this->mediawiki_template_array['title-identifier'] = null;

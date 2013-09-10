@@ -8,7 +8,7 @@
  */
 namespace GWToolset\Forms;
 use Html,
-	GWToolset\Adapters\Db\MediawikiTemplateDbAdapter,
+	GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Models\MediawikiTemplate,
@@ -28,7 +28,7 @@ class MetadataDetectForm {
 	 * an html form
 	 */
 	public static function getForm( SpecialPage $SpecialPage ) {
-		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplateDbAdapter() );
+		$MediawikiTemplate = new MediawikiTemplate( new MediawikiTemplatePhpAdapter() );
 
 		return
 			Html::rawElement(
