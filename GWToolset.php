@@ -97,9 +97,3 @@ foreach ( Config::$jobs as $job => $method ) {
 Config::$resources['localBasePath'] = $wgGWToolsetDir;
 Config::$resources['remoteExtPath'] = 'GWToolset';
 $wgResourceModules['ext.GWToolset'] = Config::$resources;
-
-/**
- * environment checks
- */
-WikiChecks::increaseMemoryLimit();
-WikiChecks::increaseMaxImageArea();

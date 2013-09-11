@@ -31,15 +31,6 @@ class WikiChecks {
 	public static $wgHTTPTimeout;
 
 	/**
-	 * attempts to make sure certain wiki settings are in place for handling
-	 * large media uploads
-	 */
-	public static function adjustMediaUploadSettings() {
-		self::increaseMaxImageArea();
-		self::increaseMemoryLimit();
-	}
-
-	/**
 	 * Checks if the given user (identified by an object) can execute this
 	 * special page (as defined by $mRestriction) sent to the SpecialPage
 	 * constructor
@@ -82,6 +73,15 @@ class WikiChecks {
 		}
 
 		return Status::newGood();
+	}
+
+	/**
+	 * attempts to make sure certain wiki settings are in place for handling
+	 * large media uploads
+	 */
+	public static function checkMediaUploadSettings() {
+		self::increaseMaxImageArea();
+		self::increaseMemoryLimit();
 	}
 
 	/**
@@ -239,6 +239,7 @@ class WikiChecks {
 	 * @return {Status}
 	 */
 	public static function pageIsReadyForThisUser( SpecialPage $SpecialPage ) {
+		self::checkMediaUploadSettings();
 
 		$Status = self::verifyPHPVersion();
 		if ( !$Status->ok ) {
