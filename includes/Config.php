@@ -97,10 +97,6 @@ class Config {
 		)
 	);
 
-	public static $hooks = array(
-		'LoadExtensionSchemaUpdates' => 'GWToolset\Hooks::onLoadExtensionSchemaUpdates'
-	);
-
 	public static $jobs = array(
 		'gwtoolsetUploadFromUrlJob' => 'GWToolset\Jobs\UploadFromUrlJob',
 		'gwtoolsetUploadMediafileJob' => 'GWToolset\Jobs\UploadMediafileJob',
