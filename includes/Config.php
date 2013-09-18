@@ -64,16 +64,17 @@ class Config {
 		'Php\FilterException' => '/includes/Php/FilterException.php'
 	);
 
+	public static $hooks = array();
+
+	public static $jobs = array(
+		'gwtoolsetUploadFromUrlJob' => 'GWToolset\Jobs\UploadFromUrlJob',
+		'gwtoolsetUploadMediafileJob' => 'GWToolset\Jobs\UploadMediafileJob',
+		'gwtoolsetUploadMetadataJob' => 'GWToolset\Jobs\UploadMetadataJob'
+	);
+
 	public static $messages = array(
 		'GWToolset' => '/GWToolset.i18n.php',
 		'GWToolsetAlias' => '/GWToolset.alias.php'
-	);
-
-	public static $special_pages = array(
-		'GWToolset' => array(
-			'class_name' => 'GWToolset\SpecialGWToolset',
-			'group' => 'media'
-		)
 	);
 
 	public static $resources = array(
@@ -97,10 +98,11 @@ class Config {
 		)
 	);
 
-	public static $jobs = array(
-		'gwtoolsetUploadFromUrlJob' => 'GWToolset\Jobs\UploadFromUrlJob',
-		'gwtoolsetUploadMediafileJob' => 'GWToolset\Jobs\UploadMediafileJob',
-		'gwtoolsetUploadMetadataJob' => 'GWToolset\Jobs\UploadMetadataJob'
+	public static $special_pages = array(
+		'GWToolset' => array(
+			'class_name' => 'GWToolset\SpecialGWToolset',
+			'group' => 'media'
+		)
 	);
 
 	/**
