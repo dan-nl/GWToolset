@@ -9,6 +9,7 @@
 namespace GWToolset;
 use Exception,
 	GWToolset\Handlers\SpecialPageHandler,
+	GWToolset\Helpers\FileSystem,
 	GWToolset\Models\Menu,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiChecks,
@@ -67,7 +68,7 @@ class SpecialGWToolset extends SpecialPage {
 	 * @param {bool} $includable whether the page can be included in normal pages
 	 */
 	public function __construct() {
-		parent::__construct( Config::$special_page_name, Config::$restriction, Config::$listed );
+		parent::__construct( Config::$special_page_name, Config::$special_page_restriction, Config::$special_page_listed );
 	}
 
 	/**
