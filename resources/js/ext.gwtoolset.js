@@ -6,18 +6,6 @@
 	var gwtoolset,
 		digitTest = /^\d+$/,
 		keyBreaker = /([^\[\]]+)|(\[\])/g,
-		messages = {
-			backLink: mw.message( 'gwtoolset-back-link-option' ).escaped(),
-			cancel: mw.message( 'gwtoolset-cancel' ).escaped(),
-			developerIssue: mw.message( 'gwtoolset-developer-issue' ).escaped(),
-			loading: mw.message( 'gwtoolset-loading' ).escaped(),
-			save: mw.message( 'gwtoolset-save' ).escaped(),
-			saveMapping: mw.message( 'gwtoolset-save-mapping' ).escaped(),
-			saveMappingFailed: mw.message( 'gwtoolset-save-mapping-failed' ).escaped(),
-			saveMappingName: mw.message( 'gwtoolset-save-mapping-name' ).escaped(),
-			saveMappingSucceeded: mw.message( 'gwtoolset-save-mapping-succeeded' ).escaped(),
-			step2Heading: mw.message( 'gwtoolset-step-2-heading' ).escaped()
-		},
 		paramTest = /([^?#]*)(#.*)?$/,
 		plus = /\+/g;
 
@@ -98,7 +86,6 @@
 
 	gwtoolset = {
 
-		displayDebugOutput: true,
 		$dialog: $( '<div>' )
 			.attr( 'id', 'dialog' )
 			.dialog( {
@@ -109,17 +96,13 @@
 					gwtoolset.closeDialog();
 				}
 			} ),
-		emptyConsole: {
-			log: function () {
-			}
-		},
 		$form: $( '#gwtoolset-form' ),
 		$ajaxLoader: $( '<div>' )
 			.attr( 'id', 'gwtoolset-loader' )
 			.html(
 				$( '<p>' )
+					.text( mw.message( 'gwtoolset-loading' ).text() )
 					.append( $.createSpinner( { size: 'large', type: 'block' } ) )
-					.append( messages.loading )
 			),
 		$templateTableTbody: $( '#template-table > tbody' ),
 		$saveMappingButton: $( '<tr>' )
@@ -131,9 +114,9 @@
 						$( '<span>' )
 							.attr( {
 								id: 'save-mapping',
-								title: messages.saveMapping
+								title: mw.message( 'gwtoolset-save-mapping' ).text()
 							} )
-							.text( messages.saveMapping )
+							.text( mw.message( 'gwtoolset-save-mapping' ).text() )
 					)
 			),
 		$buttons: {
@@ -153,8 +136,8 @@
 		},
 
 		addBackLinks: function () {
-			this.$backText.replaceWith( this.createBackLink( { title: messages.backLink } ) );
-			this.$step2Link.replaceWith( this.createBackLink( { title: messages.step2Heading } ) );
+			this.$backText.replaceWith( this.createBackLink( { title: mw.message( 'gwtoolset-back-link-option' ).text() } ) );
+			this.$step2Link.replaceWith( this.createBackLink( { title: mw.message( 'gwtoolset-step-2-heading' ).text() } ) );
 		},
 
 		addButtons: function () {
@@ -179,13 +162,13 @@
 		},
 
 		closeDialog: function () {
-			gwtoolset.$dialog.dialog( {
+			this.$dialog.dialog( {
 				buttons: null,
 				dialogClass: null,
 				title: null
 			} );
 
-			$( document ).off( 'keyup', gwtoolset.handleDialogKeyUp );
+			$( document ).off( 'keyup', this.handleDialogKeyUp );
 		},
 
 		/**
@@ -194,22 +177,22 @@
 		 * you to specify unique values if desired
 		 *
 		 * @param {Object} options
-		 *
 		 */
 		createBackLink: function ( options ) {
 			return $( '<a>' )
 				.attr( 'href', '#' )
-				.attr( 'title', options.title || '' )
-				.text( options.text || options.title || '' )
+				.attr( 'title', options.title || 'back link' )
+				.text( options.text || options.title || 'back link' )
 				.on( 'click', function ( evt ) {
 					evt.preventDefault();
+					evt.stopPropagation();
 					history.back();
 				} );
 		},
 
 		handleAjaxError: function () {
-			gwtoolset.openDialog( { msg: messages.developerIssue } );
-			console.log( arguments );
+			gwtoolset.openDialog( { msg: mw.message( 'gwtoolset-developer-issue' ).text() } );
+			mw.log( arguments );
 		},
 
 		/**
@@ -219,9 +202,9 @@
 		 */
 		handleAjaxSuccess: function ( data, textStatus, jqXHR ) {
 			if ( data.ok !== true || !textStatus || !jqXHR ) {
-				gwtoolset.openDialog( { msg: messages.saveMappingFailed } );
+				gwtoolset.openDialog( { msg: mw.message( 'gwtoolset-save-mapping-failed' ).text() } );
 			} else {
-				gwtoolset.openDialog( { msg: messages.saveMappingSucceeded } );
+				gwtoolset.openDialog( { msg: mw.message( 'gwtoolset-save-mapping-succeeded' ).text() } );
 			}
 		},
 
@@ -266,6 +249,7 @@
 
 		/**
 		 * @param {Event} evt
+		 * keyCode 13 = enter key
 		 */
 		handleDialogKeyUp: function ( evt ) {
 			var buttons = evt.data.buttons;
@@ -285,27 +269,27 @@
 		handleSaveMappingClick: function ( evt ) {
 			var buttons,
 				$input = $( '<input>' )
-					.attr( {
-						id: 'mapping-name-to-use',
-						value: $( '#metadata-mapping-name' ).val()
-					} );
+					.attr( 'type', 'text' )
+					.attr( 'id', 'mapping-name-to-use' )
+					.attr( 'value', $( '#metadata-mapping-name' ).val() );
 
 			evt.preventDefault();
 
 			gwtoolset.openDialog( {
 				options: {
-					title: messages.saveMappingName,
+					title: mw.message( 'gwtoolset-save-mapping-name' ).text(),
 					dialogClass: 'no-close',
 					buttons : [
 						{
-							text: messages.save,
+							text: mw.message( 'gwtoolset-save' ).text(),
 							click: function () {
 								$( this ).dialog( 'close' );
 								gwtoolset.saveMapping();
-							}
+							},
+							id: 'button-save-mapping'
 						},
 						{
-							text: messages.cancel,
+							text: mw.message( 'gwtoolset-cancel' ).text(),
 							click: function () {
 								$( this ).dialog( 'close' );
 							}
@@ -320,7 +304,6 @@
 		},
 
 		init: function () {
-			gwtoolset.setConsole();
 			gwtoolset.addBackLinks();
 			gwtoolset.addFormListener();
 			gwtoolset.addSaveMappingButton();
@@ -370,12 +353,6 @@
 				complete: gwtoolset.handleAjaxComplete,
 				timeout: 5000
 			} );
-		},
-
-		setConsole: function () {
-			if ( window.console === undefined || !this.displayDebugOutput ) {
-				window.console = this.emptyConsole;
-			}
 		}
 
 	};
