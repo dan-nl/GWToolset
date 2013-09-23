@@ -255,11 +255,9 @@ class Config {
 	 */
 	public static $resources = array(
 		'scripts' => array(
-			'resources/js/jquery/ui/1.10.3/jquery-ui.js',
 			'resources/js/ext.gwtoolset.js'
 		),
 		'styles' => array(
-			'resources/css/jquery/ui/1.10.3/themes/smoothness/jquery-ui.css',
 			'resources/css/ext.gwtoolset.css'
 		),
 		'messages' => array(
@@ -270,7 +268,19 @@ class Config {
 			'gwtoolset-save-mapping-failed',
 			'gwtoolset-save-mapping-succeeded',
 			'gwtoolset-step-2-heading',
-			'gwtoolset-back-link-option'
+			'gwtoolset-back-link-option',
+			'gwtoolset-save',
+			'gwtoolset-cancel'
+		),
+		'dependencies' => array(
+			'jquery.spinner',
+			'jquery.ui.widget',
+			'jquery.ui.button',
+			'jquery.ui.draggable',
+			'jquery.ui.mouse',
+			'jquery.ui.position',
+			'jquery.ui.resizable',
+			'jquery.ui.dialog'
 		)
 	);
 
