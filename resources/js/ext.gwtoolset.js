@@ -1,4 +1,4 @@
-/*global jQuery, mw, dialog */
+/*global jQuery, mw */
 /*jslint browser: true, white: true, devel: true, regexp: true */
 (function ( $ ) {
 	'use strict';
