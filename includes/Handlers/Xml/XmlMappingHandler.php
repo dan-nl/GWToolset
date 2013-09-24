@@ -215,7 +215,7 @@ class XmlMappingHandler extends XmlHandler {
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
 			throw new Exception(
 				wfMessage( 'gwtoolset-developer-issue' )->params(
-					wfMessage( 'gwtoolset-no-xmlelement' )->escaped()
+					wfMessage( 'gwtoolset-no-xml-element' )->escaped()
 				)->parse()
 			);
 		}

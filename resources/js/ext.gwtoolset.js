@@ -136,7 +136,7 @@
 		},
 
 		addBackLinks: function () {
-			this.$backText.replaceWith( this.createBackLink( { title: mw.message( 'gwtoolset-back-link-option' ).text() } ) );
+			this.$backText.replaceWith( this.createBackLink( { title: mw.message( 'gwtoolset-back-text-link' ).text() } ) );
 			this.$step2Link.replaceWith( this.createBackLink( { title: mw.message( 'gwtoolset-step-2-heading' ).text() } ) );
 		},
 
@@ -167,8 +167,6 @@
 				dialogClass: null,
 				title: null
 			} );
-
-			$( document ).off( 'keyup', this.handleDialogKeyUp );
 		},
 
 		/**
@@ -247,18 +245,6 @@
 			$( this ).closest( 'tr' ).remove();
 		},
 
-		/**
-		 * @param {Event} evt
-		 * keyCode 13 = enter key
-		 */
-		handleDialogKeyUp: function ( evt ) {
-			var buttons = evt.data.buttons;
-
-			if ( evt.keyCode === 13 ) {
-				buttons[0].click.apply( dialog );
-			}
-		},
-
 		handleFormSubmit: function () {
 			gwtoolset.$ajaxLoader.fadeIn();
 		},
@@ -267,7 +253,8 @@
 		 * @param {Event} evt
 		 */
 		handleSaveMappingClick: function ( evt ) {
-			var buttons,
+			var $form = $( '<form>' )
+					.on( 'submit', gwtoolset.saveMapping ),
 				$input = $( '<input>' )
 					.attr( 'type', 'text' )
 					.attr( 'id', 'mapping-name-to-use' )
@@ -296,11 +283,8 @@
 						}
 					]
 				},
-				msg: $input
+				msg: $form.append( $input )
 			} );
-
-			buttons = gwtoolset.$dialog.dialog( 'option', 'buttons' );
-			$( document ).on( 'keyup', { buttons: buttons }, gwtoolset.handleDialogKeyUp );
 		},
 
 		init: function () {
@@ -325,12 +309,19 @@
 
 		/**
 		 * sends the appropriate data to the server for the mapping to be created/updated
+		 *
+		 * @param {Event} evt
 		 */
-		saveMapping: function () {
+		saveMapping: function ( evt ) {
 			var mappingNameToUse = $( '#mapping-name-to-use' ).val(),
 				mediawikiTemplateName = $( '#mediawiki-template-name' ).val(),
 				wpEditToken = mw.user.tokens.get( 'editToken' ),
 				metadataMappings = gwtoolset.$form.find( 'select' ).serialize();
+
+			if ( evt ) {
+				gwtoolset.$dialog.dialog( 'close' );
+				evt.preventDefault();
+			}
 
 			metadataMappings = $.String.deparam( metadataMappings );
 

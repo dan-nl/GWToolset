@@ -101,7 +101,7 @@ class XmlDetectHandler extends XmlHandler {
 		$record = null;
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xmlelement' )->escaped() )->parse() );
+			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-xml-element' )->escaped() )->parse() );
 		}
 
 		if ( !isset( $user_options['record-element-name'] )
