@@ -81,44 +81,13 @@ class Mapping implements ModelInterface {
 	 * the keys and values within the array are not filtered
 	 */
 	public function getJsonAsArray( array &$options = array() ) {
-		$error_msg = null;
-		$json_error = JSON_ERROR_NONE;
 		$result = array();
 
-		$result = json_decode( $this->mapping_json, true );
-		$json_error = json_last_error();
-
-		if ( $json_error !== JSON_ERROR_NONE ) {
-			switch ( json_last_error() ) {
-				case JSON_ERROR_NONE:
-					$error_msg = wfMessage( 'gwtoolset-json-error-none' )->escaped();
-					break;
-
-				case JSON_ERROR_DEPTH:
-					$error_msg = wfMessage( 'gwtoolset-json-error-depth' )->escaped();
-					break;
-
-				case JSON_ERROR_STATE_MISMATCH:
-					$error_msg = wfMessage( 'gwtoolset-json-error-state-mismatch' )->escaped();
-					break;
-
-				case JSON_ERROR_CTRL_CHAR:
-					$error_msg = wfMessage( 'gwtoolset-json-error-ctrl-char' )->escaped();
-					break;
-
-				case JSON_ERROR_SYNTAX:
-					$error_msg = wfMessage( 'gwtoolset-json-error-syntax' )->escaped();
-					break;
-
-				case JSON_ERROR_UTF8:
-					$error_msg = wfMessage( 'gwtoolset-json-error-utf8' )->escaped();
-					break;
-
-				default:
-					$error_msg = wfMessage( 'gwtoolset-json-error-unknown' )->escaped();
-					break;
-			}
-
+		try {
+			$result = json_decode( $this->mapping_json, true );
+			\GWToolset\jsonCheckForError();
+		} catch ( Exception $e ) {
+			$error_msg = $e->getMessage();
 			if ( isset( $options['Metadata-Mapping-Title'] ) ) {
 				$error_msg .= ' ' . Linker::link( $options['Metadata-Mapping-Title'], null, array( 'target' => '_blank' ) );
 			}

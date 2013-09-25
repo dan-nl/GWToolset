@@ -154,6 +154,7 @@ class Config {
 
 	/**
 	 * @var {array}
+	 * http://gwtoolset/api.php?action=templatedata&titles=Template:Artwork
 	 */
 	public static $mediawiki_templates = array(
 		'Artwork' => '{"artist":"","title":"","description":"","date":"","medium":"","dimensions":"","institution":"","location":"","references":"","object history":"","exhibition history":"","credit line":"","inscriptions":"","notes":"","accession number":"","source":"","permission":"","other_versions":""}',

@@ -116,6 +116,46 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 	return false;
 }
 
+/**
+ * @throws {Exception}
+ */
+function jsonCheckForError() {
+	$error_msg = null;
+
+	switch ( json_last_error() ) {
+		case JSON_ERROR_NONE:
+			break;
+
+		case JSON_ERROR_DEPTH:
+			$error_msg = wfMessage( 'gwtoolset-json-error-depth' )->escaped();
+			break;
+
+		case JSON_ERROR_STATE_MISMATCH:
+			$error_msg = wfMessage( 'gwtoolset-json-error-state-mismatch' )->escaped();
+			break;
+
+		case JSON_ERROR_CTRL_CHAR:
+			$error_msg = wfMessage( 'gwtoolset-json-error-ctrl-char' )->escaped();
+			break;
+
+		case JSON_ERROR_SYNTAX:
+			$error_msg = wfMessage( 'gwtoolset-json-error-syntax' )->escaped();
+			break;
+
+		case JSON_ERROR_UTF8:
+			$error_msg = wfMessage( 'gwtoolset-json-error-utf8' )->escaped();
+			break;
+
+		default:
+			$error_msg = wfMessage( 'gwtoolset-json-error-unknown' )->escaped();
+			break;
+	}
+
+	if ( !empty( $error_msg ) ) {
+		throw new Exception( $error_msg );
+	}
+}
+
 // created to deal with an issue within
 // GWToolset/includes/Adapters/Api/MappingPhpAdapter.php->saveMapping()
 function swallowErrors() {

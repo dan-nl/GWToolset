@@ -29,6 +29,7 @@ $messages['en'] = array(
 	/**
 	 * developer issues
 	 */
+	'gwtoolset-api-call-unsuccessful' => 'The API call made by [ $1 ] was unsuccessful.',
 	'gwtoolset-could-not-close-xml' => 'Could not close the XMLReader.',
 	'gwtoolset-could-not-open-xml' => 'Could not open the XML File for reading.',
 	'gwtoolset-developer-issue' => "Please contact a developer; they will need to address this issue before you can continue [ '''$1''' ].",
@@ -104,6 +105,7 @@ $messages['en'] = array(
 	/**
 	 * json
 	 */
+	'gwtoolset-json-error' => 'There was a problem with the JSON [$1].',
 	'gwtoolset-json-error-ctrl-char' => 'Unexpected control character found.',
 	'gwtoolset-json-error-depth' => 'Maximum stack depth exceeded.',
 	'gwtoolset-json-error-none' => 'No errors.',
@@ -111,6 +113,7 @@ $messages['en'] = array(
 	'gwtoolset-json-error-syntax' => 'Syntax error, malformed JSON.',
 	'gwtoolset-json-error-unknown' => 'Unknown error.',
 	'gwtoolset-json-error-utf8' => 'Malformed UTF-8 characters, possibly incorrectly encoded.',
+
 
 	/**
 	 * step 1 - metadata detect
@@ -225,6 +228,7 @@ $messages['en'] = array(
  */
 $messages['qqq'] = array(
 	'gwtoolset' => 'extension name',
+	'gwtoolset-api-call-unsuccessful' => 'Message that appears when an API call was unsuccessful.',
 	'gwtoolset-desc' => '{{desc|name=GWToolset|url=https://www.mediawiki.org/wiki/Extension:GWToolset}}',
 	'gwtoolset-intro' => 'introduction paragraph for the extension used on the initial Special:GWtoolset landing page',
 	'gwtoolset-db-client-support' => 'technical error message that appears when the extension does not find MySQL present when updating the database schema',
@@ -287,6 +291,7 @@ $messages['qqq'] = array(
 	'gwtoolset-save-mapping-failed' => 'message to the user that appears when their mapping could not be saved.',
 	'gwtoolset-save-mapping-succeeded' => 'message to the user that appears when their mapping was successfully saved.',
 	'gwtoolset-save-mapping-name' => 'JavaScript prompt to the user asking them under which name they would like to save their mapping',
+	'gwtoolset-json-error' => 'Appears when there is a problem with a JSON value.',
 	'gwtoolset-json-error-ctrl-char' => 'user error message when Unexpected control character found.',
 	'gwtoolset-json-error-depth' => 'user error message when Maximum stack depth exceeded.',
 	'gwtoolset-json-error-none' => 'user error message when No errors.',
