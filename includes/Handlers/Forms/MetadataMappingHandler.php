@@ -6,6 +6,7 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset\Handlers\Forms;
 use GWToolset\Adapters\Php\MappingPhpAdapter,
 	GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter,
@@ -20,10 +21,12 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 	Html,
 	JobQueueGroup,
 	Linker,
+	MWException,
 	Php\Filter,
 	Revision,
 	SpecialPage,
 	Title,
+	UploadStashFile,
 	User,
 	WikiPage;
 
@@ -145,6 +148,10 @@ class MetadataMappingHandler extends FormHandler {
 				? urldecode( $_POST['metadata-file-url'] )
 				: null,
 
+			'metadata-stash-key' => !empty( $_POST['metadata-stash-key'] )
+				? urldecode( $_POST['metadata-stash-key'] )
+				: null,
+
 			'partner-template-url' => !empty( $_POST['partner-template-url'] )
 				? urldecode( $_POST['partner-template-url'] )
 				: null,
@@ -183,7 +190,11 @@ class MetadataMappingHandler extends FormHandler {
 		);
 
 		if ( !empty( $result['partner-template-url'] ) ) {
-			$result['partner-template-name'] = WikiPages::getTitleFromUrl( $result['partner-template-url'] );
+			$result['partner-template-name'] = \GWToolset\getTitle(
+				$result['partner-template-url'],
+				NS_TEMPLATE,
+				false
+			);
 		}
 
 		return $result;
@@ -214,12 +225,13 @@ class MetadataMappingHandler extends FormHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {array}
 	 * an array of mediafile Title(s)
 	 */
 	protected function processMetadata( array &$user_options ) {
 		$mediafile_titles = array();
+		$UploadStashFile = null;
 		$this->_Mapping = null;
 		$this->_MediawikiTemplate = null;
 		$this->_UploadHandler = null;
@@ -241,19 +253,6 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		$Metadata_Title = WikiPages::getTitleFromUrl( $user_options['metadata-file-url'] );
-
-		if ( $Metadata_Title instanceof Title ) {
-			$Metadata_Page = new WikiPage( $Metadata_Title );
-			$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
-		} else {
-			throw new Exception(
-				wfMessage( 'gwtoolset-metadata-file-url-not-present' )
-					->params( $user_options['metadata-file-url'])
-					->escaped()
-			);
-		}
-
 		$this->_XmlMappingHandler = new XmlMappingHandler(
 			array(
 				'Mapping' => $this->_Mapping,
@@ -262,7 +261,25 @@ class MetadataMappingHandler extends FormHandler {
 			)
 		);
 
-		$mediafile_titles = $this->_XmlMappingHandler->processXml( $user_options, $Metadata_Content );
+		if ( is_string( $user_options['metadata-stash-key'] ) ) {
+			$UploadStashFile = $this->_UploadHandler->getMetadataFromStash( $user_options );
+		} elseif ( is_string( $user_options['metadata-file-url'] ) ) {
+			$Metadata_Title = \GWToolset\getTitle( $user_options['metadata-file-url'], Config::$metadata_namespace );
+		}
+
+		if ( $UploadStashFile instanceof UploadStashFile ) {
+			$mediafile_titles = $this->_XmlMappingHandler->processXml( $user_options, $UploadStashFile->getLocalRefPath() );
+		} elseif ( $Metadata_Title instanceof Title ) {
+			$Metadata_Page = new WikiPage( $Metadata_Title );
+			$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
+			$mediafile_titles = $this->_XmlMappingHandler->processXml( $user_options, $Metadata_Content );
+		} else {
+			throw new MWException(
+				wfMessage( 'gwtoolset-metadata-file-url-not-present' )
+					->params( $user_options['metadata-file-url'])
+					->escaped()
+			);
+		}
 
 		/**
 		 * when $this->SpecialPage is empty this method is being run by a wiki job
@@ -300,7 +317,6 @@ class MetadataMappingHandler extends FormHandler {
 			$user_options,
 			array(
 				'mediawiki-template-name',
-				'metadata-file-url',
 				'record-count',
 				'record-element-name',
 				'title-identifier',

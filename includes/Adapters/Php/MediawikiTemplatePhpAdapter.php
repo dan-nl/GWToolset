@@ -6,12 +6,15 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset\Adapters\Php;
-use Exception,
-	GWToolset\Adapters\DataAdapterInterface,
+use GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
+	MimeMagic,
+	MWException,
 	MWHttpRequest,
-	Php\Filter;
+	Php\Filter,
+	Title;
 
 class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 
@@ -41,21 +44,34 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 	 * - falls back to a Config::$mediawiki_templates version if not found
 	 *
 	 * @param {array} $options
+	 * @throws {MWException}
 	 * @return {array}
 	 */
 	public function retrieve( array $options = array() ) {
 		$result = array( 'mediawiki_template_json' => '' );
 		$template_data = null;
 
+		// should we limit the mw templates we allow?
+		// 2013-09-26 w/david haskia, for now, yes
 		if ( !isset( Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )] ) ) {
-			throw new Exception(
+			throw new MWException(
 				wfMessage( 'gwtoolset-mediawiki-template-not-found' )
 					->rawParams( Filter::evaluate( $options['mediawiki_template_name'] ) )
-						->escaped()
+					->escaped()
 				);
 		}
 
-		$template_data = $this->retrieveTemplateData( $options );
+		$Title = \GWToolset\getTitle( $options['mediawiki_template_name'], NS_TEMPLATE );
+
+		if ( !$Title->isKnown() ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-mediawiki-template-does-not-exist' )
+					->params( $Title->getBaseTitle() )
+					->parse()
+			);
+		}
+
+		$template_data = $this->retrieveTemplateData( $Title );
 
 		if ( empty ( $template_data ) ) {
 			$result['mediawiki_template_json'] = Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )];
@@ -71,26 +87,30 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 	 * if TemplateData isfound, it is prepared as a JSON string in an expected
 	 * format -- {"parameter name":""}
 	 *
-	 * @param {array} $options
-	 * @return {string|null}
+	 * @param {Title} $Title
+	 * @throws {MWException}
+	 * @return {null|string}
+	 * null or a JSON representation of the MediaWiki template parameters
 	 */
-	protected function retrieveTemplateData( array $options ) {
+	protected function retrieveTemplateData( Title $Title ) {
 		$result = null;
 		$api_result = array();
+		global $wgScriptPath;
 
-		$Http = MWHttpRequest::factory(
-			'/api.php?action=templatedata&titles=Template:' . Filter::evaluate( $options['mediawiki_template_name'] )
-		);
+		$url = $wgScriptPath . '/api.php?action=templatedata&titles=' . urlencode( $Title->getBaseTitle() );
+		$Http = MWHttpRequest::factory( $url );
 
 		$Status = $Http->execute();
 
 		if ( !$Status->ok ) {
-			throw new Exception(
-				wfMessage( 'gwtoolset-developer-issue' )->params(
-					wfMessage( 'gwtoolset-api-call-unsuccessful' )->params(
-						__METHOD__
-					)->escaped()
-				)->escaped()
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params(
+						wfMessage( 'gwtoolset-api-call-unsuccessful' )
+							->params( $Title->getBaseTitle() )
+							->escaped()
+					)
+				->parse()
 			);
 		}
 
@@ -98,8 +118,12 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 
 		try {
 			\GWToolset\jsonCheckForError();
-		} catch ( Exception $e ) {
-			throw new Exception( wfMessage( 'gwtoolset-json-error' )->rawParams( $e->getMessage() )->parse() );
+		} catch ( MWException $e ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-json-error' )
+					->rawParams( $e->getMessage() )
+					->parse()
+			);
 		}
 
 		if ( isset ( $api_result['pages'] ) && count ( $api_result['pages'] ) === 1 ) {

@@ -23,15 +23,23 @@ if ( !defined( 'MEDIAWIKI' ) ) {
  */
 $wgGWToolsetDir = realpath( __DIR__ );
 
-/*
+/**
  * load extension configuration
  */
 require_once $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'Config.php';
 
-/*
+/**
  * load extension functions
  */
 require_once $wgGWToolsetDir . DIRECTORY_SEPARATOR . 'includes' . DIRECTORY_SEPARATOR . 'functions' . DIRECTORY_SEPARATOR . 'functions.php';
+
+/**
+ * define namespaces
+ */
+if ( !defined( 'NS_GWTOOLSET' ) ) {
+	define( 'NS_GWTOOLSET', 332 );
+	define( 'NS_GWTOOLSET_TALK', NS_GWTOOLSET + 1 );
+}
 
 /**
  * registering extension metadata with MediaWiki

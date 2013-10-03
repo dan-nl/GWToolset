@@ -6,7 +6,6 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
-
 $messages = array();
 
 /**
@@ -29,10 +28,10 @@ $messages['en'] = array(
 	/**
 	 * developer issues
 	 */
-	'gwtoolset-api-call-unsuccessful' => 'The API call made by [ $1 ] was unsuccessful.',
+	'gwtoolset-api-call-unsuccessful' => 'The API call made to retrieve [$1] was unsuccessful.',
 	'gwtoolset-could-not-close-xml' => 'Could not close the XMLReader.',
 	'gwtoolset-could-not-open-xml' => 'Could not open the XML File for reading.',
-	'gwtoolset-developer-issue' => "Please contact a developer; they will need to address this issue before you can continue [ '''$1''' ].",
+	'gwtoolset-developer-issue' => "Please contact a developer; they will need to address this issue before you can continue.<br/>'''$1'''",
 	'gwtoolset-dom-record-issue' => '<code>record-element-name</code>, or <code>record-count</code> not provided.',
 	'gwtoolset-ignorewarnings' => '<code>ignorewarnings</code> not set.',
 	'gwtoolset-no-accepted-types' => 'No accepted types provided',
@@ -43,6 +42,7 @@ $messages['en'] = array(
 	'gwtoolset-no-mapping-json' => 'No <code>mapping_json</code> provided.',
 	'gwtoolset-no-mediawiki-template' => 'No <code>mediawiki-template-name</code> provided.',
 	'gwtoolset-no-module' => 'No module name was specified.',
+	'gwtoolset-no-page-title' => 'No page title provided.',
 	'gwtoolset-no-save-as-batch' => "<code>user_options['save-as-batch-job']</code> not set.",
 	'gwtoolset-no-summary' => 'No summary provided.',
 	'gwtoolset-no-template-url' => 'No template URL provided to parse.',
@@ -123,6 +123,7 @@ $messages['en'] = array(
 	'gwtoolset-ensure-well-formed-xml' => 'Make sure the XML File is well-formed with this $1.',
 	'gwtoolset-file-url-invalid' => 'The file URL was invalid; the file does not yet exist in the wiki. You need to first upload the file from your computer if you want to use the file URL reference in the form.',
 	'gwtoolset-mediawiki-template-not-found' => 'No MediaWiki template found for [ $1 ].',
+	'gwtoolset-mediawiki-template-does-not-exist' => "MediaWiki template ['''$1'''] does not exist in the wiki.<br/>Either import the template or select another MediaWiki template to use for mapping.",
 	'gwtoolset-metadata-file-source' => 'Select the metadata file source.',
 	'gwtoolset-metadata-file-source-info' => '... either a file that has been previously uploaded or a file you wish to upload from your computer.',
 	'gwtoolset-metadata-file-url' => 'Metadata file wiki URL:',
@@ -130,10 +131,12 @@ $messages['en'] = array(
 	'gwtoolset-metadata-file-upload' => 'Metadata file upload:',
 	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the JSON format is invalid. Please try and correct the issue and then submit the form again.<br />$1.',
 	'gwtoolset-metadata-mapping-invalid-url' => 'The metadata mapping URL supplied, [ $1 ], does not match the expect mapping URL path [ $2 ].',
-	'gwtoolset-metadata-mapping-not-found' => 'No metadata mapping was found in the page [ $1 ].',
+	'gwtoolset-metadata-mapping-not-found' => "No metadata mapping was found.<br />The page title, '''$1''', does not exist inthe wiki.",
+	'gwtoolset-namespace-mismatch' => "The page title given, '''$1''', is in the wrong namespace, '''$2'''.<br />It should be in the '''$3''' namespace.",
 	'gwtoolset-no-xml-element-found' => 'No XML element found for mapping.',
 	'gwtoolset-no-xml-element-found-li-1' => 'Did you enter a value in the form for “What is the XML element that contains each metadata record”?',
 	'gwtoolset-no-xml-element-found-li-2' => 'Is the XML file well-formed? Try this $1.',
+	'gwtoolset-page-title-contains-url' => "The page title, $1, contains the entire wiki url. Make sure you only refer to the page title, e.g. the part of the url after /wiki/",
 	'gwtoolset-record-element-name' => 'What is the XML element that contains each metadata record:',
 	'gwtoolset-step-1-heading' => 'Step 1: Metadata detection',
 	'gwtoolset-step-1-instructions-1' => 'The Metadata upload process consists of 4 steps:',
@@ -278,8 +281,10 @@ $messages['qqq'] = array(
 	'gwtoolset-mediawiki-template' => 'heading used on the mapping page. the parameter is filled in with the wiki template name that will be used for mapping the metadata to the wiki template',
 	'gwtoolset-menu' => 'the extension menu list',
 	'gwtoolset-menu-1' => 'the first menu item for the extension menu list',
+	'gwtoolset-namespace-mismatch' => 'Appears when a page title is given that does not reside in the expected namespace.',
 	'gwtoolset-no-change' => 'appears when there has been no change to a wiki page',
 	'gwtoolset-no-form' => 'appears when There is no form for this module',
+	'gwtoolset-no-page-title' => 'Appears when no page title was provided.',
 	'gwtoolset-technical-error' => 'heading for error messages of a technical nature',
 	'gwtoolset-required-field' => ' denotes required field',
 	'gwtoolset-revised' => 'appears when a wiki page has been revised',
@@ -338,10 +343,12 @@ $messages['qqq'] = array(
 	'gwtoolset-mapping-no-title' => 'user error message when The metadata mapping contains no title',
 	'gwtoolset-mapping-no-title-identifier' => 'user error message when The metadata mapping contains no title identifier',
 	'gwtoolset-maps-to' => 'label for the HTML form',
+	'gwtoolset-mediawiki-template-does-not-exist' => 'Message appears when the MediaWiki template requested to use for maetadata mapping does not exist in the wiki.',
 	'gwtoolset-metadata-field' => 'label for the HTML form',
 	'gwtoolset-metadata-file' => 'heading for displaying some information about the metadata file',
 	'gwtoolset-metadata-mapping-legend' => 'legend for the step 2 HTML form',
 	'gwtoolset-no-more-records' => 'user message that appears when there are no more records to process',
+	'gwtoolset-page-title-contains-url' => 'Appears when the page title being requested contains the url of the site and not just the page title',
 	'gwtoolset-painted-by' => 'label for the HTML form',
 	'gwtoolset-partner' => 'heading for a section in the HTML form',
 	'gwtoolset-partner-explanation' => 'instructions for the HTML form',

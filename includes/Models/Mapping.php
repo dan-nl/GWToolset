@@ -6,13 +6,15 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset\Models;
-use Exception,
-	GWToolset\Adapters\DataAdapterInterface,
+use GWToolset\Adapters\DataAdapterInterface,
 	GWtoolset\Config,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiPages,
+	Language,
 	Linker,
+	MWException,
 	Php\Filter;
 
 class Mapping implements ModelInterface {
@@ -86,13 +88,17 @@ class Mapping implements ModelInterface {
 		try {
 			$result = json_decode( $this->mapping_json, true );
 			\GWToolset\jsonCheckForError();
-		} catch ( Exception $e ) {
+		} catch ( MWException $e ) {
 			$error_msg = $e->getMessage();
 			if ( isset( $options['Metadata-Mapping-Title'] ) ) {
 				$error_msg .= ' ' . Linker::link( $options['Metadata-Mapping-Title'], null, array( 'target' => '_blank' ) );
 			}
 
-			throw new Exception( wfMessage( 'gwtoolset-metadata-mapping-bad' )->rawParams( $error_msg )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-metadata-mapping-bad' )
+					->rawParams( $error_msg )
+					->parse()
+			);
 		}
 
 		return $result;
@@ -103,7 +109,7 @@ class Mapping implements ModelInterface {
 	 *
 	 * @param {array} $options
 	 *
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 *
 	 * @return {string}
 	 * the string is not filtered
@@ -111,11 +117,15 @@ class Mapping implements ModelInterface {
 	protected function getMappingName( array $options ) {
 		$result = null;
 
+		$Languages = new Language();
+		$namespace = $Languages->getNamespaces();
+		$namespace = $namespace[Config::$metadata_namespace] . ':';
+
 		if ( !empty( $options['Metadata-Mapping-Title'] ) ) {
 			$result = str_replace(
 				array(
-					Config::$metadata_namespace,
-					Config::$metadata_mapping_subdirectory,
+					$namespace,
+					Config::$metadata_mapping_subpage,
 					'.json'
 				),
 				'',
@@ -125,13 +135,17 @@ class Mapping implements ModelInterface {
 			$result = explode( '/', $result );
 
 			if ( !isset( $result[2] ) ) {
-				$msg =
-					wfMessage( 'gwtoolset-metadata-mapping-invalid-url' )->rawParams(
-						Filter::evaluate( $options['metadata-mapping-url'] ),
-						Filter::evaluate( Config::$metadata_namespace ) . Filter::evaluate( Config::$metadata_mapping_subdirectory ) . '/user-name/file-name.json'
-					)->escaped();
+				$url = Filter::evaluate( $options['metadata-mapping-url'] );
 
-				throw new Exception( $msg );
+				$expected_path = $namespace .
+					Filter::evaluate( Config::$metadata_mapping_subpage ) .
+					'/user-name/file-name.json';
+
+				$msg = wfMessage( 'gwtoolset-metadata-mapping-invalid-url' )
+					->rawParams( $url, $expected_path )
+					->escaped();
+
+				throw new MWException( $msg );
 			}
 
 			$result = $result[2];
@@ -141,24 +155,26 @@ class Mapping implements ModelInterface {
 	}
 
 	/**
+	 * attempts to retrieve a wiki page title that contains the metadata mapping json
+	 *
 	 * @param {array} $options
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {null|Title}
 	 */
 	protected function getMappingTitle( array &$options ) {
 		$result = null;
 
 		if ( !empty( $options['metadata-mapping-url'] ) ) {
-			$result = WikiPages::getTitleFromUrl(
+			$result = \GWToolset\getTitle(
 				$options['metadata-mapping-url'],
-				FileChecks::getAcceptedExtensions( Config::$accepted_mapping_types )
+				Config::$metadata_namespace
 			);
 
 			if ( empty( $result ) ) {
-				throw new Exception(
+				throw new MWException(
 					wfMessage( 'gwtoolset-metadata-mapping-not-found' )
 						->params( $options['metadata-mapping-url'] )
-						->escaped()
+						->parse()
 				);
 			}
 		}
@@ -206,7 +222,7 @@ class Mapping implements ModelInterface {
 	 * @param {array} $options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {void}
 	 */
 	public function retrieve( array &$options = array() ) {

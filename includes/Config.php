@@ -6,6 +6,7 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset;
 
 class Config {
@@ -29,16 +30,6 @@ class Config {
 	/**
 	 * @var {array}
 	 * which extension/mimetype combinations should the extension accept
-	 * for media files
-	 */
-	public static $accepted_media_types = array(
-		'jpg' => array( 'image/jpeg' ),
-		'pdf' => array( 'application/pdf' )
-	);
-
-	/**
-	 * @var {array}
-	 * which extension/mimetype combinations should the extension accept
 	 * for metadata files
 	 */
 	public static $accepted_metadata_types = array(
@@ -52,7 +43,7 @@ class Config {
 	public static $allowed_templates = array(
 		'Artwork',
 		'Book',
-		'Musical work',
+		'Musical_work',
 		'Photograph',
 		'Specimen'
 	);
@@ -65,8 +56,6 @@ class Config {
 
 		'GWToolset\Adapters\Php\MappingPhpAdapter' => '/includes/Adapters/Php/MappingPhpAdapter.php',
 		'GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter' => '/includes/Adapters/Php/MediawikiTemplatePhpAdapter.php',
-
-		'GWToolset\Exception' => '/includes/Exception.php',
 
 		'GWToolset\Forms\MetadataDetectForm' => '/includes/Forms/MetadataDetectForm.php',
 		'GWToolset\Forms\MetadataMappingForm' => '/includes/Forms/MetadataMappingForm.php',
@@ -89,6 +78,8 @@ class Config {
 		'GWToolset\Helpers\FileSystem' => '/includes/Helpers/FileSystem.php',
 		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\WikiPages' => '/includes/Helpers/WikiPages.php',
+
+		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
 
 		'GWToolset\Jobs\UploadFromUrlJob' => '/includes/Jobs/UploadFromUrlJob.php',
 		'GWToolset\Jobs\UploadMediafileJob' => '/includes/Jobs/UploadMediafileJob.php',
@@ -116,13 +107,20 @@ class Config {
 	/**
 	 * @var {array}
 	 */
-	public static $hooks = array();
+	public static $hooks = array(
+		'CanonicalNamespaces' => 'GWToolset\Hooks::onCanonicalNamespaces'
+	);
 
 	/**
 	 * @var {int}
 	 * 20 minutes, 25 seconds default
 	 */
 	public static $http_timeout = 1200;
+
+	/**
+	 * @var {string}
+	 */
+	public static $http_agent = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7.3) Gecko/20041001 Firefox/0.10.1';
 
 	/**
 	 * @var {array}
@@ -168,7 +166,7 @@ class Config {
 	 * @var {string}
 	 * wiki namespace to store metadata mappings and data sets
 	 */
-	public static $mediafile_namespace = 'File:';
+	public static $mediafile_namespace = NS_FILE;
 
 	/**
 	 * @var {string}
@@ -180,54 +178,28 @@ class Config {
 	 * @var {array}
 	 */
 	public static $messages = array(
+		'GWToolsetAlias' => '/GWToolset.alias.php',
 		'GWToolset' => '/GWToolset.i18n.php',
-		'GWToolsetAlias' => '/GWToolset.alias.php'
+		'GWToolsetNamespaces' => '/GWToolset.namespaces.php',
 	);
-
-	/**
-	 * @var {string}
-	 * the directory where metadata sets are stored on the file system
-	 * the actual file system path should be calcualted in the method that uses
-	 * the variable
-	 */
-	public static $metadata_directory = 'gwtoolset';
 
 	/**
 	 * @var {string}
 	 * category automatically assigned to metadata files uploaded by GWToolset
 	 */
-	public static $metadata_file_category = 'GWToolset Metadata Sets';
-
-	/**
-	 * @var {string}
-	 * note that this mapping tag has a hardcoded pregmatch in
-	 * GWToolset/includes/Adapters/Api/MappingApiAdapter.php
-	 * that needs to change if this value changes
-	 */
-	public static $metadata_mapping_open_tag = '<mapping_json>';
-
-	/**
-	 * @var {string}
-	 * category automatically assigned to saved metadata mappings
-	 */
-	public static $metadata_mapping_category = 'GWToolset Metadata Mappings';
-
-	/**
-	 * @var {string}
-	 */
-	public static $metadata_mapping_close_tag = '</mapping_json>';
+	public static $metadata_file_category = 'GWToolset_Metadata_Sets';
 
 	/**
 	 * @var {string}
 	 * wiki namespace to store metadata mappings and data sets
 	 */
-	public static $metadata_namespace = 'GWToolset:';
+	public static $metadata_namespace = NS_GWTOOLSET;
 
 	/**
 	 * @var {string}
-	 * sub directory used to place saved metadata mappings
+	 * subpage used to place saved metadata mappings
 	 */
-	public static $metadata_mapping_subdirectory = 'Metadata Mappings';
+	public static $metadata_mapping_subpage = 'Metadata_Mappings';
 
 	/**
 	 * @var {string}
@@ -236,15 +208,15 @@ class Config {
 
 	/**
 	 * @var {string}
-	 * sub directory used to place saved metadata sets
+	 * subpage used to place saved metadata sets
 	 */
-	public static $metadata_sets_subdirectory = 'Metadata Sets';
+	public static $metadata_sets_subpage = 'Metadata_Sets';
 
 	/**
 	 * @var {string}
 	 * category automatically added to items uploaded by GWToolset
 	 */
-	public static $mediawiki_template_default_category = 'GWToolset Batch Upload';
+	public static $mediawiki_template_default_category = 'GWToolset_Batch_Upload';
 
 	/**
 	 * @var {int}
@@ -289,7 +261,7 @@ class Config {
 	 * @var {string}
 	 * Category:Source_templates is the category on commons for partner templates
 	 */
-	public static $source_templates = 'Source templates';
+	public static $source_templates = 'Source_templates';
 
 	/**
 	 * @see SpecialPage __constructor
@@ -333,6 +305,11 @@ class Config {
 	 * delimited list in the input file’s accept attribute
 	 */
 	public static $use_file_accept_attribute = true;
+
+	/**
+	 * @var {boolean}
+	 */
+	public static $use_UploadStash = true;
 
 	/**
 	 * @var {string}
