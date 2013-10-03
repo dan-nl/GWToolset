@@ -75,7 +75,6 @@ class Config {
 		'GWToolset\Handlers\Xml\XmlMappingHandler' => '/includes/Handlers/Xml/XmlMappingHandler.php',
 
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
-		'GWToolset\Helpers\FileSystem' => '/includes/Helpers/FileSystem.php',
 		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\WikiPages' => '/includes/Helpers/WikiPages.php',
 
