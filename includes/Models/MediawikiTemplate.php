@@ -6,13 +6,13 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset\Models;
-use Exception,
-	Html,
+use Html,
 	GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
 	GWToolset\Helpers\FileChecks,
-	Php\Curl,
+	MWException,
 	Php\Filter,
 	ReflectionClass,
 	ReflectionProperty,
@@ -332,7 +332,7 @@ class MediawikiTemplate implements ModelInterface {
 	 *   - url to the media file’s extension
 	 *
 	 * @param {array} $options
-	 *
+	 * @throws {MWException}
 	 * @return {string}
 	 * the string is not filtered.
 	 * the result assumes that it will be used in Title creation
@@ -342,11 +342,15 @@ class MediawikiTemplate implements ModelInterface {
 		$result = null;
 
 		if ( empty( $this->mediawiki_template_array['title-identifier'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
+			throw new MWException( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
 		}
 
 		if ( empty( $options['evaluated-media-file-extension'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )->rawParams( Filter::evaluate( $options['url-to-the-media-file'] ) )->escaped() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )
+					->rawParams( Filter::evaluate( $options['url-to-the-media-file'] ) )
+					->escaped()
+				);
 		}
 
 		/**
@@ -361,7 +365,7 @@ class MediawikiTemplate implements ModelInterface {
 		} elseif ( !empty( $this->mediawiki_template_array['Title'] ) ) {
 			$result = $this->mediawiki_template_array['Title'];
 		} else {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
+			throw new MWException( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
 		}
 
 		$result .= Config::$title_separator;
@@ -382,19 +386,23 @@ class MediawikiTemplate implements ModelInterface {
 	 * @param {string} $mediawiki_template_name
 	 * the key within $user_options that holds the name of the mediawiki template
 	 *
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {void}
 	 */
 	public function getMediaWikiTemplate( array &$user_options, $mediawiki_template_name = 'mediawiki-template-name' ) {
 		if ( !isset( $user_options[$mediawiki_template_name] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->parse() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->parse() )
+					->parse()
+				);
 		}
 
 		if ( in_array( $user_options[$mediawiki_template_name], Config::$allowed_templates ) ) {
 			$this->mediawiki_template_name = $user_options[$mediawiki_template_name];
 			$this->retrieve();
 		} else {
-			throw new Exception( wfMessage( 'gwtoolset-metadata-invalid-template' )->escaped() );
+			throw new MWException( wfMessage( 'gwtoolset-metadata-invalid-template' )->escaped() );
 		}
 	}
 
@@ -418,16 +426,21 @@ class MediawikiTemplate implements ModelInterface {
 	 * this mediawiki template model
 	 *
 	 * @param {array} $options
+	 * @throws {MWException}
 	 * @return {void}
 	 */
 	public function retrieve( array &$options = array() ) {
 		$result = $this->_DataAdapater->retrieve( array( 'mediawiki_template_name' => $this->mediawiki_template_name ) );
 
-		if ( empty( $result ) || $result->numRows() !== 1 ) {
-			throw new Exception( wfMessage( 'gwtoolset-mediawiki-template-not-found' )->rawParams( $this->mediawiki_template_name )->escaped() );
+		if ( empty( $result ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-mediawiki-template-not-found' )
+					->rawParams( Filter::evaluate( $this->mediawiki_template_name ) )
+						->escaped()
+				);
 		}
 
-		$this->mediawiki_template_json = $result->current()->mediawiki_template_json;
+		$this->mediawiki_template_json = $result['mediawiki_template_json'];
 		$this->mediawiki_template_array = json_decode( $this->mediawiki_template_json, true );
 
 		$this->mediawiki_template_array['title-identifier'] = null;

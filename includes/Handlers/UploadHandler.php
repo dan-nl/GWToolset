@@ -6,22 +6,29 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset\Handlers;
 use ContentHandler,
 	GWToolset\Config,
-	GWToolset\Exception,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiChecks,
 	GWToolset\Helpers\WikiPages,
 	GWToolset\Jobs\UploadMediafileJob,
 	GWToolset\Jobs\UploadFromUrlJob,
+	GWToolset\Models\Mapping,
+	GWToolset\Models\MediawikiTemplate,
 	JobQueueGroup,
 	Linker,
+	LocalRepo,
+	MimeMagic,
+	MWException,
 	MWHttpRequest,
+	Php\File,
 	Php\Filter,
 	Title,
 	UploadBase,
 	UploadFromUrl,
+	UploadStash,
 	User,
 	WikiPage;
 
@@ -56,6 +63,13 @@ class UploadHandler {
 	 * @var {User}
 	 */
 	protected $_User;
+
+	/**
+	 * @var {array}
+	 * used to hold the original wiki file extension array while the extension
+	 * augments it for metadata file upload.
+	 */
+	private $_wgFileExtensions;
 
 	/**
 	 * @var {array}
@@ -101,27 +115,6 @@ class UploadHandler {
 
 		if ( isset( $options['User'] ) ) {
 			$this->_User = $options['User'];
-		}
-	}
-
-	/**
-	 * adds to the wiki’s allowed extensions array, $wgFileExtensions so that
-	 * UploadBase will accept them
-	 *
-	 * @param {array} $accepted_types
-	 * @return {void}
-	 */
-	protected function addAllowedExtensions( array $accepted_types = array() ) {
-		global $wgFileExtensions;
-
-		if ( empty( $accepted_types ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )->parse() );
-		}
-
-		foreach ( array_keys( Config::$accepted_metadata_types ) as $accepted_extension ) {
-			if ( !in_array( $accepted_extension, $wgFileExtensions ) ) {
-				$wgFileExtensions[] = Filter::evaluate( $accepted_extension );
-			}
 		}
 	}
 
@@ -190,15 +183,15 @@ class UploadHandler {
 				$metadata = null;
 
 				if ( !empty( $this->user_options['category-phrase'][$i] ) ) {
-					$phrase = $this->user_options['category-phrase'][$i] . ' ';
+					$phrase = Filter::evaluate( $this->user_options['category-phrase'][$i] ) . ' ';
 				}
 
 				if ( !empty( $this->user_options['category-metadata'][$i] ) ) {
-					$metadata = $this->getMappedField( $this->user_options['category-metadata'][$i] );
+					$metadata = Filter::evaluate(  $this->getMappedField( $this->user_options['category-metadata'][$i] ) );
 				}
 
 				if ( !empty( $metadata ) ) {
-					$result .= '[[Category:' . Filter::evaluate( $phrase ) . Filter::evaluate( $metadata ) . ']]';
+					$result .= '[[Category:' .  $phrase . $metadata . ']]';
 				}
 			}
 		}
@@ -207,8 +200,37 @@ class UploadHandler {
 	}
 
 	/**
-	 * follows a url testing the headers to determine the final url and
-	 * extension
+	 * adds to the wiki’s allowed extensions array, $wgFileExtensions so that
+	 * UploadBase will accept certain types. original intention is to allow
+	 * xml file uploads as metadata sets
+	 *
+	 * @param {array} $accepted_types
+	 * @throws {MWException}
+	 * @return {void}
+	 */
+	protected function augmentAllowedExtensions( array $accepted_types = array() ) {
+		global $wgFileExtensions;
+
+		if ( empty( $accepted_types ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )
+					->parse()
+			);
+		}
+
+		$this->_wgFileExtensions = $wgFileExtensions;
+
+		foreach ( array_keys( Config::$accepted_metadata_types ) as $accepted_extension ) {
+			if ( !in_array( $accepted_extension, $wgFileExtensions ) ) {
+				$wgFileExtensions[] = Filter::evaluate( $accepted_extension );
+			}
+		}
+	}
+
+	/**
+	 * follows a url testing the headers to determine the final url, content-type
+	 * and file extension
 	 *
 	 * text/html example - has a js redirect in it
 	 *   $url = 'http://aleph500.biblacad.ro:8991/F?func=service&doc_library=RAL01&doc_number=000245208&line_number=0001&func_code=DB_RECORDS&service_type=MEDIA';
@@ -230,9 +252,7 @@ class UploadHandler {
 	 *   $url = 'http://images.memorix.nl/gam/thumb/150x150/115165d2-1267-7db5-4abb-54d273c47a81.jpg';
 	 *
 	 * @param {string} $url
-	 *
-	 * @throws {Exception}
-	 *
+	 * @throws {MWException}
 	 * @return {array}
 	 * the values in the array are not filtered
 	 *   $result['content-type']
@@ -240,8 +260,7 @@ class UploadHandler {
 	 *   $result['url']
 	 */
 	protected function evaluateMediafileUrl( $url ) {
-
-		$result = array( 'extension' => null, 'url' => null );
+		$result = array( 'content-type' => null, 'extension' => null, 'url' => null );
 		$pathinfo = array();
 
 		$Http = MWHttpRequest::factory(
@@ -249,46 +268,82 @@ class UploadHandler {
 			array(
 				'method' => 'HEAD',
 				'followRedirects' => true,
-				'userAgent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; rv:1.7.3) Gecko/20041001 Firefox/0.10.1'
+				'userAgent' => Config::$http_agent
 			)
 		);
 
 		$Status = $Http->execute();
 
 		if ( !$Status->ok ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-bad' )->rawParams( Filter::evaluate( $url ) )->escaped() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-mapping-media-file-url-bad' )
+					->rawParams( Filter::evaluate( $url ) )
+					->escaped()
+			);
 		}
 
 		$result['url'] = $Http->getFinalUrl();
 		$result['content-type'] = $Http->getResponseHeader( 'content-type' );
-		$pathinfo = pathinfo( $result['url'] );
-
-		if ( !empty( $pathinfo['extension'] )
-			&& in_array( $pathinfo['extension'], Config::$accepted_media_types )
-			&& in_array( $result['content-type'], Config::$accepted_media_types[$pathinfo['extension']] )
-		) {
-			$result['extension'] = $pathinfo['extension'];
-		} else {
-			if ( empty( $result['content-type'] ) ) {
-				throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-no-content-type' )->rawParams( Filter::evaluate( $url ) )->escaped() );
-			}
-
-			foreach ( Config::$accepted_media_types as $extension => $mime_types ) {
-				foreach ( $mime_types as $mime_type ) {
-					if ( $result['content-type'] === $mime_type ) {
-						$result['extension'] = $extension;
-						break;
-					}
-				}
-
-				if ( !empty( $result['extension'] ) ) {
-					break;
-				}
-			}
-		}
+		$result['extension'] = $this->getFileExtension( $result );
 
 		if ( empty( $result['extension'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )->rawParams( Filter::evaluate( $url ) )->escaped() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-mapping-media-file-url-extension-bad' )
+					->rawParams( Filter::evaluate( $url ) )
+					->escaped()
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * attempts to get the file extension of a media file url using the
+	 * $options provided. it will first look for a valid file extension in the
+	 * url; if none is found it will fallback to an appropriate file extention
+	 * based on the content-type
+	 *
+	 * @param {array} $options
+	 *   ['url'] final url to the media file
+	 *   ['content-type'] content-type of that final url
+	 *
+	 * @throws {MWException}
+	 * @return {null|string}
+	 */
+	protected function getFileExtension( array $options ) {
+		global $wgFileExtensions;
+		$result = null;
+
+		if ( empty( $options['url'] ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-mapping-media-file-url-bad' )
+					->rawParams( Filter::evaluate( $options['url'] ) )
+					->escaped()
+			);
+		}
+
+		if ( empty( $options['content-type'] ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-mapping-media-file-no-content-type' )
+					->rawParams( Filter::evaluate( $options['content-type'] ) )
+					->escaped()
+			);
+		}
+
+		$pathinfo = pathinfo( $options['url'] );
+		$MimeMagic = MimeMagic::singleton();
+
+		if ( !empty( $pathinfo['extension'] )
+			&& in_array( $pathinfo['extension'], $wgFileExtensions )
+			&& strpos( $MimeMagic->getTypesForExtension( $pathinfo['extension'] ), $options['content-type'] ) !== false
+		) {
+			$result = $pathinfo['extension'];
+		} elseif ( !empty( $options['content-type'] ) ) {
+			$result = explode( ' ', $MimeMagic->getExtensionsForType( $options['content-type'] ) );
+
+			if ( !empty( $result ) ) {
+				$result = $result[0];
+			}
 		}
 
 		return $result;
@@ -351,31 +406,38 @@ class UploadHandler {
 	 * stored in the local wiki
 	 *
 	 * @param {string} $metadata_file_upload
-	 * the key within the $user_options that holds the key-name expected in
-	 * $_FILES[] when the metadata file has been uploaded via an html form
+	 * the key-name expected in $_FILES[] that should contain the metadata file
+	 * that has been uploaded via an html form
 	 *
-	 * @throws {Exception}
 	 * @return {null|Title}
 	 */
-	public function getTitleFromFileOrUrl( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
+	public function getTitleFromUrlOrFile( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
 		$result = null;
 
 		if ( !empty( $user_options[$metadata_file_url] ) ) {
-			$result = WikiPages::getTitleFromUrl(
+			$result = \GWToolset\getTitle(
 				$user_options[$metadata_file_url],
-				FileChecks::getAcceptedExtensions( Config::$accepted_metadata_types )
+				Config::$metadata_namespace
 			);
 		} elseif ( !empty( $_FILES[$metadata_file_upload]['name'] ) ) {
-			$this->_File->populate( $metadata_file_upload );
-			$Status = FileChecks::isUploadedFileValid( $this->_File, Config::$accepted_metadata_types );
-
-			if ( !$Status->ok ) {
-				throw new Exception( $Status->getMessage() );
-			}
-
-			$this->addAllowedExtensions( Config::$accepted_metadata_types );
-			$result = $this->saveMetadataFileAsContent();
+			$result = $this->saveMetadataFileAsContent( $metadata_file_upload );
 			$user_options['metadata-file-url'] = $result;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param {array} $user_options
+	 * @return {null|UploadStashFile}
+	 */
+	public function getMetadataFromStash( array &$user_options ) {
+		$result = null;
+
+		if ( !empty( $user_options['metadata-stash-key'] ) ) {
+			global $wgLocalFileRepo;
+			$UploadStash = new UploadStash( new LocalRepo( $wgLocalFileRepo ), $this->_User );
+			$result = $UploadStash->getFile( $user_options['metadata-stash-key'] );
 		}
 
 		return $result;
@@ -397,32 +459,81 @@ class UploadHandler {
 	}
 
 	/**
+	 * restores the wiki’s allowed extensions array
+	 *
+	 * @param {array} $accepted_types
+	 * @return {void}
+	 */
+	protected function restoreAllowedExtensions( array $accepted_types = array() ) {
+		global $wgFileExtensions;
+		$wgFileExtensions = $this->_wgFileExtensions;
+	}
+
+	/**
 	 * attempts to save the uploaded metadata file to the wiki as content
 	 *
 	 * @todo does ContentHandler filter the $text?
 	 * @todo does WikiPage filter $summary?
+	 *
+	 * @param {string} $metadata_file_upload
+	 * the key-name expected in $_FILES[] that should contain the metadata file
+	 * that has been uploaded via an html form
+	 *
+	 * @throws {MWException}
 	 * @return {null|Title}
 	 */
-	public function saveMetadataFileAsContent() {
+	public function saveMetadataFileAsContent( $metadata_file_upload = 'metadata-file-upload' ) {
 		$result = null;
+		$this->_File->populate( $metadata_file_upload );
+		$Status = FileChecks::isUploadedFileValid( $this->_File, Config::$accepted_metadata_types );
+
+		if ( !$Status->ok ) {
+			throw new MWException( $Status->getMessage() );
+		}
+
+		$this->augmentAllowedExtensions( Config::$accepted_metadata_types );
 		WikiChecks::increaseHTTPTimeout( 120 );
 
-		$Metadata_Title = Title::newFromText(
-			Config::$metadata_namespace .
-			Config::$metadata_sets_subdirectory . '/' .
-			$this->_User->getName() . '/' .
-			WikiPages::titleCheck( $this->_File->pathinfo['filename'] ) .
-			'.' . $this->_File->pathinfo['extension']
-		);
+		$Metadata_Title =
+			Title::makeTitleSafe(
+				Config::$metadata_namespace,
+				Config::$metadata_sets_subpage . '/' .
+					$this->_User->getName() . '/' .
+					$this->_File->pathinfo['filename'] .
+					'.' . $this->_File->pathinfo['extension']
+			);
 
 		$text = file_get_contents( $this->_File->tmp_name );
 		$Metadata_Content = ContentHandler::makeContent( $text, $Metadata_Title );
 		$summary = wfMessage( 'gwtoolset-create-metadata' )->params( Config::$name, $this->_User->getName() )->escaped();
-
 		$Metadata_Page = new WikiPage( $Metadata_Title );
 		$Metadata_Page->doEditContent( $Metadata_Content, $summary, 0, false, $this->_User );
-
+		$this->restoreAllowedExtensions();
 		$result = $Metadata_Title;
+
+		return $result;
+	}
+
+	/**
+	 * @param {string} $metadata_file_upload
+	 * @throws {MWException}
+	 * @return {null|string} null or a stash upload file key
+	 */
+	public function saveMetadataFileAsStash( $metadata_file_upload = 'metadata-file-upload' ) {
+		$result = null;
+
+		if ( !empty( $_FILES[$metadata_file_upload]['name'] ) ) {
+			$this->_File->populate( $metadata_file_upload );
+			$Status = FileChecks::isUploadedFileValid( $this->_File, Config::$accepted_metadata_types );
+
+			if ( !$Status->ok ) {
+				throw new MWException( $Status->getMessage() );
+			}
+
+			global $wgLocalFileRepo;
+			$UploadStash = new UploadStash( new LocalRepo( $wgLocalFileRepo), $this->_User );
+			$result = $UploadStash->stashFile( $this->_File->tmp_name )->getFileKey();
+		}
 
 		return $result;
 	}
@@ -466,35 +577,39 @@ class UploadHandler {
 	 * @todo does ContentHandler filter $options['text']?
 	 * @todo does WikiPage filter $options['comment']?
 	 * @param {array} $options
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {Title}
 	 */
 	public function saveMediafileAsContent( array &$options ) {
-		$this->validatePageOptions( $options );
 		$Status = null;
 		WikiChecks::increaseHTTPTimeout();
-		$Mediafile_Title = Title::newFromText( Config::$mediafile_namespace . WikiPages::titleCheck( $options['title'] ) );
+		$this->validatePageOptions( $options );
+		$Title =
+			Title::makeTitleSafe(
+				Config::$mediafile_namespace,
+				$options['title']
+			);
 
-		if ( !$Mediafile_Title->isKnown() ) {
-			$Status = $this->uploadMediaFileViaUploadFromUrl( $options );
+		if ( !$Title->isKnown() ) {
+			$Status = $this->uploadMediaFileViaUploadFromUrl( $options, $Title );
 		} else {
 			if ( $this->user_options['upload-media'] === true ) {
 				// this will re-upload the mediafile, but will not change the page contents
-				$Status = $this->uploadMediaFileViaUploadFromUrl( $options );
+				$Status = $this->uploadMediaFileViaUploadFromUrl( $options, $Title );
 			}
 
 			if ( $Status === null || $Status->isOk() ) {
-				$Mediafile_Content = ContentHandler::makeContent( $options['text'], $Mediafile_Title );
-				$Mediafile_Page = new WikiPage( $Mediafile_Title );
-				$Status = $Mediafile_Page->doEditContent( $Mediafile_Content, $options['comment'], 0, false, $this->_User );
+				$Content = ContentHandler::makeContent( $options['text'], $Title );
+				$Page = new WikiPage( $Title );
+				$Status = $Page->doEditContent( $Content, $options['comment'], 0, false, $this->_User );
 			}
 		}
 
 		if ( !$Status->isOK() ) {
-			throw new Exception( $Status->getWikiText() );
+			throw new MWException( $Status->getWikiText() );
 		}
 
-		return $Mediafile_Title;
+		return $Title;
 	}
 
 	/**
@@ -511,7 +626,10 @@ class UploadHandler {
 		}
 
 		$job = new UploadMediafileJob(
-			Title::newFromText( Config::$mediafile_namespace . WikiPages::titleCheck( $options['title'] ) ),
+			Title::makeTitleSafe(
+				Config::$mediafile_namespace,
+				$options['title']
+			),
 			array(
 				'comment' => $options['comment'],
 				'ignorewarnings' => $options['ignorewarnings'],
@@ -541,13 +659,15 @@ class UploadHandler {
 	 * @todo does UploadFromUrl filter $options['text']
 	 *
 	 * @param {array} $options
+	 * @param {Title} $Title
 	 * @return {Status}
 	 */
-	protected function uploadMediaFileViaUploadFromUrl( array &$options ) {
+	protected function uploadMediaFileViaUploadFromUrl( array &$options, Title $Title ) {
 		// Initialize this object and the upload object
 		$Upload = new UploadFromUrl();
+
 		$Upload->initialize(
-			WikiPages::titleCheck( $options['title'] ),
+			$Title->getBaseText(),
 			$options['url-to-the-media-file'],
 			false
 		);
@@ -590,44 +710,72 @@ class UploadHandler {
 
 	/**
 	 * @param {array} $options
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {void}
 	 */
 	protected function validatePageOptions( array &$options ) {
 		if ( empty( $options['title'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-title' )->escaped() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-title' )->escaped() )
+					->parse()
+			);
 		}
 
 		if ( !isset( $options['ignorewarnings'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-ignorewarnings' )->parse() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-ignorewarnings' )->parse() )
+					->parse()
+			);
 		}
 
 		// assumes that text must be something
 		if ( empty( $options['text'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-text' )->escaped() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-text' )->escaped() )
+					->parse()
+			);
 		}
 
 		if ( empty( $options['url-to-the-media-file'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-url-to-media' )->parse() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-url-to-media' )->parse() )
+					->parse()
+			);
 		}
 	}
 
 	/**
 	 * @param {array} $options
-	 * @throws {Exception}
+	 * @throws {MWException}
 	 * @return {void}
 	 */
 	protected function validateUserOptions( array &$user_options ) {
 		if ( !isset( $user_options['comment'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-comment' )->parse() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-comment' )->parse() )
+					->parse()
+			);
 		}
 
 		if ( !isset( $user_options['save-as-batch-job'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-save-as-batch' )->parse() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-save-as-batch' )->parse() )
+					->parse()
+			);
 		}
 
 		if ( !isset( $user_options['upload-media'] ) ) {
-			throw new Exception( wfMessage( 'gwtoolset-developer-issue' )->params( wfMessage( 'gwtoolset-no-upload-media' )->parse() )->parse() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-upload-media' )->parse() )
+					->parse()
+			);
 		}
 	}
 }

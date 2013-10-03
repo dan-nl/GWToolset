@@ -6,20 +6,26 @@
  * @ingroup Extensions
  * @license GNU General Public License 3.0 http://www.gnu.org/licenses/gpl.html
  */
+
 namespace GWToolset;
 use ErrorException,
-	Exception,
 	GWToolset\MediaWiki\Api\Client,
 	Html,
+	Language,
+	MWException,
 	SpecialPage,
 	Status,
+	Title,
 	RecursiveArrayIterator,
 	RecursiveIteratorIterator;
 
-
+/**
+ * @param {Status} $Status
+ * @throws {MWException}
+ */
 function checkStatus( Status $Status ) {
 	if ( !$Status->ok ) {
-		throw new Exception( $Status->getMessage() );
+		throw new MWException( $Status->getMessage() );
 	}
 	unset( $Status );
 }
@@ -60,6 +66,59 @@ function getBytes( $val ) {
 	}
 
 	return $val;
+}
+
+/**
+ * attempts to retrieve a wiki title based on a given page title, an
+ * optional namespace requirement and whether or not the title must be known
+ *
+ * @param {string} $page_title
+ * @param {int} $required_namespace
+ * @param {boolean} $must_be_known
+ *
+ * @throws {MWException}
+ * @return {null|Title}
+ */
+function getTitle( $page_title = null, $required_namespace = 0, $must_be_known = true ) {
+	global $wgServer;
+	$result = null;
+
+	if ( empty( $page_title ) ) {
+		throw new MWException(
+			wfMessage( 'gwtoolset-developer-issue' )
+				->params( wfMessage( 'gwtoolset-no-page-title' )->escaped() )
+				->parse()
+		);
+	}
+
+	if ( strpos( $page_title, $wgServer ) !== false ) {
+		throw new MWException(
+			wfMessage( 'gwtoolset-page-title-contains-url' )
+				->params( $page_title )
+				->parse()
+		);
+	}
+
+	$Title = Title::newFromText( $page_title, $required_namespace );
+
+	if ( !empty( $required_namespace )
+			&& $required_namespace !== $Title->getNamespace()
+	) {
+		$Language = new Language();
+		throw new MWException(
+			wfMessage( 'gwtoolset-namespace-mismatch' )
+				->params( $page_title, $Language->getNsText( $Title->getNamespace() ), $Language->getNsText( $required_namespace ) )
+				->parse()
+		);
+	}
+
+	if ( !$must_be_known ) {
+		$result = $Title;
+	} elseif ( $Title->isKnown() ) {
+		$result = $Title;
+	}
+
+	return $result;
 }
 
 /**
@@ -114,6 +173,46 @@ function in_array_r( $needle, $haystack, $strict = false ) {
 	}
 
 	return false;
+}
+
+/**
+ * @throws {MWException}
+ */
+function jsonCheckForError() {
+	$error_msg = null;
+
+	switch ( json_last_error() ) {
+		case JSON_ERROR_NONE:
+			break;
+
+		case JSON_ERROR_DEPTH:
+			$error_msg = wfMessage( 'gwtoolset-json-error-depth' )->escaped();
+			break;
+
+		case JSON_ERROR_STATE_MISMATCH:
+			$error_msg = wfMessage( 'gwtoolset-json-error-state-mismatch' )->escaped();
+			break;
+
+		case JSON_ERROR_CTRL_CHAR:
+			$error_msg = wfMessage( 'gwtoolset-json-error-ctrl-char' )->escaped();
+			break;
+
+		case JSON_ERROR_SYNTAX:
+			$error_msg = wfMessage( 'gwtoolset-json-error-syntax' )->escaped();
+			break;
+
+		case JSON_ERROR_UTF8:
+			$error_msg = wfMessage( 'gwtoolset-json-error-utf8' )->escaped();
+			break;
+
+		default:
+			$error_msg = wfMessage( 'gwtoolset-json-error-unknown' )->escaped();
+			break;
+	}
+
+	if ( !empty( $error_msg ) ) {
+		throw new MWException( $error_msg );
+	}
 }
 
 // created to deal with an issue within
