@@ -241,7 +241,7 @@ class Config {
 			'gwtoolset-save-mapping-failed',
 			'gwtoolset-save-mapping-succeeded',
 			'gwtoolset-step-2-heading',
-			'gwtoolset-back-link-option',
+			'gwtoolset-back-text-link',
 			'gwtoolset-save',
 			'gwtoolset-cancel'
 		),
