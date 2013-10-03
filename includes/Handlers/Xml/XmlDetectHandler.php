@@ -107,7 +107,7 @@ class XmlDetectHandler extends XmlHandler {
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
 			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
-					->params( wfMessage( 'gwtoolset-no-xmlelement' )->escaped() )
+					->params( wfMessage( 'gwtoolset-no-xml-element' )->escaped() )
 					->parse()
 			);
 		}
