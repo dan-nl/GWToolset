@@ -9,7 +9,6 @@
 
 namespace GWToolset;
 use GWToolset\Handlers\SpecialPageHandler,
-	GWToolset\Helpers\FileSystem,
 	GWToolset\Models\Menu,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiChecks,
