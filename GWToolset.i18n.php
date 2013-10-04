@@ -19,7 +19,7 @@ $messages['en'] = array(
 	 */
 	'gwtoolset' => 'GWToolset',
 	'gwtoolset-desc' => 'GWToolset, a mass upload tool for GLAMs',
-	'gwtoolset-intro' => 'GWToolset is a MediaWiki extension that allows GLAMs the ability to mass upload content based on an XML file containing respective metadata about the content. The intent is to allow for a variety of XML schemas. Further information about the project can be found on its [https://commons.wikimedia.org/wiki/Commons:GLAMToolset_project project page]. Feel free to contacts us on that page as well. Select one of the menu items above to begin the upload process.',
+	'gwtoolset-intro' => 'GWToolset is a MediaWiki extension that allows GLAMs the ability to mass upload content based on an XML file containing respective metadata about the content. The intent is to allow for a variety of XML schemas. Further information about the project can be found on its (https://commons.wikimedia.org/wiki/Commons:GLAMToolset_project project page). Feel free to contacts us on that page as well. Select one of the menu items above to begin the upload process.',
 
 	/**
 	 * db client
@@ -29,10 +29,12 @@ $messages['en'] = array(
 	/**
 	 * developer issues
 	 */
-	'gwtoolset-api-call-unsuccessful' => 'The API call made to retrieve [$1] was unsuccessful.',
+	'gwtoolset-api-call-unsuccessful' => 'The API call to retrieve ($1) was unsuccessful. The API error message is ($2).',
 	'gwtoolset-could-not-close-xml' => 'Could not close the XMLReader.',
 	'gwtoolset-could-not-open-xml' => 'Could not open the XML File for reading.',
-	'gwtoolset-developer-issue' => "Please contact a developer; they will need to address this issue before you can continue.<br/>'''$1'''",
+	'gwtoolset-developer-issue' => "Please contact a developer; they will need to address this issue before you can continue.
+
+'''$1'''",
 	'gwtoolset-dom-record-issue' => '<code>record-element-name</code>, or <code>record-count</code> not provided.',
 	'gwtoolset-ignorewarnings' => '<code>ignorewarnings</code> not set.',
 	'gwtoolset-no-accepted-types' => 'No accepted types provided',
@@ -62,7 +64,7 @@ $messages['en'] = array(
 	'gwtoolset-disk-write-failure' => 'Failed to write file to disk.',
 	'gwtoolset-file-is-empty' => 'The uploaded file is empty.',
 	'gwtoolset-improper-upload' => 'File was not uploaded properly.',
-	'gwtoolset-mime-type-mismatch' => 'The uploaded file’s extension [ $1 ] and mime-type [ $2 ] do not match.',
+	'gwtoolset-mime-type-mismatch' => 'The uploaded file’s extension ($1) and mime-type ($2) do not match.',
 	'gwtoolset-missing-temp-folder' => 'Missing a temporary folder.',
 	'gwtoolset-no-file' => 'No file received.',
 	'gwtoolset-over-max-file-size' => 'The uploaded file exceeds the <code>MAX_FILE_SIZE</code> directive that was specified in the HTML form.',
@@ -70,9 +72,13 @@ $messages['en'] = array(
 	'gwtoolset-partial-upload' => 'The uploaded file was only partially uploaded.',
 	'gwtoolset-php-extension-error' => 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help.',
 	'gwtoolset-unaccepted-extension' => 'The file source does not contain an accepted file extension.',
-	'gwtoolset-unaccepted-extension-specific' => "The file source has an unaccepted file extension [.$1].",
-	'gwtoolset-unaccepted-mime-type' => 'The uploaded file is interpreted as having the mime-type [ $1 ], which is not an accepted mime-type.',
-	'gwtoolset-unaccepted-mime-type-for-xml' => 'The uploaded file is interpreted as having the mime-type [ $1 ], which is not an accepted mime-type.<br />Does the XML file have an XML declaration at the top of the file?<br />&lt;?xml version="1.0" encoding="UTF-8"?>',
+	'gwtoolset-unaccepted-extension-specific' => "The file source has an unaccepted file extension (.$1).",
+	'gwtoolset-unaccepted-mime-type' => 'The uploaded file is interpreted as having the mime-type ($1), which is not an accepted mime-type.',
+	'gwtoolset-unaccepted-mime-type-for-xml' => 'The uploaded file is interpreted as having the mime-type ($1), which is not an accepted mime-type.
+
+Does the XML file have an XML declaration at the top of the file?
+
+&lt;?xml version="1.0" encoding="UTF-8"?>',
 
 	/**
 	 * general form
@@ -106,7 +112,7 @@ $messages['en'] = array(
 	/**
 	 * json
 	 */
-	'gwtoolset-json-error' => 'There was a problem with the JSON [$1].',
+	'gwtoolset-json-error' => 'There was a problem with the JSON ($1).',
 	'gwtoolset-json-error-ctrl-char' => 'Unexpected control character found.',
 	'gwtoolset-json-error-depth' => 'Maximum stack depth exceeded.',
 	'gwtoolset-json-error-none' => 'No errors.',
@@ -122,21 +128,29 @@ $messages['en'] = array(
 	'gwtoolset-create-metadata' => '$1 creating metadata for $2.',
 	'gwtoolset-ensure-well-formed-xml' => 'Make sure the XML File is well-formed with this $1.',
 	'gwtoolset-file-url-invalid' => 'The file URL was invalid; the file does not yet exist in the wiki. You need to first upload the file from your computer if you want to use the file URL reference in the form.',
-	'gwtoolset-mediawiki-template-does-not-exist' => "MediaWiki template ['''$1'''] does not exist in the wiki.<br/>Either import the template or select another MediaWiki template to use for mapping.",
-	'gwtoolset-mediawiki-template-not-found' => 'No MediaWiki template found for [ $1 ].',
+	'gwtoolset-mediawiki-template-does-not-exist' => "MediaWiki template ('''$1''') does not exist in the wiki.
+
+Either import the template or select another MediaWiki template to use for mapping.",
+	'gwtoolset-mediawiki-template-not-found' => 'No MediaWiki template found for ($1).',
 	'gwtoolset-metadata-file-source' => 'Select the metadata file source.',
 	'gwtoolset-metadata-file-source-info' => '... either a file that has been previously uploaded or a file you wish to upload from your computer.',
 	'gwtoolset-metadata-file-url' => 'Metadata file wiki URL:',
-	'gwtoolset-metadata-file-url-not-present' => 'The metadata file source provided [ $1 ] does not exist.',
+	'gwtoolset-metadata-file-url-not-present' => 'The metadata file source provided ($1) does not exist.',
 	'gwtoolset-metadata-file-upload' => 'Metadata file upload:',
-	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the JSON format is invalid. Please try and correct the issue and then submit the form again.<br />$1.',
-	'gwtoolset-metadata-mapping-invalid-url' => 'The metadata mapping URL supplied, [ $1 ], does not match the expect mapping URL path [ $2 ].',
-	'gwtoolset-metadata-mapping-not-found' => "No metadata mapping was found.<br />The page title, '''$1''', does not exist inthe wiki.",
-	'gwtoolset-namespace-mismatch' => "The page title given, '''$1''', is in the wrong namespace, '''$2'''.<br />It should be in the '''$3''' namespace.",
+	'gwtoolset-metadata-mapping-bad' => 'There’s a problem with the metadata mapping; most likely the JSON format is invalid. Please try and correct the issue and then submit the form again.
+
+$1.',
+	'gwtoolset-metadata-mapping-invalid-url' => 'The metadata mapping URL supplied, ($1), does not match the expect mapping URL path ($2).',
+	'gwtoolset-metadata-mapping-not-found' => "No metadata mapping was found.
+
+The page title, '''$1''', does not exist in the wiki.",
+	'gwtoolset-namespace-mismatch' => "The page title given, '''$1''', is in the wrong namespace, '''$2'''.
+
+It should be in the '''$3''' namespace.",
 	'gwtoolset-no-xml-element-found' => 'No XML element found for mapping.',
 	'gwtoolset-no-xml-element-found-li-1' => 'Did you enter a value in the form for “What is the XML element that contains each metadata record”?',
 	'gwtoolset-no-xml-element-found-li-2' => 'Is the XML file well-formed? Try this $1.',
-	'gwtoolset-page-title-contains-url' => "The page title, $1, contains the entire wiki url. Make sure you only refer to the page title, e.g. the part of the url after /wiki/",
+	'gwtoolset-page-title-contains-url' => "The page title, $1, contains the entire wiki URL. Make sure you only refer to the page title, e.g. the part of the URL after /wiki/",
 	'gwtoolset-record-element-name' => 'What is the XML element that contains each metadata record:',
 	'gwtoolset-step-1-heading' => 'Step 1: Metadata detection',
 	'gwtoolset-step-1-instructions-1' => 'The Metadata upload process consists of 4 steps:',
@@ -160,8 +174,8 @@ $messages['en'] = array(
 	'gwtoolset-global-categories' => 'Global Categories',
 	'gwtoolset-global-tooltip' => 'These category entries will be applied globally to all uploaded items.',
 	'gwtoolset-maps-to' => 'maps to',
-	'gwtoolset-mapping-media-file-url-extension-bad' => 'Could not evaluate the media file URL in order to determine the file extension [ $1 ].',
-	'gwtoolset-mapping-media-file-url-bad' => 'Could not evaluate the media file URL provided [ $1 ]. The URL delivers the content in a way that is not yet handled by this extension.',
+	'gwtoolset-mapping-media-file-url-extension-bad' => 'Could not evaluate the media file URL in order to determine the file extension ($1).',
+	'gwtoolset-mapping-media-file-url-bad' => 'Could not evaluate the media file URL provided ($1). The URL delivers the content in a way that is not yet handled by this extension.',
 	'gwtoolset-mapping-no-title' => 'The metadata mapping contains no title, which is needed in order to create the page.',
 	'gwtoolset-mapping-no-title-identifier' => 'The metadata mapping contains no title identifier, which is used to create a unique page title; make sure you map a metadata field to the MediaWiki template parameter title identifier.',
 	'gwtoolset-metadata-field' => 'metadata field',
@@ -175,7 +189,7 @@ $messages['en'] = array(
 	'gwtoolset-phrasing' => 'phrasing',
 	'gwtoolset-preview' => 'preview batch',
 	'gwtoolset-process-batch' => 'process the batch',
-	'gwtoolset-record-count' => 'Total number of records found in this metadata file [ $1 ].',
+	'gwtoolset-record-count' => 'Total number of records found in this metadata file ($1).',
 	'gwtoolset-results' => 'Results',
 	'gwtoolset-step-2-heading' => 'Step 2: Metadata mapping',
 	'gwtoolset-step-2-instructions-heading' => 'Mapping the metadata fields',
@@ -190,7 +204,7 @@ $messages['en'] = array(
 	'gwtoolset-reupload-media-explanation' => 'This check box allows you to re-upload media for an item that has already been uploaded to the wiki. If the item already exists, an additional media file will be added to the wiki. If the media file does not yet exist, it will be uploaded whether this checkbox is checked or not.',
 	'gwtoolset-specific-categories' => 'Item specific categories',
 	'gwtoolset-specific-tooltip' => "Using the following fields you can apply a phrase (optional) plus a metadata field as the category entry for each individual uploaded item. For example, if the metadata file contains an element for the artist of each record, you could add that as a category entry for each record that would change to the value specific to each record. You could also add a phrase such as “''Painted by''” and then the artist metadata field, which would yield “''Painted by <artist name>''” as the category for each record.",
-	'gwtoolset-summary-tooltip' => 'Enter a short summary [ctrl-option-b]',
+	'gwtoolset-summary-tooltip' => 'Enter a short summary (ctrl-option-b)',
 	'gwtoolset-template-field' => 'template field',
 
 	/**
@@ -199,12 +213,14 @@ $messages['en'] = array(
 	'gwtoolset-step-3-instructions-heading' => 'Step 3: Batch preview',
 	'gwtoolset-step-3-instructions-1' => 'Below are the results of uploading the first $1 records from the metadata file you selected and mapping them to the MediaWiki template you selected in Step 2: Metadata mapping.',
 	'gwtoolset-step-3-instructions-2' => 'Review these pages and if the results meet your expectations, and there are additional records waiting to be uploaded, continue the batch upload process by clicking on the “process the batch” button below.',
-	'gwtoolset-step-3-instructions-3' => 'If you’re not happy with the results, go back to Step 2: Metadata mapping and adjust the mapping as necessary.<br />If you need to make adjustments to the metadata file itself, go ahead and do so and re-upload it by beginning the process again with Step 1: Metadata detection.',
+	'gwtoolset-step-3-instructions-3' => 'If you’re not happy with the results, go back to Step 2: Metadata mapping and adjust the mapping as necessary.
+
+If you need to make adjustments to the metadata file itself, go ahead and do so and re-upload it by beginning the process again with Step 1: Metadata detection.',
 
 	/**
 	 * step 4 - batch job creation
 	 */
-	'gwtoolset-batchjob-metadata-created' => 'Metadata batch job created. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process. You can check the [ $1 ] page to see when they have been uploaded.',
+	'gwtoolset-batchjob-metadata-created' => 'Metadata batch job created. Your metadata file will be analyzed shortly and each item will be uploaded to the wiki in a background process. You can check the ($1) page to see when they have been uploaded.',
 	'gwtoolset-batchjob-metadata-creation-failure' => 'Could not create batchjob for the metadata file.',
 	'gwtoolset-create-mediafile' => '$1 creating mediafile for $2.',
 	'gwtoolset-step-4-heading' => 'Step 4: Batch upload',
@@ -212,16 +228,27 @@ $messages['en'] = array(
 	/**
 	 * wiki checks
 	 */
-	'gwtoolset-maxuploadsize-exceeds-ini-settings' => 'The PHP ini settings:<br />• <code>upload_max_filesize</code> ( $1 )<br /> • <code>post_max_size</code> ( $2 )<br /><br />are set lower than the wiki’s $wgMaxUploadSize ( $3 ); please adjust the PHP ini settings as appropriate.',
-	'gwtoolset-permission-not-given' => 'Make sure that you are logged-in or contact an administrator in order to be granted permission to view this page [ $1 ].',
+	'gwtoolset-maxuploadsize-exceeds-ini-settings' => 'The PHP ini settings:
+
+• <code>upload_max_filesize</code> ($1)
+• <code>post_max_size</code> ($2)
+
+are set lower than the wiki’s $wgMaxUploadSize ($3); please adjust the PHP ini settings as appropriate.',
+	'gwtoolset-permission-not-given' => 'Make sure that you are logged-in or contact an administrator in order to be granted permission to view this page ($1).',
 	'gwtoolset-user-blocked' => 'Your user account is currently blocked. Please contact an administrator in order to correct the blocking issue.',
-	'gwtoolset-verify-api-enabled' => 'The $1 Extension requires that the wiki API is enabled.<br />Please make sure <code>$wgEnableAPI</code> is set to <code>true</code> in the <code>DefaultSettings.php</code> file or is overridden to <code>true</code> in the <code>LocalSettings.php</code> file.',
-	'gwtoolset-verify-api-writeable' => 'The $1 Extension requires that the wiki API can perform write actions for authorized users.<br />Please make sure that <code>$wgEnableWriteAPI</code> is set to <code>true</code> in the <code>DefaultSettings.php</code> file or is overridden to <code>true</code> in the <code>LocalSettings.php</code> file.',
-	'gwtoolset-verify-curl' => 'The $1 Extension requires that PHP [http://www.php.net/manual/en/curl.setup.php cURL functions] be installed.',
-	'gwtoolset-verify-finfo' => 'The $1 Extension requires that the PHP [http://www.php.net/manual/en/fileinfo.setup.php finfo] extension be installed.',
+	'gwtoolset-verify-api-enabled' => 'The $1 Extension requires that the wiki API is enabled.
+
+Please make sure <code>$wgEnableAPI</code> is set to <code>true</code> in the <code>DefaultSettings.php</code> file or is overridden to <code>true</code> in the <code>LocalSettings.php</code> file.',
+	'gwtoolset-verify-api-writeable' => 'The $1 Extension requires that the wiki API can perform write actions for authorized users.
+
+Please make sure that <code>$wgEnableWriteAPI</code> is set to <code>true</code> in the <code>DefaultSettings.php</code> file or is overridden to <code>true</code> in the <code>LocalSettings.php</code> file.',
+	'gwtoolset-verify-curl' => 'The $1 Extension requires that PHP (http://www.php.net/manual/en/curl.setup.php cURL functions) be installed.',
+	'gwtoolset-verify-finfo' => 'The $1 Extension requires that the PHP (http://www.php.net/manual/en/fileinfo.setup.php finfo) extension be installed.',
 	'gwtoolset-verify-php-version' => 'The $1 Extension requires PHP >= 5.3.3.',
-	'gwtoolset-verify-uploads-enabled' => 'The $1 Extension requires that file uploads are enabled.<br />Pleas make sure that <code>$wgEnableUploads</code> is set to <code>true</code> in <code>LocalSettings.php</code>.',
-	'gwtoolset-verify-xmlreader' => 'The $1 Extension requires that PHP [http://www.php.net/manual/en/xmlreader.setup.php XMLReader] be installed.',
+	'gwtoolset-verify-uploads-enabled' => 'The $1 Extension requires that file uploads are enabled.
+
+Please make sure that <code>$wgEnableUploads</code> is set to <code>true</code> in <code>LocalSettings.php</code>.',
+	'gwtoolset-verify-xmlreader' => 'The $1 Extension requires that PHP (http://www.php.net/manual/en/xmlreader.setup.php XMLReader) be installed.',
 	'gwtoolset-wiki-checks-not-passed' => 'Wiki checks did not pass'
 );
 
@@ -324,7 +351,7 @@ $messages['qqq'] = array(
 	'gwtoolset-no-xml-source' => 'Hint to the developer that appears when no local XML source was given',
 	'gwtoolset-over-max-ini' => 'User error message that appears when the uploaded file exceeds the upload_max_filesize directive in php.ini.',
 	'gwtoolset-over-max-file-size' => 'User error message that appears when the uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.',
-	'gwtoolset-page-title-contains-url' => 'Appears when the page title being requested contains the url of the site and not just the page title',
+	'gwtoolset-page-title-contains-url' => 'Appears when the page title being requested contains the URL of the site and not just the page title',
 	'gwtoolset-painted-by' => 'Placeholder text for category phrasing in Step 2 in the HTML form.',
 	'gwtoolset-partial-upload' => 'User error message that appears when the uploaded file was only partially uploaded.',
 	'gwtoolset-partner' => 'Heading for the partner section in Step 2 of the HTML form.',

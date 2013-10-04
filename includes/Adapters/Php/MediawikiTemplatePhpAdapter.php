@@ -95,9 +95,9 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 	protected function retrieveTemplateData( Title $Title ) {
 		$result = null;
 		$api_result = array();
-		global $wgScriptPath;
+		global $wgServer, $wgScriptPath;
 
-		$url = $wgScriptPath . '/api.php?action=templatedata&titles=' . urlencode( $Title->getBaseTitle() );
+		$url = $wgServer . $wgScriptPath . '/api.php?action=templatedata&titles=' . $Title->getBaseTitle();
 		$Http = MWHttpRequest::factory( $url );
 
 		$Status = $Http->execute();
