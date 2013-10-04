@@ -107,7 +107,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params(
 						wfMessage( 'gwtoolset-api-call-unsuccessful' )
-							->params( $Title->getBaseTitle() )
+							->params( $Title->getBaseTitle(), $Status->getMessage() )
 							->escaped()
 					)
 				->parse()
