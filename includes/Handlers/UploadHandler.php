@@ -532,7 +532,13 @@ class UploadHandler {
 
 			global $wgLocalFileRepo;
 			$UploadStash = new UploadStash( new LocalRepo( $wgLocalFileRepo), $this->_User );
-			$result = $UploadStash->stashFile( $this->_File->tmp_name )->getFileKey();
+			$result = $UploadStash
+				->stashFile(
+					$this->_File->tmp_name,
+					null,
+					array( 'expiry' => strtotime( '1 week' ) )
+				)
+				->getFileKey();
 		}
 
 		return $result;
