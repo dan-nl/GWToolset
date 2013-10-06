@@ -417,7 +417,7 @@ class XmlDetectHandler extends XmlHandler {
 		}
 
 		if ( empty( $this->_metadata_example_dom_element ) ) {
-			wfMessage( 'gwtoolset-no-xml-element-found' )->escaped() .
+			$msg = wfMessage( 'gwtoolset-no-xml-element-found' )->escaped() .
 				Html::openElement( 'ul' ) .
 					Html::rawElement(
 						'li',
