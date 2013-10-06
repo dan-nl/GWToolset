@@ -216,6 +216,11 @@ It should be in the '''$3''' namespace.",
 	'gwtoolset-step-3-instructions-3' => 'If you’re not happy with the results, go back to Step 2: Metadata mapping and adjust the mapping as necessary.
 
 If you need to make adjustments to the metadata file itself, go ahead and do so and re-upload it by beginning the process again with Step 1: Metadata detection.',
+	'gwtoolset-title-bad' => 'The title created, based on the metadata and mediawiki template mapping is not a valid.
+
+Try another field from the metadata for title-identifier and title, or if possible, change the metadata where needed.
+
+($1)',
 
 	/**
 	 * step 4 - batch job creation
@@ -401,6 +406,7 @@ $messages['qqq'] = array(
 	'gwtoolset-summary-tooltip' => 'The title tooltip for the summary field in Step 2 of the HTML form.',
 	'gwtoolset-technical-error' => 'Heading for error messages of a technical nature.',
 	'gwtoolset-template-field' => 'Table column heading for Step 2 in the HTML form.',
+	'gwtoolset-title-bad' => 'Message that appears when the title derived from the metadata and mediawiki template mapping is not a valid title',
 	'gwtoolset-unaccepted-extension' => 'User error message that appears when the uploaded file does not contain an accepted file extension.',
 	'gwtoolset-unaccepted-extension-specific' => "User error message that appears when the uploaded file has an unaccepted file extension. The parameter is the extension found.",
 	'gwtoolset-unaccepted-mime-type' => 'User error message that appears when the mime type of the file is not accepted. the parameter is the interpreted mime type.',

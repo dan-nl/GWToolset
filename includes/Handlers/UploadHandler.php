@@ -590,11 +590,19 @@ class UploadHandler {
 		$Status = null;
 		WikiChecks::increaseHTTPTimeout();
 		$this->validatePageOptions( $options );
-		$Title =
-			Title::makeTitleSafe(
-				Config::$mediafile_namespace,
-				$options['title']
+
+		$Title = \GWToolset\getTitle(
+			$options['title'],
+			Config::$mediafile_namespace,
+			false
+		);
+
+		if ( !( $Title instanceof Title ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-title-bad' )
+					->params( Filter::evaluate( $options['title'] ) )
 			);
+		}
 
 		if ( !$Title->isKnown() ) {
 			$Status = $this->uploadMediaFileViaUploadFromUrl( $options, $Title );

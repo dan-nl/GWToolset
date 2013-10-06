@@ -101,6 +101,10 @@ function getTitle( $page_title = null, $required_namespace = 0, $must_be_known =
 
 	$Title = Title::newFromText( $page_title, $required_namespace );
 
+	if ( !( $Title instanceof Title ) ) {
+		return $result;
+	}
+
 	if ( !empty( $required_namespace )
 			&& $required_namespace !== $Title->getNamespace()
 	) {
