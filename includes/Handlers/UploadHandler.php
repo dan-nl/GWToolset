@@ -600,7 +600,7 @@ class UploadHandler {
 		if ( !( $Title instanceof Title ) ) {
 			throw new MWException(
 				wfMessage( 'gwtoolset-title-bad' )
-					->params( Filter::evaluate( $options['title'] ) )
+					->params( $options['title'] )->escaped()
 			);
 		}
 
