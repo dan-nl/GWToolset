@@ -379,6 +379,16 @@ class MediawikiTemplate implements ModelInterface {
 		$result .= $this->mediawiki_template_array['title-identifier'];
 		$result .= '.' . $options['evaluated-media-file-extension'];
 
+		if ( $result > Config::$title_max_length ) {
+			$result = substr(
+				$this->mediawiki_template_array['title-identifier'],
+				0,
+				( Config::$title_max_length - $file_extension_length - 1 )
+			);
+
+			$result .= '.' . $options['evaluated-media-file-extension'];
+		}
+
 		return $result;
 	}
 
