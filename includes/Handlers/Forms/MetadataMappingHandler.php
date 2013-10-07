@@ -63,7 +63,9 @@ class MetadataMappingHandler extends FormHandler {
 		$result = false;
 
 		$job = new UploadMetadataJob(
-			Title::newFromText( 'User:' . $this->User->getName() . '/' . Config::$name . ' Metadata Batch Job' ),
+			Title::newFromText(
+				'User:' . $this->User->getName() . '/' . Config::$name . ' Metadata Batch Job'
+			),
 			array(
 				'username' => $this->User->getName(),
 				'user_options' => $user_options,
@@ -80,7 +82,9 @@ class MetadataMappingHandler extends FormHandler {
 				array( 'target' => '_blank' )
 			);
 
-			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )->rawParams( $newFilesLink )->parse();
+			$result = wfMessage( 'gwtoolset-batchjob-metadata-created' )
+				->rawParams( $newFilesLink )
+				->parse();
 		} else {
 			$result = Html::rawElement(
 				'span',
@@ -193,7 +197,7 @@ class MetadataMappingHandler extends FormHandler {
 			$result['partner-template-name'] = \GWToolset\getTitle(
 				$result['partner-template-url'],
 				NS_TEMPLATE,
-				false
+				array( 'must-be-known' => false )
 			);
 		}
 
@@ -210,7 +214,11 @@ class MetadataMappingHandler extends FormHandler {
 	 * @param {string} $metadata_raw
 	 * @return {null|Title}
 	 */
-	public function processMatchingElement( array &$user_options, $element_mapped_to_mediawiki_template, $metadata_raw ) {
+	public function processMatchingElement(
+		array &$user_options,
+		$element_mapped_to_mediawiki_template,
+		$metadata_raw
+	) {
 		$this->_MediawikiTemplate->metadata_raw = $metadata_raw;
 		$this->_MediawikiTemplate->populateFromArray( $element_mapped_to_mediawiki_template );
 
@@ -264,11 +272,17 @@ class MetadataMappingHandler extends FormHandler {
 		if ( is_string( $user_options['metadata-stash-key'] ) ) {
 			$UploadStashFile = $this->_UploadHandler->getMetadataFromStash( $user_options );
 		} elseif ( is_string( $user_options['metadata-file-url'] ) ) {
-			$Metadata_Title = \GWToolset\getTitle( $user_options['metadata-file-url'], Config::$metadata_namespace );
+			$Metadata_Title = \GWToolset\getTitle(
+				$user_options['metadata-file-url'],
+				Config::$metadata_namespace
+			);
 		}
 
 		if ( $UploadStashFile instanceof UploadStashFile ) {
-			$mediafile_titles = $this->_XmlMappingHandler->processXml( $user_options, $UploadStashFile->getLocalRefPath() );
+			$mediafile_titles = $this->_XmlMappingHandler->processXml(
+				$user_options,
+				$UploadStashFile->getLocalRefPath()
+			);
 		} elseif ( $Metadata_Title instanceof Title ) {
 			$Metadata_Page = new WikiPage( $Metadata_Title );
 			$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );

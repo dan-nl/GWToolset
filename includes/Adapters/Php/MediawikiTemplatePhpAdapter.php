@@ -53,7 +53,9 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 
 		// should we limit the mw templates we allow?
 		// 2013-09-26 w/david haskia, for now, yes
-		if ( !isset( Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )] ) ) {
+		if ( !isset(
+			Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )] )
+		) {
 			throw new MWException(
 				wfMessage( 'gwtoolset-mediawiki-template-not-found' )
 					->rawParams( Filter::evaluate( $options['mediawiki_template_name'] ) )
@@ -61,7 +63,10 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 				);
 		}
 
-		$Title = \GWToolset\getTitle( $options['mediawiki_template_name'], NS_TEMPLATE );
+		$Title = \GWToolset\getTitle(
+			$options['mediawiki_template_name'],
+			NS_TEMPLATE
+		);
 
 		if ( !$Title->isKnown() ) {
 			throw new MWException(
@@ -74,7 +79,8 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		$template_data = $this->retrieveTemplateData( $Title );
 
 		if ( empty ( $template_data ) ) {
-			$result['mediawiki_template_json'] = Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )];
+			$result['mediawiki_template_json'] =
+				Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )];
 		} else {
 			$result['mediawiki_template_json'] = $template_data;
 		}
@@ -97,7 +103,11 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		$api_result = array();
 		global $wgServer, $wgScriptPath;
 
-		$url = $wgServer . $wgScriptPath . '/api.php?action=templatedata&titles=' . $Title->getBaseTitle();
+		$url = $wgServer .
+			$wgScriptPath .
+			'/api.php?action=templatedata&titles=' .
+			$Title->getBaseTitle();
+
 		$Http = MWHttpRequest::factory( $url );
 
 		$Status = $Http->execute();
