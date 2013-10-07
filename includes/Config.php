@@ -107,7 +107,8 @@ class Config {
 	 * @var {array}
 	 */
 	public static $hooks = array(
-		'CanonicalNamespaces' => 'GWToolset\Hooks::onCanonicalNamespaces'
+		'CanonicalNamespaces' => 'GWToolset\Hooks::onCanonicalNamespaces',
+		'UnitTestsList' => 'GWToolset\Hooks::onUnitTestsList'
 	);
 
 	/**
@@ -292,6 +293,13 @@ class Config {
 			'group' => 'media'
 		)
 	);
+
+	/**
+	 * @var {int}
+	 * title maximum length in bytes
+	 * @see https://commons.wikimedia.org/wiki/Commons:File_naming
+	 */
+	public static $title_max_length = 207;
 
 	/**
 	 * @var {string}

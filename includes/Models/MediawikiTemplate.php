@@ -324,25 +324,28 @@ class MediawikiTemplate implements ModelInterface {
 	}
 
 	/**
-	 * creates a title string that will be used to create a
-	 * wiki title for a media file. the title string is based on :
+	 * creates a title string that will be used to create a wiki title for a media file.
+	 * the title string is based on :
 	 *
 	 *   - title
 	 *   - title identifier
 	 *   - url to the media file’s extension
 	 *
+	 * the title length is limited to Config::$title_max_length
+	 * @see https://commons.wikimedia.org/wiki/Commons:File_naming
+	 *
 	 * @param {array} $options
 	 * @throws {MWException}
-	 * @return {string}
-	 * the string is not filtered.
-	 * the result assumes that it will be used in Title creation
-	 * and relies on the Title class to filter it
+	 * @return {string} the string is not filtered.
 	 */
 	public function getTitle( array &$options ) {
 		$result = null;
 
 		if ( empty( $this->mediawiki_template_array['title-identifier'] ) ) {
-			throw new MWException( wfMessage( 'gwtoolset-mapping-no-title-identifier' )->escaped() );
+			throw new MWException(
+				wfMessage( 'gwtoolset-mapping-no-title-identifier' )
+					->escaped()
+			);
 		}
 
 		if ( empty( $options['evaluated-media-file-extension'] ) ) {
@@ -353,24 +356,38 @@ class MediawikiTemplate implements ModelInterface {
 				);
 		}
 
-		/**
-		 * @todo: get rid of this hack. create a more robust method for
-		 * dealing with string case issues in mediawiki template attributes
-		 *
-		 * quick hack to handle Book template issue where it uses Title
-		 * instead of title as an attribute
-		 */
 		if ( !empty( $this->mediawiki_template_array['title'] ) ) {
-			$result = $this->mediawiki_template_array['title'];
-		} elseif ( !empty( $this->mediawiki_template_array['Title'] ) ) {
-			$result = $this->mediawiki_template_array['Title'];
-		} else {
-			throw new MWException( wfMessage( 'gwtoolset-mapping-no-title' )->escaped() );
+			$title_length = strlen( $this->mediawiki_template_array['title'] );
+			$title_identifier_length = strlen( $this->mediawiki_template_array['title-identifier'] );
+			$file_extension_length = strlen( $options['evaluated-media-file-extension'] ) + 1;
+
+			if ( ( $title_length + $title_identifier_length + $file_extension_length + 1 )
+				> Config::$title_max_length
+			) {
+				$result = substr(
+					$this->mediawiki_template_array['title'],
+					0,
+					( Config::$title_max_length - $title_identifier_length - $file_extension_length - 1 )
+				);
+			} else {
+				$result = $this->mediawiki_template_array['title'];
+			}
+
+			$result .= Config::$title_separator;
 		}
 
-		$result .= Config::$title_separator;
-		$result = $result . $this->mediawiki_template_array['title-identifier'];
+		$result .= $this->mediawiki_template_array['title-identifier'];
 		$result .= '.' . $options['evaluated-media-file-extension'];
+
+		if ( $result > Config::$title_max_length ) {
+			$result = substr(
+				$this->mediawiki_template_array['title-identifier'],
+				0,
+				( Config::$title_max_length - $file_extension_length - 1 )
+			);
+
+			$result .= '.' . $options['evaluated-media-file-extension'];
+		}
 
 		return $result;
 	}

@@ -73,15 +73,22 @@ function getBytes( $val ) {
  * optional namespace requirement and whether or not the title must be known
  *
  * @param {string} $page_title
- * @param {int} $required_namespace
- * @param {boolean} $must_be_known
+ * @param {int} $namespace
+ * @param {array} $options
+ *   {boolean} $options['must-be-known']
  *
  * @throws {MWException}
  * @return {null|Title}
  */
-function getTitle( $page_title = null, $required_namespace = 0, $must_be_known = true ) {
+function getTitle( $page_title = null, $namespace = NS_MAIN, array $options = array() ) {
 	global $wgServer;
 	$result = null;
+
+	$option_defaults = array(
+		'must-be-known' => true
+	);
+
+	$options = array_merge( $option_defaults, $options );
 
 	if ( empty( $page_title ) ) {
 		throw new MWException(
@@ -99,30 +106,76 @@ function getTitle( $page_title = null, $required_namespace = 0, $must_be_known =
 		);
 	}
 
-	$Title = Title::newFromText( $page_title, $required_namespace );
+	$Title = Title::newFromText( $page_title, $namespace );
 
 	if ( !( $Title instanceof Title ) ) {
 		return $result;
 	}
 
-	if ( !empty( $required_namespace )
-			&& $required_namespace !== $Title->getNamespace()
+	if ( !empty( $namespace )
+			&& $namespace !== $Title->getNamespace()
 	) {
 		$Language = new Language();
 		throw new MWException(
 			wfMessage( 'gwtoolset-namespace-mismatch' )
-				->params( $page_title, $Language->getNsText( $Title->getNamespace() ), $Language->getNsText( $required_namespace ) )
+				->params(
+					$page_title,
+					$Language->getNsText( $Title->getNamespace() ),
+					$Language->getNsText( $namespace )
+				)
 				->parse()
 		);
 	}
 
-	if ( !$must_be_known ) {
+	if ( !$options['must-be-known'] ) {
 		$result = $Title;
 	} elseif ( $Title->isKnown() ) {
 		$result = $Title;
 	}
 
 	return $result;
+}
+
+/**
+ * replaces illegal characters in a title with a replacement character, defaults to ‘-’.
+ * illegal characters are based on Commons:File_naming and other bad title articles.
+ * Title::secureAndSplit() allows some of these characters.
+ *
+ * @see https://commons.wikimedia.org/wiki/Commons:File_naming
+ * @see http://en.wikipedia.org/wiki/Wikipedia:Naming_conventions_(technical_restrictions)
+ * @see http://www.mediawiki.org/wiki/Help:Bad_title
+ * @see http://commons.wikimedia.org/wiki/MediaWiki:Titleblacklist
+ *
+ * @param {string} $title
+ *
+ * @param {array} $options
+ *   {boolean} $options['allow-subpage'] allows for the ‘/’ subpage character
+ *    {string} $options['replacement']
+ *
+ * @return {string} the string is not filtered
+ */
+function stripIllegalTitleChars( $title, array $options = array() ) {
+	$option_defaults = array(
+		'allow-subpage' => false,
+		'replacement' => '-'
+	);
+
+	$options = array_merge( $option_defaults, $options );
+
+	$illegal_chars = array(
+		'#','<','>','[',']','|','{','}',':','¬','`','!','"','£','$','^','&','*',
+		'(',')','+','=','~','?',',',Config::$metadata_separator,';',"'",'@'
+	);
+
+	if ( !$options['allow-subpage'] ) {
+		$illegal_chars[] = '/';
+	}
+
+	return str_replace(
+		$illegal_chars,
+		$options['replacement'],
+		$title
+	);
 }
 
 /**
