@@ -126,15 +126,15 @@ class UploadHandler {
 	 * the string is not filtered
 	 */
 	protected function addMetadata() {
-		$result = null;
-
-		$result .= '<!-- Metadata Mapped -->' . PHP_EOL;
-		$result .= '<!-- <metadata_mapped_json>' . json_encode( $this->_MediawikiTemplate->mediawiki_template_array ) . '</metadata_mapped_json> -->' . PHP_EOL . PHP_EOL;
-
-		$result .= '<!-- Metadata Raw -->' . PHP_EOL;
-		$result .= '<!-- <metadata_raw>' . PHP_EOL . $this->_MediawikiTemplate->metadata_raw . PHP_EOL . '</metadata_raw> -->' . PHP_EOL;
-
-		return $result;
+		return
+			'<!-- Metadata Mapped -->' . PHP_EOL .
+			'<!-- <metadata_mapped_json>' .
+			json_encode( $this->_MediawikiTemplate->mediawiki_template_array ) .
+			'</metadata_mapped_json> -->' . PHP_EOL . PHP_EOL .
+			'<!-- Metadata Raw -->' . PHP_EOL .
+			'<!-- <metadata_raw>' . PHP_EOL .
+			$this->_MediawikiTemplate->metadata_raw . PHP_EOL .
+			'</metadata_raw> -->' . PHP_EOL;
 	}
 
 	/**
@@ -187,7 +187,9 @@ class UploadHandler {
 				}
 
 				if ( !empty( $this->user_options['category-metadata'][$i] ) ) {
-					$metadata = Filter::evaluate(  $this->getMappedField( $this->user_options['category-metadata'][$i] ) );
+					$metadata = Filter::evaluate(
+						$this->getMappedField( $this->user_options['category-metadata'][$i] )
+					);
 				}
 
 				if ( !empty( $metadata ) ) {
@@ -214,7 +216,10 @@ class UploadHandler {
 		if ( empty( $accepted_types ) ) {
 			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
-					->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )
+					->params(
+						wfMessage( 'gwtoolset-no-accepted-types' )
+							->escaped( 'gwtoolset-no-accepted-types-provided' )
+					)
 					->parse()
 			);
 		}
@@ -233,11 +238,13 @@ class UploadHandler {
 	 * and file extension
 	 *
 	 * text/html example - has a js redirect in it
-	 *   $url = 'http://aleph500.biblacad.ro:8991/F?func=service&doc_library=RAL01&doc_number=000245208&line_number=0001&func_code=DB_RECORDS&service_type=MEDIA';
+	 *   $url = 'http://aleph500.biblacad.ro:8991/F?func=service&doc_library=RAL01
+	 *           &doc_number=000245208&line_number=0001&func_code=DB_RECORDS&service_type=MEDIA';
 	 *
 	 * url is to a script that returns the media file
 	 *   $url = https://www.rijksmuseum.nl/mediabin.jsp?id=RP-P-1956-764
-	 *   $url = 'http://europeanastatic.eu/api/image?uri=http%3A%2F%2Fcollections.smvk.se%3A8080%2Fcarlotta-em%2Fguest%2F1422401%2F13%2Fbild.jpg&size=LARGE&type=IMAGE';
+	 *   $url = 'http://europeanastatic.eu/api/image?uri=http%3A%2F%2Fcollections.smvk.se
+	             %3A8080%2Fcarlotta-em%2Fguest%2F1422401%2F13%2Fbild.jpg&size=LARGE&type=IMAGE';
 	 *
 	 * url is redirected to another url that actually serves the media file
 	 *   $url = 'http://www.rijksmuseum.nl/media/assets/AK-RAK-1978-3';
@@ -335,7 +342,9 @@ class UploadHandler {
 
 		if ( !empty( $pathinfo['extension'] )
 			&& in_array( $pathinfo['extension'], $wgFileExtensions )
-			&& strpos( $MimeMagic->getTypesForExtension( $pathinfo['extension'] ), $options['content-type'] ) !== false
+			&& strpos( $MimeMagic->getTypesForExtension( $pathinfo['extension'] ),
+					$options['content-type']
+				) !== false
 		) {
 			$result = $pathinfo['extension'];
 		} elseif ( !empty( $options['content-type'] ) ) {
@@ -361,9 +370,13 @@ class UploadHandler {
 		foreach ( $this->_Mapping->target_dom_elements_mapped[$field] as $targeted_field ) {
 			$parameter_as_id = $this->_MediawikiTemplate->getParameterAsId( $targeted_field );
 
-			if ( array_key_exists( $targeted_field, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
+			if ( array_key_exists(
+					$targeted_field, $this->_MediawikiTemplate->mediawiki_template_array )
+			) {
 				$result .= $this->_MediawikiTemplate->mediawiki_template_array[$targeted_field] . ' ';
-			} elseif ( array_key_exists( $parameter_as_id, $this->_MediawikiTemplate->mediawiki_template_array ) ) {
+			} elseif ( array_key_exists(
+					$parameter_as_id, $this->_MediawikiTemplate->mediawiki_template_array )
+			) {
 				$result .= $this->_MediawikiTemplate->mediawiki_template_array[$parameter_as_id] . ' ';
 			}
 		}
@@ -396,31 +409,39 @@ class UploadHandler {
 	 * the url and ignore the uploaded file
 	 *
 	 * if a file is uploaded, a local wiki url to the newly uploaded file will be
-	 * added to $user_options[$metadata_file_url]
+	 * added to $user_options[$options['metadata-file-url']]
 	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @param {string} $metadata_file_url
-	 * the key within $user_options that holds the url to the metadata file
-	 * stored in the local wiki
+	 * @param {array} $options
+	 *   {string} $options['metadata-file-url']
+	 *   the key within $user_options that holds the url to the metadata file
+	 *   stored in the local wiki
 	 *
-	 * @param {string} $metadata_file_upload
-	 * the key-name expected in $_FILES[] that should contain the metadata file
-	 * that has been uploaded via an html form
+	 *   {string} $options['metadata-file-upload']
+	 *   the key-name expected in $_FILES[] that should contain the metadata file
+	 *   that has been uploaded via an html form
 	 *
 	 * @return {null|Title}
 	 */
-	public function getTitleFromUrlOrFile( array &$user_options, $metadata_file_url = 'metadata-file-url', $metadata_file_upload = 'metadata-file-upload' ) {
+	public function getTitleFromUrlOrFile( array &$user_options, array $options = array() ) {
 		$result = null;
 
-		if ( !empty( $user_options[$metadata_file_url] ) ) {
+		$options_default = array(
+			'metadata-file-url' => 'metadata-file-url',
+			'metadata-file-upload' => 'metadata-file-upload'
+		);
+
+		$options = array_merge( $option_defaults, $options );
+
+		if ( !empty( $user_options[$options['metadata-file-url']] ) ) {
 			$result = \GWToolset\getTitle(
-				$user_options[$metadata_file_url],
+				$user_options[$options['metadata-file-url']],
 				Config::$metadata_namespace
 			);
-		} elseif ( !empty( $_FILES[$metadata_file_upload]['name'] ) ) {
-			$result = $this->saveMetadataFileAsContent( $metadata_file_upload );
+		} elseif ( !empty( $_FILES[$options['metadata-file-upload']]['name'] ) ) {
+			$result = $this->saveMetadataFileAsContent( $options['metadata-file-upload'] );
 			$user_options['metadata-file-url'] = $result;
 		}
 
@@ -505,7 +526,10 @@ class UploadHandler {
 
 		$text = file_get_contents( $this->_File->tmp_name );
 		$Metadata_Content = ContentHandler::makeContent( $text, $Metadata_Title );
-		$summary = wfMessage( 'gwtoolset-create-metadata' )->params( Config::$name, $this->_User->getName() )->escaped();
+		$summary = wfMessage( 'gwtoolset-create-metadata' )
+			->params( Config::$name, $this->_User->getName() )
+			->escaped();
+
 		$Metadata_Page = new WikiPage( $Metadata_Title );
 		$Metadata_Page->doEditContent( $Metadata_Content, $summary, 0, false, $this->_User );
 		$this->restoreAllowedExtensions();
@@ -559,7 +583,9 @@ class UploadHandler {
 		$this->validateUserOptions( $user_options );
 		$this->user_options = $user_options;
 
-		$options['url-to-the-media-file'] = $this->_MediawikiTemplate->mediawiki_template_array['url-to-the-media-file'];
+		$options['url-to-the-media-file'] =
+			$this->_MediawikiTemplate->mediawiki_template_array['url-to-the-media-file'];
+
 		$evaluated_url = $this->evaluateMediafileUrl( $options['url-to-the-media-file'] );
 		$options['url-to-the-media-file'] = $evaluated_url['url'];
 		$options['evaluated-media-file-extension'] = $evaluated_url['extension'];
@@ -567,7 +593,11 @@ class UploadHandler {
 		$options['title'] = $this->_MediawikiTemplate->getTitle( $options );
 		$options['ignorewarnings'] = true;
 		$options['watch'] = true;
-		$options['comment'] = wfMessage( 'gwtoolset-create-mediafile' )->params( Config::$name, $this->_User->getName() )->escaped() . PHP_EOL . trim( $this->user_options['comment'] );
+		$options['comment'] = wfMessage( 'gwtoolset-create-mediafile' )
+			->params( Config::$name, $this->_User->getName() )
+			->escaped() . PHP_EOL .
+			trim( $this->user_options['comment'] );
+
 		$options['text'] = $this->getText();
 
 		if ( $this->user_options['save-as-batch-job'] ) {
@@ -592,15 +622,15 @@ class UploadHandler {
 		$this->validatePageOptions( $options );
 
 		$Title = \GWToolset\getTitle(
-			$options['title'],
+			\GWToolset\stripIllegalTitleChars( $options['title'] ),
 			Config::$mediafile_namespace,
-			false
+			array( 'must-be-known' => false )
 		);
 
 		if ( !( $Title instanceof Title ) ) {
 			throw new MWException(
 				wfMessage( 'gwtoolset-title-bad' )
-					->params( $options['title'] )->escaped()
+					->params( $options['title'] )->parse()
 			);
 		}
 
@@ -715,9 +745,16 @@ class UploadHandler {
 	protected function uploadMetadataFile() {
 		$Status = null;
 
-		$comment = wfMessage( 'gwtoolset-create-metadata' )->params( Config::$name, $this->_User->getName() )->escaped();
+		$comment = wfMessage( 'gwtoolset-create-metadata' )
+			->params( Config::$name, $this->_User->getName() )
+			->escaped();
 		$pagetext = '[[Category:' . Config::$metadata_file_category . ']]';
-		$Status = $this->_UploadBase->performUpload( $comment, $comment . $pagetext, null, $this->_User );
+		$Status = $this->_UploadBase->performUpload(
+			$comment,
+			$comment . $pagetext,
+			null,
+			$this->_User
+		);
 
 		return $Status;
 	}
