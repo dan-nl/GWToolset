@@ -134,7 +134,7 @@ class Config {
 	/**
 	 * @var {int}
 	 */
-	public static $job_throttle = 3;
+	public static $job_throttle = 10;
 
 	/**
 	 * @var {int}
