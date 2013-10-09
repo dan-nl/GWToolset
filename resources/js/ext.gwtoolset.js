@@ -85,6 +85,7 @@
 	} );
 
 	gwtoolset = {
+
 		$ajaxLoader: $( '<div>' )
 			.attr( 'id', 'gwtoolset-loader' )
 			.html(
