@@ -246,6 +246,7 @@ class Config {
 			'gwtoolset-cancel'
 		),
 		'dependencies' => array(
+			'jquery.json',
 			'jquery.spinner',
 			'jquery.ui.widget',
 			'jquery.ui.button',
