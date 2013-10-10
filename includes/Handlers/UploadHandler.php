@@ -515,14 +515,17 @@ class UploadHandler {
 		$this->augmentAllowedExtensions( Config::$accepted_metadata_types );
 		WikiChecks::increaseHTTPTimeout( 120 );
 
-		$Metadata_Title =
-			Title::makeTitleSafe(
-				Config::$metadata_namespace,
+		$Metadata_Title = \GWToolset\getTitle(
+			\GWToolset\stripIllegalTitleChars(
 				Config::$metadata_sets_subpage . '/' .
-					$this->_User->getName() . '/' .
-					$this->_File->pathinfo['filename'] .
-					'.' . $this->_File->pathinfo['extension']
-			);
+				$this->_User->getName() . '/' .
+				$this->_File->pathinfo['filename'] .
+				'.' . $this->_File->pathinfo['extension'],
+				array( 'allow-subpage' => true )
+			),
+			Config::$metadata_namespace,
+			array( 'must-be-known' => false )
+		);
 
 		$text = file_get_contents( $this->_File->tmp_name );
 		$Metadata_Content = ContentHandler::makeContent( $text, $Metadata_Title );
@@ -670,9 +673,10 @@ class UploadHandler {
 		}
 
 		$job = new UploadMediafileJob(
-			Title::makeTitleSafe(
+			\GWToolset\getTitle(
+				\GWToolset\stripIllegalTitleChars( $options['title'] ),
 				Config::$mediafile_namespace,
-				$options['title']
+				array( 'must-be-known' => false )
 			),
 			array(
 				'comment' => $options['comment'],
