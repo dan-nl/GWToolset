@@ -401,6 +401,28 @@ class UploadHandler {
 	}
 
 	/**
+	 * @param {Array} $options
+	 * @throws {MWException}
+	 * @return {Title}
+	 */
+	protected function getTitle( array &$options ) {
+		$result = \GWToolset\getTitle(
+			\GWToolset\stripIllegalTitleChars( $options['title'] ),
+			Config::$mediafile_namespace,
+			array( 'must-be-known' => false )
+		);
+
+		if ( !( $result instanceof Title ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-title-bad' )
+					->params( $options['title'] )->parse()
+			);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * retrieves the metadata file via :
 	 * - a url to the local wiki
 	 * - or the uploaded file given in the $_POST'ed form
@@ -623,19 +645,7 @@ class UploadHandler {
 		$Status = null;
 		WikiChecks::increaseHTTPTimeout();
 		$this->validatePageOptions( $options );
-
-		$Title = \GWToolset\getTitle(
-			\GWToolset\stripIllegalTitleChars( $options['title'] ),
-			Config::$mediafile_namespace,
-			array( 'must-be-known' => false )
-		);
-
-		if ( !( $Title instanceof Title ) ) {
-			throw new MWException(
-				wfMessage( 'gwtoolset-title-bad' )
-					->params( $options['title'] )->parse()
-			);
-		}
+		$Title = $this->getTitle( $options );
 
 		if ( !$Title->isKnown() ) {
 			$Status = $this->uploadMediaFileViaUploadFromUrl( $options, $Title );
@@ -672,12 +682,11 @@ class UploadHandler {
 			return;
 		}
 
+		$this->validatePageOptions( $options );
+		$Title = $this->getTitle( $options );
+
 		$job = new UploadMediafileJob(
-			\GWToolset\getTitle(
-				\GWToolset\stripIllegalTitleChars( $options['title'] ),
-				Config::$mediafile_namespace,
-				array( 'must-be-known' => false )
-			),
+			$Title,
 			array(
 				'comment' => $options['comment'],
 				'ignorewarnings' => $options['ignorewarnings'],
@@ -764,19 +773,17 @@ class UploadHandler {
 	}
 
 	/**
+	 * makes sure that the following values are present
+	 *   - title
+	 *   - ignorewarnings
+	 *   - text
+	 *   - url-to-the-media-file
+	 *
 	 * @param {array} $options
 	 * @throws {MWException}
 	 * @return {void}
 	 */
 	protected function validatePageOptions( array &$options ) {
-		if ( empty( $options['title'] ) ) {
-			throw new MWException(
-				wfMessage( 'gwtoolset-developer-issue' )
-					->params( wfMessage( 'gwtoolset-no-title' )->escaped() )
-					->parse()
-			);
-		}
-
 		if ( !isset( $options['ignorewarnings'] ) ) {
 			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
@@ -790,6 +797,12 @@ class UploadHandler {
 			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-text' )->escaped() )
+					->parse()
+			);
+		}if ( empty( $options['title'] ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-no-title' )->escaped() )
 					->parse()
 			);
 		}
