@@ -673,7 +673,11 @@ class UploadHandler {
 
 		$job = new UploadMediafileJob(
 			Title::newFromText(
-			'User:' . $this->_User->getName() . '/' . Config::$name . ' Mediafile Batch Job'
+				$this->_User->getName() . '/' .
+				Config::$name . '/' .
+				'Mediafile Batch Job/' .
+				uniqid(),
+				NS_USER
 			),
 			array(
 				'options' => $options,

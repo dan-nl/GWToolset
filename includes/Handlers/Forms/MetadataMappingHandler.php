@@ -71,7 +71,11 @@ class MetadataMappingHandler extends FormHandler {
 
 		$job = new UploadMetadataJob(
 			Title::newFromText(
-				'User:' . $this->User->getName() . '/' . Config::$name . ' Metadata Batch Job'
+				$this->User->getName() . '/' .
+				Config::$name . '/' .
+				'Metadata Batch Job/' .
+				uniqid(),
+				NS_USER
 			),
 			array(
 				'post' => $_POST,
