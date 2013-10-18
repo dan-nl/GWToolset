@@ -9,7 +9,6 @@
 
 namespace GWToolset\Handlers\Forms;
 use ContentHandler,
-	FSFile,
 	GWToolset\Adapters\Php\MappingPhpAdapter,
 	GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter,
 	GWToolset\Config,
@@ -82,7 +81,11 @@ class MetadataDetectHandler extends FormHandler {
 		$result = null;
 
 		foreach ( $this->_MediawikiTemplate->mediawiki_template_array as $parameter => $value ) {
-			$result .= $this->XmlDetectHandler->getMetadataAsTableCells( $parameter, $this->_MediawikiTemplate, $this->_Mapping );
+			$result .= $this->XmlDetectHandler->getMetadataAsTableCells(
+				$parameter,
+				$this->_MediawikiTemplate,
+				$this->_Mapping
+			);
 		}
 
 		return $result;
@@ -174,7 +177,8 @@ class MetadataDetectHandler extends FormHandler {
 			$user_options['metadata-stash-key'] = $this->_UploadHandler->saveMetadataFileAsStash();
 			$UploadStashFile = $this->_UploadHandler->getMetadataFromStash( $user_options );
 		} else {
-			$user_options['Metadata-Title'] = $this->_UploadHandler->getTitleFromUrlOrFile( $user_options );
+			$user_options['Metadata-Title'] =
+				$this->_UploadHandler->getTitleFromUrlOrFile( $user_options );
 		}
 
 		if ( $UploadStashFile instanceof UploadStashFile ) {
