@@ -96,16 +96,19 @@
 		$backText: $( '#back-text' ),
 		$buttons: {
 			$add: $( '<img>' )
-				.attr( 'src',
-					mw.config.get('wgExtensionAssetsPath') + '/GWToolset/resources/images/b_snewtbl.png'
+				.attr(
+					'src',
+					mw.config.get( 'wgExtensionAssetsPath' ) + '/GWToolset/resources/images/b_snewtbl.png'
 				)
 				.addClass( 'gwtoolset-metadata-button' ),
 			$subtract: $( '<img>' )
-				.attr( 'src',
-					mw.config.get('wgExtensionAssetsPath') + '/GWToolset/resources/images/b_drop.png'
+				.attr(
+					'src',
+					mw.config.get( 'wgExtensionAssetsPath' ) + '/GWToolset/resources/images/b_drop.png'
 				)
 				.addClass( 'gwtoolset-metadata-button' )
 		},
+		cookieName: 'gwtoolset.cookie',
 		$dialog: $( '<div>' )
 			.attr( 'id', 'dialog' )
 			.dialog( {
@@ -117,9 +120,9 @@
 				}
 			} ),
 		$form: $( '#gwtoolset-form' ),
-		formName: $('input[name=gwtoolset-form]').val(),
-		$globalCategoriesTableTbody: $( '#global-categories-table > tbody' ),
-		$itemSpecificCategoriesTableTbody: $( '#item-specific-categories-table > tbody' ),
+		formName: $( 'input[name=gwtoolset-form]' ).val(),
+		$globalCategoriesTableTbody: $( '#global-categories-table').children( 'tbody' ).eq( 0 ),
+		$itemSpecificCategoriesTableTbody: $( '#item-specific-categories-table' ).children( 'tbody' ).eq( 0 ),
 		$saveMappingButton: $( '<tr>' )
 			.html(
 				$( '<td>' )
@@ -135,7 +138,7 @@
 					)
 			),
 		$step2Link: $( '#step2-link' ),
-		$templateTableTbody: $( '#template-table > tbody' ),
+		$templateTableTbody: $( '#template-table' ).children( 'tbody' ).eq( 0 ),
 
 		addAjaxLoader: function () {
 			this.$ajaxLoader.hide();
@@ -204,35 +207,61 @@
 		},
 
 		/**
+		 * creates/adds to the document.cookie
+		 *
 		 * @param {Object} options
-		 *   {Boolean} options.deparam
-		 *   call $.String.deparam on the options.value
 		 *
-		 *   {String} options.name
-		 *   name of the cookie
+		 * @param {string} options.name
+		 * name of the cookie
 		 *
-		 *   {Object} options.options
-		 *   cookie options
+		 * @param {Object} options.options
+		 * $.cookie, cookie options
 		 *
-		 *   {Boolean} options.toJSON
-		 *   convert the value to a JSON
-		 *
-		 *   {String} options.value
+		 * @param {mixed} options.value
 		 */
 		createCookie: function ( options ) {
-			if ( options.deparam === true ) {
-				options.value = $.String.deparam( options.value );
-			}
+			var optionsDefault = {
+				name: this.cookieName,
+				options: {
+					path: '/'
+				}
+			};
 
-			if ( options.toJSON === true ) {
-				options.value = $.toJSON( options.value );
-			}
+			options = $.extend( true, {}, optionsDefault, options );
 
 			$.cookie(
 				options.name,
-				options.value,
+				( typeof options.value === 'object' ) ? $.toJSON( options.value ) : options.value,
 				options.options
 			);
+		},
+
+		/**
+		 * creates an Object that contains the form section fields the application tracks
+		 *
+		 * @returns {Object}
+		 */
+		getFieldsOnForm: function () {
+			return {
+				$globalCategoriesTableTbody:
+					this.getFormSectionValues( this.$globalCategoriesTableTbody, 'input' ),
+				$itemSpecificCategoriesTableTbody:
+					this.getFormSectionValues( this.$itemSpecificCategoriesTableTbody, 'input, select' ),
+				$templateTableTbody:
+					this.getFormSectionValues( this.$templateTableTbody, 'select' )
+			};
+		},
+
+		/**
+		 * @returns {string}
+		 */
+		getFormSectionValues: function ( $elm, find ) {
+			var result;
+
+			result = $elm.find( find ).serialize();
+			result = $.String.deparam( result );
+
+			return result;
 		},
 
 		handleAjaxError: function () {
@@ -286,7 +315,7 @@
 					}
 
 					if ( data && data.option ) {
-						$tdElm.find( 'option:contains(' + data.option + ')' ).prop( 'selected', 'selected' );
+						$tdElm.find( 'option:contains(' + data.option + ')' ).prop( 'selected', true );
 					} else {
 						$tdElm.find( 'option' ).prop( 'selected', false );
 					}
@@ -314,7 +343,9 @@
 			if ( gwtoolset.formName === 'metadata-detect' ) {
 				gwtoolset.removeCookies();
 			} else if ( gwtoolset.formName === 'metadata-mapping' ) {
-				gwtoolset.storeJsFormFields();
+				gwtoolset.createCookie(
+					{ value: gwtoolset.getFieldsOnForm() }
+				);
 			}
 
 			gwtoolset.$ajaxLoader.fadeIn();
@@ -367,86 +398,66 @@
 		},
 
 		removeCookies: function () {
-			$.cookie( 'gwtoolset.global.categories', null );
-			$.cookie( 'gwtoolset.item.specific.categories', null );
-			$.cookie( 'gwtoolset.metadata.mappings', null );
+			$.cookie( this.cookieName, null );
 		},
 
 		/**
-		 * restores js added input and select fields from JSONs within document.cookie
+		 * restores js added input and select fields using the document.cookie
 		 */
 		restoreJsFormFields: function () {
 			var buttonAdd,
-			fields,
-			i,
-			x;
+			fieldsInCookie,
+			fieldsOnForm,
+			formSectionFieldIndex;
 
-			fields = $.secureEvalJSON( $.cookie( 'gwtoolset.global.categories' ) );
-
-			if ( fields && fields.category ) {
-				buttonAdd = this.$globalCategoriesTableTbody.find( '.button-add img' );
-				for ( i = 1; i < fields.category.length; i ++ ) {
-					buttonAdd.trigger( 'click', { value: [fields.category[i]] } );
-				}
+			if ( this.formName !== 'metadata-mapping' ) {
+				return;
 			}
 
-			fields = $.secureEvalJSON( $.cookie( 'gwtoolset.metadata.mappings' ) );
+			fieldsOnForm = this.getFieldsOnForm();
+			fieldsInCookie = $.secureEvalJSON( $.cookie( this.cookieName ) );
 
-			if ( fields ) {
-				for ( i in fields ) {
-					if ( fields.hasOwnProperty( i ) ) {
-						buttonAdd = $( '#' + i.replace( ' ', '_' ) ).closest( 'tr' ).find('.button-add img');
+			if ( !fieldsInCookie ) {
+				return;
+			}
 
-						for ( x = 1; x < fields[i].length ; x++ ) {
-							buttonAdd.trigger( 'click', { option: fields[i][x] } );
-						}
+			$.each( fieldsInCookie, function ( section, cookieSectionFields ) {
+				$.each( cookieSectionFields, function ( cookieSectionField ) {
+					if ( fieldsOnForm[section][cookieSectionField].length
+						!== cookieSectionFields[cookieSectionField].length
+					) {
+						formSectionFieldIndex = fieldsOnForm[section][cookieSectionField].length - 1;
+						$.each( cookieSectionFields[cookieSectionField],
+							function( cookieSectionFieldIndex, value
+						) {
+							// when this is true the cookie contains a field and value that was added with js
+							if ( cookieSectionFieldIndex > formSectionFieldIndex ) {
+								switch ( section ) {
+									case '$globalCategoriesTableTbody':
+										buttonAdd = gwtoolset[section].find( '.button-add img' );
+										buttonAdd.trigger( 'click', { value: [value] } );
+										break;
+									case '$templateTableTbody':
+										buttonAdd = $( '#' + cookieSectionField.replace( ' ', '_' ) )
+											.closest( 'tr' )
+											.find('.button-add img');
+										buttonAdd.trigger( 'click', { option: value } );
+										break;
+									case '$itemSpecificCategoriesTableTbody':
+										// only want to trigger buttonAdd once
+										if ( cookieSectionField === 'category-metadata' ) {
+											buttonAdd = gwtoolset[section].find( '.button-add img' );
+											buttonAdd.trigger( 'click', {
+												option: [cookieSectionFields['category-metadata'][cookieSectionFieldIndex]],
+												value: [cookieSectionFields['category-phrase'][cookieSectionFieldIndex]]
+											} );
+										}
+										break;
+								}
+							}
+						} );
 					}
-				}
-			}
-
-			fields = $.secureEvalJSON( $.cookie( 'gwtoolset.item.specific.categories' ) );
-
-			if ( fields && fields['category-metadata'] ) {
-				buttonAdd = this.$itemSpecificCategoriesTableTbody.find( '.button-add img' );
-
-				for ( i = 1; i < fields['category-metadata'].length; i ++ ) {
-					buttonAdd.trigger(
-						'click',
-						{
-							option: [fields['category-metadata'][i]],
-							value: [fields['category-phrase'][i]]
-						}
-					);
-				}
-			}
-		},
-
-		/**
-		 * stores the js added input and select fields as JSONs document.cookie
-		 */
-		storeJsFormFields: function () {
-			this.createCookie( {
-				deparam: true,
-				name: 'gwtoolset.global.categories',
-				options: { path: '/' },
-				toJSON: true,
-				value: this.$globalCategoriesTableTbody.find( 'input' ).serialize()
-			} );
-
-			this.createCookie( {
-				deparam: true,
-				name: 'gwtoolset.item.specific.categories',
-				options: { path: '/' },
-				toJSON: true,
-				value: this.$itemSpecificCategoriesTableTbody.find( 'input, select').serialize()
-			} );
-
-			this.createCookie( {
-				deparam: true,
-				name: 'gwtoolset.metadata.mappings',
-				options: { path: '/' },
-				toJSON: true,
-				value: this.$templateTableTbody.find( 'select' ).serialize()
+				} );
 			} );
 		},
 
@@ -472,14 +483,12 @@
 			var mappingNameToUse = $( '#mapping-name-to-use' ).val(),
 				mediawikiTemplateName = $( '#mediawiki-template-name' ).val(),
 				wpEditToken = mw.user.tokens.get( 'editToken' ),
-				metadataMappings = gwtoolset.$form.find( 'select' ).serialize();
+				metadataMappings = gwtoolset.getFormSectionValues( gwtoolset.$templateTableTbody, 'select' );
 
 			if ( evt ) {
 				gwtoolset.$dialog.dialog( 'close' );
 				evt.preventDefault();
 			}
-
-			metadataMappings = $.String.deparam( metadataMappings );
 
 			if ( mappingNameToUse === null || mappingNameToUse.length < 3 ) {
 				return;
