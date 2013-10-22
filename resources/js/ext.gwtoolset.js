@@ -423,8 +423,8 @@
 
 			$.each( fieldsInCookie, function ( section, cookieSectionFields ) {
 				$.each( cookieSectionFields, function ( cookieSectionField ) {
-					if ( fieldsOnForm[section][cookieSectionField].length
-						!== cookieSectionFields[cookieSectionField].length
+					if ( fieldsOnForm[section][cookieSectionField].length !==
+						cookieSectionFields[cookieSectionField].length
 					) {
 						formSectionFieldIndex = fieldsOnForm[section][cookieSectionField].length - 1;
 						$.each( cookieSectionFields[cookieSectionField],
