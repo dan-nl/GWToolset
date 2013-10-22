@@ -253,6 +253,16 @@
 		},
 
 		/**
+		 * given a jQuery element representing a section within the html, finds and returns
+		 * the fields and values serialized and deparamed
+		 *
+		 * @param {Object} $elm
+		 * a jQuery object representing a section that contains the fields and values to be
+		 * serialized and deparamed
+		 *
+		 * @param {string} find
+		 * the specific element(s) to find within the $elm, e.g., 'input, select'
+		 *
 		 * @returns {string}
 		 */
 		getFormSectionValues: function ( $elm, find ) {
@@ -403,6 +413,8 @@
 
 		/**
 		 * restores js added input and select fields using the document.cookie
+		 * - the document.cookie should contain a cookie value named this.cookieName
+		 * - that cookie should be a JSON stringified
 		 */
 		restoreJsFormFields: function () {
 			var buttonAdd,
