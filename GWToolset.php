@@ -48,9 +48,11 @@ if ( !defined( 'NS_GWTOOLSET' ) ) {
 	exit();
 }
 
-$wgExtraNamespaces[ NS_GWTOOLSET ] = 'GWToolset';
-$wgExtraNamespaces[ NS_GWTOOLSET_TALK ] = 'GWToolset_talk';
-$wgNamespaceProtection[ NS_GWTOOLSET ] = array( 'gwtoolset' );
+$wgExtraNamespaces[NS_GWTOOLSET] = 'GWToolset';
+$wgExtraNamespaces[NS_GWTOOLSET_TALK] = 'GWToolset_talk';
+$wgNamespaceProtection[NS_GWTOOLSET] = array( 'gwtoolset' );
+$wgNamespacesWithSubpages[NS_GWTOOLSET] = true;
+$wgNamespacesWithSubpages[NS_GWTOOLSET_TALK] = true;
 
 /**
  * registering extension metadata with MediaWiki
