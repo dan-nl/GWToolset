@@ -36,15 +36,23 @@ class SpecialGWToolset extends SpecialPage {
 	 */
 	protected $_registered_modules = array(
 		'metadata-detect' => array(
+			'allow-get' => true,
 			'handler' => '\GWToolset\Handlers\Forms\MetadataDetectHandler',
 			'form' => '\GWToolset\Forms\MetadataDetectForm'
 		),
 		'metadata-mapping' => array(
+			'allow-get' => false,
 			'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler',
 			'form' => '\GWToolset\Forms\MetadataMappingForm'
 		),
 		'metadata-mapping-save' => array(
+			'allow-get' => false,
 			'handler' => '\GWToolset\Handlers\Ajax\MetadataMappingSaveHandler'
+		),
+		'metadata-preview' => array(
+			'allow-get' => false,
+			'handler' => '\GWToolset\Handlers\Forms\MetadataMappingHandler',
+			'form' => '\GWToolset\Forms\MetadataMappingForm'
 		)
 	);
 
@@ -96,7 +104,9 @@ class SpecialGWToolset extends SpecialPage {
 		$html = null;
 
 		if ( !$this->getRequest()->wasPosted() ) {
-			if ( $this->module_key === null ) {
+			if ( $this->module_key === null
+				|| !$this->_registered_modules[$this->module_key]['allow-get']
+			) {
 				$html .= wfMessage( 'gwtoolset-intro' )->parseAsBlock();
 			} else {
 				try {
