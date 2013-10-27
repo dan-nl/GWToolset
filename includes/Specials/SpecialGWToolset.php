@@ -62,6 +62,7 @@ class SpecialGWToolset extends SpecialPage {
 	 */
 	public function execute( $par ) {
 		$this->setHeaders();
+		$this->outputHeader();
 		set_error_handler( '\GWToolset\handleError' );
 
 		if ( $this->wikiChecks() ) {
@@ -158,7 +159,6 @@ class SpecialGWToolset extends SpecialPage {
 			}
 		}
 
-		$this->setHeaders();
 		$this->getOutput()->addModules( 'ext.GWToolset' );
 		$this->getOutput()->addHtml(
 			wfMessage( 'gwtoolset-menu' )->rawParams(
