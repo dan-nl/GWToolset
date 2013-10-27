@@ -183,9 +183,6 @@ class SpecialGWToolset extends SpecialPage {
 		$this->getOutput()->addHtml( $html );
 	}
 
-	/**
-	 * @return {void}
-	 */
 	protected function setModuleAndHandler() {
 		$this->module_key = null;
 		$gwtoolset_form = $this->getRequest()->getVal( 'gwtoolset-form' );
