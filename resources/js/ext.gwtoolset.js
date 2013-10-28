@@ -419,22 +419,6 @@
 			this.addSaveMappingButton();
 			this.addButtons();
 			this.restoreJsFormFields();
-
-			this.$form.append(
-				$('<button>').text('create cookie').on('click',function(e){
-					e.preventDefault();
-					gwtoolset.createCookie(
-						{ value: gwtoolset.getFieldsOnForm() }
-					);
-				})
-			);
-
-			this.$form.append(
-				$('<button>').text('restore cookie').on('click',function(e){
-					e.preventDefault();
-					gwtoolset.restoreJsFormFields();
-				})
-			);
 		},
 
 		removeCookies: function () {
