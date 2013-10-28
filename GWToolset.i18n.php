@@ -240,7 +240,7 @@ Try another field from the metadata for title and title-identifier, or if possib
 • <code>post_max_size</code> ($2)
 
 are set lower than the wiki’s $wgMaxUploadSize ($3); please adjust the PHP ini settings as appropriate.',
-	'gwtoolset-mediawiki-version-invalid' => 'This extension requires MediaWiki version (1.22+)<br />This MediaWiki version is ($1)',
+	'gwtoolset-mediawiki-version-invalid' => 'This extension requires MediaWiki version ($1)<br />This MediaWiki version is ($2)',
 	'gwtoolset-permission-not-given' => 'Make sure that you are logged-in or contact an administrator in order to be granted permission to view this page ($1).',
 	'gwtoolset-user-blocked' => 'Your user account is currently blocked. Please contact an administrator in order to correct the blocking issue.',
 	'gwtoolset-verify-api-enabled' => 'The $1 Extension requires that the wiki API is enabled.

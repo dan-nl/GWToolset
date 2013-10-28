@@ -10,6 +10,7 @@
 namespace GWToolset\Helpers;
 use GWToolset\Config,
 	Html,
+	MWException,
 	PermissionsError,
 	Php\Filter,
 	SpecialPage,
@@ -89,8 +90,14 @@ class WikiChecks {
 	public static function checkMediaWikiVersion() {
 		global $wgVersion;
 
-		if ( !version_compare( $wgVersion, '1.21', '>' ) ) {
-			return Status::newFatal( 'gwtoolset-mediawiki-version-invalid', $wgVersion );
+		try {
+			wfUseMW( Config::$required_mediawiki_version );
+		} catch( MWException $e ) {
+			return Status::newFatal(
+				'gwtoolset-mediawiki-version-invalid',
+				Config::$required_mediawiki_version,
+				$wgVersion
+			);
 		}
 
 		return Status::newGood();
