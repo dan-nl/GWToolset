@@ -237,6 +237,20 @@
 		},
 
 		/**
+		 * @param {Object} $elm
+		 * a jQuery object
+		 *
+		 * @returns {Object}
+		 */
+		findTarget: function ( $elm ) {
+			if ( $elm.next().children( 'td.button-subtract' ).length > 0 ) {
+				return this.findTarget( $elm.next() );
+			} else {
+				return $elm;
+			}
+		},
+
+		/**
 		 * creates an Object that contains the form section fields the application tracks
 		 *
 		 * @returns {Object}
@@ -297,7 +311,7 @@
 		 * @param {Object} data
 		 */
 		handleButtonAddClick: function ( evt, data ) {
-			var $target = $( this ).closest( 'tr' ),
+			var $target = gwtoolset.findTarget( $( this ).closest( 'tr' ) ),
 				$tdButton = $( '<td>' )
 					.addClass( 'button-subtract' )
 					.html( gwtoolset.$buttons.$subtract.clone()
@@ -313,7 +327,7 @@
 
 				if ( $elm.find('label').length === 1 ) {
 					$row.append( $( '<td>' ) );
-				} else if ( $elm.hasClass( 'button-add' ) ) {
+				} else if ( $elm.hasClass( 'button-add' ) || $elm.hasClass( 'button-subtract' ) ) {
 					$row.append( $tdButton );
 				} else {
 					$tdElm = $elm.clone();
@@ -405,6 +419,22 @@
 			this.addSaveMappingButton();
 			this.addButtons();
 			this.restoreJsFormFields();
+
+			this.$form.append(
+				$('<button>').text('create cookie').on('click',function(e){
+					e.preventDefault();
+					gwtoolset.createCookie(
+						{ value: gwtoolset.getFieldsOnForm() }
+					);
+				})
+			);
+
+			this.$form.append(
+				$('<button>').text('restore cookie').on('click',function(e){
+					e.preventDefault();
+					gwtoolset.restoreJsFormFields();
+				})
+			);
 		},
 
 		removeCookies: function () {
