@@ -226,7 +226,7 @@ class Config {
 	/**
 	 * @var {string}
 	 */
-	public static $required_mediawiki_version = '1.22';
+	public static $required_mediawiki_version = '1.22c';
 
 	/**
 	 * @var {array}
