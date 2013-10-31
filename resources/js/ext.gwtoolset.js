@@ -88,7 +88,7 @@
 
 		$ajaxLoader: $( '<div>' )
 			.attr( 'id', 'gwtoolset-loader' )
-			.html(
+			.append(
 				$( '<p>' )
 					.text( mw.message( 'gwtoolset-loading' ).text() )
 					.append( $.createSpinner( { size: 'large', type: 'block' } ) )
@@ -121,14 +121,18 @@
 			} ),
 		$form: $( '#gwtoolset-form' ),
 		formName: $( 'input[name=gwtoolset-form]' ).val(),
-		$globalCategoriesTableTbody: $( '#global-categories-table').children( 'tbody' ).eq( 0 ),
-		$itemSpecificCategoriesTableTbody: $( '#item-specific-categories-table' ).children( 'tbody' ).eq( 0 ),
+		$globalCategoriesTableTbody: $( '#global-categories-table')
+			.children( 'tbody' )
+			.eq( 0 ),
+		$itemSpecificCategoriesTableTbody: $( '#item-specific-categories-table' )
+			.children( 'tbody' )
+			.eq( 0 ),
 		$saveMappingButton: $( '<tr>' )
-			.html(
+			.append(
 				$( '<td>' )
 					.attr( 'colspan', 3 )
 					.css( 'text-align', 'right' )
-					.html(
+					.append(
 						$( '<span>' )
 							.attr( {
 								id: 'save-mapping',
@@ -158,9 +162,9 @@
 
 		addButtons: function () {
 			$( '.button-add' )
-				.html( this.$buttons.$add.clone().on( 'click', this.handleButtonAddClick ) );
+				.append( this.$buttons.$add.clone().on( 'click', this.handleButtonAddClick ) );
 			$( '.button-subtract' )
-				.html( this.$buttons.$subtract.clone().on( 'click', this.handleButtonSubtractClick ) );
+				.append( this.$buttons.$subtract.clone().on( 'click', this.handleButtonSubtractClick ) );
 		},
 
 		addFormListener: function () {
@@ -245,9 +249,9 @@
 		findTarget: function ( $elm ) {
 			if ( $elm.next().children( 'td.button-subtract' ).length > 0 ) {
 				return this.findTarget( $elm.next() );
-			} else {
-				return $elm;
 			}
+
+			return $elm;
 		},
 
 		/**
@@ -314,7 +318,7 @@
 			var $target = gwtoolset.findTarget( $( this ).closest( 'tr' ) ),
 				$tdButton = $( '<td>' )
 					.addClass( 'button-subtract' )
-					.html( gwtoolset.$buttons.$subtract.clone()
+					.append( gwtoolset.$buttons.$subtract.clone()
 						.on( 'click', gwtoolset.handleButtonSubtractClick )
 					),
 				$row = $( '<tr>' );
@@ -323,7 +327,7 @@
 
 			$target.children().each( function () {
 				var $tdElm,
-				$elm = $( this );
+					$elm = $( this );
 
 				if ( $elm.find('label').length === 1 ) {
 					$row.append( $( '<td>' ) );
@@ -339,7 +343,16 @@
 					}
 
 					if ( data && data.option ) {
-						$tdElm.find( 'option:contains(' + data.option + ')' ).prop( 'selected', true );
+						$.each( $tdElm.find( 'option' ), function () {
+							var $optionElm = $( this );
+
+							if ( $optionElm.text() === data.option ) {
+								$optionElm.prop( 'selected', true );
+								return false;
+							}
+
+							return true;
+						} );
 					} else {
 						$tdElm.find( 'option' ).prop( 'selected', false );
 					}
@@ -461,7 +474,7 @@
 								switch ( section ) {
 									case '$globalCategoriesTableTbody':
 										buttonAdd = gwtoolset[section].find( '.button-add img' );
-										buttonAdd.trigger( 'click', { value: [value] } );
+										buttonAdd.trigger( 'click', { value: value } );
 										break;
 									case '$templateTableTbody':
 										buttonAdd = $( '#' + cookieSectionField.replace( ' ', '_' ) )
@@ -474,8 +487,8 @@
 										if ( cookieSectionField === 'category-metadata' ) {
 											buttonAdd = gwtoolset[section].find( '.button-add img' );
 											buttonAdd.trigger( 'click', {
-												option: [cookieSectionFields['category-metadata'][cookieSectionFieldIndex]],
-												value: [cookieSectionFields['category-phrase'][cookieSectionFieldIndex]]
+												option: cookieSectionFields['category-metadata'][cookieSectionFieldIndex],
+												value: cookieSectionFields['category-phrase'][cookieSectionFieldIndex]
 											} );
 										}
 										break;
