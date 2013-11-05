@@ -151,6 +151,22 @@ function getTitle( $page_title = null, $namespace = NS_MAIN, array $options = ar
 }
 
 /**
+ * created in order to make sure the raw metadata placed in a media file’s
+ * page does not attempt or accidentally close or open the HTML comment
+ * that surrounds the <metadata_raw> tag
+ *
+ * @param {string} $string
+ * @return {string}
+ */
+function replaceHtmlCommentTags( $string ) {
+	return str_replace(
+		array( '<!--', '-->' ),
+		array( '(comment)', '(/comment)' ),
+		$string
+	);
+}
+
+/**
  * @param {string} $category
  * @return {null|string}
  * the result has not been filtered
