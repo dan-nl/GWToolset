@@ -10,6 +10,7 @@
 namespace GWToolset\Helpers;
 use GWToolset\Config,
 	GWToolset\GWTException,
+	MWException,
 	Php\File,
 	Php\Filter,
 	OutputPage,
@@ -214,12 +215,12 @@ class FileChecks {
 	 *
 	 * @param {File} $File
 	 * @param {array} $accepted_types
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 * @return {Status}
 	 */
 	public static function isUploadedFileValid( File $File, array $accepted_types = array() ) {
 		if ( empty( $accepted_types ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )
 					->parse()

@@ -13,6 +13,7 @@ use Html,
 	GWToolset\Config,
 	GWToolset\GWTException,
 	GWToolset\Helpers\FileChecks,
+	MWException,
 	Php\Filter,
 	ReflectionClass,
 	ReflectionProperty,
@@ -402,11 +403,11 @@ class MediawikiTemplate implements ModelInterface {
 	 * @param {string} $mediawiki_template_name
 	 * the key within $user_options that holds the name of the mediawiki template
 	 *
-	 * @throws {GWTException}
+	 * @throws {GWTException|MWException}
 	 */
 	public function getMediaWikiTemplate( array &$user_options, $mediawiki_template_name = 'mediawiki-template-name' ) {
 		if ( !isset( $user_options[$mediawiki_template_name] ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->param( wfMessage( 'gwtoolset-no-mediawiki-template' )->parse() )
 					->parse()

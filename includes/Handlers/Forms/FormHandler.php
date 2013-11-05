@@ -11,6 +11,7 @@ use	GWToolset\GWTException,
 	GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Helpers\WikiChecks,
 	Html,
+	MWException,
 	Php\Filter;
 
 abstract class FormHandler extends SpecialPageHandler {
@@ -63,15 +64,14 @@ abstract class FormHandler extends SpecialPageHandler {
 
 	/**
 	 * @param {string} $module_name
-	 *
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 *
 	 * @return {string}
 	 * the string has not been filtered
 	 */
 	protected function getFormClass( $module_name ) {
 		if ( $module_name === null ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-module' )->escaped() )
 					->parse()

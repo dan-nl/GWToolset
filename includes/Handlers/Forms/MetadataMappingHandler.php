@@ -24,6 +24,7 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 	Html,
 	JobQueueGroup,
 	Linker,
+	MWException,
 	Php\Filter,
 	Revision,
 	SpecialPage,
@@ -63,6 +64,8 @@ class MetadataMappingHandler extends FormHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
+	 * @throws {MWException}
+	 *
 	 * @return {string}
 	 * the html string has been escaped and parsed by wfMessage
 	 */
@@ -97,12 +100,10 @@ class MetadataMappingHandler extends FormHandler {
 				->rawParams( $newFilesLink )
 				->parse();
 		} else {
-			$result = Html::rawElement(
-				'span',
-				array( 'class' => 'error' ),
-				wfMessage( 'gwtoolset-developer-issue' )->params(
-					wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped()
-				)->parse()
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( wfMessage( 'gwtoolset-batchjob-metadata-creation-failure' )->escaped() )
+					->parse()
 			);
 		}
 

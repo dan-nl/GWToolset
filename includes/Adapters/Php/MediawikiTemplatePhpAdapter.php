@@ -12,6 +12,7 @@ use GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
 	GWToolset\GWTException,
 	MimeMagic,
+	MWException,
 	MWHttpRequest,
 	Php\Filter,
 	Title;
@@ -90,7 +91,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 	 * format -- {"parameter name":""}
 	 *
 	 * @param {Title} $Title
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 * @return {null|string}
 	 * null or a JSON representation of the MediaWiki template parameters
 	 */
@@ -109,7 +110,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		$Status = $Http->execute();
 
 		if ( !$Status->ok ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params(
 						wfMessage( 'gwtoolset-api-call-unsuccessful' )
@@ -125,7 +126,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		try {
 			\GWToolset\jsonCheckForError();
 		} catch ( GWTException $e ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params(
 						wfMessage( 'gwtoolset-json-error' )

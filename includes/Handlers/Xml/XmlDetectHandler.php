@@ -14,6 +14,7 @@ use Content,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
 	Html,
+	MWException,
 	Php\Filter,
 	XMLReader;
 
@@ -97,13 +98,13 @@ class XmlDetectHandler extends XmlHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 */
 	protected function findExampleDOMElement( $XMLElement, array &$user_options ) {
 		$record = null;
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-xml-element' )->escaped() )
 					->parse()
@@ -113,7 +114,7 @@ class XmlDetectHandler extends XmlHandler {
 		if ( !isset( $user_options['record-element-name'] )
 			|| !isset( $user_options['record-count'] )
 		) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-dom-record-issue' )->parse() )
 					->parse()
@@ -395,7 +396,7 @@ class XmlDetectHandler extends XmlHandler {
 	 * the assumption is that it has already been uploaded to the wiki earlier and
 	 * is ready for use
 	 *
-	 * @throws {GWTException}
+	 * @throws {GWTException|MWException}
 	 */
 	public function processXml( array &$user_options, $xml_source = null ) {
 		$callback = 'findExampleDOMElement';
@@ -408,7 +409,7 @@ class XmlDetectHandler extends XmlHandler {
 			$msg = wfMessage( 'gwtoolset-developer-issue' )->params(
 				wfMessage( 'gwtoolset-no-xml-source' )->escaped()
 			)->parse();
-			throw new GWTException( $msg );
+			throw new MWException( $msg );
 		}
 
 		if ( empty( $this->_metadata_example_dom_element ) ) {

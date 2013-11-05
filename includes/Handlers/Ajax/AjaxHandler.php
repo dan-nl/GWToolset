@@ -41,7 +41,7 @@ abstract class AjaxHandler extends SpecialPageHandler {
 
 	/**
 	 * intended to swallow notice and warnings when display errors is set to true
-	 * will not swallow high level php errors
+	 * this should not be the case in a production environment
 	 *
 	 * @see http://php.net/manual/en/function.set-error-handler.php
 	 */

@@ -14,6 +14,7 @@ use ContentHandler,
 	GWToolset\GWTException,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiPages,
+	MWException,
 	Php\Filter,
 	Revision,
 	Title,
@@ -23,14 +24,14 @@ class MappingPhpAdapter implements DataAdapterInterface {
 
 	/**
 	 * @param {array} $options
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 * @return {Status}
 	 */
 	public function create( array $options = array() ) {
 		$result = false;
 
 		if ( empty( $options['mapping-json'] ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-mapping-json' )->parse() )
 					->parse()
@@ -38,7 +39,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		}
 
 		if ( empty( $options['mapping-name'] ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-mapping' )->parse() )
 					->parse()
@@ -46,7 +47,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		}
 
 		if ( empty( $options['user'] ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-user' )->escaped() )
 					->parse()

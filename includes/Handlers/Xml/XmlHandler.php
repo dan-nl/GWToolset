@@ -14,6 +14,7 @@ use Content,
 	GWToolset\GWTException,
 	Html,
 	Linker,
+	MWException,
 	Php\Filter,
 	XMLReader;
 
@@ -105,7 +106,7 @@ abstract class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 *
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 *
 	 * @return {array}
 	 * an array of mediafile Title(s)
@@ -115,7 +116,7 @@ abstract class XmlHandler {
 		$read_result = array( 'Title' => null, 'stop-reading' => false );
 
 		if ( empty( $callback ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-callback' )->escaped() )
 					->parse()
@@ -125,7 +126,7 @@ abstract class XmlHandler {
 		$XMLReader = new XMLReader();
 
 		if ( !$XMLReader->open( $file_path_local ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-could-not-open-xml' )->escaped() )
 					->parse()
@@ -145,7 +146,7 @@ abstract class XmlHandler {
 		}
 
 		if ( !$XMLReader->close() ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-could-not-close-xml' )->escaped() )
 					->parse()
@@ -183,7 +184,7 @@ abstract class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 *
-	 * @throws {GWTException}
+	 * @throws {MWException}
 	 *
 	 * @return {array}
 	 * an array of mediafile Title(s)
@@ -193,7 +194,7 @@ abstract class XmlHandler {
 		$read_result = array( 'Title' => null, 'stop-reading' => false );
 
 		if ( empty( $callback ) ) {
-			throw new GWTException(
+			throw new MWException(
 				wfMessage( 'gwtoolset-developer-issue' )->params(
 					wfMessage( 'gwtoolset-no-callback' )->escaped()
 				)->parse()

@@ -14,6 +14,7 @@ use GWToolset\Handlers\SpecialPageHandler,
 	GWToolset\Helpers\WikiChecks,
 	Html,
 	Linker,
+	MWException,
 	PermissionsError,
 	Php\Filter,
 	SpecialPage,
@@ -97,7 +98,7 @@ class SpecialGWToolset extends SpecialPage {
 	 * a control method that processes a SpecialPage request
 	 * SpecialPage->getOutput()->addHtml() present the end result of the request
 	 *
-	 * @throws {PermissionsError|GWTException}
+	 * @throws {GWTException|MWException|PermissionsError}
 	 */
 	protected function processRequest() {
 		$html = null;
@@ -149,7 +150,7 @@ class SpecialGWToolset extends SpecialPage {
 						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->escaped();
 					}
 
-					throw new GWTException( $msg );
+					throw new MWException( $msg );
 				}
 
 				$html .= $this->_Handler->execute();
