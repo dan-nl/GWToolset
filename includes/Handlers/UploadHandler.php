@@ -142,7 +142,7 @@ class UploadHandler {
 			'</metadata_mapped_json> -->' . PHP_EOL . PHP_EOL .
 			'<!-- Metadata Raw -->' . PHP_EOL .
 			'<!-- <metadata_raw>' . PHP_EOL .
-			\GWToolset\replaceHtmlCommentTags( $this->_MediawikiTemplate->metadata_raw ) . PHP_EOL .
+			htmlspecialchars( $this->_MediawikiTemplate->metadata_raw ) . PHP_EOL .
 			'</metadata_raw> -->' . PHP_EOL;
 	}
 
