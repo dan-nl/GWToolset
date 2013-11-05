@@ -10,18 +10,14 @@
 namespace GWToolset\Adapters\Php;
 use GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
+	GWToolset\GWTException,
 	MimeMagic,
-	MWException,
 	MWHttpRequest,
 	Php\Filter,
 	Title;
 
 class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 
-	/**
-	 * @param {string} $table_name
-	 * @return {void}
-	 */
 	public function __construct() {
 	}
 
@@ -44,7 +40,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 	 * - falls back to a Config::$mediawiki_templates version if not found
 	 *
 	 * @param {array} $options
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {array}
 	 */
 	public function retrieve( array $options = array() ) {
@@ -56,7 +52,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		if ( !isset(
 			Config::$mediawiki_templates[Filter::evaluate( $options['mediawiki_template_name'] )] )
 		) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-mediawiki-template-not-found' )
 					->rawParams( Filter::evaluate( $options['mediawiki_template_name'] ) )
 					->escaped()
@@ -69,7 +65,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		);
 
 		if ( !$Title->isKnown() ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-mediawiki-template-does-not-exist' )
 					->params( $Title->getBaseTitle() )
 					->parse()
@@ -94,7 +90,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 	 * format -- {"parameter name":""}
 	 *
 	 * @param {Title} $Title
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {null|string}
 	 * null or a JSON representation of the MediaWiki template parameters
 	 */
@@ -113,7 +109,7 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 		$Status = $Http->execute();
 
 		if ( !$Status->ok ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params(
 						wfMessage( 'gwtoolset-api-call-unsuccessful' )
@@ -128,11 +124,15 @@ class MediawikiTemplatePhpAdapter implements DataAdapterInterface {
 
 		try {
 			\GWToolset\jsonCheckForError();
-		} catch ( MWException $e ) {
-			throw new MWException(
-				wfMessage( 'gwtoolset-json-error' )
-					->rawParams( $e->getMessage() )
-					->parse()
+		} catch ( GWTException $e ) {
+			throw new GWTException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params(
+						wfMessage( 'gwtoolset-json-error' )
+							->params( $e->getMessage() )
+							->escaped()
+					)
+				->parse()
 			);
 		}
 

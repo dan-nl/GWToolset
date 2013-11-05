@@ -12,10 +12,10 @@ use Content,
 	DOMDocument,
 	DOMElement,
 	GWToolset\Config,
+	GWToolset\GWTException,
 	GWToolset\Handlers\Forms\MetadataMappingHandler,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
-	MWException,
 	Php\Filter,
 	XMLReader;
 
@@ -250,7 +250,7 @@ class XmlMappingHandler extends XmlHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 *
 	 * @return {array}
 	 * - $result['Title'] {Title}
@@ -264,7 +264,7 @@ class XmlMappingHandler extends XmlHandler {
 		if ( !( $XMLElement instanceof XMLReader )
 			&& !( $XMLElement instanceof DOMElement )
 		) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-xml-element' )->escaped() )
 					->parse()
@@ -275,7 +275,7 @@ class XmlMappingHandler extends XmlHandler {
 			|| !isset( $user_options['record-count'] )
 			|| !isset( $user_options['record-current'] )
 		) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-dom-record-issue' )->parse() )
 					->parse()
@@ -343,7 +343,7 @@ class XmlMappingHandler extends XmlHandler {
 	 * the assumption is that it has already been uploaded to the wiki earlier and
 	 * is ready for use
 	 *
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {array}
 	 * an array of mediafile Title(s)
 	 */
@@ -355,7 +355,7 @@ class XmlMappingHandler extends XmlHandler {
 		} elseif ( $xml_source instanceof Content ) {
 			return $this->readXmlAsString( $user_options, $xml_source->getNativeData(), $callback );
 		} else {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-xml-source' )->escaped() )
 					->parse()

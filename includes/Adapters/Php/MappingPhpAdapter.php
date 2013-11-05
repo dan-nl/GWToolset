@@ -11,9 +11,9 @@ namespace GWToolset\Adapters\Php;
 use ContentHandler,
 	GWToolset\Adapters\DataAdapterInterface,
 	GWToolset\Config,
+	GWToolset\GWTException,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiPages,
-	MWException,
 	Php\Filter,
 	Revision,
 	Title,
@@ -23,14 +23,14 @@ class MappingPhpAdapter implements DataAdapterInterface {
 
 	/**
 	 * @param {array} $options
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {Status}
 	 */
 	public function create( array $options = array() ) {
 		$result = false;
 
 		if ( empty( $options['mapping-json'] ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-mapping-json' )->parse() )
 					->parse()
@@ -38,7 +38,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		}
 
 		if ( empty( $options['mapping-name'] ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-mapping' )->parse() )
 					->parse()
@@ -46,7 +46,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		}
 
 		if ( empty( $options['user'] ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-user' )->escaped() )
 					->parse()
@@ -85,6 +85,9 @@ class MappingPhpAdapter implements DataAdapterInterface {
 	/**
 	 * @todo is the content returned by the WikiPage filtered?
 	 * @param {array} $options
+	 *
+	 * @throws {GWTException}
+	 *
 	 * @return {string}
 	 * the content of the wikipage referred to by the wiki title
 	 */
@@ -93,7 +96,7 @@ class MappingPhpAdapter implements DataAdapterInterface {
 
 		if ( $options['Metadata-Mapping-Title'] instanceof Title ) {
 			if ( !$options['Metadata-Mapping-Title']->isKnown() ) {
-				throw new MWException(
+				throw new GWTException(
 					wfMessage( 'gwtoolset-metadata-mapping-not-found' )
 						->params( $options['metadata-mapping-url'] )
 						->parse()
@@ -129,7 +132,6 @@ class MappingPhpAdapter implements DataAdapterInterface {
 		$Mapping_Content = ContentHandler::makeContent( $options['text'], $options['title'] );
 		$Mapping_Page = new WikiPage( $options['title'] );
 
-		set_error_handler( '\GWToolset\swallowErrors' );
 		$result = $Mapping_Page->doEditContent(
 			$Mapping_Content,
 			$options['summary'],

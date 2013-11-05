@@ -13,6 +13,7 @@ use ContentHandler,
 	GWToolset\Adapters\Php\MediawikiTemplatePhpAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\MetadataMappingForm,
+	GWToolset\GWTException,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlDetectHandler,
 	GWToolset\Helpers\FileChecks,
@@ -20,7 +21,6 @@ use ContentHandler,
 	GWToolset\Helpers\WikiPages,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
-	MWException,
 	Php\File,
 	Php\Filter,
 	RepoGroup,
@@ -133,7 +133,7 @@ class MetadataDetectHandler extends FormHandler {
 	 * - retrieves a metadata mapping if a url to it in the wiki is given
 	 * - adds this information to the metadata mapping form and presents it to the user
 	 *
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {string}
 	 * the html form string has not been filtered in this method,
 	 * but within the getForm method
@@ -188,7 +188,7 @@ class MetadataDetectHandler extends FormHandler {
 			$Metadata_Content = $Metadata_Page->getContent( Revision::RAW );
 			$this->XmlDetectHandler->processXml( $user_options, $Metadata_Content );
 		} else {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-metadata-file-url-not-present' )
 					->params( $user_options['metadata-file-url'])
 					->escaped()

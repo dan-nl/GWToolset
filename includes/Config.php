@@ -52,6 +52,8 @@ class Config {
 	 * @var {array}
 	 */
 	public static $autoloader_classes = array(
+		'GWToolset\GWTException' => '/includes/GWTException.php',
+
 		'GWToolset\Adapters\DataAdapterInterface' => '/includes/Adapters/DataAdapterInterface.php',
 
 		'GWToolset\Adapters\Php\MappingPhpAdapter' => '/includes/Adapters/Php/MappingPhpAdapter.php',

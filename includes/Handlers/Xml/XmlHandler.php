@@ -11,9 +11,9 @@ namespace GWToolset\Handlers\Xml;
 use Content,
 	DOMDocument,
 	DOMXPath,
+	GWToolset\GWTException,
 	Html,
 	Linker,
-	MWException,
 	Php\Filter,
 	XMLReader;
 
@@ -105,7 +105,7 @@ abstract class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 *
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 *
 	 * @return {array}
 	 * an array of mediafile Title(s)
@@ -115,7 +115,7 @@ abstract class XmlHandler {
 		$read_result = array( 'Title' => null, 'stop-reading' => false );
 
 		if ( empty( $callback ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-callback' )->escaped() )
 					->parse()
@@ -125,7 +125,7 @@ abstract class XmlHandler {
 		$XMLReader = new XMLReader();
 
 		if ( !$XMLReader->open( $file_path_local ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-could-not-open-xml' )->escaped() )
 					->parse()
@@ -145,7 +145,7 @@ abstract class XmlHandler {
 		}
 
 		if ( !$XMLReader->close() ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-could-not-close-xml' )->escaped() )
 					->parse()
@@ -183,7 +183,7 @@ abstract class XmlHandler {
 	 * @todo: handle an xml schema if present (future)
 	 * @todo: handle incomplete/partial uploads (future)
 	 *
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 *
 	 * @return {array}
 	 * an array of mediafile Title(s)
@@ -193,7 +193,7 @@ abstract class XmlHandler {
 		$read_result = array( 'Title' => null, 'stop-reading' => false );
 
 		if ( empty( $callback ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )->params(
 					wfMessage( 'gwtoolset-no-callback' )->escaped()
 				)->parse()
@@ -208,7 +208,7 @@ abstract class XmlHandler {
 		$errors = libxml_get_errors();
 
 		if ( !empty( $errors ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-xml-error' )->escaped() .
 				Html::rawElement( 'pre', array( 'style' => 'overflow:auto;' ), print_r( $errors, true ) )
 			);
@@ -242,7 +242,7 @@ abstract class XmlHandler {
 					) .
 				Html::closeElement( 'ul' ) .
 				$this->_SpecialPage->getBackToFormLink();
-			throw new MWException( $msg );
+			throw new GWTException( $msg );
 		}
 
 		foreach ( $DOMNodeList as $DOMNode ) {

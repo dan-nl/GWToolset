@@ -9,7 +9,7 @@
 
 namespace GWToolset\Helpers;
 use GWToolset\Config,
-	MWException,
+	GWToolset\GWTException,
 	Php\File,
 	Php\Filter,
 	OutputPage,
@@ -28,15 +28,14 @@ class FileChecks {
 	public static $current_extension;
 
 	/**
-	 * @throws {MWException}
-	 * @return {void}
+	 * @throws {GWTException}
 	 */
 	public static function checkContentLength() {
 		if ( isset( $_SERVER["CONTENT_LENGTH"] )
 			&& ( (int)$_SERVER["CONTENT_LENGTH"] > \GWToolset\getBytes( ini_get('post_max_size') )
 				|| (int)$_SERVER["CONTENT_LENGTH"] > \GWToolset\getBytes( ini_get('upload_max_filesize') ) )
 		) {
-			throw new MWException( wfMessage( 'gwtoolset-over-max-ini' )->parse() );
+			throw new GWTException( wfMessage( 'gwtoolset-over-max-ini' )->parse() );
 		}
 	}
 
@@ -215,12 +214,12 @@ class FileChecks {
 	 *
 	 * @param {File} $File
 	 * @param {array} $accepted_types
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {Status}
 	 */
 	public static function isUploadedFileValid( File $File, array $accepted_types = array() ) {
 		if ( empty( $accepted_types ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-accepted-types' )->escaped( 'gwtoolset-no-accepted-types-provided' ) )
 					->parse()

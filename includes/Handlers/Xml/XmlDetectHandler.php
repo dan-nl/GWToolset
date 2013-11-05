@@ -10,10 +10,10 @@
 namespace GWToolset\Handlers\Xml;
 use Content,
 	DOMElement,
-	Html,
+	GWToolset\GWTException,
 	GWToolset\Models\Mapping,
 	GWToolset\Models\MediawikiTemplate,
-	MWException,
+	Html,
 	Php\Filter,
 	XMLReader;
 
@@ -46,7 +46,6 @@ class XmlDetectHandler extends XmlHandler {
 
 	/**
 	 * @param {array} $options
-	 * @return {void}
 	 */
 	public function __construct( array $options = array() ) {
 		$this->reset();
@@ -66,7 +65,6 @@ class XmlDetectHandler extends XmlHandler {
 	 * findExampleDOMNodes(), but only one value is used
 	 *
 	 * @param {DOMElement} $DOMElement
-	 * @return {void}
 	 */
 	protected function createExampleDOMElement( DOMElement $DOMElement ) {
 		foreach ( $DOMElement->childNodes as $DOMNode ) {
@@ -99,14 +97,13 @@ class XmlDetectHandler extends XmlHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws {MWException}
-	 * @return {void}
+	 * @throws {GWTException}
 	 */
 	protected function findExampleDOMElement( $XMLElement, array &$user_options ) {
 		$record = null;
 
 		if ( !( $XMLElement instanceof XMLReader ) && !( $XMLElement instanceof DOMElement ) ) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-no-xml-element' )->escaped() )
 					->parse()
@@ -116,7 +113,7 @@ class XmlDetectHandler extends XmlHandler {
 		if ( !isset( $user_options['record-element-name'] )
 			|| !isset( $user_options['record-count'] )
 		) {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-developer-issue' )
 					->params( wfMessage( 'gwtoolset-dom-record-issue' )->parse() )
 					->parse()
@@ -158,7 +155,6 @@ class XmlDetectHandler extends XmlHandler {
 	 * not yet present in it
 	 *
 	 * @param {DOMElement} $DOMElement
-	 * @return {void}
 	 */
 	protected function findExampleDOMNodes( DOMElement $DOMElement ) {
 		foreach ( $DOMElement->childNodes as $DOMNode ) {
@@ -399,8 +395,7 @@ class XmlDetectHandler extends XmlHandler {
 	 * the assumption is that it has already been uploaded to the wiki earlier and
 	 * is ready for use
 	 *
-	 * @throws {MWException}
-	 * @return {void}
+	 * @throws {GWTException}
 	 */
 	public function processXml( array &$user_options, $xml_source = null ) {
 		$callback = 'findExampleDOMElement';
@@ -413,7 +408,7 @@ class XmlDetectHandler extends XmlHandler {
 			$msg = wfMessage( 'gwtoolset-developer-issue' )->params(
 				wfMessage( 'gwtoolset-no-xml-source' )->escaped()
 			)->parse();
-			throw new MWException( $msg );
+			throw new GWTException( $msg );
 		}
 
 		if ( empty( $this->_metadata_example_dom_element ) ) {
@@ -440,16 +435,13 @@ class XmlDetectHandler extends XmlHandler {
 					) .
 				Html::closeElement( 'ul' ) .
 				$this->_SpecialPage->getBackToFormLink();
-			throw new MWException( $msg );
+			throw new GWTException( $msg );
 		}
 
 		ksort( $this->_metadata_example_dom_nodes );
 		ksort( $this->_metadata_example_dom_element );
 	}
 
-	/**
-	 * @return {void}
-	 */
 	public function reset() {
 		$this->_metadata_as_options = null;
 		$this->_metadata_example_dom_element = array();

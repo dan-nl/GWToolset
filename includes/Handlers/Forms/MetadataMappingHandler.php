@@ -13,6 +13,7 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 	GWToolset\Adapters\Php\MetadataPhpAdapter,
 	GWToolset\Config,
 	GWToolset\Forms\PreviewForm,
+	GWToolset\GWTException,
 	GWToolset\Jobs\UploadMetadataJob,
 	GWToolset\Handlers\UploadHandler,
 	GWToolset\Handlers\Xml\XmlMappingHandler,
@@ -23,7 +24,6 @@ use GWToolset\Adapters\Php\MappingPhpAdapter,
 	Html,
 	JobQueueGroup,
 	Linker,
-	MWException,
 	Php\Filter,
 	Revision,
 	SpecialPage,
@@ -117,8 +117,6 @@ class MetadataMappingHandler extends FormHandler {
 	 *
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
-	 *
-	 * @return {void}
 	 */
 	protected function getGlobalCategories( array &$user_options ) {
 		$user_options['categories'] = Config::$mediawiki_template_default_category;
@@ -260,7 +258,7 @@ class MetadataMappingHandler extends FormHandler {
 	 * @param {array} $user_options
 	 * an array of user options that was submitted in the html form
 	 *
-	 * @throws {MWException}
+	 * @throws {GWTException}
 	 * @return {array}
 	 * an array of mediafile Title(s)
 	 */
@@ -322,7 +320,7 @@ class MetadataMappingHandler extends FormHandler {
 				$Metadata_Content
 			);
 		} else {
-			throw new MWException(
+			throw new GWTException(
 				wfMessage( 'gwtoolset-metadata-file-url-not-present' )
 					->params( $user_options['metadata-file-url'])
 					->escaped()
