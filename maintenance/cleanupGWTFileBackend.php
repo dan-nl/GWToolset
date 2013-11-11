@@ -11,7 +11,7 @@ namespace GWToolset;
 use GWToolset\Config,
 	GWToolset\Helpers\GWTFileBackend,
 	Maintenance,
-	RepoGroup;
+	MWException;
 
 chdir( '../../../maintenance' );
 require_once './Maintenance.php';
@@ -32,20 +32,29 @@ class GWTFileBackendCleanup extends Maintenance {
 	}
 
 	public function execute() {
+		global $wgGWTFileBackend, $wgGWTFBMetadataContainer, $wgGWTFBMaxAge;
+
 		$GWTFileBackend = new GWTFileBackend(
 			array(
-				'container' => Config::$fsbackend_container,
-				'directory' => Config::$fsbackend_directory,
-				'lockmanager' => Config::$fsbackend_lockmanager,
-				'name' => Config::$fsbackend_name,
-				'no_access' => Config::$fsbackend_no_access,
-				'no_listing' => Config::$fsbackend_no_listing
+				'file-backend-name' => $wgGWTFileBackend,
+				'container' => $wgGWTFBMetadataContainer
 			)
 		);
 
 		// how far back should the script look for files to delete?
 		// expects an unsigned relative time, e.g., 1 day, 1 week
-		$cutoff = strtotime( '-' . Config::$fsbackend_max_age );
+		$cutoff = strtotime( '-' . $wgGWTFBMaxAge );
+
+		if ( !$cutoff ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params(
+						__METHOD__ . ': ' .
+						wfMessage( 'gwtoolset-file-backend-maxage-invalid' )->escaped()
+					)
+					->escaped()
+			);
+		}
 
 		$this->output(
 			'Getting list of files to clean up' . PHP_EOL .
@@ -53,12 +62,13 @@ class GWTFileBackendCleanup extends Maintenance {
 		);
 
 		$mwstore_path = $GWTFileBackend->getMWStorePath();
+
 		$FSFileBackendFileList = $GWTFileBackend->FileBackend->getFileList(
 			array( 'dir' => $mwstore_path )
 		);
 
 		$this->output(
-			'Removing any files older than (' . Config::$fsbackend_max_age . ')' . PHP_EOL .
+			'Removing any files older than (' . $wgGWTFBMaxAge . ')' . PHP_EOL .
 			'...' . PHP_EOL
 		);
 
@@ -66,24 +76,26 @@ class GWTFileBackendCleanup extends Maintenance {
 
 		foreach ( $FSFileBackendFileList as $file ) {
 			$mwstore_file_path = $mwstore_path . $file;
-
-			$FSFile = $GWTFileBackend
-				->FileBackend
-				->getLocalReference(
-					array( 'src' => $mwstore_file_path )
-				);
+			$extension = $GWTFileBackend->FileBackend->extensionFromPath( $file );
+			$timestamp = $GWTFileBackend->FileBackend->getFileTimestamp(
+				array( 'src' => $mwstore_file_path )
+			);
 
 			if (
-				key_exists(
-					$FSFile->extensionFromPath( $FSFile->getPath() ),
-					Config::$accepted_metadata_types
-				)
-				&& wfTimestamp( TS_UNIX, $FSFile->getTimestamp() ) < $cutoff
+				key_exists( $extension, Config::$accepted_metadata_types )
+				&& wfTimestamp( TS_UNIX, $timestamp ) < $cutoff
 			) {
-				$Status = $GWTFileBackend->deleteFile( $mwstore_path . $file );
+				$Status = $GWTFileBackend->deleteFile( $mwstore_file_path );
 
 				if ( !$Status->isOK() ) {
-					$this->error( print_r( $Status->getErrorsArray(), true ) );
+					throw new MWException(
+						wfMessage( 'gwtoolset-developer-issue' )
+							->params(
+								__METHOD__ . ': ' .
+								$Status->getMessage()
+							)
+							->escaped()
+					);
 				}
 
 				$this->output( 'Removed file (' . $mwstore_file_path . ')' .PHP_EOL );

@@ -8,16 +8,13 @@
  */
 
 namespace GWToolset\Helpers;
-use FSFileBackend,
-	FileBackendGroup,
+use FileBackendGroup,
 	GWToolset\Jobs\GWTFileBackendCleanupJob,
 	GWToolset\Config,
 	JobQueueGroup,
 	MWException,
 	Php\File,
 	Php\Filter,
-	ReflectionClass,
-	ReflectionProperty,
 	Status,
 	Title,
 	User;
@@ -25,79 +22,14 @@ use FSFileBackend,
 class GWTFileBackend {
 
 	/**
-	 * @var {string}
-	 *
-	 * defaults to 'files'
-	 */
-	public $container;
-
-	/**
-	 * @var {string}
-	 *
-	 * the filesystem path of the math directory.
-	 * defaults to 'file-backend'.
-	 */
-	public $directory;
-
-	/**
 	 * @var {FileBackend}
 	 */
 	public $FileBackend;
 
 	/**
-	 * @var {int}
-	 *
-	 * octal unix file permissions to use on files stored.
-	 * defaults to null, which defaults to 0644 in \FSFileBackend::__construct()
-	 * also look at \FileBackend::prepare() for directory permissions
-	 */
-	public $filemode;
-
-	/**
 	 * @var {string}
-	 *
-	 * registered name of a file lock manager to use.
-	 * defaults to 'nullLockManager'
 	 */
-	public $lockmanager;
-
-	/**
-	 * @var {string}
-	 *
-	 * The unique name of this backend.
-	 *   - This should consist of alphanumberic, '-', and '_' characters.
-	 *   - This name should not be changed after use (e.g. with journaling).
-	 *   - Note that the name is *not* used in actual container names.
-	 *
-	 * defaults to 'file-system-backend'
-	 */
-	public $name;
-
-	/**
-	 * @var {bool}
-	 *
-	 * defaults to false
-	 * whether or not to add an .htaccess file, with the directive Deny from all, to the root of
-	 * the container during prepare()
-	 */
-	public $no_access;
-
-	/**
-	 * @var {bool}
-	 *
-	 * defaults to false
-	 * wheter or not to seed new directories with a blank index.html during prepare()
-	 * to prevent crawling
-	 */
-	public $no_listing;
-
-	/**
-	 * @var {string}
-	 *
-	 * derived file directory path based on
-	 * $wgUploadDirectory . DIRECTORY_SEPARATOR . $this->directory;
-	 */
-	protected $_directory_path;
+	protected $_container;
 
 	/**
 	 * @var {string}
@@ -118,10 +50,11 @@ class GWTFileBackend {
 	 * @param {array} $params
 	 */
 	public function __construct( array $params = array() ) {
-		$this->init();
-		$this->populate( $params );
-		$this->setPaths();
-		$this->setupFileBackend();
+		$this->setupFileBackend( $params );
+
+		if ( isset( $params['User'] ) && $params['User'] instanceof User ) {
+			$this->_User = $params['User'];
+		}
 	}
 
 	/**
@@ -209,7 +142,7 @@ class GWTFileBackend {
 
 		$result =
 			$this->FileBackend->getRootStoragePath() . DIRECTORY_SEPARATOR .
-			Filter::evaluate( $this->container );
+			$this->_container;
 
 		if ( !empty( $hash_sub_path ) ) {
 			$result .= DIRECTORY_SEPARATOR . $hash_sub_path;
@@ -250,40 +183,19 @@ class GWTFileBackend {
 				: null );
 	}
 
-	protected function init() {
-		global $wgUploadPath, $wgUploadDirectory;
-
-		$this->name = Config::$fsbackend_name;
-		$this->lockmanager = Config::$fsbackend_lockmanager;
-		$this->container = Config::$fsbackend_container;
-		$this->directory = Config::$fsbackend_directory;
-		$this->filemode = Config::$fsbackend_filemode;
-		$this->no_access = Config::$fsbackend_no_access;
-		$this->no_listing = Config::$fsbackend_no_listing;
-	}
-
-	/**
-	 * @param {array} $params
-	 */
-	protected function populate( array $params ) {
-		if ( isset( $params['User'] ) && $params['User'] instanceof User ) {
-			$this->_User = $params['User'];
-		}
-	}
-
 	/**
 	 * create any containers/directories as needed
 	 *
 	 * @return {Status}
 	 */
 	protected function prepare() {
-		$params = array(
-			'dir' => $this->getHashPath(),
-			'noAccess' => Filter::evaluate( $this->no_access ),
-			'noListing' => Filter::evaluate( $this->no_listing )
+		return $this->FileBackend->prepare(
+			array(
+				'dir' => $this->getHashPath(),
+				'noAccess' => true,
+				'noListing' => true
+			)
 		);
-
-		return $this->FileBackend->prepare( $params );
 	}
 
 	/**
@@ -401,39 +313,33 @@ class GWTFileBackend {
 		$this->_hash = md5( $string );
 	}
 
-	protected function setPaths() {
-		global $wgUploadDirectory;
-
-		$this->_directory_path = $wgUploadDirectory . DIRECTORY_SEPARATOR . $this->directory;
-	}
-
 	/**
 	 * sets up the file backend
 	 *
-	 * if $wgGWToolsetFileBackend is not false, assumes that a web admin has set-up a
-	 * $wgFileBackend[] for use and $wgGWToolsetFileBackend refers to it; otherwise
-	 * defaults to an FSFileBackend instance created with vraibles from GWToolset\Config::$fsbackend_
+	 * @param {array} $params
 	 */
-	protected function setupFileBackend() {
-		global $wgGWToolsetFileBackend;
-
-		if ( $wgGWToolsetFileBackend ) {
-			$this->FileBackend = FileBackendGroup::singleton()->get( $wgGWToolsetFileBackend );
-		} else {
-			$params = array(
-				'name'           => Filter::evaluate( $this->name ),
-				'lockManager'    => Filter::evaluate( $this->lockmanager ),
-				'containerPaths' => array(
-					Filter::evaluate( $this->container ) => Filter::evaluate( $this->_directory_path )
-				)
+	protected function setupFileBackend( array $params ) {
+		if ( empty( $params['file-backend-name'] ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( __METHOD__ . ': ' . wfMessage( 'gwtoolset-no-file-backend-name' )->parse() )
+					->parse()
 			);
-
-			if ( !empty( $this->filemode ) ) {
-				$params['fileMode'] = (int)$this->filemode;
-			}
-
-			$this->FileBackend = new FSFileBackend( $params );
 		}
+
+		if ( empty( $params['container'] ) ) {
+			throw new MWException(
+				wfMessage( 'gwtoolset-developer-issue' )
+					->params( __METHOD__ . ': ' . wfMessage( 'gwtoolset-no-file-backend-container' )->parse() )
+					->parse()
+			);
+		}
+
+		$this->FileBackend = FileBackendGroup::singleton()->get(
+			Filter::evaluate( $params['file-backend-name'] )
+		);
+
+		$this->_container = Filter::evaluate( $params['container'] );
 	}
 
 }

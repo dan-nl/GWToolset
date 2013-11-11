@@ -279,6 +279,16 @@ class MetadataMappingHandler extends FormHandler {
 		$this->_Metadata = new Metadata( new MetadataPhpAdapter() );
 		$this->_GWTFileBackend = new GWTFileBackend( array( 'User' => $this->User ) );
 
+		global $wgGWTFileBackend, $wgGWTFBMetadataContainer;
+
+		$this->_GWTFileBackend = new GWTFileBackend(
+			array(
+				'file-backend-name' => $wgGWTFileBackend,
+				'container' => $wgGWTFBMetadataContainer,
+				'User' => $this->User
+			)
+		);
+
 		$this->_UploadHandler = new UploadHandler(
 			array(
 				'Mapping' => $this->_Mapping,

@@ -30,8 +30,15 @@ class GWTFileBackendCleanupJob extends Job {
 	 */
 	protected function processJob() {
 		$result = true;
+		global $wgGWTFileBackend, $wgGWTFBMetadataContainer;
 
-		$GWTFileBackend = new GWTFileBackend();
+		$GWTFileBackend = new GWTFileBackend(
+			array(
+				'file-backend-name' => $wgGWTFileBackend,
+				'container' => $wgGWTFBMetadataContainer,
+			)
+		);
+
 		$Status = $GWTFileBackend->deleteFile( $this->params['metadata-file-mwstore'] );
 
 		if ( !$Status->ok ) {
