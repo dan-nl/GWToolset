@@ -65,6 +65,20 @@ Special:UserRights page.
 Make sure the wiki’s image folder can be written to by the web server.
 
 
+### FileBackend security
+The extension makes use of a file backend to temporarily store metada files for processing.
+Once the extension finishes processing the metadata file, a cleanup job is run in order to
+delete it from the file backend. The file backend can be on a local file system or in an online
+object store.
+
+Config::$fsbackend_directory sets the name of the file backend directory, which is 'gwtoolset'
+by default. The extension attempts to secure this directory using the FileBackend::prepare()
+method and passing in noAccess, and noListing parameters, however this security is limited to
+apache web servers that allow .htaccess files. please make sure you set-up the appropriate
+security for this directory so that the web server can access the files stored under it,
+but not the public.
+
+
 ### Hidden Categories
 GWToolset adds the following categories to media file uploads. You may want to
 add these as hidden categories to your wiki. If this is the case, then add the
