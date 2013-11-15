@@ -16,7 +16,7 @@ class Config {
 	public static $url = 'https://www.mediawiki.org/wiki/Extension:GWToolset';
 	public static $descriptionmsg = 'gwtoolset-desc';
 	public static $type = 'media';
-	public static $version = '0.1.2';
+	public static $version = '0.1.3';
 
 	/**
 	 * @var {array}
@@ -75,11 +75,13 @@ class Config {
 		'GWToolset\Handlers\Xml\XmlMappingHandler' => '/includes/Handlers/Xml/XmlMappingHandler.php',
 
 		'GWToolset\Helpers\FileChecks' => '/includes/Helpers/FileChecks.php',
+		'GWToolset\Helpers\GWTFileBackend' => '/includes/Helpers/GWTFileBackend.php',
 		'GWToolset\Helpers\WikiChecks' => '/includes/Helpers/WikiChecks.php',
 		'GWToolset\Helpers\WikiPages' => '/includes/Helpers/WikiPages.php',
 
 		'GWToolset\Hooks' => '/includes/Hooks/Hooks.php',
 
+		'GWToolset\Jobs\GWTFileBackendCleanupJob' => '/includes/Jobs/GWTFileBackendCleanupJob.php',
 		'GWToolset\Jobs\UploadMediafileJob' => '/includes/Jobs/UploadMediafileJob.php',
 		'GWToolset\Jobs\UploadMetadataJob' => '/includes/Jobs/UploadMetadataJob.php',
 
@@ -102,6 +104,52 @@ class Config {
 	public static $category_separator = '|';
 
 	/**
+	 * @var {string}
+	 * must be unique to avoid ACL handling conflicts which are based on the container only
+	 */
+	public static $fsbackend_container = 'gwtoolset-metadata';
+
+	/**
+	 * @var {string}
+	 */
+	public static $fsbackend_directory = 'gwtoolset';
+
+	/**
+	 * @var {null|int}
+	 *
+	 * octal unix file permissions to use on stored files.
+	 * if the variable remains null then FSFileBackend::__construct() will default to 0644
+	 */
+	public static $fsbackend_filemode = null;
+
+	/**
+	 * @var {string}
+	 */
+	public static $fsbackend_lockmanager = 'nullLockManager';
+
+	/**
+	 * @var {string}
+	 * an unsigned relative time, e.g., 1 day, 2 days, 1 week, 2 weeks
+	 * files younger than this timeframe will not be deleted
+	 */
+	public static $fsbackend_max_age = '1 week';
+
+	/**
+	 * @var {string}
+	 */
+	public static $fsbackend_name = 'gwtoolset-backend';
+
+	/**
+	 * @var {bool}
+	 */
+	public static $fsbackend_no_access = true;
+
+	/**
+	 * @var {bool}
+	 */
+	public static $fsbackend_no_listing = true;
+
+	/**
 	 * @var {array}
 	 */
 	public static $hooks = array(
@@ -122,9 +170,10 @@ class Config {
 
 	/**
 	 * @var {array}
+	 * register jobs with the wiki
 	 */
 	public static $jobs = array(
-		'gwtoolsetUploadFromUrlJob' => 'GWToolset\Jobs\UploadFromUrlJob',
+		'gwtoolsetGWTFileBackendCleanupJob' => 'GWToolset\Jobs\GWTFileBackendCleanupJob',
 		'gwtoolsetUploadMediafileJob' => 'GWToolset\Jobs\UploadMediafileJob',
 		'gwtoolsetUploadMetadataJob' => 'GWToolset\Jobs\UploadMetadataJob'
 	);
