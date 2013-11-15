@@ -169,23 +169,20 @@ class XmlMappingHandler extends XmlHandler {
 				$is_url = strpos( $template_parameter, 'url' ) !== false;
 
 				if ( !empty( $lang ) ) {
-					/**
-					 * within a record, multimple elements with the same element name, e.g., description
-					 * can exist. some may have a lang attribute and some may not. if the first element
-					 * found does not have a lang attribute it is stored as a value in
-					 * $elements_mapped[$template_parameter] and consequtive elements are concatenate on it.
-					 *
-					 * however, if one of those similar elements has a lang attribute,
-					 * $elements_mapped[$template_parameter] needs to become an array with index [0]
-					 * containing the values that do not have a lang attribute and index['language']
-					 * containing the languages provided as sub indexes, e.g., ['language']['en']
-					 */
+					// within a record, multimple elements with the same element name, e.g., description
+					// can exist. some may have a lang attribute and some may not. if the first element
+					// found does not have a lang attribute it is stored as a value in
+					// $elements_mapped[$template_parameter] and consecutive elements are concatenate on it.
+					//
+					// however, if one of those similar elements has a lang attribute,
+					// $elements_mapped[$template_parameter] needs to become an array with index [0]
+					// containing the values that do not have a lang attribute and index['language']
+					// containing the languages provided as sub indexes, e.g., ['language']['en']
 					if ( isset( $elements_mapped[$template_parameter] )
 						&& !is_array( $elements_mapped[$template_parameter] )
 					) {
 						$tmp_string = $elements_mapped[$template_parameter];
-						$elements_mapped[$template_parameter] = array();
-						$elements_mapped[$template_parameter][0] = $tmp_string;
+						$elements_mapped[$template_parameter] = array( $tmp_string );
 					}
 
 					if ( !isset( $elements_mapped[$template_parameter]['language'] ) ) {
@@ -210,20 +207,15 @@ class XmlMappingHandler extends XmlHandler {
 								Config::$title_separator .
 								$this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 
-						/**
-						 * url-to-the-media-file should only be evaluated once
-						 * when $elements_mapped['url-to-the-media-file'] is not set
-						 */
+						// url-to-the-media-file should only be evaluated once
+						// when $elements_mapped['url-to-the-media-file'] is not set
 						} elseif ( $template_parameter !== 'url-to-the-media-file' ) {
-
-							/**
-							 * if a template_parameter has some elements with a lang attribute
-							 * and some not, the non lang attribute versions need their own
-							 * array element
-							 *
-							 * isset( $elements_mapped[ $template_parameter ][ 'language ] )
-							 * doesn't work here
-							 */
+							// if a template_parameter has some elements with a lang attribute
+							// and some not, the non lang attribute versions need their own
+							// array element
+							//
+							// isset( $elements_mapped[ $template_parameter ][ 'language ] )
+							// doesn't work here
 							if ( is_array( $elements_mapped[$template_parameter] )
 								&& array_key_exists( 'language', $elements_mapped[$template_parameter] )
 							) {
@@ -231,10 +223,8 @@ class XmlMappingHandler extends XmlHandler {
 									$elements_mapped[$template_parameter][0] =
 										$this->getFilteredNodeValue( $DOMNodeElement, $is_url );
 								} else {
-									/**
-									 * .= produces PHP Fatal error: Cannot use assign-op operators with overloaded
-									 * objects nor string offsets
-									 */
+									// .= produces PHP Fatal error: Cannot use assign-op operators with overloaded
+									// objects nor string offsets
 									$elements_mapped[$template_parameter][0] =
 										$elements_mapped[$template_parameter][0] .
 										Config::$metadata_separator .
