@@ -104,52 +104,6 @@ class Config {
 	public static $category_separator = '|';
 
 	/**
-	 * @var {string}
-	 * must be unique to avoid ACL handling conflicts which are based on the container only
-	 */
-	public static $fsbackend_container = 'gwtoolset-metadata';
-
-	/**
-	 * @var {string}
-	 */
-	public static $fsbackend_directory = 'gwtoolset';
-
-	/**
-	 * @var {null|int}
-	 *
-	 * octal unix file permissions to use on stored files.
-	 * if the variable remains null then FSFileBackend::__construct() will default to 0644
-	 */
-	public static $fsbackend_filemode = null;
-
-	/**
-	 * @var {string}
-	 */
-	public static $fsbackend_lockmanager = 'nullLockManager';
-
-	/**
-	 * @var {string}
-	 * an unsigned relative time, e.g., 1 day, 2 days, 1 week, 2 weeks
-	 * files younger than this timeframe will not be deleted
-	 */
-	public static $fsbackend_max_age = '1 week';
-
-	/**
-	 * @var {string}
-	 */
-	public static $fsbackend_name = 'gwtoolset-backend';
-
-	/**
-	 * @var {bool}
-	 */
-	public static $fsbackend_no_access = true;
-
-	/**
-	 * @var {bool}
-	 */
-	public static $fsbackend_no_listing = true;
-
-	/**
 	 * @var {array}
 	 */
 	public static $hooks = array(

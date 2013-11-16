@@ -277,7 +277,6 @@ class MetadataMappingHandler extends FormHandler {
 		$this->_Mapping->reverseMap();
 
 		$this->_Metadata = new Metadata( new MetadataPhpAdapter() );
-		$this->_GWTFileBackend = new GWTFileBackend( array( 'User' => $this->User ) );
 
 		global $wgGWTFileBackend, $wgGWTFBMetadataContainer;
 
