@@ -135,16 +135,3 @@ foreach ( Config::$jobs as $job => $method ) {
 Config::$resources['localBasePath'] = $wgGWToolsetDir;
 Config::$resources['remoteExtPath'] = 'GWToolset';
 $wgResourceModules['ext.GWToolset'] = Config::$resources;
-
-/**
- * @var {bool|string}
- *
- * The name of a file backend in $wgFileBackend[] to use for storing files.
- * This allows web admins to configure a $wgFileBackend[] and refer to it when available.
- *
- * If the variable remains false, an FSFileBackend is created using the
- * Config::$fsbackend_ variables
- *
- * @see GWToolset\Helpers\GWTFileBackend::setupFileBackend()
- */
-$wgGWToolsetFileBackend = false;
