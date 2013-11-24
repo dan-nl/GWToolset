@@ -11,7 +11,7 @@ namespace GWToolset;
 use GWToolset\Constants,
 	GWToolset\GWTException,
 	GWToolset\Utils,
-	GWToolset\Handlers\SpecialPageHandler,
+	GWToolset\Handlers\Forms\FormHandler,
 	GWToolset\Helpers\FileChecks,
 	GWToolset\Helpers\WikiChecks,
 	Html,
@@ -29,7 +29,7 @@ class SpecialGWToolset extends SpecialPage {
 	public $module_key;
 
 	/**
-	 * @var {SpecialPageHandler}
+	 * @var {GWToolset\Handlers\Forms\FormHandler}
 	 */
 	protected $_Handler;
 
@@ -92,6 +92,13 @@ class SpecialGWToolset extends SpecialPage {
 	}
 
 	/**
+	 * @return {array}
+	 */
+	public function getRegisteredModules() {
+		return $this->_registered_modules;
+	}
+
+	/**
 	 * a control method that processes a SpecialPage request
 	 * SpecialPage->getOutput()->addHtml() present the end result of the request
 	 *
@@ -107,10 +114,7 @@ class SpecialGWToolset extends SpecialPage {
 				$html .= wfMessage( 'gwtoolset-intro' )->parseAsBlock();
 			} else {
 				try {
-					$html .=
-						$this->_Handler->getHtmlForm(
-							$this->_registered_modules[$this->module_key]
-						);
+					$html .= $this->_Handler->getHtmlForm( $this->module_key );
 				} catch ( GWTException $e ) {
 					$html .=
 						Html::rawElement(
@@ -129,9 +133,9 @@ class SpecialGWToolset extends SpecialPage {
 			try {
 				FileChecks::checkContentLength();
 
-				if ( !( $this->_Handler instanceof \GWToolset\Handlers\SpecialPageHandler ) ) {
+				if ( !( $this->_Handler instanceof FormHandler ) ) {
 					$msg = wfMessage( 'gwtoolset-developer-issue' )
-						->params( wfMessage( 'gwtoolset-no-upload-handler' )->escaped() )
+						->params( wfMessage( 'gwtoolset-no-form-handler' )->escaped() )
 						->parse();
 
 					if ( ini_get( 'display_errors' )
@@ -144,7 +148,7 @@ class SpecialGWToolset extends SpecialPage {
 								print_r( error_get_last(), true )
 							);
 					} else {
-						$msg = wfMessage( 'gwtoolset-no-upload-handler' )->escaped();
+						$msg = wfMessage( 'gwtoolset-no-form-handler' )->escaped();
 					}
 
 					throw new MWException( $msg );
